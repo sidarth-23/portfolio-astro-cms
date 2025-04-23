@@ -40,8 +40,7 @@ import TimeLineElement from "../components/cv/TimeLine.astro";
   <div class="time-line-container mb-10">
     <TimeLineElement
       title="Software Developer Engineer - 1"
-      subtitle="From Jan 2024 at Teachedison, Coimbatore, India"
-    >
+      subtitle="From Jan 2024 at Teachedison, Coimbatore, India">
       I specialize in full-stack micro tools to drive organic marketing leads,
       focusing on frontend development primarily with Next.js and utilizing
       backend frameworks like Golang's Echo, Node.js's Hono, and Python's
@@ -55,8 +54,7 @@ import TimeLineElement from "../components/cv/TimeLine.astro";
     </TimeLineElement>
     <TimeLineElement
       title="Trainee Consultant"
-      subtitle="From Oct 2023 to Jan 2024 at Applexus, Trivandrum, India"
-    >
+      subtitle="From Oct 2023 to Jan 2024 at Applexus, Trivandrum, India">
       I focused on building strong expertise in Angular and Express.js while
       contributing to projects involving SAP Fiori and SAP UI5. I also played a
       key role in creating database queries to clean up unused data in
@@ -81,8 +79,7 @@ import TimeLineElement from "../components/cv/TimeLine.astro";
     <li>
       <a
         href="https://certificates.cs50.io/bf85e0a3-fe88-4281-badc-948d55a269d1.pdf?size=letter"
-        target="_blank"
-      >
+        target="_blank">
         CS50's Introduction to Computer Science (with link)</a
       >
     </li>
@@ -125,6 +122,9 @@ import TimeLineElement from "../components/cv/TimeLine.astro";
 </BaseLayout>
 
 <style>
+  .time-line-container > div:last-child .education__time > .education__line {
+    display: none;
+  }
   a {
     transition: opacity 0.3s ease-in-out;
   }
