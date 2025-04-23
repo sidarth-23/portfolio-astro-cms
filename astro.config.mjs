@@ -5,6 +5,6 @@ import tailwind from "@astrojs/tailwind";
 
 // https://astro.build/config
 export default defineConfig({
-  site: "https://example.com",
+  site: "https://sidarth.vercel.app",
   integrations: [mdx(), sitemap(), tailwind()],
 });
