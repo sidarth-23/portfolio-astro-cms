@@ -1,0 +1,107 @@
+---
+title: "Stop Trusting the Client: A Real-World Guide to Authentication"
+description: "Most tutorials teach you to use JWTs for everything, but is that actually secure? Let's dive into the trade-offs between Sessions and Tokens, and why 'simple' isn't always safe."
+pubDate: "Oct 4, 2025"
+heroImage: "/blog/implementing-authentication.jpg"
+---
+
+## Introduction
+
+Authentication is one of the areas which is in lesser focus in business until it's not anymore. This part has got companies into serious lawsuits and potential bankruptcy because critical user data which is meant to be behind secure walls is compromised.
+
+There are many other ways prying eyes could get through, but this is the easiest and most "official" route. Let's get into the details that I collected over time.
+
+### Authentication vs. Authorization
+
+Authentication and Authorization are often used interchangeably, but in system design, they are distinct concepts. Think of it like a highly secure building:
+
+- **Authentication (AuthN)** is the answer to **"Who are you?"** This is the process of verifying identity. When a user logs in, they are proving they are who they claim to be.
+- **Authorization (AuthZ)** is the answer to **"What can you do?"** This is about permissions. Once we know who you are, what resources are you allowed to touch?
+
+**The Hierarchy:** You can be authenticated without being authorized (e.g., a logged-in user trying to access the Admin Dashboard). However, you usually cannot be authorized without being authenticated first.
+
+---
+
+## Authentication: Maintaining State
+
+Most tutorials will teach you a simple JWT token flow with an email and a password. But really think about it: does this suffice for a real-world application?
+
+HTTP is a "stateless" protocol. This means the server treats every request as a new stranger. To build an app, we need a way to tell the server, _"Hey, it's still me, the person who logged in 5 seconds ago."_
+
+There are two broad architectures to handle this: **Sessions** and **JWTs**.
+
+### 1. Sessions (Server-Side State)
+
+Sessions are analogous to a lock and key system, or a coat check at a club.
+
+When a user logs in, we create a unique entry (a session) in our database or memory store (like Redis). The server then sends a `Set-Cookie` header to the browser containing _only_ the Session ID.
+
+Why use Cookies instead of Local Storage? Because Cookies can be secured (using flags like `HttpOnly`) to prevent JavaScript from reading them, whereas Local Storage is accessible to any script running on your page, making it vulnerable to XSS attacks.
+
+**Pros:**
+
+- **Absolute Control:** Because the "truth" lives on your server, you can revoke access instantly (e.g., "Log out all devices").
+- **Security:** Easier to secure against XSS if using HttpOnly cookies.
+
+**Cons:**
+
+- **Database Load:** Every single API request requires a database lookup to verify the session exists.
+
+### 2. JWT (Client-Side State)
+
+JWT (JSON Web Token) is a token that contains the user's data (claims) inside it. It is signed using a secret key kept on the server.
+
+When a user logs in, the server signs this token and sends it to the client. The client stores it and sends it back with every request. The server validates the token by checking the digital signature mathematically. Crucially, **the server does not need to check the database** to know who you are.
+
+**Pros:**
+
+- **Performance:** No database lookup required to verify the user.
+- **Scalability:** Ideal for microservices where different services need to verify the user without hitting a central database.
+
+**Cons:**
+
+- **Revocation is Hard:** Once a token is issued, it is valid until it expires. You cannot easily "ban" a user instantly without building complex block-lists, which defeats the performance benefits of using JWTs in the first place.
+
+### My Verdict on State
+
+My opinion is: **never trust a client with authentication state unless necessary.**
+
+For most standard web applications, I prefer **Sessions**. The "load" on the database is usually negligible compared to the security benefit of being able to ban a user instantly. JWTs are excellent for machine-to-machine communication, but for user management, the complexity of handling refresh tokens and revocation lists often outweighs the benefits.
+
+---
+
+## Authentication: The Entry Methods
+
+Now that we know how to keep a user logged in, how do we get them in the door? Let's look at the three methods I have experience with:
+
+### 1. Username and Password
+
+This is the classic standard. It is recommended to have this option for users who are privacy-conscious or less tech-savvy.
+
+However, implementing this securely is difficult. You cannot simply save a password; you must hash it (using algorithms like Argon2 or Bcrypt) and salt it. Furthermore, you are responsible for building "Forgot Password" flows, "Change Password" screens, and email verification. It is a high-maintenance feature.
+
+### 2. Magic Link
+
+This is a "passwordless" flow. The user enters their email, and you send them a unique, time-sensitive link. When the user clicks the link, your server validates the token in the URL and logs them in immediately.
+
+**The Trade-off:** It is more secure than a password (users can't use "password123"), but it introduces friction. The user has to leave your app, open their email client, and come back. This context switching can hurt user retention.
+
+### 3. Social Login (OAuth)
+
+Social login is currently the gold standard. It allows users to sign in via Google, GitHub, Apple, etc.
+
+You rely on the massive security infrastructure of these providers to verify the user's identity. The best part is that the security of the authentication is as strong as the social media account itself, which is usually very high due to 2FA and rigorous security teams.
+
+For the developer, it offloads the risk: you don't have to worry about password leaks because you aren't storing passwords.
+
+---
+
+## Authorization
+
+I'm yet to write about authorization in depth, but that is the logical next step: once a user is authenticated, what are they allowed to do? I will cover Role-Based Access Control (RBAC) in a future post.
+
+## Conclusion
+
+I hope this post has helped you understand the critical difference between Authentication and Authorization, and why the "simple" JWT tutorials might not be enough for a production app.
+
+If you have any questions or comments, feel free to reach out to me on [LinkedIn](https://www.linkedin.com/in/sidarth-g/). And if you liked this post, please share it with your friends and family. Thank you for reading!

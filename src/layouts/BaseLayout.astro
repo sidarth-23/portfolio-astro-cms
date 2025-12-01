@@ -1,7 +1,6 @@
 ---
 import BaseHead from "../components/BaseHead.astro";
 import Header from "../components/Header.astro";
-import Footer from "../components/Footer.astro";
 import SideBar from "../components/SideBar.astro";
 import { ClientRouter } from "astro:transitions";
 
@@ -18,7 +17,7 @@ const {
 ---
 
 <!doctype html>
-<html lang="en" data-theme="business">
+<html lang="en" data-theme="abyss">
   <head>
     <BaseHead
       title={`${SITE_TITLE} | ${title}`}
@@ -40,7 +39,6 @@ const {
             <slot />
           </main>
         </div>
-        <Footer />
       </div>
       {includeSidebar && <SideBar sideBarActiveItemID={sideBarActiveItemID} />}
     </div>

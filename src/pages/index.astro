@@ -12,17 +12,28 @@ const last_posts = posts.slice(0, 3);
 ---
 
 <BaseLayout title="Home" sideBarActiveItemID="home">
-  <div class="pb-12 mt-5">
+  <div class="py-6">
     <div class="text-xl py-1">Hey there 👋</div>
     <div class="text-5xl font-bold">I'm Sidarth G</div>
     <div class="text-3xl py-3 font-bold">Full Stack Developer</div>
-    <div class="py-2">
-      <text class="text-lg">
-        Hi there! I'm a Full Stack Developer and a passionate learner. I love to
-        explore new technologies and build innovative solutions. I'm excited to
-        contribute to the tech community and help make the world a better place.
-        Stay tuned for more of my blogs<br /><br />Thanks for joining with me!
-      </text>
+    <div class="py-2 space-y-2">
+      <p class="text-lg">
+        I'm just a random guy on the internet tinkering around with various
+        tools around and having a fun time around. To feed myself, I do a job of
+        a <strong>Backend developer</strong> with my tech stack around the Go language
+        ecosystem.
+      </p>
+      <p class="text-lg">
+        I started off my journey in the programming world with html and
+        progressed all the way to javascript and the plethora of frameworks and
+        libraries that the frontend/mixed development world has to offer.
+        Eventually recently after a while, I made it to my current state to see
+        what is backend. Currently I'm on the path to learning DevOps and
+        Networking stuff.
+      </p>
+      <p class="text-lg font-bold pt-4">
+        Life is short, enjoying it while I can :) PS
+      </p>
     </div>
     <div class="mt-8">
       <a class="btn" href="https://linkedin.com/in/sidarth-g" target="_blank">
@@ -31,35 +42,6 @@ const last_posts = posts.slice(0, 3);
       <a href="/cv" class="btn btn-outline ml-5"> View My CV </a>
     </div>
   </div>
-
-  <div>
-    <div class="text-3xl w-full font-bold mb-2">My last projects {"</>"}</div>
-  </div>
-
-  <HorizontalCard
-    title="Bluebook Insights"
-    img="/projects/bluebook-insights.png"
-    desc="Bluebook Insights is a web application that provides students and tutors with a comprehensive overview of their SAT Practice Test score from the official college board practice tests."
-    url="https://bluebook.edisonos.com"
-    badge="NEW"
-    tags={["NextJS", "TypeScript", "Docker", "Golang", "FastAPI"]}
-  />
-  <div class="divider my-0"></div>
-  <HorizontalCard
-    title="AI to UI"
-    img="/projects/ai-to-ui.png"
-    desc="AI to UI is a web application that uses AI to generate UI components based on user input. It is a fun project that demonstrates the power of AI in creating user interfaces and the power of fundamentals in web development."
-    url="https://ai-to-ui.vercel.app/"
-    tags={["HTML", "CSS", "Figma"]}
-  />
-  <div class="divider my-0"></div>
-  <HorizontalCard
-    title="Calculator App"
-    img="/projects/js-calculator.png"
-    desc="A simple calculator app built using JavaScript and HTML. It allows users to perform basic arithmetic operations such as addition, subtraction, multiplication, and division."
-    tags={["HTML", "CSS", "JavaScript"]}
-    url="https://sid-themed-calculator.vercel.app/"
-  />
 
   <div>
     <div class="text-3xl w-full font-bold mb-5 mt-10">Latest from blog</div>
