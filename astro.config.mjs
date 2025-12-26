@@ -5,7 +5,7 @@ import tailwindcss from "@tailwindcss/vite";
 
 // https://astro.build/config
 export default defineConfig({
-  site: "https://sidarth.vercel.app",
+  site: "https://portfolio.sidshub.in",
   integrations: [mdx(), sitemap()],
   vite: {
     plugins: [tailwindcss()],
