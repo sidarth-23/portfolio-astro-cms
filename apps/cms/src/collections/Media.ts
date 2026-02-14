@@ -15,7 +15,7 @@ export const Media: CollectionConfig = {
     },
     {
       name: "caption",
-      type: "textarea",
+      type: "richText",
     },
   ],
 };

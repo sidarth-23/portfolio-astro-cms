@@ -9,7 +9,7 @@ export const CvPage: GlobalConfig = {
   fields: [
     {
       name: "profile",
-      type: "textarea",
+      type: "richText",
       required: true,
     },
     {

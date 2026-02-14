@@ -1,4 +1,5 @@
 ---
+import { RichTextRenderer } from "@sidshub/lexical/web";
 import TimeLineElement from "@/components/cv/TimeLine.astro";
 import BaseLayout from "@/layouts/BaseLayout.astro";
 import { getCvPage, mediaToUrl } from "@/lib/cms/client";
@@ -35,7 +36,9 @@ const defaultSkills = [
     <div class="text-3xl w-full font-bold">Profile</div>
   </div>
 
-  <div class="mb-10 text-justify whitespace-pre-line">{cvPage?.profile}</div>
+  <div class="mb-10 text-justify">
+    {cvPage?.profile && <RichTextRenderer data={cvPage.profile} />}
+  </div>
 
   <div class="mb-5">
     <div class="text-3xl w-full font-bold">Education</div>

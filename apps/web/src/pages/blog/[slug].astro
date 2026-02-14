@@ -1,10 +1,9 @@
 ---
-import { marked } from "marked";
-
+import { RichTextRenderer } from "@sidshub/lexical/web";
 import PostLayout from "@/layouts/PostLayout.astro";
 import { getAllPublishedPosts } from "@/lib/cms/client";
 import { categoryFromPost, mediaToUrl, tagsFromPost } from "@/lib/cms/client";
-import type { CmsPost } from "@/lib/cms/types";
+import type { CmsPost } from "@sidshub/cms-types";
 
 export async function getStaticPaths() {
   const posts = await getAllPublishedPosts();
@@ -23,7 +22,6 @@ const { post } = Astro.props;
 const category = categoryFromPost(post);
 const tags = tagsFromPost(post);
 const pubDate = post.publishedAt || post.createdAt || new Date().toISOString();
-const renderedContent = await marked.parse(post.contentMarkdown || "");
 ---
 
 <PostLayout
@@ -34,10 +32,26 @@ const renderedContent = await marked.parse(post.contentMarkdown || "");
   heroImage={mediaToUrl(post.coverImage)}
   tags={tags}
   category={category}
+  authors={post.populatedAuthors}
   canonicalUrl={post.seoOverrides?.canonicalUrl}
   robotsIndex={post.seoOverrides?.robotsIndex}
   robotsFollow={post.seoOverrides?.robotsFollow}
   schemaType={post.seoOverrides?.schemaType}
 >
-  <div set:html={renderedContent} />
+  <RichTextRenderer data={post.content} />
+  {
+    post.populatedAuthors.length > 0 && (
+      <section class="mt-10 border-t border-base-300 pt-6">
+        <h2 class="text-xl font-semibold mb-4">Authors</h2>
+        <div class="grid gap-6">
+          {post.populatedAuthors.map((author) => (
+            <article>
+              <h3 class="text-lg font-medium mb-2">{author.name || "Unknown Author"}</h3>
+              {author.bio && <RichTextRenderer data={author.bio} />}
+            </article>
+          ))}
+        </div>
+      </section>
+    )
+  }
 </PostLayout>

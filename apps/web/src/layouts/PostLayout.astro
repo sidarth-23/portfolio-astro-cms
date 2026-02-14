@@ -3,6 +3,7 @@ import BaseLayout from "@/layouts/BaseLayout.astro";
 
 type Tag = { name: string; slug: string };
 type Category = { name: string; slug: string };
+type Author = { id: number; name?: string | null };
 
 type Props = {
   title: string;
@@ -13,6 +14,7 @@ type Props = {
   badge?: string;
   tags?: Tag[];
   category?: Category;
+  authors?: Author[];
   canonicalUrl?: string;
   robotsIndex?: boolean;
   robotsFollow?: boolean;
@@ -28,6 +30,7 @@ const {
   badge,
   tags = [],
   category,
+  authors = [],
   canonicalUrl,
   robotsIndex,
   robotsFollow,
@@ -39,6 +42,7 @@ const displayDate = new Intl.DateTimeFormat("en-US", {
   month: "short",
   day: "numeric",
 }).format(new Date(pubDate));
+const authorNames = authors.map((author) => author.name).filter((name): name is string => Boolean(name));
 
 const jsonLd = {
   "@context": "https://schema.org",
@@ -67,6 +71,7 @@ const jsonLd = {
       {heroImage && <img src={heroImage} alt={title} class="w-full mb-6 rounded-lg" loading="eager" />}
       <h1 class="title my-2 text-4xl font-bold">{title}</h1>
       <time>{displayDate}</time>
+      {authorNames.length > 0 && <div class="text-sm mt-1">By {authorNames.join(", ")}</div>}
       <br />
       {badge && <div class="badge badge-secondary my-1">{badge}</div>}
       {

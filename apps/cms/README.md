@@ -18,4 +18,3 @@ Copy `.env.example` to `.env` and fill required values.
 - Uses MinIO (S3-compatible) for media storage.
 - Uses `@payloadcms/plugin-seo` for SEO metadata.
 - Uses Lexical editor for long-form content.
-- Converts post Lexical JSON to markdown on API read (`contentMarkdown`).

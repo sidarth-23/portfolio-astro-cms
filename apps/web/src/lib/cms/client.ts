@@ -1,15 +1,27 @@
-import type {
-  CmsCategory,
-  CmsMedia,
-  CmsPost,
-  CmsProject,
-  CmsTag,
-  CvPageGlobal,
-  HomePageGlobal,
-  PayloadListResponse,
-  ProjectsPageGlobal,
-  SiteSettingsGlobal,
-} from "@/lib/cms/types";
+import {
+  normalizeCvPage,
+  normalizeHomePage,
+  normalizePost,
+  normalizeProject,
+  normalizeProjectsPage,
+  normalizeSiteSettings,
+  type CmsCategory,
+  type CmsMedia,
+  type CmsPost,
+  type CmsProject,
+  type CmsTag,
+  type CvPageGlobal,
+  type HomePageGlobal,
+  type PayloadListResponse,
+  type ProjectsPageGlobal,
+  type RawCvPage,
+  type RawHomePage,
+  type RawPost,
+  type RawProject,
+  type RawProjectsPage,
+  type RawSiteSettings,
+  type SiteSettingsGlobal,
+} from "@sidshub/cms-types";
 
 const API_BASE = (import.meta.env.ASTRO_CMS_API_URL || "http://localhost:3000/api").replace(/\/$/, "");
 const READ_TOKEN = import.meta.env.ASTRO_CMS_READ_TOKEN;
@@ -151,29 +163,33 @@ const paginate = (items: CmsPost[], page: number, pageSize: number): PaginatedPo
 };
 
 export const getSiteSettings = async (): Promise<SiteSettingsGlobal> => {
-  return payloadFetch<SiteSettingsGlobal>("/globals/site-settings", { depth: 2 });
+  const raw = await payloadFetch<RawSiteSettings>("/globals/site-settings", { depth: 2 });
+  return normalizeSiteSettings(raw);
 };
 
 export const getHomePage = async (): Promise<HomePageGlobal> => {
-  return payloadFetch<HomePageGlobal>("/globals/home-page", { depth: 2 });
+  const raw = await payloadFetch<RawHomePage>("/globals/home-page", { depth: 2 });
+  return normalizeHomePage(raw);
 };
 
 export const getCvPage = async (): Promise<CvPageGlobal> => {
-  return payloadFetch<CvPageGlobal>("/globals/cv-page", { depth: 2 });
+  const raw = await payloadFetch<RawCvPage>("/globals/cv-page", { depth: 2 });
+  return normalizeCvPage(raw);
 };
 
 export const getProjectsPage = async (): Promise<ProjectsPageGlobal> => {
-  return payloadFetch<ProjectsPageGlobal>("/globals/projects-page", { depth: 2 });
+  const raw = await payloadFetch<RawProjectsPage>("/globals/projects-page", { depth: 2 });
+  return normalizeProjectsPage(raw);
 };
 
 export const getAllPublishedPosts = async (): Promise<CmsPost[]> => {
-  const res = await payloadFetch<PayloadListResponse<CmsPost>>("/posts", {
-    depth: 2,
+  const res = await payloadFetch<PayloadListResponse<RawPost>>("/posts", {
+    depth: 3,
     limit: 200,
     sort: "-publishedAt",
   });
 
-  return sortPosts(res.docs.filter(isPublished));
+  return sortPosts(res.docs.map((post) => normalizePost(post)).filter(isPublished));
 };
 
 export const getPaginatedPublishedPosts = async ({
@@ -191,9 +207,7 @@ export const getPaginatedPublishedPosts = async ({
 
   const filtered = all.filter((post) => {
     if (tagSlug) {
-      const tagMatch = (post.tags || []).some((tag) => {
-        return typeof tag === "object" && tag.slug === tagSlug;
-      });
+      const tagMatch = post.tags.some((tag) => tag.slug === tagSlug);
       if (!tagMatch) {
         return false;
       }
@@ -201,7 +215,7 @@ export const getPaginatedPublishedPosts = async ({
 
     if (categorySlug) {
       const category = post.primaryCategory;
-      if (!(category && typeof category === "object" && category.slug === categorySlug)) {
+      if (!(category && category.slug === categorySlug)) {
         return false;
       }
     }
@@ -213,14 +227,20 @@ export const getPaginatedPublishedPosts = async ({
 };
 
 export const getPostBySlug = async (slug: string): Promise<CmsPost | null> => {
-  const response = await payloadFetch<PayloadListResponse<CmsPost>>("/posts", {
+  const response = await payloadFetch<PayloadListResponse<RawPost>>("/posts", {
     depth: 3,
     limit: 1,
     "where[slug][equals]": slug,
   });
-  const post = response.docs[0];
+  const rawPost = response.docs[0];
 
-  if (!post || !isPublished(post)) {
+  if (!rawPost) {
+    return null;
+  }
+
+  const post = normalizePost(rawPost);
+
+  if (!isPublished(post)) {
     return null;
   }
 
@@ -229,13 +249,7 @@ export const getPostBySlug = async (slug: string): Promise<CmsPost | null> => {
 
 export const getTagSlugs = async (): Promise<string[]> => {
   const posts = await getAllPublishedPosts();
-  const tags = posts.flatMap((post) => {
-    return (post.tags || [])
-      .map((tag) => {
-        return typeof tag === "object" ? tag.slug : null;
-      })
-      .filter((value): value is string => typeof value === "string");
-  });
+  const tags = posts.flatMap((post) => post.tags.map((tag) => tag.slug));
 
   return [...new Set(tags)].sort((a, b) => a.localeCompare(b));
 };
@@ -243,23 +257,21 @@ export const getTagSlugs = async (): Promise<string[]> => {
 export const getCategorySlugs = async (): Promise<string[]> => {
   const posts = await getAllPublishedPosts();
   const categories = posts
-    .map((post) => {
-      const category = post.primaryCategory;
-      return category && typeof category === "object" ? category.slug : null;
-    })
+    .map((post) => post.primaryCategory?.slug)
     .filter((value): value is string => typeof value === "string");
 
   return [...new Set(categories)].sort((a, b) => a.localeCompare(b));
 };
 
 export const getProjects = async (): Promise<CmsProject[]> => {
-  const res = await payloadFetch<PayloadListResponse<CmsProject>>("/projects", {
-    depth: 2,
+  const res = await payloadFetch<PayloadListResponse<RawProject>>("/projects", {
+    depth: 3,
     limit: 200,
     sort: "displayOrder",
   });
 
   return res.docs
+    .map((project) => normalizeProject(project))
     .filter((project) => project.isVisible !== false)
     .sort((a, b) => a.displayOrder - b.displayOrder);
 };
@@ -267,11 +279,9 @@ export const getProjects = async (): Promise<CmsProject[]> => {
 export const mediaToUrl = toAbsoluteMediaUrl;
 
 export const categoryFromPost = (post: CmsPost): CmsCategory | undefined => {
-  return post.primaryCategory && typeof post.primaryCategory === "object"
-    ? post.primaryCategory
-    : undefined;
+  return post.primaryCategory;
 };
 
 export const tagsFromPost = (post: CmsPost): CmsTag[] => {
-  return (post.tags || []).filter((tag): tag is CmsTag => typeof tag === "object");
+  return post.tags;
 };

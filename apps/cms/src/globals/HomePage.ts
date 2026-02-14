@@ -27,7 +27,7 @@ export const HomePage: GlobalConfig = {
     },
     {
       name: "about",
-      type: "textarea",
+      type: "richText",
       required: true,
     },
     {

@@ -15,7 +15,7 @@ export const ProjectsPage: GlobalConfig = {
     },
     {
       name: "featuredDescription",
-      type: "textarea",
+      type: "richText",
       required: true,
     },
     {
@@ -26,7 +26,7 @@ export const ProjectsPage: GlobalConfig = {
     },
     {
       name: "newbieDescription",
-      type: "textarea",
+      type: "richText",
       required: true,
     },
   ],

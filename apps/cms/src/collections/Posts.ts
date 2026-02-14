@@ -1,6 +1,6 @@
 import type { CollectionConfig } from "payload";
 
-import { addContentMarkdown } from "../hooks/addContentMarkdown";
+import { populateAuthors } from "../hooks/populateAuthors";
 import { triggerDokployRedeploy } from "../hooks/triggerDokployRedeploy";
 import { seoOverridesField } from "../fields/seoOverrides";
 import { slugField } from "../fields/slug";
@@ -24,7 +24,7 @@ export const Posts: CollectionConfig = {
     },
   },
   hooks: {
-    afterRead: [addContentMarkdown],
+    afterRead: [populateAuthors],
     afterChange: [triggerDokployRedeploy],
   },
   fields: [
@@ -105,6 +105,55 @@ export const Posts: CollectionConfig = {
       type: "number",
       required: false,
       min: 1,
+    },
+    {
+      name: "authors",
+      type: "relationship",
+      relationTo: "users",
+      hasMany: true,
+      required: false,
+      admin: {
+        position: "sidebar",
+      },
+    },
+    {
+      name: "populatedAuthors",
+      type: "array",
+      access: {
+        update: () => false,
+      },
+      admin: {
+        disabled: true,
+        readOnly: true,
+      },
+      fields: [
+        {
+          name: "id",
+          type: "number",
+        },
+        {
+          name: "name",
+          type: "text",
+        },
+        {
+          name: "bio",
+          type: "richText",
+        },
+        {
+          name: "avatar",
+          type: "upload",
+          relationTo: "media",
+          required: false,
+        },
+        {
+          name: "linkedInUrl",
+          type: "text",
+        },
+        {
+          name: "githubUrl",
+          type: "text",
+        },
+      ],
     },
     {
       name: "featureOnHome",

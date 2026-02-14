@@ -12,6 +12,8 @@
     "astro": "astro"
   },
   "dependencies": {
+    "@sidshub/cms-types": "workspace:*",
+    "@sidshub/lexical": "workspace:*",
     "@astrojs/check": "0.9.4",
     "@astrojs/mdx": "4.2.5",
     "@astrojs/react": "4.2.5",
@@ -22,7 +24,6 @@
     "@types/react": "^19.1.2",
     "@types/react-dom": "^19.1.2",
     "astro": "5.7.5",
-    "marked": "^17.0.2",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
     "tailwindcss": "^4.1.4",

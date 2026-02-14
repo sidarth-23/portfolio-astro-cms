@@ -8,6 +8,8 @@
     "generate:types": "cross-env NODE_OPTIONS=--no-deprecation payload generate:types"
   },
   "dependencies": {
+    "@sidshub/cms-types": "workspace:*",
+    "@sidshub/lexical": "workspace:*",
     "@payloadcms/db-postgres": "^3.69.0",
     "@payloadcms/plugin-seo": "^3.69.0",
     "@payloadcms/richtext-lexical": "^3.69.0",

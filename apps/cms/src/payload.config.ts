@@ -1,16 +1,9 @@
 import path from "path";
 import { fileURLToPath } from "url";
 
+import { defaultLexicalEditor } from "@sidshub/lexical/cms";
 import { postgresAdapter } from "@payloadcms/db-postgres";
 import { seoPlugin } from "@payloadcms/plugin-seo";
-import {
-  FixedToolbarFeature,
-  HeadingFeature,
-  InlineToolbarFeature,
-  LinkFeature,
-  UploadFeature,
-  lexicalEditor,
-} from "@payloadcms/richtext-lexical";
 import { s3Storage } from "@payloadcms/storage-s3";
 import { buildConfig } from "payload";
 
@@ -32,34 +25,7 @@ const dirname = path.dirname(filename);
 const serverURL = process.env.PAYLOAD_PUBLIC_SERVER_URL || "http://localhost:3000";
 
 export default buildConfig({
-  editor: lexicalEditor({
-    features: ({ defaultFeatures }) => {
-      return [
-        ...defaultFeatures,
-        FixedToolbarFeature(),
-        InlineToolbarFeature(),
-        HeadingFeature({
-          enabledHeadingSizes: ["h1", "h2", "h3", "h4"],
-        }),
-        LinkFeature({
-          enabledCollections: ["posts", "projects"],
-        }),
-        UploadFeature({
-          collections: {
-            media: {
-              fields: [
-                {
-                  name: "caption",
-                  type: "text",
-                  required: false,
-                },
-              ],
-            },
-          },
-        }),
-      ];
-    },
-  }),
+  editor: defaultLexicalEditor,
   admin: {
     user: Users.slug,
     importMap: {
@@ -124,6 +90,6 @@ export default buildConfig({
   }),
   secret: process.env.PAYLOAD_SECRET || "",
   typescript: {
-    outputFile: path.resolve(dirname, "../payload-types.ts"),
+    outputFile: path.resolve(dirname, "../../../packages/cms-types/src/payload-types.ts"),
   },
 });

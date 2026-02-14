@@ -12,6 +12,8 @@
         "@payloadcms/plugin-seo": "^3.69.0",
         "@payloadcms/richtext-lexical": "^3.69.0",
         "@payloadcms/storage-s3": "^3.69.0",
+        "@sidshub/cms-types": "workspace:*",
+        "@sidshub/lexical": "workspace:*",
         "cross-env": "^7.0.3",
         "payload": "^3.69.0",
       },
@@ -29,11 +31,12 @@
         "@astrojs/rss": "4.0.11",
         "@astrojs/sitemap": "3.3.1",
         "@astrojs/tailwind": "6.0.2",
+        "@sidshub/cms-types": "workspace:*",
+        "@sidshub/lexical": "workspace:*",
         "@tailwindcss/vite": "^4.1.4",
         "@types/react": "^19.1.2",
         "@types/react-dom": "^19.1.2",
         "astro": "5.7.5",
-        "marked": "^17.0.2",
         "react": "^19.1.0",
         "react-dom": "^19.1.0",
         "tailwindcss": "^4.1.4",
@@ -43,6 +46,23 @@
         "@tailwindcss/typography": "^0.5.15",
         "daisyui": "^5.5.5",
         "prettier-plugin-astro": "^0.14.1",
+      },
+    },
+    "packages/cms-types": {
+      "name": "@sidshub/cms-types",
+      "version": "0.0.1",
+      "dependencies": {
+        "lexical": "^0.35.0",
+        "payload": "^3.69.0",
+      },
+    },
+    "packages/lexical": {
+      "name": "@sidshub/lexical",
+      "version": "0.0.1",
+      "dependencies": {
+        "@payloadcms/richtext-lexical": "^3.69.0",
+        "react": "^19.1.0",
+        "react-dom": "^19.1.0",
       },
     },
   },
@@ -548,6 +568,10 @@
     "@shikijs/vscode-textmate": ["@shikijs/vscode-textmate@10.0.2", "", {}, "sha512-83yeghZ2xxin3Nj8z1NMd/NCuca+gsYXswywDy5bHvwlWL8tpTQmzGeUuHd9FC3E/SBEMvzJRwWEOz5gGes9Qg=="],
 
     "@sidshub/cms": ["@sidshub/cms@workspace:apps/cms"],
+
+    "@sidshub/cms-types": ["@sidshub/cms-types@workspace:packages/cms-types"],
+
+    "@sidshub/lexical": ["@sidshub/lexical@workspace:packages/lexical"],
 
     "@sidshub/web": ["@sidshub/web@workspace:apps/web"],
 
@@ -1251,7 +1275,7 @@
 
     "markdown-table": ["markdown-table@3.0.4", "", {}, "sha512-wiYz4+JrLyb/DqW2hkFJxP7Vd7JuTDm77fvbM8VfEQdmSMqcImWeeRbHwZjBjIFki/VaMK2BhFi7oUUZeM5bqw=="],
 
-    "marked": ["marked@17.0.2", "", { "bin": { "marked": "bin/marked.js" } }, "sha512-s5HZGFQea7Huv5zZcAGhJLT3qLpAfnY7v7GWkICUr0+Wd5TFEtdlRR2XUL5Gg+RH7u2Df595ifrxR03mBaw7gA=="],
+    "marked": ["marked@14.0.0", "", { "bin": { "marked": "bin/marked.js" } }, "sha512-uIj4+faQ+MgHgwUW1l2PsPglZLOLOT1uErt06dAPtx2kjteLAkbsd/0FiYg/MGS+i7ZKLb7w2WClxHkzOOuryQ=="],
 
     "md5": ["md5@2.3.0", "", { "dependencies": { "charenc": "0.0.2", "crypt": "0.0.2", "is-buffer": "~1.1.6" } }, "sha512-T1GITYmFaKuO91vxyoQMFETst+O71VUPEU3ze5GNzDm0OWdP8v1ziTaAEPUr/3kLsY3Sftgz242A1SetQiDL7g=="],
 
@@ -1980,8 +2004,6 @@
     "micromark-extension-mdxjs/micromark-extension-mdx-jsx": ["micromark-extension-mdx-jsx@3.0.2", "", { "dependencies": { "@types/estree": "^1.0.0", "devlop": "^1.0.0", "estree-util-is-identifier-name": "^3.0.0", "micromark-factory-mdx-expression": "^2.0.0", "micromark-factory-space": "^2.0.0", "micromark-util-character": "^2.0.0", "micromark-util-events-to-acorn": "^2.0.0", "micromark-util-symbol": "^2.0.0", "micromark-util-types": "^2.0.0", "vfile-message": "^4.0.0" } }, "sha512-e5+q1DjMh62LZAJOnDraSSbDMvGJ8x3cbjygy2qFEi7HCeUT4BDKCvMozPozcD6WmOt6sVvYDNBKhFSz3kjOVQ=="],
 
     "micromatch/picomatch": ["picomatch@2.3.1", "", {}, "sha512-JU3teHTNjmE2VCGFzuY8EXzCDVwEqB2a8fsIvwaStHhAWJEeVd1o1QD80CU6+ZdEXXSLbSsuLwJjkCBWqRQUVA=="],
-
-    "monaco-editor/marked": ["marked@14.0.0", "", { "bin": { "marked": "bin/marked.js" } }, "sha512-uIj4+faQ+MgHgwUW1l2PsPglZLOLOT1uErt06dAPtx2kjteLAkbsd/0FiYg/MGS+i7ZKLb7w2WClxHkzOOuryQ=="],
 
     "next/@next/env": ["@next/env@15.4.11", "", {}, "sha512-mIYp/091eYfPFezKX7ZPTWqrmSXq+ih6+LcUyKvLmeLQGhlPtot33kuEOd4U+xAA7sFfj21+OtCpIZx0g5SpvQ=="],
 
