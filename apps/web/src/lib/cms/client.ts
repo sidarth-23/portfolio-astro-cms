@@ -10,7 +10,6 @@ import type {
   ProjectsPageGlobal,
   SiteSettingsGlobal,
 } from "@/lib/cms/types";
-import { FALLBACK_POSTS } from "@/lib/cms/fallback";
 
 const API_BASE = (import.meta.env.ASTRO_CMS_API_URL || "http://localhost:3000/api").replace(/\/$/, "");
 const READ_TOKEN = import.meta.env.ASTRO_CMS_READ_TOKEN;
@@ -27,6 +26,10 @@ type PaginatedPosts = {
   hasNextPage: boolean;
   prevPage: number | null;
   nextPage: number | null;
+};
+
+const responseSnippet = (value: string): string => {
+  return value.replace(/\s+/g, " ").trim().slice(0, 240);
 };
 
 const toAbsoluteMediaUrl = (media: CmsMedia | string | null | undefined): string | undefined => {
@@ -60,6 +63,7 @@ const buildUrl = (path: string, params?: Params): string => {
 };
 
 const payloadFetch = async <T>(path: string, params?: Params): Promise<T> => {
+  const url = buildUrl(path, params);
   const headers: HeadersInit = {
     "Content-Type": "application/json",
   };
@@ -68,15 +72,42 @@ const payloadFetch = async <T>(path: string, params?: Params): Promise<T> => {
     headers.Authorization = `Bearer ${READ_TOKEN}`;
   }
 
-  const response = await fetch(buildUrl(path, params), {
-    headers,
-  });
+  let response: Response;
 
-  if (!response.ok) {
-    throw new Error(`Payload fetch failed (${response.status}) for ${path}`);
+  try {
+    response = await fetch(url, {
+      headers,
+    });
+  } catch (error) {
+    const reason = error instanceof Error ? error.message : String(error);
+    throw new Error(`Payload fetch failed for ${path} (${url}): network error: ${reason}`);
   }
 
-  return response.json() as Promise<T>;
+  const rawBody = await response.text();
+  const snippet = rawBody ? responseSnippet(rawBody) : "";
+
+  if (!response.ok) {
+    const details = snippet ? ` Response: ${snippet}` : "";
+    throw new Error(
+      `Payload fetch failed for ${path} (${url}) with status ${response.status} ${response.statusText}.${details}`,
+    );
+  }
+
+  if (!rawBody) {
+    throw new Error(
+      `Payload fetch failed for ${path} (${url}) with status ${response.status} ${response.statusText}: empty response body.`,
+    );
+  }
+
+  try {
+    return JSON.parse(rawBody) as T;
+  } catch (error) {
+    const reason = error instanceof Error ? error.message : String(error);
+    const details = snippet ? ` Response: ${snippet}` : "";
+    throw new Error(
+      `Payload fetch failed for ${path} (${url}): invalid JSON response (${reason}).${details}`,
+    );
+  }
 };
 
 const isPublished = (post: CmsPost): boolean => {
@@ -119,50 +150,30 @@ const paginate = (items: CmsPost[], page: number, pageSize: number): PaginatedPo
   };
 };
 
-export const getSiteSettings = async (): Promise<SiteSettingsGlobal | null> => {
-  try {
-    return await payloadFetch<SiteSettingsGlobal>("/globals/site-settings", { depth: 2 });
-  } catch {
-    return null;
-  }
+export const getSiteSettings = async (): Promise<SiteSettingsGlobal> => {
+  return payloadFetch<SiteSettingsGlobal>("/globals/site-settings", { depth: 2 });
 };
 
-export const getHomePage = async (): Promise<HomePageGlobal | null> => {
-  try {
-    return await payloadFetch<HomePageGlobal>("/globals/home-page", { depth: 2 });
-  } catch {
-    return null;
-  }
+export const getHomePage = async (): Promise<HomePageGlobal> => {
+  return payloadFetch<HomePageGlobal>("/globals/home-page", { depth: 2 });
 };
 
-export const getCvPage = async (): Promise<CvPageGlobal | null> => {
-  try {
-    return await payloadFetch<CvPageGlobal>("/globals/cv-page", { depth: 2 });
-  } catch {
-    return null;
-  }
+export const getCvPage = async (): Promise<CvPageGlobal> => {
+  return payloadFetch<CvPageGlobal>("/globals/cv-page", { depth: 2 });
 };
 
-export const getProjectsPage = async (): Promise<ProjectsPageGlobal | null> => {
-  try {
-    return await payloadFetch<ProjectsPageGlobal>("/globals/projects-page", { depth: 2 });
-  } catch {
-    return null;
-  }
+export const getProjectsPage = async (): Promise<ProjectsPageGlobal> => {
+  return payloadFetch<ProjectsPageGlobal>("/globals/projects-page", { depth: 2 });
 };
 
 export const getAllPublishedPosts = async (): Promise<CmsPost[]> => {
-  try {
-    const res = await payloadFetch<PayloadListResponse<CmsPost>>("/posts", {
-      depth: 2,
-      limit: 200,
-      sort: "-publishedAt",
-    });
+  const res = await payloadFetch<PayloadListResponse<CmsPost>>("/posts", {
+    depth: 2,
+    limit: 200,
+    sort: "-publishedAt",
+  });
 
-    return sortPosts(res.docs.filter(isPublished));
-  } catch {
-    return FALLBACK_POSTS;
-  }
+  return sortPosts(res.docs.filter(isPublished));
 };
 
 export const getPaginatedPublishedPosts = async ({
@@ -202,18 +213,12 @@ export const getPaginatedPublishedPosts = async ({
 };
 
 export const getPostBySlug = async (slug: string): Promise<CmsPost | null> => {
-  let post: CmsPost | undefined;
-
-  try {
-    const response = await payloadFetch<PayloadListResponse<CmsPost>>("/posts", {
-      depth: 3,
-      limit: 1,
-      "where[slug][equals]": slug,
-    });
-    post = response.docs[0];
-  } catch {
-    post = FALLBACK_POSTS.find((item) => item.slug === slug);
-  }
+  const response = await payloadFetch<PayloadListResponse<CmsPost>>("/posts", {
+    depth: 3,
+    limit: 1,
+    "where[slug][equals]": slug,
+  });
+  const post = response.docs[0];
 
   if (!post || !isPublished(post)) {
     return null;
@@ -248,19 +253,15 @@ export const getCategorySlugs = async (): Promise<string[]> => {
 };
 
 export const getProjects = async (): Promise<CmsProject[]> => {
-  try {
-    const res = await payloadFetch<PayloadListResponse<CmsProject>>("/projects", {
-      depth: 2,
-      limit: 200,
-      sort: "displayOrder",
-    });
+  const res = await payloadFetch<PayloadListResponse<CmsProject>>("/projects", {
+    depth: 2,
+    limit: 200,
+    sort: "displayOrder",
+  });
 
-    return res.docs
-      .filter((project) => project.isVisible !== false)
-      .sort((a, b) => a.displayOrder - b.displayOrder);
-  } catch {
-    return [];
-  }
+  return res.docs
+    .filter((project) => project.isVisible !== false)
+    .sort((a, b) => a.displayOrder - b.displayOrder);
 };
 
 export const mediaToUrl = toAbsoluteMediaUrl;

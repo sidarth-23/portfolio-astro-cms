@@ -5,7 +5,8 @@
   "scripts": {
     "dev": "astro dev",
     "start": "astro dev",
-    "build": "astro check && astro build",
+    "check:cms": "bun ./scripts/checkCms.ts",
+    "build": "bun run check:cms && astro check && astro build",
     "preview": "astro preview",
     "check": "astro check",
     "astro": "astro"

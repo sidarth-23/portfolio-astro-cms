@@ -88,6 +88,11 @@ task web:dev      # Run Astro web locally
 task cms:types    # Generate Payload TypeScript types
 ```
 
+### Web Build Requirement
+- `bun run build:web` (or `task web:build`) now requires Payload CMS to be running and reachable.
+- Build preflight checks `ASTRO_CMS_API_URL` (default `http://localhost:3000/api`) via `/health` before Astro build starts.
+- If CMS is down, unauthorized, timing out, or unhealthy, the web build fails immediately.
+
 ### Health Checks
 ```bash
 task status       # Show container status

@@ -23,6 +23,12 @@ See all available commands: `task --list`
 
 See [docs/local-dev.md](docs/local-dev.md) for a clean local setup of Payload CMS and all required services.
 
+## Build Contract
+
+- `bun run build:web` requires a reachable CMS at `ASTRO_CMS_API_URL` (default `http://localhost:3000/api`).
+- The web build runs a CMS preflight check and fails immediately if CMS is unreachable or unhealthy.
+- `task cms:types` only generates TypeScript types; it does not make web builds work without a live CMS.
+
 ## Taskfile Commands
 
 Common development tasks (requires [Task](https://taskfile.dev/)):
