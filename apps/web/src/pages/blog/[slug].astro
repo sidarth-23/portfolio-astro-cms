@@ -1,0 +1,43 @@
+---
+import { marked } from "marked";
+
+import PostLayout from "@/layouts/PostLayout.astro";
+import { getAllPublishedPosts } from "@/lib/cms/client";
+import { categoryFromPost, mediaToUrl, tagsFromPost } from "@/lib/cms/client";
+import type { CmsPost } from "@/lib/cms/types";
+
+export async function getStaticPaths() {
+  const posts = await getAllPublishedPosts();
+
+  return posts.map((post) => ({
+    params: { slug: post.slug },
+    props: { post },
+  }));
+}
+
+interface Props {
+  post: CmsPost;
+}
+
+const { post } = Astro.props;
+const category = categoryFromPost(post);
+const tags = tagsFromPost(post);
+const pubDate = post.publishedAt || post.createdAt || new Date().toISOString();
+const renderedContent = await marked.parse(post.contentMarkdown || "");
+---
+
+<PostLayout
+  title={post.title}
+  description={post.excerpt}
+  pubDate={pubDate}
+  updatedDate={post.updatedAt}
+  heroImage={mediaToUrl(post.coverImage)}
+  tags={tags}
+  category={category}
+  canonicalUrl={post.seoOverrides?.canonicalUrl}
+  robotsIndex={post.seoOverrides?.robotsIndex}
+  robotsFollow={post.seoOverrides?.robotsFollow}
+  schemaType={post.seoOverrides?.schemaType}
+>
+  <div set:html={renderedContent} />
+</PostLayout>

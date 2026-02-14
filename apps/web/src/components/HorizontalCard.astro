@@ -1,0 +1,60 @@
+---
+type Tag = {
+  name: string;
+  slug: string;
+};
+
+type Category = {
+  name: string;
+  slug: string;
+};
+
+type Props = {
+  title: string;
+  img?: string;
+  desc: string;
+  url: string;
+  badge?: string;
+  tags?: Tag[];
+  category?: Category;
+  target?: string;
+  tagBasePath?: string | null;
+};
+
+const { title, img, desc, url, badge, tags = [], category, target = "_blank", tagBasePath = "/blog/tag" } = Astro.props;
+---
+
+<div class="rounded-lg bg-base-100 hover:shadow-xl transition ease-in-out hover:scale-[102%]">
+  <div class="hero-content flex-col md:flex-row">
+    {
+      img && (
+        <a href={url} target={target} rel={target === "_blank" ? "noreferrer" : undefined}>
+          <img src={img} loading="lazy" alt={title} class="max-w-full md:max-w-[13rem] rounded-lg" />
+        </a>
+      )
+    }
+    <div class="grow w-full">
+      <h1 class="text-xl font-bold">
+        <a href={url} target={target} rel={target === "_blank" ? "noreferrer" : undefined} class="hover:underline">
+          {title}
+        </a>
+        {badge && <div class="badge badge-secondary mx-2">{badge}</div>}
+      </h1>
+      <p class="py-1 text-1xl">{desc}</p>
+      <div class="card-actions justify-end gap-2">
+        {category && <a href={`/blog/category/${category.slug}`} class="badge badge-primary">{category.name}</a>}
+        {
+          tags.map((tag) =>
+            tagBasePath ? (
+              <a href={`${tagBasePath}/${tag.slug}`} class="badge badge-outline">
+                {tag.name}
+              </a>
+            ) : (
+              <span class="badge badge-outline">{tag.name}</span>
+            )
+          )
+        }
+      </div>
+    </div>
+  </div>
+</div>

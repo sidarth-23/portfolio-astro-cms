@@ -1,0 +1,97 @@
+---
+import BaseLayout from "@/layouts/BaseLayout.astro";
+
+type Tag = { name: string; slug: string };
+type Category = { name: string; slug: string };
+
+type Props = {
+  title: string;
+  description: string;
+  pubDate: string;
+  updatedDate?: string;
+  heroImage?: string;
+  badge?: string;
+  tags?: Tag[];
+  category?: Category;
+  canonicalUrl?: string;
+  robotsIndex?: boolean;
+  robotsFollow?: boolean;
+  schemaType?: "Article" | "TechArticle";
+};
+
+const {
+  title,
+  description,
+  pubDate,
+  updatedDate,
+  heroImage,
+  badge,
+  tags = [],
+  category,
+  canonicalUrl,
+  robotsIndex,
+  robotsFollow,
+  schemaType = "Article",
+} = Astro.props;
+
+const displayDate = new Intl.DateTimeFormat("en-US", {
+  year: "numeric",
+  month: "short",
+  day: "numeric",
+}).format(new Date(pubDate));
+
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@type": schemaType,
+  headline: title,
+  description,
+  image: heroImage ? [new URL(heroImage, Astro.url).toString()] : undefined,
+  datePublished: new Date(pubDate).toISOString(),
+  dateModified: updatedDate ? new Date(updatedDate).toISOString() : new Date(pubDate).toISOString(),
+  mainEntityOfPage: canonicalUrl || Astro.url.toString(),
+};
+---
+
+<BaseLayout
+  title={title}
+  description={description}
+  image={heroImage}
+  ogType="article"
+  canonicalUrl={canonicalUrl}
+  robotsIndex={robotsIndex}
+  robotsFollow={robotsFollow}
+  jsonLd={jsonLd}
+>
+  <main class="md:flex md:justify-center">
+    <article class="prose prose-lg max-w-[750px] prose-img:mx-auto">
+      {heroImage && <img src={heroImage} alt={title} class="w-full mb-6 rounded-lg" loading="eager" />}
+      <h1 class="title my-2 text-4xl font-bold">{title}</h1>
+      <time>{displayDate}</time>
+      <br />
+      {badge && <div class="badge badge-secondary my-1">{badge}</div>}
+      {
+        category && (
+          <a href={`/blog/category/${category.slug}`} class="badge badge-primary ml-2 no-underline">
+            {category.name}
+          </a>
+        )
+      }
+      {
+        tags.map((tag) => (
+          <a href={`/blog/tag/${tag.slug}`} class="badge badge-outline ml-2 no-underline">
+            {tag.name}
+          </a>
+        ))
+      }
+      {
+        updatedDate && (
+          <div>
+            Last updated on <time>{new Date(updatedDate).toDateString()}</time>
+          </div>
+        )
+      }
+      <div class="divider my-2"></div>
+      <slot />
+    </article>
+  </main>
+</BaseLayout>

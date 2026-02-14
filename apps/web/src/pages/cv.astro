@@ -1,0 +1,100 @@
+---
+import TimeLineElement from "@/components/cv/TimeLine.astro";
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import { getCvPage, mediaToUrl } from "@/lib/cms/client";
+
+const cvPage = await getCvPage();
+
+const defaultSkills = [
+  "Golang",
+  "Gin",
+  "SQL",
+  "Docker",
+  "Kubernetes",
+  "Azure DevOps",
+  "Linux",
+  "PostgreSQL",
+  "NextJS",
+  "AstroJS",
+  "TypeScript",
+  "Tailwind",
+  "Python",
+];
+---
+
+<BaseLayout
+  title={cvPage?.meta?.title || "Resume"}
+  description={cvPage?.meta?.description || "Resume"}
+  image={mediaToUrl(cvPage?.meta?.image)}
+  canonicalUrl={cvPage?.seoOverrides?.canonicalUrl}
+  robotsIndex={cvPage?.seoOverrides?.robotsIndex}
+  robotsFollow={cvPage?.seoOverrides?.robotsFollow}
+  sideBarActiveItemID="cv"
+>
+  <div class="mb-5">
+    <div class="text-3xl w-full font-bold">Profile</div>
+  </div>
+
+  <div class="mb-10 text-justify whitespace-pre-line">{cvPage?.profile}</div>
+
+  <div class="mb-5">
+    <div class="text-3xl w-full font-bold">Education</div>
+  </div>
+
+  <div class="time-line-container grid gap-4 mb-10">
+    {(cvPage?.education || []).map((item) => <TimeLineElement title={item.title} subtitle={item.subtitle} />)}
+  </div>
+
+  <div class="mb-5">
+    <div class="text-3xl w-full font-bold">Experience</div>
+  </div>
+
+  <div class="time-line-container mb-10">
+    {(cvPage?.experience || []).map((item) => (
+      <TimeLineElement title={item.title} subtitle={item.subtitle}>
+        <ul class="list-disc mx-6 mb-10 grid gap-2">
+          {(item.items || []).map((expItem) => <li>{expItem.value}</li>)}
+        </ul>
+      </TimeLineElement>
+    ))}
+  </div>
+
+  <div class="mb-5">
+    <div class="text-3xl w-full font-bold">Certifications (with link)</div>
+  </div>
+
+  <ul class="list-disc mx-6 mb-10 grid gap-2">
+    {(cvPage?.certifications || []).map((item) => (
+      <li>
+        <a href={item.url} target="_blank">
+          {item.name}
+        </a>
+      </li>
+    ))}
+  </ul>
+
+  <div class="mb-5">
+    <div class="text-3xl w-full font-bold">Skills</div>
+  </div>
+
+  <ul class="list-disc md:columns-5 columns-2 mx-6">
+    {(cvPage?.skills || defaultSkills.map((value) => ({ value }))).map((item) => <li>{item.value}</li>)}
+  </ul>
+</BaseLayout>
+
+<style>
+  .time-line-container > div:last-child .education__time > .education__line {
+    display: none;
+  }
+  a {
+    transition: opacity 0.3s ease-in-out;
+  }
+
+  a:hover {
+    opacity: 0.8;
+  }
+
+  a:hover:after {
+    opacity: 1;
+  }
+</style>

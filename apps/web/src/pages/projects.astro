@@ -1,0 +1,73 @@
+---
+import HorizontalCard from "@/components/HorizontalCard.astro";
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import { getProjects, getProjectsPage, mediaToUrl } from "@/lib/cms/client";
+
+const [projectsPage, projects] = await Promise.all([getProjectsPage(), getProjects()]);
+
+const featuredProjects = projects.filter((project) => project.section === "featured");
+const newbieProjects = projects.filter((project) => project.section === "newbie");
+
+const toTags = (tags?: Array<{ value: string }>) => {
+  return (tags || []).map((tag) => ({ name: tag.value, slug: tag.value.toLowerCase().replace(/\s+/g, "-") }));
+};
+---
+
+<BaseLayout
+  title={projectsPage?.meta?.title || "Projects"}
+  description={projectsPage?.meta?.description || "Projects"}
+  image={mediaToUrl(projectsPage?.meta?.image)}
+  canonicalUrl={projectsPage?.seoOverrides?.canonicalUrl}
+  robotsIndex={projectsPage?.seoOverrides?.robotsIndex}
+  robotsFollow={projectsPage?.seoOverrides?.robotsFollow}
+  sideBarActiveItemID="projects"
+>
+  <div class="mb-8">
+    <div class="text-3xl w-full font-bold mb-2">{projectsPage?.featuredTitle || "Some of my pass times </>"}</div>
+    <p class="text-md">
+      {
+        projectsPage?.featuredDescription ||
+        "These are only the frontend works that I'm posting as I recently switched my food source to backend development."
+      }
+    </p>
+  </div>
+
+  {
+    featuredProjects.map((project) => (
+      <>
+        <HorizontalCard
+          title={project.title}
+          img={mediaToUrl(project.image)}
+          desc={project.summary}
+          badge={project.badge}
+          tags={toTags(project.techTags)}
+          tagBasePath={null}
+          url={project.externalUrl}
+        />
+        <div class="divider my-0"></div>
+      </>
+    ))
+  }
+
+  <div class="my-8 mt-16">
+    <div class="text-3xl w-full font-bold mb-2">{projectsPage?.newbieTitle || "Newbie Me </>"}</div>
+    <p class="text-md">{projectsPage?.newbieDescription || "Have fun seeing where I started."}</p>
+  </div>
+
+  {
+    newbieProjects.map((project) => (
+      <>
+        <HorizontalCard
+          title={project.title}
+          img={mediaToUrl(project.image)}
+          desc={project.summary}
+          badge={project.badge}
+          tags={toTags(project.techTags)}
+          tagBasePath={null}
+          url={project.externalUrl}
+        />
+        <div class="divider my-0"></div>
+      </>
+    ))
+  }
+</BaseLayout>
