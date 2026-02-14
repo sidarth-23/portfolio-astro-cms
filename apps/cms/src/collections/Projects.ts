@@ -6,6 +6,9 @@ import { slugField } from "../fields/slug";
 
 export const Projects: CollectionConfig = {
   slug: "projects",
+  access: {
+    read: () => true,
+  },
   admin: {
     useAsTitle: "title",
     defaultColumns: ["title", "section", "displayOrder", "updatedAt"],
