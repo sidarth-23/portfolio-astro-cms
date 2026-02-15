@@ -1,33 +1,84 @@
 ---
 import type { GetStaticPaths } from "astro";
+import type { CmsPost } from "@sidshub/cms-types";
 
 import HorizontalCard from "@/components/HorizontalCard.astro";
 import BaseLayout from "@/layouts/BaseLayout.astro";
 import {
   categoryFromPost,
-  getAllPublishedPosts,
   getCategorySlugs,
+  getPaginatedPublishedPosts,
   mediaToUrl,
   tagsFromPost,
 } from "@/lib/cms/client";
 
-export const getStaticPaths = (async ({ paginate }) => {
-  const [allPosts, allCategories] = await Promise.all([getAllPublishedPosts(), getCategorySlugs()]);
+const PAGE_SIZE = 10;
 
-  return allCategories.flatMap((category) => {
-    const filteredPosts = allPosts.filter((post) => {
-      const postCategory = categoryFromPost(post);
-      return postCategory?.slug === category;
+type CategoryPageProps = {
+  page: {
+    data: CmsPost[];
+    url: {
+      prev: string | null;
+      next: string | null;
+    };
+  };
+};
+
+const buildCategoryPageUrl = (category: string, pageNumber: number): string => {
+  return pageNumber <= 1 ? `/blog/category/${category}` : `/blog/category/${category}/${pageNumber}`;
+};
+
+export const getStaticPaths = (async () => {
+  const allCategories = await getCategorySlugs();
+  const paths: Awaited<ReturnType<GetStaticPaths>> = [];
+
+  for (const category of allCategories) {
+    const firstPage = await getPaginatedPublishedPosts({
+      page: 1,
+      pageSize: PAGE_SIZE,
+      categorySlug: category,
     });
 
-    return paginate(filteredPosts, {
-      params: { category },
-      pageSize: 10,
-    });
-  });
+    if (firstPage.totalDocs === 0) {
+      continue;
+    }
+
+    for (let pageNumber = 1; pageNumber <= firstPage.totalPages; pageNumber += 1) {
+      const currentPage =
+        pageNumber === 1
+          ? firstPage
+          : await getPaginatedPublishedPosts({
+              page: pageNumber,
+              pageSize: PAGE_SIZE,
+              categorySlug: category,
+            });
+
+      paths.push({
+        params: {
+          category,
+          ...(pageNumber === 1 ? {} : { page: String(pageNumber) }),
+        },
+        props: {
+          page: {
+            data: currentPage.docs,
+            url: {
+              prev: currentPage.prevPage
+                ? buildCategoryPageUrl(category, currentPage.prevPage)
+                : null,
+              next: currentPage.nextPage
+                ? buildCategoryPageUrl(category, currentPage.nextPage)
+                : null,
+            },
+          },
+        },
+      });
+    }
+  }
+
+  return paths;
 }) satisfies GetStaticPaths;
 
-const { page } = Astro.props;
+const { page } = Astro.props as CategoryPageProps;
 const { category } = Astro.params;
 ---
 

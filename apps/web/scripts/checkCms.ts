@@ -1,7 +1,19 @@
-const API_BASE = (process.env.ASTRO_CMS_API_URL || "http://localhost:3000/api").replace(/\/$/, "");
+const apiUrl = process.env.ASTRO_CMS_API_URL;
+if (!apiUrl) {
+  console.error("[check:cms] Missing required environment variable: ASTRO_CMS_API_URL");
+  process.exit(1);
+}
+
+const API_BASE = apiUrl.replace(/\/$/, "");
 const HEALTH_URL = `${API_BASE}/health`;
 const READ_TOKEN = process.env.ASTRO_CMS_READ_TOKEN;
-const timeoutMs = Number(process.env.ASTRO_CMS_HEALTH_TIMEOUT_MS || 8000);
+
+const timeoutValue = process.env.ASTRO_CMS_HEALTH_TIMEOUT_MS;
+const parsedTimeoutMs = timeoutValue ? Number(timeoutValue) : undefined;
+const timeoutMs =
+  typeof parsedTimeoutMs === "number" && Number.isInteger(parsedTimeoutMs) && parsedTimeoutMs > 0
+    ? parsedTimeoutMs
+    : 8000;
 
 const responseSnippet = (value: string): string => {
   return value.replace(/\s+/g, " ").trim().slice(0, 240);

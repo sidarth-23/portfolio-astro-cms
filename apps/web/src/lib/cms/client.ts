@@ -1,3 +1,5 @@
+import { ASTRO_CMS_API_URL, ASTRO_CMS_READ_TOKEN } from "astro:env/server";
+
 import {
   normalizeCvPage,
   normalizeHomePage,
@@ -23,10 +25,24 @@ import {
   type SiteSettingsGlobal,
 } from "@sidshub/cms-types";
 
-const API_BASE = (import.meta.env.ASTRO_CMS_API_URL || "http://localhost:3000/api").replace(/\/$/, "");
-const READ_TOKEN = import.meta.env.ASTRO_CMS_READ_TOKEN;
+const API_BASE = ASTRO_CMS_API_URL.replace(/\/$/, "");
+const READ_TOKEN = ASTRO_CMS_READ_TOKEN;
 
 type Params = Record<string, string | number | boolean | undefined>;
+
+type PostFilterOptions = {
+  slug?: string;
+  tagSlug?: string;
+  categorySlug?: string;
+};
+
+type PublishedPostsQueryOptions = PostFilterOptions & {
+  page?: number;
+  pageSize?: number;
+  limit?: number;
+  depth?: number;
+  sort?: string;
+};
 
 type PaginatedPosts = {
   docs: CmsPost[];
@@ -38,6 +54,10 @@ type PaginatedPosts = {
   hasNextPage: boolean;
   prevPage: number | null;
   nextPage: number | null;
+};
+
+type TaxonomyDoc = {
+  slug?: string | null;
 };
 
 const responseSnippet = (value: string): string => {
@@ -116,22 +136,58 @@ const payloadFetch = async <T>(path: string, params?: Params): Promise<T> => {
   } catch (error) {
     const reason = error instanceof Error ? error.message : String(error);
     const details = snippet ? ` Response: ${snippet}` : "";
-    throw new Error(
-      `Payload fetch failed for ${path} (${url}): invalid JSON response (${reason}).${details}`,
-    );
+    throw new Error(`Payload fetch failed for ${path} (${url}): invalid JSON response (${reason}).${details}`);
   }
 };
 
-const isPublished = (post: CmsPost): boolean => {
-  if (post.status && post.status !== "published") {
-    return false;
+const buildPublishedWhereParams = (options: PostFilterOptions = {}): Params => {
+  const nowIso = new Date().toISOString();
+  const params: Params = {
+    "where[status][equals]": "published",
+    "where[publishedAt][less_than_equal]": nowIso,
+  };
+
+  if (options.slug) {
+    params["where[slug][equals]"] = options.slug;
   }
 
-  if (!post.publishedAt) {
-    return false;
+  if (options.tagSlug) {
+    params["where[tags.slug][equals]"] = options.tagSlug;
   }
 
-  return new Date(post.publishedAt).getTime() <= Date.now();
+  if (options.categorySlug) {
+    params["where[primaryCategory.slug][equals]"] = options.categorySlug;
+  }
+
+  return params;
+};
+
+const buildPublishedPostsQueryParams = (options: PublishedPostsQueryOptions = {}): Params => {
+  const params: Params = {
+    depth: options.depth ?? 3,
+    sort: options.sort ?? "-publishedAt",
+    ...buildPublishedWhereParams(options),
+  };
+
+  if (options.page !== undefined) {
+    params.page = options.page;
+  }
+
+  if (options.pageSize !== undefined) {
+    params.limit = options.pageSize;
+  }
+
+  if (options.limit !== undefined) {
+    params.limit = options.limit;
+  }
+
+  return params;
+};
+
+const fetchPublishedPostsPage = async (
+  options: PublishedPostsQueryOptions = {},
+): Promise<PayloadListResponse<RawPost>> => {
+  return payloadFetch<PayloadListResponse<RawPost>>("/posts", buildPublishedPostsQueryParams(options));
 };
 
 const sortPosts = (posts: CmsPost[]): CmsPost[] => {
@@ -142,24 +198,40 @@ const sortPosts = (posts: CmsPost[]): CmsPost[] => {
   });
 };
 
-const paginate = (items: CmsPost[], page: number, pageSize: number): PaginatedPosts => {
-  const totalDocs = items.length;
-  const totalPages = Math.max(1, Math.ceil(totalDocs / pageSize));
-  const safePage = Math.min(Math.max(page, 1), totalPages);
-  const start = (safePage - 1) * pageSize;
-  const docs = items.slice(start, start + pageSize);
+const fetchAllTaxonomySlugs = async (path: "/tags" | "/categories"): Promise<string[]> => {
+  const limit = 200;
+  const firstPage = await payloadFetch<PayloadListResponse<TaxonomyDoc>>(path, {
+    page: 1,
+    limit,
+    sort: "slug",
+    depth: 0,
+  });
 
-  return {
-    docs,
-    page: safePage,
-    pageSize,
-    totalDocs,
-    totalPages,
-    hasPrevPage: safePage > 1,
-    hasNextPage: safePage < totalPages,
-    prevPage: safePage > 1 ? safePage - 1 : null,
-    nextPage: safePage < totalPages ? safePage + 1 : null,
-  };
+  const docs = [...firstPage.docs];
+
+  for (let page = 2; page <= firstPage.totalPages; page += 1) {
+    const nextPage = await payloadFetch<PayloadListResponse<TaxonomyDoc>>(path, {
+      page,
+      limit,
+      sort: "slug",
+      depth: 0,
+    });
+    docs.push(...nextPage.docs);
+  }
+
+  return docs
+    .map((doc) => doc.slug)
+    .filter((slug): slug is string => typeof slug === "string" && slug.length > 0);
+};
+
+const hasPublishedPosts = async (filters: Pick<PostFilterOptions, "tagSlug" | "categorySlug">): Promise<boolean> => {
+  const result = await fetchPublishedPostsPage({
+    ...filters,
+    limit: 1,
+    depth: 0,
+  });
+
+  return result.totalDocs > 0;
 };
 
 export const getSiteSettings = async (): Promise<SiteSettingsGlobal> => {
@@ -182,14 +254,28 @@ export const getProjectsPage = async (): Promise<ProjectsPageGlobal> => {
   return normalizeProjectsPage(raw);
 };
 
-export const getAllPublishedPosts = async (): Promise<CmsPost[]> => {
-  const res = await payloadFetch<PayloadListResponse<RawPost>>("/posts", {
-    depth: 3,
-    limit: 200,
-    sort: "-publishedAt",
+export const getAllPublishedPosts = async (
+  filters: Omit<PostFilterOptions, "slug"> = {},
+): Promise<CmsPost[]> => {
+  const limit = 100;
+  const firstPage = await fetchPublishedPostsPage({
+    ...filters,
+    page: 1,
+    pageSize: limit,
   });
 
-  return sortPosts(res.docs.map((post) => normalizePost(post)).filter(isPublished));
+  const rawPosts = [...firstPage.docs];
+
+  for (let page = 2; page <= firstPage.totalPages; page += 1) {
+    const nextPage = await fetchPublishedPostsPage({
+      ...filters,
+      page,
+      pageSize: limit,
+    });
+    rawPosts.push(...nextPage.docs);
+  }
+
+  return sortPosts(rawPosts.map((post) => normalizePost(post)));
 };
 
 export const getPaginatedPublishedPosts = async ({
@@ -203,34 +289,30 @@ export const getPaginatedPublishedPosts = async ({
   tagSlug?: string;
   categorySlug?: string;
 }): Promise<PaginatedPosts> => {
-  const all = await getAllPublishedPosts();
-
-  const filtered = all.filter((post) => {
-    if (tagSlug) {
-      const tagMatch = post.tags.some((tag) => tag.slug === tagSlug);
-      if (!tagMatch) {
-        return false;
-      }
-    }
-
-    if (categorySlug) {
-      const category = post.primaryCategory;
-      if (!(category && category.slug === categorySlug)) {
-        return false;
-      }
-    }
-
-    return true;
+  const response = await fetchPublishedPostsPage({
+    page,
+    pageSize,
+    tagSlug,
+    categorySlug,
   });
 
-  return paginate(filtered, page, pageSize);
+  return {
+    docs: response.docs.map((post) => normalizePost(post)),
+    page: response.page,
+    pageSize: response.limit,
+    totalDocs: response.totalDocs,
+    totalPages: response.totalPages,
+    hasPrevPage: response.hasPrevPage,
+    hasNextPage: response.hasNextPage,
+    prevPage: response.prevPage,
+    nextPage: response.nextPage,
+  };
 };
 
 export const getPostBySlug = async (slug: string): Promise<CmsPost | null> => {
-  const response = await payloadFetch<PayloadListResponse<RawPost>>("/posts", {
-    depth: 3,
+  const response = await fetchPublishedPostsPage({
+    slug,
     limit: 1,
-    "where[slug][equals]": slug,
   });
   const rawPost = response.docs[0];
 
@@ -238,29 +320,41 @@ export const getPostBySlug = async (slug: string): Promise<CmsPost | null> => {
     return null;
   }
 
-  const post = normalizePost(rawPost);
-
-  if (!isPublished(post)) {
-    return null;
-  }
-
-  return post;
+  return normalizePost(rawPost);
 };
 
 export const getTagSlugs = async (): Promise<string[]> => {
-  const posts = await getAllPublishedPosts();
-  const tags = posts.flatMap((post) => post.tags.map((tag) => tag.slug));
+  const allTagSlugs = await fetchAllTaxonomySlugs("/tags");
+  const hasPostsByTag = await Promise.all(
+    allTagSlugs.map(async (tagSlug) => {
+      return {
+        tagSlug,
+        hasPosts: await hasPublishedPosts({ tagSlug }),
+      };
+    }),
+  );
 
-  return [...new Set(tags)].sort((a, b) => a.localeCompare(b));
+  return hasPostsByTag
+    .filter((item) => item.hasPosts)
+    .map((item) => item.tagSlug)
+    .sort((a, b) => a.localeCompare(b));
 };
 
 export const getCategorySlugs = async (): Promise<string[]> => {
-  const posts = await getAllPublishedPosts();
-  const categories = posts
-    .map((post) => post.primaryCategory?.slug)
-    .filter((value): value is string => typeof value === "string");
+  const allCategorySlugs = await fetchAllTaxonomySlugs("/categories");
+  const hasPostsByCategory = await Promise.all(
+    allCategorySlugs.map(async (categorySlug) => {
+      return {
+        categorySlug,
+        hasPosts: await hasPublishedPosts({ categorySlug }),
+      };
+    }),
+  );
 
-  return [...new Set(categories)].sort((a, b) => a.localeCompare(b));
+  return hasPostsByCategory
+    .filter((item) => item.hasPosts)
+    .map((item) => item.categorySlug)
+    .sort((a, b) => a.localeCompare(b));
 };
 
 export const getProjects = async (): Promise<CmsProject[]> => {
@@ -268,11 +362,11 @@ export const getProjects = async (): Promise<CmsProject[]> => {
     depth: 3,
     limit: 200,
     sort: "displayOrder",
+    "where[isVisible][equals]": true,
   });
 
   return res.docs
     .map((project) => normalizeProject(project))
-    .filter((project) => project.isVisible !== false)
     .sort((a, b) => a.displayOrder - b.displayOrder);
 };
 

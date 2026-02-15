@@ -4,13 +4,23 @@ import HorizontalCard from "@/components/HorizontalCard.astro";
 import BaseLayout from "@/layouts/BaseLayout.astro";
 import { getProjects, getProjectsPage, mediaToUrl } from "@/lib/cms/client";
 
-const [projectsPage, projects] = await Promise.all([getProjectsPage(), getProjects()]);
+const [projectsPage, projects] = await Promise.all([
+  getProjectsPage(),
+  getProjects(),
+]);
 
-const featuredProjects = projects.filter((project) => project.section === "featured");
-const newbieProjects = projects.filter((project) => project.section === "newbie");
+const featuredProjects = projects.filter(
+  (project) => project.section === "featured",
+);
+const newbieProjects = projects.filter(
+  (project) => project.section === "newbie",
+);
 
 const toTags = (tags?: Array<{ value: string }> | null) => {
-  return (tags || []).map((tag) => ({ name: tag.value, slug: tag.value.toLowerCase().replace(/\s+/g, "-") }));
+  return (tags || []).map((tag) => ({
+    name: tag.value,
+    slug: tag.value.toLowerCase().replace(/\s+/g, "-"),
+  }));
 };
 ---
 
@@ -24,18 +34,13 @@ const toTags = (tags?: Array<{ value: string }> | null) => {
   sideBarActiveItemID="projects"
 >
   <div class="mb-8">
-    <div class="text-3xl w-full font-bold mb-2">{projectsPage?.featuredTitle || "Some of my pass times </>"}</div>
-    {
-      projectsPage?.featuredDescription ? (
-        <RichTextRenderer className="text-md" data={projectsPage.featuredDescription} />
-      ) : (
-        <p class="text-md">
-          {
-            "These are only the frontend works that I'm posting as I recently switched my food source to backend development."
-          }
-        </p>
-      )
-    }
+    <div class="text-3xl w-full font-bold mb-2">
+      {projectsPage?.featuredTitle}
+    </div>
+
+    <div class="prose max-w-none">
+      <RichTextRenderer data={projectsPage.featuredDescription} />
+    </div>
   </div>
 
   {
@@ -50,20 +55,20 @@ const toTags = (tags?: Array<{ value: string }> | null) => {
           tagBasePath={null}
           url={project.externalUrl}
         />
-        <div class="divider my-0"></div>
+        <div class="divider my-0" />
       </>
     ))
   }
 
   <div class="my-8 mt-16">
-    <div class="text-3xl w-full font-bold mb-2">{projectsPage?.newbieTitle || "Newbie Me </>"}</div>
-    {
-      projectsPage?.newbieDescription ? (
-        <RichTextRenderer className="text-md" data={projectsPage.newbieDescription} />
-      ) : (
-        <p class="text-md">Have fun seeing where I started.</p>
-      )
-    }
+    <div class="text-3xl w-full font-bold mb-2">
+      {projectsPage?.newbieTitle}
+    </div>
+
+    <RichTextRenderer
+      className="text-md"
+      data={projectsPage.newbieDescription}
+    />
   </div>
 
   {
@@ -78,7 +83,7 @@ const toTags = (tags?: Array<{ value: string }> | null) => {
           tagBasePath={null}
           url={project.externalUrl}
         />
-        <div class="divider my-0"></div>
+        <div class="divider my-0" />
       </>
     ))
   }

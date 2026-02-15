@@ -1,32 +1,80 @@
 ---
 import type { GetStaticPaths } from "astro";
+import type { CmsPost } from "@sidshub/cms-types";
 
 import HorizontalCard from "@/components/HorizontalCard.astro";
 import BaseLayout from "@/layouts/BaseLayout.astro";
 import {
   categoryFromPost,
-  getAllPublishedPosts,
+  getPaginatedPublishedPosts,
   getTagSlugs,
   mediaToUrl,
   tagsFromPost,
 } from "@/lib/cms/client";
 
-export const getStaticPaths = (async ({ paginate }) => {
-  const [allPosts, allTags] = await Promise.all([getAllPublishedPosts(), getTagSlugs()]);
+const PAGE_SIZE = 10;
 
-  return allTags.flatMap((tag) => {
-    const filteredPosts = allPosts.filter((post) => {
-      return tagsFromPost(post).some((item) => item.slug === tag);
+type TagPageProps = {
+  page: {
+    data: CmsPost[];
+    url: {
+      prev: string | null;
+      next: string | null;
+    };
+  };
+};
+
+const buildTagPageUrl = (tag: string, pageNumber: number): string => {
+  return pageNumber <= 1 ? `/blog/tag/${tag}` : `/blog/tag/${tag}/${pageNumber}`;
+};
+
+export const getStaticPaths = (async () => {
+  const allTags = await getTagSlugs();
+  const paths: Awaited<ReturnType<GetStaticPaths>> = [];
+
+  for (const tag of allTags) {
+    const firstPage = await getPaginatedPublishedPosts({
+      page: 1,
+      pageSize: PAGE_SIZE,
+      tagSlug: tag,
     });
 
-    return paginate(filteredPosts, {
-      params: { tag },
-      pageSize: 10,
-    });
-  });
+    if (firstPage.totalDocs === 0) {
+      continue;
+    }
+
+    for (let pageNumber = 1; pageNumber <= firstPage.totalPages; pageNumber += 1) {
+      const currentPage =
+        pageNumber === 1
+          ? firstPage
+          : await getPaginatedPublishedPosts({
+              page: pageNumber,
+              pageSize: PAGE_SIZE,
+              tagSlug: tag,
+            });
+
+      paths.push({
+        params: {
+          tag,
+          ...(pageNumber === 1 ? {} : { page: String(pageNumber) }),
+        },
+        props: {
+          page: {
+            data: currentPage.docs,
+            url: {
+              prev: currentPage.prevPage ? buildTagPageUrl(tag, currentPage.prevPage) : null,
+              next: currentPage.nextPage ? buildTagPageUrl(tag, currentPage.nextPage) : null,
+            },
+          },
+        },
+      });
+    }
+  }
+
+  return paths;
 }) satisfies GetStaticPaths;
 
-const { page } = Astro.props;
+const { page } = Astro.props as TagPageProps;
 const { tag } = Astro.params;
 ---
 

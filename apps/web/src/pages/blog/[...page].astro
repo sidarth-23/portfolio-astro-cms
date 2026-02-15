@@ -1,16 +1,62 @@
 ---
 import type { GetStaticPaths } from "astro";
+import type { CmsPost } from "@sidshub/cms-types";
 
 import HorizontalCard from "@/components/HorizontalCard.astro";
 import BaseLayout from "@/layouts/BaseLayout.astro";
-import { categoryFromPost, getAllPublishedPosts, mediaToUrl, tagsFromPost } from "@/lib/cms/client";
+import { categoryFromPost, getPaginatedPublishedPosts, mediaToUrl, tagsFromPost } from "@/lib/cms/client";
 
-export const getStaticPaths = (async ({ paginate }) => {
-  const posts = await getAllPublishedPosts();
-  return paginate(posts, { pageSize: 10 });
+const PAGE_SIZE = 10;
+
+type BlogPageProps = {
+  page: {
+    data: CmsPost[];
+    url: {
+      prev: string | null;
+      next: string | null;
+    };
+  };
+};
+
+const buildBlogPageUrl = (pageNumber: number): string => {
+  return pageNumber <= 1 ? "/blog" : `/blog/${pageNumber}`;
+};
+
+export const getStaticPaths = (async () => {
+  const firstPage = await getPaginatedPublishedPosts({
+    page: 1,
+    pageSize: PAGE_SIZE,
+  });
+
+  const paths: Awaited<ReturnType<GetStaticPaths>> = [];
+
+  for (let pageNumber = 1; pageNumber <= firstPage.totalPages; pageNumber += 1) {
+    const currentPage =
+      pageNumber === 1
+        ? firstPage
+        : await getPaginatedPublishedPosts({
+            page: pageNumber,
+            pageSize: PAGE_SIZE,
+          });
+
+    paths.push({
+      params: pageNumber === 1 ? {} : { page: String(pageNumber) },
+      props: {
+        page: {
+          data: currentPage.docs,
+          url: {
+            prev: currentPage.prevPage ? buildBlogPageUrl(currentPage.prevPage) : null,
+            next: currentPage.nextPage ? buildBlogPageUrl(currentPage.nextPage) : null,
+          },
+        },
+      },
+    });
+  }
+
+  return paths;
 }) satisfies GetStaticPaths;
 
-const { page } = Astro.props;
+const { page } = Astro.props as BlogPageProps;
 ---
 
 <BaseLayout title="Blog" sideBarActiveItemID="blog">
