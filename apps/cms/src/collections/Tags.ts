@@ -10,17 +10,31 @@ export const Tags: CollectionConfig = {
   admin: {
     useAsTitle: "name",
     defaultColumns: ["name", "slug", "updatedAt"],
+    group: "Taxonomy",
   },
   fields: [
     {
-      name: "name",
-      type: "text",
-      required: true,
-    },
-    slugField({ fieldToUse: "name" }),
-    {
-      name: "description",
-      type: "textarea",
+      type: "tabs",
+      tabs: [
+        {
+          label: "Content",
+          fields: [
+            {
+              name: "name",
+              type: "text",
+              required: true,
+            },
+            {
+              name: "description",
+              type: "textarea",
+            },
+          ],
+        },
+        {
+          label: "Settings",
+          fields: [slugField({ fieldToUse: "name" })],
+        },
+      ],
     },
   ],
 };

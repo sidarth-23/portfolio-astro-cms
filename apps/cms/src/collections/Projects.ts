@@ -12,72 +12,91 @@ export const Projects: CollectionConfig = {
   admin: {
     useAsTitle: "title",
     defaultColumns: ["title", "section", "displayOrder", "updatedAt"],
+    group: "Content",
   },
   hooks: {
     afterChange: [triggerDokployRedeploy],
   },
   fields: [
     {
-      name: "title",
-      type: "text",
-      required: true,
-    },
-    slugField({ fieldToUse: "title" }),
-    {
-      name: "summary",
-      type: "textarea",
-      required: true,
-    },
-    {
-      name: "description",
-      type: "richText",
-      required: false,
-    },
-    {
-      name: "image",
-      type: "upload",
-      relationTo: "media",
-      required: false,
-    },
-    {
-      name: "externalUrl",
-      type: "text",
-      required: true,
-    },
-    {
-      name: "badge",
-      type: "text",
-      required: false,
-    },
-    {
-      name: "techTags",
-      type: "array",
-      fields: [
+      type: "tabs",
+      tabs: [
         {
-          name: "value",
-          type: "text",
-          required: true,
+          label: "Content",
+          fields: [
+            {
+              name: "title",
+              type: "text",
+              required: true,
+            },
+            {
+              name: "summary",
+              type: "textarea",
+              required: true,
+            },
+            {
+              name: "description",
+              type: "richText",
+              required: false,
+            },
+            {
+              name: "image",
+              type: "upload",
+              relationTo: "media",
+              required: false,
+            },
+            {
+              name: "externalUrl",
+              type: "text",
+              required: true,
+            },
+            {
+              name: "badge",
+              type: "text",
+              required: false,
+            },
+            {
+              name: "techTags",
+              type: "array",
+              fields: [
+                {
+                  name: "value",
+                  type: "text",
+                  required: true,
+                },
+              ],
+            },
+          ],
+        },
+        {
+          label: "SEO",
+          fields: [seoOverridesField],
+        },
+        {
+          label: "Settings",
+          fields: [
+            slugField({ fieldToUse: "title" }),
+            {
+              name: "section",
+              type: "select",
+              required: true,
+              defaultValue: "featured",
+              options: ["featured", "newbie"],
+            },
+            {
+              name: "displayOrder",
+              type: "number",
+              defaultValue: 0,
+              required: true,
+            },
+            {
+              name: "isVisible",
+              type: "checkbox",
+              defaultValue: true,
+            },
+          ],
         },
       ],
     },
-    {
-      name: "section",
-      type: "select",
-      required: true,
-      defaultValue: "featured",
-      options: ["featured", "newbie"],
-    },
-    {
-      name: "displayOrder",
-      type: "number",
-      defaultValue: 0,
-      required: true,
-    },
-    {
-      name: "isVisible",
-      type: "checkbox",
-      defaultValue: true,
-    },
-    seoOverridesField,
   ],
 };

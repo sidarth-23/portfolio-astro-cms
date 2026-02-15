@@ -11,24 +11,41 @@ export const Categories: CollectionConfig = {
   admin: {
     useAsTitle: "name",
     defaultColumns: ["name", "slug", "updatedAt"],
+    group: "Taxonomy",
   },
   fields: [
     {
-      name: "name",
-      type: "text",
-      required: true,
+      type: "tabs",
+      tabs: [
+        {
+          label: "Content",
+          fields: [
+            {
+              name: "name",
+              type: "text",
+              required: true,
+            },
+            {
+              name: "description",
+              type: "textarea",
+            },
+            {
+              name: "parentCategory",
+              type: "relationship",
+              relationTo: "categories",
+              required: false,
+            },
+          ],
+        },
+        {
+          label: "SEO",
+          fields: [seoOverridesField],
+        },
+        {
+          label: "Settings",
+          fields: [slugField({ fieldToUse: "name" })],
+        },
+      ],
     },
-    slugField({ fieldToUse: "name" }),
-    {
-      name: "description",
-      type: "textarea",
-    },
-    {
-      name: "parentCategory",
-      type: "relationship",
-      relationTo: "categories",
-      required: false,
-    },
-    seoOverridesField,
   ],
 };

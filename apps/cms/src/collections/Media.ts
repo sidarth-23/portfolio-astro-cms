@@ -8,17 +8,33 @@ export const Media: CollectionConfig = {
   },
   admin: {
     useAsTitle: "alt",
+    group: "Assets",
   },
   fields: [
     {
-      name: "alt",
-      type: "text",
-      required: true,
-      label: "Alt Text",
-    },
-    {
-      name: "caption",
-      type: "richText",
+      type: "tabs",
+      tabs: [
+        {
+          label: "Content",
+          fields: [
+            {
+              name: "caption",
+              type: "richText",
+            },
+          ],
+        },
+        {
+          label: "Settings",
+          fields: [
+            {
+              name: "alt",
+              type: "text",
+              required: true,
+              label: "Alt Text",
+            },
+          ],
+        },
+      ],
     },
   ],
 };

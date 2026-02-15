@@ -6,51 +6,69 @@ export const HomePage: GlobalConfig = {
   access: {
     read: () => true,
   },
+  admin: {
+    group: "Pages",
+  },
   fields: [
     {
-      name: "greeting",
-      type: "text",
-      required: true,
-    },
-    {
-      name: "name",
-      type: "text",
-      required: true,
-    },
-    {
-      name: "role",
-      type: "text",
-      required: true,
-    },
-    {
-      name: "about",
-      type: "richText",
-      required: true,
-    },
-    {
-      name: "ctaPrimaryLabel",
-      type: "text",
-      required: true,
-    },
-    {
-      name: "ctaPrimaryUrl",
-      type: "text",
-      required: true,
-    },
-    {
-      name: "ctaSecondaryLabel",
-      type: "text",
-      required: true,
-    },
-    {
-      name: "ctaSecondaryUrl",
-      type: "text",
-      required: true,
-    },
-    {
-      name: "latestBlogTitle",
-      type: "text",
-      required: true,
+      type: "tabs",
+      tabs: [
+        {
+          label: "Content",
+          fields: [
+            {
+              name: "greeting",
+              type: "text",
+              required: true,
+            },
+            {
+              name: "name",
+              type: "text",
+              required: true,
+            },
+            {
+              name: "role",
+              type: "text",
+              required: true,
+            },
+            {
+              name: "about",
+              type: "richText",
+              required: true,
+            },
+          ],
+        },
+        {
+          label: "Settings",
+          fields: [
+            {
+              name: "ctaPrimaryLabel",
+              type: "text",
+              required: true,
+            },
+            {
+              name: "ctaPrimaryUrl",
+              type: "text",
+              required: true,
+            },
+            {
+              name: "ctaSecondaryLabel",
+              type: "text",
+              required: true,
+            },
+            {
+              name: "ctaSecondaryUrl",
+              type: "text",
+              required: true,
+            },
+            {
+              name: "latestBlogTitle",
+              type: "text",
+              required: true,
+            },
+          ],
+        },
+      ],
     },
   ],
 };

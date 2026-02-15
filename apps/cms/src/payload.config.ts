@@ -100,7 +100,7 @@ export default buildConfig({
   },
   plugins: [
     seoPlugin({
-      collections: ["posts", "projects"],
+      collections: ["posts", "projects", "categories"],
       globals: ["site-settings", "home-page", "cv-page", "projects-page"],
       uploadsCollection: "media",
       generateTitle: ({ doc }) => {

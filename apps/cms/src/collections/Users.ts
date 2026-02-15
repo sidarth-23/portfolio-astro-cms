@@ -6,33 +6,49 @@ export const Users: CollectionConfig = {
   admin: {
     useAsTitle: "name",
     defaultColumns: ["name", "email", "updatedAt"],
+    group: "Admin",
   },
   fields: [
     {
-      name: "name",
-      type: "text",
-      required: true,
-    },
-    {
-      name: "bio",
-      type: "richText",
-      required: false,
-    },
-    {
-      name: "avatar",
-      type: "upload",
-      relationTo: "media",
-      required: false,
-    },
-    {
-      name: "linkedInUrl",
-      type: "text",
-      required: false,
-    },
-    {
-      name: "githubUrl",
-      type: "text",
-      required: false,
+      type: "tabs",
+      tabs: [
+        {
+          label: "Content",
+          fields: [
+            {
+              name: "name",
+              type: "text",
+              required: true,
+            },
+            {
+              name: "bio",
+              type: "richText",
+              required: false,
+            },
+            {
+              name: "avatar",
+              type: "upload",
+              relationTo: "media",
+              required: false,
+            },
+          ],
+        },
+        {
+          label: "Settings",
+          fields: [
+            {
+              name: "linkedInUrl",
+              type: "text",
+              required: false,
+            },
+            {
+              name: "githubUrl",
+              type: "text",
+              required: false,
+            },
+          ],
+        },
+      ],
     },
   ],
 };

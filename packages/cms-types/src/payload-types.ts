@@ -75,7 +75,6 @@ export interface Config {
     posts: Post;
     projects: Project;
     'payload-kv': PayloadKv;
-    'payload-jobs': PayloadJob;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
     'payload-migrations': PayloadMigration;
@@ -90,7 +89,6 @@ export interface Config {
     posts: PostsSelect<false> | PostsSelect<true>;
     projects: ProjectsSelect<false> | ProjectsSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
-    'payload-jobs': PayloadJobsSelect<false> | PayloadJobsSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
     'payload-migrations': PayloadMigrationsSelect<false> | PayloadMigrationsSelect<true>;
@@ -114,13 +112,7 @@ export interface Config {
   locale: null;
   user: User;
   jobs: {
-    tasks: {
-      schedulePublish: TaskSchedulePublish;
-      inline: {
-        input: unknown;
-        output: unknown;
-      };
-    };
+    tasks: unknown;
     workflows: unknown;
   };
 }
@@ -192,7 +184,6 @@ export interface User {
  */
 export interface Media {
   id: number;
-  alt: string;
   caption?: {
     root: {
       type: string;
@@ -208,6 +199,7 @@ export interface Media {
     };
     [k: string]: unknown;
   } | null;
+  alt: string;
   updatedAt: string;
   createdAt: string;
   url?: string | null;
@@ -227,10 +219,6 @@ export interface Media {
 export interface Category {
   id: number;
   name: string;
-  /**
-   * Auto-generated from title, but can be edited.
-   */
-  slug: string;
   description?: string | null;
   parentCategory?: (number | null) | Category;
   seoOverrides?: {
@@ -238,6 +226,18 @@ export interface Category {
     robotsIndex?: boolean | null;
     robotsFollow?: boolean | null;
     schemaType?: ('Article' | 'TechArticle') | null;
+  };
+  /**
+   * Auto-generated from title, but can be edited.
+   */
+  slug: string;
+  meta?: {
+    title?: string | null;
+    description?: string | null;
+    /**
+     * Maximum upload file size: 12MB. Recommended file size for images is <500KB.
+     */
+    image?: (number | null) | Media;
   };
   updatedAt: string;
   createdAt: string;
@@ -249,11 +249,11 @@ export interface Category {
 export interface Tag {
   id: number;
   name: string;
+  description?: string | null;
   /**
    * Auto-generated from title, but can be edited.
    */
   slug: string;
-  description?: string | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -264,11 +264,11 @@ export interface Tag {
 export interface Series {
   id: number;
   name: string;
+  description?: string | null;
   /**
    * Auto-generated from title, but can be edited.
    */
   slug: string;
-  description?: string | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -279,10 +279,6 @@ export interface Series {
 export interface Post {
   id: number;
   title: string;
-  /**
-   * Auto-generated from title, but can be edited.
-   */
-  slug: string;
   excerpt: string;
   content: {
     root: {
@@ -300,13 +296,23 @@ export interface Post {
     [k: string]: unknown;
   };
   coverImage?: (number | null) | Media;
-  publishedAt?: string | null;
-  status: 'draft' | 'scheduled' | 'published';
-  scheduledAt?: string | null;
   primaryCategory: number | Category;
   tags?: (number | Tag)[] | null;
   series?: (number | null) | Series;
   seriesOrder?: number | null;
+  seoOverrides?: {
+    canonicalUrl?: string | null;
+    robotsIndex?: boolean | null;
+    robotsFollow?: boolean | null;
+    schemaType?: ('Article' | 'TechArticle') | null;
+  };
+  /**
+   * Auto-generated from title, but can be edited.
+   */
+  slug: string;
+  publishedAt?: string | null;
+  status: 'draft' | 'scheduled' | 'published';
+  scheduledAt?: string | null;
   authors?: (number | User)[] | null;
   populatedAuthors?:
     | {
@@ -333,12 +339,6 @@ export interface Post {
       }[]
     | null;
   featureOnHome?: boolean | null;
-  seoOverrides?: {
-    canonicalUrl?: string | null;
-    robotsIndex?: boolean | null;
-    robotsFollow?: boolean | null;
-    schemaType?: ('Article' | 'TechArticle') | null;
-  };
   meta?: {
     title?: string | null;
     description?: string | null;
@@ -349,7 +349,6 @@ export interface Post {
   };
   updatedAt: string;
   createdAt: string;
-  _status?: ('draft' | 'published') | null;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -358,10 +357,6 @@ export interface Post {
 export interface Project {
   id: number;
   title: string;
-  /**
-   * Auto-generated from title, but can be edited.
-   */
-  slug: string;
   summary: string;
   description?: {
     root: {
@@ -387,15 +382,19 @@ export interface Project {
         id?: string | null;
       }[]
     | null;
-  section: 'featured' | 'newbie';
-  displayOrder: number;
-  isVisible?: boolean | null;
   seoOverrides?: {
     canonicalUrl?: string | null;
     robotsIndex?: boolean | null;
     robotsFollow?: boolean | null;
     schemaType?: ('Article' | 'TechArticle') | null;
   };
+  /**
+   * Auto-generated from title, but can be edited.
+   */
+  slug: string;
+  section: 'featured' | 'newbie';
+  displayOrder: number;
+  isVisible?: boolean | null;
   meta?: {
     title?: string | null;
     description?: string | null;
@@ -423,98 +422,6 @@ export interface PayloadKv {
     | number
     | boolean
     | null;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "payload-jobs".
- */
-export interface PayloadJob {
-  id: number;
-  /**
-   * Input data provided to the job
-   */
-  input?:
-    | {
-        [k: string]: unknown;
-      }
-    | unknown[]
-    | string
-    | number
-    | boolean
-    | null;
-  taskStatus?:
-    | {
-        [k: string]: unknown;
-      }
-    | unknown[]
-    | string
-    | number
-    | boolean
-    | null;
-  completedAt?: string | null;
-  totalTried?: number | null;
-  /**
-   * If hasError is true this job will not be retried
-   */
-  hasError?: boolean | null;
-  /**
-   * If hasError is true, this is the error that caused it
-   */
-  error?:
-    | {
-        [k: string]: unknown;
-      }
-    | unknown[]
-    | string
-    | number
-    | boolean
-    | null;
-  /**
-   * Task execution log
-   */
-  log?:
-    | {
-        executedAt: string;
-        completedAt: string;
-        taskSlug: 'inline' | 'schedulePublish';
-        taskID: string;
-        input?:
-          | {
-              [k: string]: unknown;
-            }
-          | unknown[]
-          | string
-          | number
-          | boolean
-          | null;
-        output?:
-          | {
-              [k: string]: unknown;
-            }
-          | unknown[]
-          | string
-          | number
-          | boolean
-          | null;
-        state: 'failed' | 'succeeded';
-        error?:
-          | {
-              [k: string]: unknown;
-            }
-          | unknown[]
-          | string
-          | number
-          | boolean
-          | null;
-        id?: string | null;
-      }[]
-    | null;
-  taskSlug?: ('inline' | 'schedulePublish') | null;
-  queue?: string | null;
-  waitUntil?: string | null;
-  processing?: boolean | null;
-  updatedAt: string;
-  createdAt: string;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -625,8 +532,8 @@ export interface UsersSelect<T extends boolean = true> {
  * via the `definition` "media_select".
  */
 export interface MediaSelect<T extends boolean = true> {
-  alt?: T;
   caption?: T;
+  alt?: T;
   updatedAt?: T;
   createdAt?: T;
   url?: T;
@@ -645,7 +552,6 @@ export interface MediaSelect<T extends boolean = true> {
  */
 export interface CategoriesSelect<T extends boolean = true> {
   name?: T;
-  slug?: T;
   description?: T;
   parentCategory?: T;
   seoOverrides?:
@@ -656,6 +562,14 @@ export interface CategoriesSelect<T extends boolean = true> {
         robotsFollow?: T;
         schemaType?: T;
       };
+  slug?: T;
+  meta?:
+    | T
+    | {
+        title?: T;
+        description?: T;
+        image?: T;
+      };
   updatedAt?: T;
   createdAt?: T;
 }
@@ -665,8 +579,8 @@ export interface CategoriesSelect<T extends boolean = true> {
  */
 export interface TagsSelect<T extends boolean = true> {
   name?: T;
-  slug?: T;
   description?: T;
+  slug?: T;
   updatedAt?: T;
   createdAt?: T;
 }
@@ -676,8 +590,8 @@ export interface TagsSelect<T extends boolean = true> {
  */
 export interface SeriesSelect<T extends boolean = true> {
   name?: T;
-  slug?: T;
   description?: T;
+  slug?: T;
   updatedAt?: T;
   createdAt?: T;
 }
@@ -687,17 +601,25 @@ export interface SeriesSelect<T extends boolean = true> {
  */
 export interface PostsSelect<T extends boolean = true> {
   title?: T;
-  slug?: T;
   excerpt?: T;
   content?: T;
   coverImage?: T;
-  publishedAt?: T;
-  status?: T;
-  scheduledAt?: T;
   primaryCategory?: T;
   tags?: T;
   series?: T;
   seriesOrder?: T;
+  seoOverrides?:
+    | T
+    | {
+        canonicalUrl?: T;
+        robotsIndex?: T;
+        robotsFollow?: T;
+        schemaType?: T;
+      };
+  slug?: T;
+  publishedAt?: T;
+  status?: T;
+  scheduledAt?: T;
   authors?: T;
   populatedAuthors?:
     | T
@@ -710,14 +632,6 @@ export interface PostsSelect<T extends boolean = true> {
         githubUrl?: T;
       };
   featureOnHome?: T;
-  seoOverrides?:
-    | T
-    | {
-        canonicalUrl?: T;
-        robotsIndex?: T;
-        robotsFollow?: T;
-        schemaType?: T;
-      };
   meta?:
     | T
     | {
@@ -727,7 +641,6 @@ export interface PostsSelect<T extends boolean = true> {
       };
   updatedAt?: T;
   createdAt?: T;
-  _status?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -735,7 +648,6 @@ export interface PostsSelect<T extends boolean = true> {
  */
 export interface ProjectsSelect<T extends boolean = true> {
   title?: T;
-  slug?: T;
   summary?: T;
   description?: T;
   image?: T;
@@ -747,9 +659,6 @@ export interface ProjectsSelect<T extends boolean = true> {
         value?: T;
         id?: T;
       };
-  section?: T;
-  displayOrder?: T;
-  isVisible?: T;
   seoOverrides?:
     | T
     | {
@@ -758,6 +667,10 @@ export interface ProjectsSelect<T extends boolean = true> {
         robotsFollow?: T;
         schemaType?: T;
       };
+  slug?: T;
+  section?: T;
+  displayOrder?: T;
+  isVisible?: T;
   meta?:
     | T
     | {
@@ -775,37 +688,6 @@ export interface ProjectsSelect<T extends boolean = true> {
 export interface PayloadKvSelect<T extends boolean = true> {
   key?: T;
   data?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "payload-jobs_select".
- */
-export interface PayloadJobsSelect<T extends boolean = true> {
-  input?: T;
-  taskStatus?: T;
-  completedAt?: T;
-  totalTried?: T;
-  hasError?: T;
-  error?: T;
-  log?:
-    | T
-    | {
-        executedAt?: T;
-        completedAt?: T;
-        taskSlug?: T;
-        taskID?: T;
-        input?: T;
-        output?: T;
-        state?: T;
-        error?: T;
-        id?: T;
-      };
-  taskSlug?: T;
-  queue?: T;
-  waitUntil?: T;
-  processing?: T;
-  updatedAt?: T;
-  createdAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -1132,23 +1014,6 @@ export interface ProjectsPageSelect<T extends boolean = true> {
   updatedAt?: T;
   createdAt?: T;
   globalType?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "TaskSchedulePublish".
- */
-export interface TaskSchedulePublish {
-  input: {
-    type?: ('publish' | 'unpublish') | null;
-    locale?: string | null;
-    doc?: {
-      relationTo: 'posts';
-      value: number | Post;
-    } | null;
-    global?: string | null;
-    user?: (number | null) | User;
-  };
-  output?: unknown;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema

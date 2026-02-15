@@ -6,79 +6,97 @@ export const CvPage: GlobalConfig = {
   access: {
     read: () => true,
   },
+  admin: {
+    group: "Pages",
+  },
   fields: [
     {
-      name: "profile",
-      type: "richText",
-      required: true,
-    },
-    {
-      name: "education",
-      type: "array",
-      fields: [
+      type: "tabs",
+      tabs: [
         {
-          name: "title",
-          type: "text",
-          required: true,
-        },
-        {
-          name: "subtitle",
-          type: "text",
-          required: true,
-        },
-      ],
-    },
-    {
-      name: "experience",
-      type: "array",
-      fields: [
-        {
-          name: "title",
-          type: "text",
-          required: true,
-        },
-        {
-          name: "subtitle",
-          type: "text",
-          required: true,
-        },
-        {
-          name: "items",
-          type: "array",
+          label: "Content",
           fields: [
             {
-              name: "value",
-              type: "text",
+              name: "profile",
+              type: "richText",
               required: true,
+            },
+            {
+              name: "education",
+              type: "array",
+              fields: [
+                {
+                  name: "title",
+                  type: "text",
+                  required: true,
+                },
+                {
+                  name: "subtitle",
+                  type: "text",
+                  required: true,
+                },
+              ],
+            },
+            {
+              name: "experience",
+              type: "array",
+              fields: [
+                {
+                  name: "title",
+                  type: "text",
+                  required: true,
+                },
+                {
+                  name: "subtitle",
+                  type: "text",
+                  required: true,
+                },
+                {
+                  name: "items",
+                  type: "array",
+                  fields: [
+                    {
+                      name: "value",
+                      type: "text",
+                      required: true,
+                    },
+                  ],
+                },
+              ],
             },
           ],
         },
-      ],
-    },
-    {
-      name: "certifications",
-      type: "array",
-      fields: [
         {
-          name: "name",
-          type: "text",
-          required: true,
-        },
-        {
-          name: "url",
-          type: "text",
-          required: true,
-        },
-      ],
-    },
-    {
-      name: "skills",
-      type: "array",
-      fields: [
-        {
-          name: "value",
-          type: "text",
-          required: true,
+          label: "Settings",
+          fields: [
+            {
+              name: "certifications",
+              type: "array",
+              fields: [
+                {
+                  name: "name",
+                  type: "text",
+                  required: true,
+                },
+                {
+                  name: "url",
+                  type: "text",
+                  required: true,
+                },
+              ],
+            },
+            {
+              name: "skills",
+              type: "array",
+              fields: [
+                {
+                  name: "value",
+                  type: "text",
+                  required: true,
+                },
+              ],
+            },
+          ],
         },
       ],
     },

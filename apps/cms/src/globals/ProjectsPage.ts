@@ -6,26 +6,44 @@ export const ProjectsPage: GlobalConfig = {
   access: {
     read: () => true,
   },
+  admin: {
+    group: "Pages",
+  },
   fields: [
     {
-      name: "featuredTitle",
-      type: "text",
-      required: true,
-    },
-    {
-      name: "featuredDescription",
-      type: "richText",
-      required: true,
-    },
-    {
-      name: "newbieTitle",
-      type: "text",
-      required: true,
-    },
-    {
-      name: "newbieDescription",
-      type: "richText",
-      required: true,
+      type: "tabs",
+      tabs: [
+        {
+          label: "Content",
+          fields: [
+            {
+              name: "featuredTitle",
+              type: "text",
+              required: true,
+            },
+            {
+              name: "featuredDescription",
+              type: "richText",
+              required: true,
+            },
+          ],
+        },
+        {
+          label: "Settings",
+          fields: [
+            {
+              name: "newbieTitle",
+              type: "text",
+              required: true,
+            },
+            {
+              name: "newbieDescription",
+              type: "richText",
+              required: true,
+            },
+          ],
+        },
+      ],
     },
   ],
 };
