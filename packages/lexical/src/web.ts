@@ -1,13 +1,18 @@
 import {
-  LinkJSXConverter,
-  RichText as PayloadRichText,
-  type JSXConvertersFunction,
-} from "@payloadcms/richtext-lexical/react";
+  convertLexicalToHTML,
+  LinkHTMLConverter,
+  type HTMLConvertersFunction,
+} from "@payloadcms/richtext-lexical/html";
 import type { DefaultNodeTypes, SerializedLinkNode } from "@payloadcms/richtext-lexical";
 import type { SerializedEditorState } from "lexical";
-import React from "react";
 
 export type RichTextValue = SerializedEditorState;
+
+export type RichTextRenderOptions = {
+  className?: string;
+  data?: RichTextValue | null;
+  enableContainer?: boolean;
+};
 
 type NodeTypes = DefaultNodeTypes;
 
@@ -32,32 +37,24 @@ const internalDocToHref = ({ linkNode }: { linkNode: SerializedLinkNode }): stri
   return slug ? `/${slug}` : "#";
 };
 
-const jsxConverters: JSXConvertersFunction<NodeTypes> = ({ defaultConverters }) => ({
+const htmlConverters: HTMLConvertersFunction<NodeTypes> = ({ defaultConverters }) => ({
   ...defaultConverters,
-  ...LinkJSXConverter({ internalDocToHref }),
+  ...LinkHTMLConverter({ internalDocToHref }),
 });
 
-type RichTextRendererProps = {
-  className?: string;
-  data?: SerializedEditorState | null;
-  enableContainer?: boolean;
-};
-
-export const RichTextRenderer: React.FC<RichTextRendererProps> = ({
+export const renderRichTextToHTML = ({
   className,
   data,
   enableContainer = false,
-}) => {
+}: RichTextRenderOptions): string => {
   if (!data) {
-    return null;
+    return "";
   }
 
-  return (
-    <PayloadRichText
-      className={className}
-      converters={jsxConverters}
-      data={data}
-      disableContainer={!enableContainer}
-    />
-  );
+  return convertLexicalToHTML({
+    className,
+    converters: htmlConverters,
+    data,
+    disableContainer: !enableContainer,
+  });
 };

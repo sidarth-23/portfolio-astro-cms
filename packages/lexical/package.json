@@ -5,11 +5,9 @@
   "type": "module",
   "exports": {
     "./cms": "./src/cms.ts",
-    "./web": "./src/web.tsx"
+    "./web": "./src/web.ts"
   },
   "dependencies": {
-    "@payloadcms/richtext-lexical": "^3.69.0",
-    "react": "^19.1.0",
-    "react-dom": "^19.1.0"
+    "@payloadcms/richtext-lexical": "3.76.1"
   }
 }

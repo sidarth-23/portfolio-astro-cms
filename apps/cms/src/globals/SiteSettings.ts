@@ -11,13 +11,11 @@ export const SiteSettings: GlobalConfig = {
       name: "siteTitle",
       type: "text",
       required: true,
-      defaultValue: "Sidarth",
     },
     {
       name: "siteDescription",
       type: "textarea",
       required: true,
-      defaultValue: "Welcome to my website!",
     },
     {
       name: "defaultOgImage",

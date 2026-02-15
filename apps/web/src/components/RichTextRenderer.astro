@@ -1,0 +1,14 @@
+---
+import { renderRichTextToHTML, type RichTextValue } from "@sidshub/lexical/web";
+
+type Props = {
+  className?: string;
+  data?: RichTextValue | null;
+  enableContainer?: boolean;
+};
+
+const { className, data, enableContainer = false }: Props = Astro.props;
+const html = renderRichTextToHTML({ className, data, enableContainer });
+---
+
+{html && <Fragment set:html={html} />}

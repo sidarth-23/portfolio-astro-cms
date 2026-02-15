@@ -11,7 +11,6 @@ export const ProjectsPage: GlobalConfig = {
       name: "featuredTitle",
       type: "text",
       required: true,
-      defaultValue: "Some of my pass times </>",
     },
     {
       name: "featuredDescription",
@@ -22,7 +21,6 @@ export const ProjectsPage: GlobalConfig = {
       name: "newbieTitle",
       type: "text",
       required: true,
-      defaultValue: "Newbie Me </>",
     },
     {
       name: "newbieDescription",

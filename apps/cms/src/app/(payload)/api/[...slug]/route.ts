@@ -6,6 +6,7 @@ import {
   REST_POST,
   REST_PUT,
 } from "@payloadcms/next/routes";
+import "@payloadcms/next/css";
 
 import config from "@payload-config";
 

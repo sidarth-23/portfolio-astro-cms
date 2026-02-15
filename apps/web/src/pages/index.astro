@@ -1,5 +1,5 @@
 ---
-import { RichTextRenderer } from "@sidshub/lexical/web";
+import RichTextRenderer from "@/components/RichTextRenderer.astro";
 import BaseLayout from "@/layouts/BaseLayout.astro";
 import HorizontalCard from "@/components/HorizontalCard.astro";
 import {
@@ -10,12 +10,12 @@ import {
   tagsFromPost,
 } from "@/lib/cms/client";
 
-const [homePage, posts] = await Promise.all([getHomePage(), getAllPublishedPosts()]);
+const [homePage, posts] = await Promise.all([
+  getHomePage(),
+  getAllPublishedPosts(),
+]);
 
 const latestPosts = posts.slice(0, 3);
-
-const fallbackAbout =
-  "I'm just a random guy on the internet tinkering around with various tools around and having a fun time around. To feed myself, I do a job of a Backend developer with my tech stack around the Go language ecosystem.";
 ---
 
 <BaseLayout
@@ -28,30 +28,32 @@ const fallbackAbout =
   sideBarActiveItemID="home"
 >
   <div class="py-6">
-    <div class="text-xl py-1">{homePage?.greeting || "Hey there 👋"}</div>
-    <div class="text-5xl font-bold">{homePage?.name || "I'm Sidarth G"}</div>
-    <div class="text-3xl py-3 font-bold">{homePage?.role || "Full Stack Developer"}</div>
+    <div class="text-xl py-1">{homePage?.greeting}</div>
+    <div class="text-5xl font-bold">{homePage?.name}</div>
+    <div class="text-3xl py-3 font-bold">
+      {homePage?.role || "Full Stack Developer"}
+    </div>
 
-    {
-      homePage?.about ? (
-        <RichTextRenderer className="text-lg py-2" data={homePage.about} />
-      ) : (
-        <p class="text-lg whitespace-pre-line py-2">{fallbackAbout}</p>
-      )
-    }
+    <RichTextRenderer className="text-lg py-2" data={homePage.about} />
 
     <div class="mt-8">
-      <a class="btn" href={homePage?.ctaPrimaryUrl || "https://linkedin.com/in/sidarth-g"} target="_blank">
-        {homePage?.ctaPrimaryLabel || "Let's connect!"}
+      <a
+        class="btn"
+        href={homePage?.ctaPrimaryUrl}
+        target="_blank"
+      >
+        {homePage?.ctaPrimaryLabel}
       </a>
-      <a href={homePage?.ctaSecondaryUrl || "/cv"} class="btn btn-outline ml-5">
-        {homePage?.ctaSecondaryLabel || "View My CV"}
+      <a href={homePage?.ctaSecondaryUrl} class="btn btn-outline ml-5">
+        {homePage?.ctaSecondaryLabel}
       </a>
     </div>
   </div>
 
   <div>
-    <div class="text-3xl w-full font-bold mb-5 mt-10">{homePage?.latestBlogTitle || "Latest from blog"}</div>
+    <div class="text-3xl w-full font-bold mb-5 mt-10">
+      {homePage?.latestBlogTitle}
+    </div>
   </div>
 
   {

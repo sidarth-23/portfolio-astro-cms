@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 
-import { RootPage, generatePageMetadata } from "@payloadcms/next/views";
+import { NotFoundPage, generatePageMetadata } from "@payloadcms/next/views";
 
 import config from "@payload-config";
 
@@ -55,15 +55,13 @@ export const generateMetadata = ({ params, searchParams }: Props): Promise<Metad
   });
 };
 
-export default function Page(props: Props) {
+export default function NotFound(props: Props) {
   const { params, searchParams } = props ?? {};
-  const normalizedParams = normalizeParams(params);
-  const normalizedSearchParams = normalizeSearchParams(searchParams);
 
-  return RootPage({
+  return NotFoundPage({
     config,
     importMap,
-    params: normalizedParams,
-    searchParams: normalizedSearchParams,
+    params: normalizeParams(params),
+    searchParams: normalizeSearchParams(searchParams),
   });
 }

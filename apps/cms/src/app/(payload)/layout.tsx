@@ -1,4 +1,5 @@
 import { handleServerFunctions, RootLayout } from "@payloadcms/next/layouts";
+import "@payloadcms/next/css";
 import type { ServerFunctionClientArgs } from "payload";
 import type { ReactNode } from "react";
 
