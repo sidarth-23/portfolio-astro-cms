@@ -1,4 +1,7 @@
 ---
+import RichTextRenderer from "@/components/RichTextRenderer.astro";
+import { type RichTextValue } from "@sidshub/lexical/web";
+
 type Tag = {
   name: string;
   slug: string;
@@ -12,49 +15,143 @@ type Category = {
 type Props = {
   title: string;
   img?: string;
-  desc: string;
+  desc?: string;
+  descRich?: RichTextValue | null;
   url: string;
   badge?: string;
+  badges?: string[];
   tags?: Tag[];
   category?: Category;
   target?: string;
   tagBasePath?: string | null;
+  reverse?: boolean;
+  wholeCardLink?: boolean;
 };
 
-const { title, img, desc, url, badge, tags = [], category, target = "_blank", tagBasePath = "/blog/tag" } = Astro.props;
+const {
+  title,
+  img,
+  desc = "",
+  descRich,
+  url,
+  badge,
+  badges = [],
+  tags = [],
+  category,
+  target = "_blank",
+  tagBasePath = "/blog/tag",
+  reverse = false,
+  wholeCardLink = false,
+} = Astro.props;
+const contentClass = `hero-content flex-col ${reverse ? "md:flex-row-reverse" : "md:flex-row"} md:gap-8 lg:gap-10`;
+const allBadges = (badge ? [badge] : []).concat(badges);
 ---
 
-<div class="rounded-lg bg-base-100 hover:shadow-xl transition ease-in-out hover:scale-[102%]">
-  <div class="hero-content flex-col md:flex-row">
-    {
-      img && (
-        <a href={url} target={target} rel={target === "_blank" ? "noreferrer" : undefined}>
-          <img src={img} loading="lazy" alt={title} class="max-w-full md:max-w-[13rem] rounded-lg" />
-        </a>
-      )
-    }
-    <div class="grow w-full">
-      <h1 class="text-xl font-bold">
-        <a href={url} target={target} rel={target === "_blank" ? "noreferrer" : undefined} class="hover:underline">
-          {title}
-        </a>
-        {badge && <div class="badge badge-secondary mx-2">{badge}</div>}
-      </h1>
-      <p class="py-1 text-1xl">{desc}</p>
-      <div class="card-actions justify-end gap-2">
-        {category && <a href={`/blog/category/${category.slug}`} class="badge badge-primary">{category.name}</a>}
-        {
-          tags.map((tag) =>
-            tagBasePath ? (
-              <a href={`${tagBasePath}/${tag.slug}`} class="badge badge-outline">
-                {tag.name}
-              </a>
+<div
+  class="rounded-lg bg-base-100 hover:shadow-xl transition ease-in-out hover:scale-[102%]"
+>
+  {
+    wholeCardLink ? (
+      <a
+        href={url}
+        target={target}
+        rel={target === "_blank" ? "noreferrer" : undefined}
+      >
+        <div class={contentClass}>
+          {img && (
+            <img
+              src={img}
+              loading="lazy"
+              alt={title}
+              class="max-w-full md:max-w-52 rounded-lg"
+            />
+          )}
+          <div class="grow w-full">
+            <h1 class="text-xl font-bold">
+              {title}
+              {allBadges.map((item) => (
+                <div class="badge badge-secondary mx-2">{item}</div>
+              ))}
+            </h1>
+            {descRich ? (
+              <div class="py-1 text-1xl">
+                <RichTextRenderer data={descRich} />
+              </div>
             ) : (
-              <span class="badge badge-outline">{tag.name}</span>
-            )
-          )
-        }
+              <p class="py-1 text-1xl">{desc}</p>
+            )}
+            <div class="card-actions justify-end gap-2">
+              {category && (
+                <span class="badge badge-primary">{category.name}</span>
+              )}
+              {tags.map((tag) => (
+                <span class="badge badge-outline">{tag.name}</span>
+              ))}
+            </div>
+          </div>
+        </div>
+      </a>
+    ) : (
+      <div class={contentClass}>
+        {img && (
+          <a
+            href={url}
+            target={target}
+            rel={target === "_blank" ? "noreferrer" : undefined}
+          >
+            <img
+              src={img}
+              loading="lazy"
+              alt={title}
+              class="max-w-full md:max-w-52 rounded-lg"
+            />
+          </a>
+        )}
+        <div class="grow w-full">
+          <h1 class="text-xl font-bold">
+            <a
+              href={url}
+              target={target}
+              rel={target === "_blank" ? "noreferrer" : undefined}
+              class="hover:underline"
+            >
+              {title}
+            </a>
+            {allBadges.map((item) => (
+              <div class="badge badge-secondary mx-2">{item}</div>
+            ))}
+          </h1>
+          {descRich ? (
+            <div class="py-1 text-1xl">
+              <RichTextRenderer data={descRich} />
+            </div>
+          ) : (
+            <p class="py-1 text-1xl">{desc}</p>
+          )}
+          <div class="card-actions justify-end gap-2">
+            {category && (
+              <a
+                href={`/blog/category/${category.slug}`}
+                class="badge badge-primary"
+              >
+                {category.name}
+              </a>
+            )}
+            {tags.map((tag) =>
+              tagBasePath ? (
+                <a
+                  href={`${tagBasePath}/${tag.slug}`}
+                  class="badge badge-outline"
+                >
+                  {tag.name}
+                </a>
+              ) : (
+                <span class="badge badge-outline">{tag.name}</span>
+              ),
+            )}
+          </div>
+        </div>
       </div>
-    </div>
-  </div>
+    )
+  }
 </div>

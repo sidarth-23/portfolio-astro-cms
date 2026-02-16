@@ -117,10 +117,9 @@ export type CmsProject = {
   id: number;
   title: string;
   slug: string;
-  summary: string;
-  description?: RichTextValue | null;
+  description: RichTextValue | null;
   externalUrl: string;
-  badge?: string;
+  badges?: Array<{ value: string; id?: string | null }> | null;
   techTags?: Array<{ value: string; id?: string | null }> | null;
   section: "featured" | "newbie";
   displayOrder: number;
@@ -407,10 +406,9 @@ export const normalizeProject = (project: RawProject): CmsProject => {
     id: project.id,
     title: project.title,
     slug: project.slug,
-    summary: project.summary,
     description: toRichText(project.description),
     externalUrl: project.externalUrl,
-    badge: project.badge || undefined,
+    badges: project.badges,
     techTags: project.techTags,
     section: project.section,
     displayOrder: project.displayOrder,

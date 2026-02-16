@@ -62,6 +62,42 @@ const shouldPushDbSchema = (): boolean => {
   return process.env.NODE_ENV !== "production";
 };
 
+const richTextToPlainText = (value: unknown): string => {
+  if (!value || typeof value !== "object") {
+    return "";
+  }
+
+  const root = (value as { root?: unknown }).root;
+  if (!root || typeof root !== "object") {
+    return "";
+  }
+
+  const children = (root as { children?: unknown }).children;
+  if (!Array.isArray(children)) {
+    return "";
+  }
+
+  const output: string[] = [];
+  const walk = (node: unknown): void => {
+    if (!node || typeof node !== "object") {
+      return;
+    }
+
+    const text = (node as { text?: unknown }).text;
+    if (typeof text === "string" && text.trim()) {
+      output.push(text.trim());
+    }
+
+    const nestedChildren = (node as { children?: unknown }).children;
+    if (Array.isArray(nestedChildren)) {
+      nestedChildren.forEach(walk);
+    }
+  };
+
+  children.forEach(walk);
+  return output.join(" ").trim();
+};
+
 const isNoSuchBucketError = (error: unknown): boolean => {
   if (!(error instanceof Error)) {
     return false;
@@ -126,7 +162,13 @@ export default buildConfig({
         return "Sidarth";
       },
       generateDescription: ({ doc }) => {
-        return doc?.excerpt || doc?.summary || doc?.description || "";
+        if (typeof doc?.excerpt === "string" && doc.excerpt.trim()) {
+          return doc.excerpt;
+        }
+        if (typeof doc?.description === "string" && doc.description.trim()) {
+          return doc.description;
+        }
+        return richTextToPlainText(doc?.description);
       },
       generateURL: ({ doc, collectionSlug, globalSlug }) => {
         if (globalSlug) {

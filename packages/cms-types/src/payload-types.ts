@@ -148,7 +148,7 @@ export interface UserAuthOperations {
  */
 export interface User {
   id: number;
-  name: string;
+  name?: string | null;
   bio?: {
     root: {
       type: string;
@@ -352,8 +352,7 @@ export interface Post {
 export interface Project {
   id: number;
   title: string;
-  summary: string;
-  description?: {
+  description: {
     root: {
       type: string;
       children: {
@@ -367,10 +366,15 @@ export interface Project {
       version: number;
     };
     [k: string]: unknown;
-  } | null;
+  };
   image?: (number | null) | Media;
   externalUrl: string;
-  badge?: string | null;
+  badges?:
+    | {
+        value: string;
+        id?: string | null;
+      }[]
+    | null;
   techTags?:
     | {
         value: string;
@@ -712,11 +716,15 @@ export interface PostsSelect<T extends boolean = true> {
  */
 export interface ProjectsSelect<T extends boolean = true> {
   title?: T;
-  summary?: T;
   description?: T;
   image?: T;
   externalUrl?: T;
-  badge?: T;
+  badges?:
+    | T
+    | {
+        value?: T;
+        id?: T;
+      };
   techTags?:
     | T
     | {

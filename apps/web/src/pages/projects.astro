@@ -22,6 +22,10 @@ const toTags = (tags?: Array<{ value: string }> | null) => {
     slug: tag.value.toLowerCase().replace(/\s+/g, "-"),
   }));
 };
+
+const toBadges = (badges?: Array<{ value: string }> | null) => {
+  return (badges || []).map((badge) => badge.value);
+};
 ---
 
 <BaseLayout
@@ -44,16 +48,18 @@ const toTags = (tags?: Array<{ value: string }> | null) => {
   </div>
 
   {
-    featuredProjects.map((project) => (
+    featuredProjects.map((project, index) => (
       <>
         <HorizontalCard
           title={project.title}
           img={mediaToUrl(project.image)}
-          desc={project.summary}
-          badge={project.badge}
+          descRich={project.description}
+          badges={toBadges(project.badges)}
           tags={toTags(project.techTags)}
           tagBasePath={null}
           url={project.externalUrl}
+          reverse={index % 2 === 1}
+          wholeCardLink={true}
         />
         <div class="divider my-0" />
       </>
@@ -72,16 +78,18 @@ const toTags = (tags?: Array<{ value: string }> | null) => {
   </div>
 
   {
-    newbieProjects.map((project) => (
+    newbieProjects.map((project, index) => (
       <>
         <HorizontalCard
           title={project.title}
           img={mediaToUrl(project.image)}
-          desc={project.summary}
-          badge={project.badge}
+          descRich={project.description}
+          badges={toBadges(project.badges)}
           tags={toTags(project.techTags)}
           tagBasePath={null}
           url={project.externalUrl}
+          reverse={index % 2 === 1}
+          wholeCardLink={true}
         />
         <div class="divider my-0" />
       </>

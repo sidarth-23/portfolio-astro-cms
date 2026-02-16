@@ -29,14 +29,9 @@ export const Projects: CollectionConfig = {
               required: true,
             },
             {
-              name: "summary",
-              type: "textarea",
-              required: true,
-            },
-            {
               name: "description",
               type: "richText",
-              required: false,
+              required: true,
             },
             {
               name: "image",
@@ -50,9 +45,15 @@ export const Projects: CollectionConfig = {
               required: true,
             },
             {
-              name: "badge",
-              type: "text",
-              required: false,
+              name: "badges",
+              type: "array",
+              fields: [
+                {
+                  name: "value",
+                  type: "text",
+                  required: true,
+                },
+              ],
             },
             {
               name: "techTags",
