@@ -2,7 +2,6 @@ import type { CollectionConfig } from "payload";
 
 import { populateAuthors } from "../hooks/populateAuthors";
 import { triggerDokployRedeploy } from "../hooks/triggerDokployRedeploy";
-import { seoOverridesField } from "../fields/seoOverrides";
 import { slugField } from "../fields/slug";
 
 export const Posts: CollectionConfig = {
@@ -12,7 +11,7 @@ export const Posts: CollectionConfig = {
   },
   admin: {
     useAsTitle: "title",
-    defaultColumns: ["title", "status", "publishedAt", "updatedAt"],
+    defaultColumns: ["title", "_status", "publishedAt", "updatedAt"],
     group: "Content",
   },
   hooks: {
@@ -75,10 +74,6 @@ export const Posts: CollectionConfig = {
           ],
         },
         {
-          label: "SEO",
-          fields: [seoOverridesField],
-        },
-        {
           label: "Settings",
           fields: [
             slugField({ fieldToUse: "title" }),
@@ -91,22 +86,16 @@ export const Posts: CollectionConfig = {
                   pickerAppearance: "dayAndTime",
                 },
               },
-            },
-            {
-              name: "status",
-              type: "select",
-              required: true,
-              defaultValue: "draft",
-              options: ["draft", "scheduled", "published"],
-            },
-            {
-              name: "scheduledAt",
-              type: "date",
-              required: false,
-              admin: {
-                date: {
-                  pickerAppearance: "dayAndTime",
-                },
+              hooks: {
+                beforeChange: [
+                  ({ siblingData, value }) => {
+                    if (siblingData._status === "published" && !value) {
+                      return new Date();
+                    }
+
+                    return value;
+                  },
+                ],
               },
             },
             {
@@ -165,4 +154,10 @@ export const Posts: CollectionConfig = {
       ],
     },
   ],
+  versions: {
+    drafts: {
+      schedulePublish: true,
+    },
+    maxPerDoc: 50,
+  },
 };

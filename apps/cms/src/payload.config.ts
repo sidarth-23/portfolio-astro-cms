@@ -50,6 +50,18 @@ const shouldAutoCreateBucket = (): boolean => {
   return process.env.NODE_ENV !== "production" && isLocalEndpoint(s3Endpoint);
 };
 
+const shouldPushDbSchema = (): boolean => {
+  const explicitValue = process.env.PAYLOAD_DB_PUSH;
+  if (explicitValue === "true") {
+    return true;
+  }
+  if (explicitValue === "false") {
+    return false;
+  }
+
+  return process.env.NODE_ENV !== "production";
+};
+
 const isNoSuchBucketError = (error: unknown): boolean => {
   if (!(error instanceof Error)) {
     return false;
@@ -102,6 +114,7 @@ export default buildConfig({
     seoPlugin({
       collections: ["posts", "projects", "categories"],
       globals: ["site-settings", "home-page", "cv-page", "projects-page"],
+      tabbedUI: true,
       uploadsCollection: "media",
       generateTitle: ({ doc }) => {
         if (typeof doc?.title === "string") {
@@ -148,9 +161,11 @@ export default buildConfig({
     }),
   ],
   db: postgresAdapter({
+    migrationDir: path.resolve(dirname, "migrations"),
     pool: {
       connectionString: process.env.DATABASE_URI || "",
     },
+    push: shouldPushDbSchema(),
   }),
   secret: process.env.PAYLOAD_SECRET || "",
   typescript: {

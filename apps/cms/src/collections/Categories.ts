@@ -1,6 +1,5 @@
 import type { CollectionConfig } from "payload";
 
-import { seoOverridesField } from "../fields/seoOverrides";
 import { slugField } from "../fields/slug";
 
 export const Categories: CollectionConfig = {
@@ -36,10 +35,6 @@ export const Categories: CollectionConfig = {
               required: false,
             },
           ],
-        },
-        {
-          label: "SEO",
-          fields: [seoOverridesField],
         },
         {
           label: "Settings",

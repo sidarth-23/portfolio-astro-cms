@@ -34,6 +34,7 @@ type PostFilterOptions = {
   slug?: string;
   tagSlug?: string;
   categorySlug?: string;
+  featureOnHome?: boolean;
 };
 
 type PublishedPostsQueryOptions = PostFilterOptions & {
@@ -141,10 +142,8 @@ const payloadFetch = async <T>(path: string, params?: Params): Promise<T> => {
 };
 
 const buildPublishedWhereParams = (options: PostFilterOptions = {}): Params => {
-  const nowIso = new Date().toISOString();
   const params: Params = {
-    "where[status][equals]": "published",
-    "where[publishedAt][less_than_equal]": nowIso,
+    "where[_status][equals]": "published",
   };
 
   if (options.slug) {
@@ -157,6 +156,10 @@ const buildPublishedWhereParams = (options: PostFilterOptions = {}): Params => {
 
   if (options.categorySlug) {
     params["where[primaryCategory.slug][equals]"] = options.categorySlug;
+  }
+
+  if (options.featureOnHome !== undefined) {
+    params["where[featureOnHome][equals]"] = options.featureOnHome;
   }
 
   return params;
@@ -309,6 +312,15 @@ export const getPaginatedPublishedPosts = async ({
   };
 };
 
+export const getFeaturedPublishedPosts = async (limit = 3): Promise<CmsPost[]> => {
+  const response = await fetchPublishedPostsPage({
+    featureOnHome: true,
+    limit,
+  });
+
+  return response.docs.map((post) => normalizePost(post));
+};
+
 export const getPostBySlug = async (slug: string): Promise<CmsPost | null> => {
   const response = await fetchPublishedPostsPage({
     slug,
@@ -362,7 +374,7 @@ export const getProjects = async (): Promise<CmsProject[]> => {
     depth: 3,
     limit: 200,
     sort: "displayOrder",
-    "where[isVisible][equals]": true,
+    "where[_status][equals]": "published",
   });
 
   return res.docs

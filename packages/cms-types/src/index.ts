@@ -101,8 +101,6 @@ export type CmsPost = {
   publishedAt?: string | null;
   updatedAt?: string;
   createdAt?: string;
-  status?: "draft" | "scheduled" | "published";
-  scheduledAt?: string | null;
   coverImage?: CmsMedia;
   primaryCategory?: CmsCategory;
   tags: CmsTag[];
@@ -126,7 +124,6 @@ export type CmsProject = {
   techTags?: Array<{ value: string; id?: string | null }> | null;
   section: "featured" | "newbie";
   displayOrder: number;
-  isVisible?: boolean | null;
   image?: CmsMedia;
   meta?: CmsMeta;
   seoOverrides?: CmsSeoOverrides;
@@ -392,8 +389,6 @@ export const normalizePost = (post: RawPost): CmsPost => {
     publishedAt: post.publishedAt,
     updatedAt: post.updatedAt,
     createdAt: post.createdAt,
-    status: post.status,
-    scheduledAt: post.scheduledAt,
     coverImage: toMedia(post.coverImage),
     primaryCategory: toCategory(post.primaryCategory),
     tags: (post.tags || []).map((tag) => toTag(tag)).filter((tag): tag is CmsTag => Boolean(tag)),
@@ -419,7 +414,6 @@ export const normalizeProject = (project: RawProject): CmsProject => {
     techTags: project.techTags,
     section: project.section,
     displayOrder: project.displayOrder,
-    isVisible: project.isVisible,
     image: toMedia(project.image),
     meta: toMeta(project.meta),
     seoOverrides: toSeoOverrides(project.seoOverrides),

@@ -6,8 +6,6 @@ import HorizontalCard from "@/components/HorizontalCard.astro";
 import BaseLayout from "@/layouts/BaseLayout.astro";
 import { categoryFromPost, getPaginatedPublishedPosts, mediaToUrl, tagsFromPost } from "@/lib/cms/client";
 
-const PAGE_SIZE = 10;
-
 type BlogPageProps = {
   page: {
     data: CmsPost[];
@@ -18,14 +16,15 @@ type BlogPageProps = {
   };
 };
 
-const buildBlogPageUrl = (pageNumber: number): string => {
-  return pageNumber <= 1 ? "/blog" : `/blog/${pageNumber}`;
-};
-
 export const getStaticPaths = (async () => {
+  const pageSize = 10;
+  const buildBlogPageUrl = (pageNumber: number): string => {
+    return pageNumber <= 1 ? "/blog" : `/blog/${pageNumber}`;
+  };
+
   const firstPage = await getPaginatedPublishedPosts({
     page: 1,
-    pageSize: PAGE_SIZE,
+    pageSize,
   });
 
   const paths: Awaited<ReturnType<GetStaticPaths>> = [];
@@ -36,11 +35,11 @@ export const getStaticPaths = (async () => {
         ? firstPage
         : await getPaginatedPublishedPosts({
             page: pageNumber,
-            pageSize: PAGE_SIZE,
+            pageSize,
           });
 
     paths.push({
-      params: pageNumber === 1 ? {} : { page: String(pageNumber) },
+      params: pageNumber === 1 ? { page: undefined } : { page: String(pageNumber) },
       props: {
         page: {
           data: currentPage.docs,

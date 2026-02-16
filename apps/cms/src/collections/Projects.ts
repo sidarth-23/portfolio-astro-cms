@@ -1,7 +1,6 @@
 import type { CollectionConfig } from "payload";
 
 import { triggerDokployRedeploy } from "../hooks/triggerDokployRedeploy";
-import { seoOverridesField } from "../fields/seoOverrides";
 import { slugField } from "../fields/slug";
 
 export const Projects: CollectionConfig = {
@@ -11,7 +10,7 @@ export const Projects: CollectionConfig = {
   },
   admin: {
     useAsTitle: "title",
-    defaultColumns: ["title", "section", "displayOrder", "updatedAt"],
+    defaultColumns: ["title", "_status", "section", "displayOrder", "updatedAt"],
     group: "Content",
   },
   hooks: {
@@ -69,10 +68,6 @@ export const Projects: CollectionConfig = {
           ],
         },
         {
-          label: "SEO",
-          fields: [seoOverridesField],
-        },
-        {
           label: "Settings",
           fields: [
             slugField({ fieldToUse: "title" }),
@@ -89,14 +84,15 @@ export const Projects: CollectionConfig = {
               defaultValue: 0,
               required: true,
             },
-            {
-              name: "isVisible",
-              type: "checkbox",
-              defaultValue: true,
-            },
           ],
         },
       ],
     },
   ],
+  versions: {
+    drafts: {
+      schedulePublish: true,
+    },
+    maxPerDoc: 50,
+  },
 };

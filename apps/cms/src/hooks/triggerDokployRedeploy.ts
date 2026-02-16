@@ -4,6 +4,7 @@ const SHOULD_TRIGGER = new Set(["posts", "projects"]);
 
 export const triggerDokployRedeploy: CollectionAfterChangeHook = async ({
   doc,
+  previousDoc,
   collection,
   req,
 }) => {
@@ -18,8 +19,12 @@ export const triggerDokployRedeploy: CollectionAfterChangeHook = async ({
     return doc;
   }
 
-  const status = doc?.status as string | undefined;
-  if (status && !["published", "scheduled"].includes(status)) {
+  const currentStatus = doc?._status as string | undefined;
+  const previousStatus = previousDoc?._status as string | undefined;
+  const wasPublished = previousStatus === "published";
+  const isPublished = currentStatus === "published";
+
+  if (!isPublished && !wasPublished) {
     return doc;
   }
 
@@ -33,7 +38,7 @@ export const triggerDokployRedeploy: CollectionAfterChangeHook = async ({
       body: JSON.stringify({
         collection: collection.slug,
         id: doc?.id,
-        status,
+        _status: currentStatus,
       }),
     });
   } catch (error) {
