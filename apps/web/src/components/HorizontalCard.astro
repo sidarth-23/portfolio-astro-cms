@@ -1,7 +1,6 @@
 ---
 import RichTextRenderer from "@/components/RichTextRenderer.astro";
 import { type RichTextValue } from "@sidshub/lexical/web";
-import { generateFilterUrl } from "@/lib/utils";
 
 type Tag = {
   name: string;
@@ -30,9 +29,7 @@ type Props = {
   category?: Category;
   series?: Series;
   target?: string;
-  tagBasePath?: string | null;
   reverse?: boolean;
-  wholeCardLink?: boolean;
 };
 
 const {
@@ -41,153 +38,79 @@ const {
   desc = "",
   descRich,
   url,
-  badge,
   badges = [],
   tags = [],
   category,
   series,
   target = "_blank",
-  tagBasePath = "/blog/tag",
   reverse = false,
-  wholeCardLink = false,
 } = Astro.props;
 const contentClass = `hero-content flex-col ${reverse ? "md:flex-row-reverse" : "md:flex-row"} md:gap-8 lg:gap-10`;
-const allBadges = (badge ? [badge] : []).concat(badges);
-const currentUrl = Astro.url;
 ---
 
-<div
-  class="rounded-lg bg-base-100 hover:shadow-xl transition ease-in-out hover:scale-[102%]"
+<a
+  href={url}
+  target={target}
+  class="card bg-base-100 transition ease-in-out rounded-lg block border border-transparent hover:border hover:border-base-200/50 group"
 >
-  {
-    wholeCardLink ? (
-      <a
-        href={url}
-        target={target}
-        rel={target === "_blank" ? "noreferrer" : undefined}
-      >
-        <div class={contentClass}>
-          {img && (
-            <div class="w-full md:w-56 h-40 md:h-40 flex-shrink-0 overflow-hidden rounded-lg">
-              <img
-                src={img}
-                loading="lazy"
-                alt={title}
-                class="w-full h-full object-contain"
-              />
-            </div>
-          )}
-          <div class="grow w-full space-y-1">
-            <div>
-              {category && (
-                <span class="badge badge-primary badge-sm mb-1">
-                  {category.name}
-                </span>
-              )}
-              {series && (
-                <span class="badge badge-secondary badge-sm mb-1 ml-1">
-                  {series.name}
-                </span>
-              )}
-            </div>
-            <h1 class="text-xl font-bold">
-              {title}
-              {allBadges.map((item) => (
-                <div class="badge badge-secondary mx-2">{item}</div>
-              ))}
-            </h1>
-            {descRich ? (
-              <div class="py-1 text-1xl">
-                <RichTextRenderer data={descRich} />
-              </div>
-            ) : (
-              <p class="py-1 text-1xl">{desc}</p>
-            )}
-            {tags.length > 0 && (
-              <div class="card-actions justify-end gap-2 mt-2">
-                {tags.map((tag) => (
-                  <span class="badge badge-outline badge-sm">{tag.name}</span>
-                ))}
-              </div>
-            )}
-          </div>
+  <div class={contentClass}>
+    {
+      img && (
+        <div class="w-full md:w-56 h-40 md:h-40 flex-shrink-0 overflow-hidden rounded-lg">
+          <img
+            src={img}
+            loading="lazy"
+            alt={title}
+            class="w-full h-full object-cover"
+          />
         </div>
-      </a>
-    ) : (
-      <div class={contentClass}>
-        {img && (
-          <a
-            href={url}
-            target={target}
-            rel={target === "_blank" ? "noreferrer" : undefined}
-          >
-            <div class="w-full md:w-56 h-40 md:h-40 flex-shrink-0 overflow-hidden rounded-lg">
-              <img
-                src={img}
-                loading="lazy"
-                alt={title}
-                class="w-full h-full object-cover"
-              />
-            </div>
-          </a>
-        )}
-        <div class="grow w-full space-y-1">
-          <div>
-            {category && (
-              <a
-                href={generateFilterUrl(currentUrl, "category", category.slug)}
-                class="badge badge-primary badge-sm mb-1 no-underline"
-              >
-                {category.name}
-              </a>
-            )}
-            {series && (
-              <a
-                href={`/blog/series/${series.slug}`}
-                class="badge badge-secondary badge-sm mb-1 ml-1 no-underline"
-              >
-                {series.name}
-              </a>
-            )}
-          </div>
-          <h1 class="text-xl font-bold">
-            <a
-              href={url}
-              target={target}
-              rel={target === "_blank" ? "noreferrer" : undefined}
-              class="hover:underline"
-            >
-              {title}
-            </a>
-            {allBadges.map((item) => (
-              <div class="badge badge-secondary mx-2">{item}</div>
-            ))}
-          </h1>
-          {descRich ? (
-            <div class="py-1 text-1xl">
-              <RichTextRenderer data={descRich} />
-            </div>
-          ) : (
-            <p class="py-1 text-1xl">{desc}</p>
-          )}
-          {tags.length > 0 && (
-            <div class="card-actions justify-end gap-2 mt-2">
-              {tags.map((tag) =>
-                tagBasePath ? (
-                  <a
-                    href={generateFilterUrl(currentUrl, "tag", tag.slug)}
-                    class="badge badge-outline badge-sm"
-                  >
-                    {tag.name}
-                  </a>
-                ) : (
-                  <span class="badge badge-outline badge-sm">{tag.name}</span>
-                ),
-              )}
-            </div>
-          )}
-        </div>
+      )
+    }
+    <div class="grow w-full space-y-1">
+      <div>
+        {
+          category && (
+            <span class="badge badge-primary badge-sm mb-1">
+              {category.name}
+            </span>
+          )
+        }
+        {
+          series && (
+            <span class="badge badge-secondary badge-sm mb-1 ml-1">
+              {series.name}
+            </span>
+          )
+        }
       </div>
-    )
-  }
-</div>
+      <h1
+        class="text-xl font-bold group-hover:underline decoration-2 underline-offset-4"
+      >
+        {title}
+        {
+          badges.map((item) => (
+            <div class="badge badge-secondary mx-2">{item}</div>
+          ))
+        }
+      </h1>
+      {
+        descRich ? (
+          <div class="py-1 text-1xl">
+            <RichTextRenderer data={descRich} />
+          </div>
+        ) : (
+          <p class="py-1 text-1xl">{desc}</p>
+        )
+      }
+      {
+        tags.length > 0 && (
+          <div class="card-actions justify-end gap-2 mt-2">
+            {tags.map((tag) => (
+              <span class="badge badge-outline badge-sm">{tag.name}</span>
+            ))}
+          </div>
+        )
+      }
+    </div>
+  </div>
+</a>

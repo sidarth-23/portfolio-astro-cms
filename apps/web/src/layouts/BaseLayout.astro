@@ -52,18 +52,20 @@ const pageDescription = description ?? siteDescription;
       <input id="my-drawer" type="checkbox" class="drawer-toggle" />
       <div class="drawer-content bg-base-100">
         <Header name={homePage.name} />
-        <div class="md:flex md:justify-center w-full container p-6">
+        <div class="md:flex md:justify-center w-full container px-6 py-14">
           <main class="container w-full max-w-4xl">
             <slot />
           </main>
         </div>
       </div>
-      {includeSidebar && (
-        <SideBar
-          sideBarActiveItemID={sideBarActiveItemID}
-          footerItems={siteSettings.sidebarFooterItems}
-        />
-      )}
+      {
+        includeSidebar && (
+          <SideBar
+            sideBarActiveItemID={sideBarActiveItemID}
+            footerItems={siteSettings.sidebarFooterItems}
+          />
+        )
+      }
     </div>
   </body>
 </html>

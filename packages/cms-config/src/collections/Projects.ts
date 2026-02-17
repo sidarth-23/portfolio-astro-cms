@@ -58,7 +58,7 @@ export const Projects: CollectionConfig = {
               ],
             },
             {
-              name: "techTags",
+              name: "tags",
               type: "array",
               fields: [
                 {

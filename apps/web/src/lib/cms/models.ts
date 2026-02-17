@@ -121,7 +121,7 @@ export type CmsProject = {
   description: RichTextValue | null;
   externalUrl: string;
   badges?: Array<{ value: string; id?: string | null }> | null;
-  techTags?: Array<{ value: string; id?: string | null }> | null;
+  tags?: Array<{ value: string; id?: string | null }> | null;
   displayOrder: number;
   image?: CmsMedia;
   meta?: CmsMeta;
@@ -652,7 +652,7 @@ export const normalizeProject = (project: RawProject): CmsProject => {
     description: toRichText(project.description),
     externalUrl: project.externalUrl,
     badges: project.badges,
-    techTags: project.techTags,
+    tags: project.tags,
     displayOrder: project.displayOrder,
     image: toMedia(project.image),
     meta: toMeta(project.meta),

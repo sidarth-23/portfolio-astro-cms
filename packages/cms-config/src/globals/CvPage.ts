@@ -50,13 +50,18 @@ export const CvPage: GlobalConfig = {
                   type: "select",
                   required: true,
                   defaultValue: "description",
-                  options: ["description", "items", "badges"],
+                  options: [
+                    { label: "Description", value: "description" },
+                    { label: "Items", value: "items" },
+                    { label: "Badges", value: "badges" },
+                  ],
                 },
                 {
                   name: "description",
                   type: "richText",
                   admin: {
-                    condition: (_, siblingData) => siblingData?.type === "description",
+                    condition: (_, siblingData) =>
+                      siblingData?.type === "description",
                   },
                 },
                 {
@@ -64,9 +69,14 @@ export const CvPage: GlobalConfig = {
                   type: "select",
                   required: true,
                   defaultValue: "list",
-                  options: ["timeline", "list", "columns"],
+                  options: [
+                    { label: "Timeline", value: "timeline" },
+                    { label: "List", value: "list" },
+                    { label: "Columns", value: "columns" },
+                  ],
                   admin: {
-                    condition: (_, siblingData) => siblingData?.type === "items",
+                    condition: (_, siblingData) =>
+                      siblingData?.type === "items",
                   },
                 },
                 {
@@ -75,7 +85,8 @@ export const CvPage: GlobalConfig = {
                   minRows: 1,
                   fields: sectionItemFields,
                   admin: {
-                    condition: (_, siblingData) => siblingData?.type === "items",
+                    condition: (_, siblingData) =>
+                      siblingData?.type === "items",
                   },
                 },
                 {
@@ -90,7 +101,8 @@ export const CvPage: GlobalConfig = {
                     },
                   ],
                   admin: {
-                    condition: (_, siblingData) => siblingData?.type === "badges",
+                    condition: (_, siblingData) =>
+                      siblingData?.type === "badges",
                   },
                 },
               ],

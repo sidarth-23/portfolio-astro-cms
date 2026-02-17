@@ -47,11 +47,9 @@ const toBadges = (badges?: Array<{ value: string }> | null) => {
               img={mediaToUrl(project.image)}
               descRich={project.description}
               badges={toBadges(project.badges)}
-              tags={toTags(project.techTags)}
-              tagBasePath={null}
+              tags={toTags(project.tags)}
               url={project.externalUrl}
               reverse={index % 2 === 1}
-              wholeCardLink={true}
             />
             <div class="divider my-0" />
           </>

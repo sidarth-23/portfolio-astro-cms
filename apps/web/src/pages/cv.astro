@@ -32,9 +32,12 @@ const cvPage = await getCvPage();
         {section.type === "items" && section.itemsVariant === "timeline" && (
           <div class="time-line-container grid gap-4">
             {section.items.map((item) => (
-              <TimeLineElement title={item.title} subtitle={item.subtitle || ""}>
+              <TimeLineElement
+                title={item.title}
+                subtitle={item.subtitle || ""}
+              >
                 {item.content && (
-                  <div class="prose prose-sm max-w-none">
+                  <div class="prose max-w-none">
                     <RichTextRenderer data={item.content} />
                   </div>
                 )}
@@ -48,9 +51,11 @@ const cvPage = await getCvPage();
             {section.items.map((item) => (
               <li>
                 <div class="font-medium">{item.title}</div>
-                {item.subtitle && <div class="text-sm opacity-80">{item.subtitle}</div>}
+                {item.subtitle && (
+                  <div class="text-sm opacity-80">{item.subtitle}</div>
+                )}
                 {item.content && (
-                  <div class="prose prose-sm max-w-none">
+                  <div class="prose max-w-none">
                     <RichTextRenderer data={item.content} />
                   </div>
                 )}
@@ -64,9 +69,11 @@ const cvPage = await getCvPage();
             {section.items.map((item) => (
               <li>
                 <div class="font-medium">{item.title}</div>
-                {item.subtitle && <div class="text-sm opacity-80">{item.subtitle}</div>}
+                {item.subtitle && (
+                  <div class="text-sm opacity-80">{item.subtitle}</div>
+                )}
                 {item.content && (
-                  <div class="prose prose-sm max-w-none">
+                  <div class="prose max-w-none">
                     <RichTextRenderer data={item.content} />
                   </div>
                 )}

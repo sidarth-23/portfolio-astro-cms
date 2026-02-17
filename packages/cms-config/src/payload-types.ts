@@ -375,7 +375,7 @@ export interface Project {
         id?: string | null;
       }[]
     | null;
-  techTags?:
+  tags?:
     | {
         value: string;
         id?: string | null;
@@ -724,7 +724,7 @@ export interface ProjectsSelect<T extends boolean = true> {
         value?: T;
         id?: T;
       };
-  techTags?:
+  tags?:
     | T
     | {
         value?: T;
