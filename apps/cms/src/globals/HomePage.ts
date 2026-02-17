@@ -38,37 +38,47 @@ export const HomePage: GlobalConfig = {
             },
           ],
         },
-        {
-          label: "Settings",
-          fields: [
-            {
-              name: "ctaPrimaryLabel",
-              type: "text",
-              required: true,
-            },
-            {
-              name: "ctaPrimaryUrl",
-              type: "text",
-              required: true,
-            },
-            {
-              name: "ctaSecondaryLabel",
-              type: "text",
-              required: true,
-            },
-            {
-              name: "ctaSecondaryUrl",
-              type: "text",
-              required: true,
-            },
-            {
-              name: "latestBlogTitle",
-              type: "text",
-              required: true,
-            },
-          ],
-        },
       ],
+    },
+    {
+      name: "ctaPrimaryLabel",
+      type: "text",
+      required: true,
+      admin: {
+        position: "sidebar",
+      },
+    },
+    {
+      name: "ctaPrimaryUrl",
+      type: "text",
+      required: true,
+      admin: {
+        position: "sidebar",
+      },
+    },
+    {
+      name: "ctaSecondaryLabel",
+      type: "text",
+      required: true,
+      admin: {
+        position: "sidebar",
+      },
+    },
+    {
+      name: "ctaSecondaryUrl",
+      type: "text",
+      required: true,
+      admin: {
+        position: "sidebar",
+      },
+    },
+    {
+      name: "latestBlogTitle",
+      type: "text",
+      required: true,
+      admin: {
+        position: "sidebar",
+      },
     },
   ],
 };

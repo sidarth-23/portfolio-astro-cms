@@ -155,17 +155,10 @@ export type HomePageGlobal = {
 
 export type CvPageGlobal = {
   profile: RichTextValue | null;
-  education?: Array<{ title: string; subtitle: string; id?: string | null }> | null;
-  experience?:
-    | Array<{
-        title: string;
-        subtitle: string;
-        items?: Array<{ value: string; id?: string | null }> | null;
-        id?: string | null;
-      }>
-    | null;
-  certifications?: Array<{ name: string; url: string; id?: string | null }> | null;
-  skills?: Array<{ value: string; id?: string | null }> | null;
+  education?: CvSectionEntry[] | null;
+  experience?: CvSectionEntry[] | null;
+  certifications?: CvSectionEntry[] | null;
+  skills?: CvSectionEntry[] | null;
   meta?: CmsMeta;
   seoOverrides?: CmsSeoOverrides;
 };
@@ -180,6 +173,12 @@ export type ProjectsPageGlobal = {
 };
 
 type RelationValue<T> = number | T | null | undefined;
+type CvSectionEntry = {
+  key: string;
+  summary?: string | null;
+  content: RichTextValue | null;
+  id?: string | null;
+};
 
 const isObject = <T extends object>(value: unknown): value is T => {
   return typeof value === "object" && value !== null;
@@ -331,6 +330,91 @@ const toSeoOverrides = (
   };
 };
 
+const toTextOrUndefined = (value: unknown): string | undefined => {
+  return typeof value === "string" && value.trim() ? value : undefined;
+};
+
+const toTextOrNull = (value: unknown): string | null => {
+  return typeof value === "string" && value.trim() ? value : null;
+};
+
+const normalizeCvSectionItems = (value: unknown): CvSectionEntry[] | null => {
+  if (!Array.isArray(value)) {
+    return null;
+  }
+
+  const items = value
+    .map((item): CvSectionEntry | null => {
+      if (!isObject<Record<string, unknown>>(item)) {
+        return null;
+      }
+
+      const id = toTextOrNull(item.id);
+      const key = toTextOrUndefined(item.key);
+      const summary = toTextOrNull(item.summary);
+
+      if (key) {
+        return {
+          key,
+          summary,
+          content: toRichText(item.content),
+          id,
+        };
+      }
+
+      const legacyTitle = toTextOrUndefined(item.title);
+      const legacySubtitle = toTextOrNull(item.subtitle);
+      const legacyName = toTextOrUndefined(item.name);
+      const legacyUrl = toTextOrNull(item.url);
+      const legacyValue = toTextOrUndefined(item.value);
+      const legacyItems = Array.isArray(item.items) ? item.items : [];
+
+      const legacyExperienceItems = legacyItems
+        .map((legacyItem) => {
+          if (!isObject<Record<string, unknown>>(legacyItem)) {
+            return null;
+          }
+
+          return toTextOrUndefined(legacyItem.value) || null;
+        })
+        .filter((legacyItem): legacyItem is string => Boolean(legacyItem));
+
+      if (legacyTitle) {
+        return {
+          key: legacyTitle,
+          summary: legacySubtitle,
+          content: toRichText(
+            legacyExperienceItems.length > 0 ? legacyExperienceItems.join("\n") : legacySubtitle,
+          ),
+          id,
+        };
+      }
+
+      if (legacyName) {
+        return {
+          key: legacyName,
+          summary: legacyUrl,
+          content: toRichText(legacyUrl),
+          id,
+        };
+      }
+
+      if (legacyValue) {
+        return {
+          key: legacyValue,
+          summary: null,
+          content: toRichText(legacyValue),
+          id,
+        };
+      }
+
+      return null;
+    })
+    .filter((item): item is CvSectionEntry => Boolean(item));
+
+  return items.length > 0 ? items : null;
+};
+
 type RawPopulatedAuthor = {
   id: number;
   name?: string | null;
@@ -450,10 +534,10 @@ export const normalizeHomePage = (homePage: RawHomePage): HomePageGlobal => {
 export const normalizeCvPage = (cvPage: RawCvPage): CvPageGlobal => {
   return {
     profile: toRichText(cvPage.profile),
-    education: cvPage.education,
-    experience: cvPage.experience,
-    certifications: cvPage.certifications,
-    skills: cvPage.skills,
+    education: normalizeCvSectionItems(cvPage.education),
+    experience: normalizeCvSectionItems(cvPage.experience),
+    certifications: normalizeCvSectionItems(cvPage.certifications),
+    skills: normalizeCvSectionItems(cvPage.skills),
     meta: toMeta(cvPage.meta),
     seoOverrides: undefined,
   };

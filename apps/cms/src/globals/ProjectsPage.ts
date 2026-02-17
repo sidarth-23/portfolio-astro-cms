@@ -26,11 +26,6 @@ export const ProjectsPage: GlobalConfig = {
               type: "richText",
               required: true,
             },
-          ],
-        },
-        {
-          label: "Settings",
-          fields: [
             {
               name: "newbieTitle",
               type: "text",

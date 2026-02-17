@@ -36,11 +36,8 @@ export const Categories: CollectionConfig = {
             },
           ],
         },
-        {
-          label: "Settings",
-          fields: [slugField({ fieldToUse: "name" })],
-        },
       ],
     },
+    slugField({ fieldToUse: "name" }),
   ],
 };

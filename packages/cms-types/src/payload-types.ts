@@ -192,6 +192,7 @@ export interface User {
  */
 export interface Media {
   id: number;
+  alt: string;
   caption?: {
     root: {
       type: string;
@@ -207,7 +208,6 @@ export interface Media {
     };
     [k: string]: unknown;
   } | null;
-  alt: string;
   updatedAt: string;
   createdAt: string;
   url?: string | null;
@@ -229,10 +229,6 @@ export interface Category {
   name: string;
   description?: string | null;
   parentCategory?: (number | null) | Category;
-  /**
-   * Auto-generated from title, but can be edited.
-   */
-  slug: string;
   meta?: {
     title?: string | null;
     description?: string | null;
@@ -241,6 +237,10 @@ export interface Category {
      */
     image?: (number | null) | Media;
   };
+  /**
+   * Auto-generated from title, but can be edited.
+   */
+  slug: string;
   updatedAt: string;
   createdAt: string;
 }
@@ -302,6 +302,14 @@ export interface Post {
   tags?: (number | Tag)[] | null;
   series?: (number | null) | Series;
   seriesOrder?: number | null;
+  meta?: {
+    title?: string | null;
+    description?: string | null;
+    /**
+     * Maximum upload file size: 12MB. Recommended file size for images is <500KB.
+     */
+    image?: (number | null) | Media;
+  };
   /**
    * Auto-generated from title, but can be edited.
    */
@@ -333,14 +341,6 @@ export interface Post {
       }[]
     | null;
   featureOnHome?: boolean | null;
-  meta?: {
-    title?: string | null;
-    description?: string | null;
-    /**
-     * Maximum upload file size: 12MB. Recommended file size for images is <500KB.
-     */
-    image?: (number | null) | Media;
-  };
   updatedAt: string;
   createdAt: string;
   _status?: ('draft' | 'published') | null;
@@ -381,12 +381,6 @@ export interface Project {
         id?: string | null;
       }[]
     | null;
-  /**
-   * Auto-generated from title, but can be edited.
-   */
-  slug: string;
-  section: 'featured' | 'newbie';
-  displayOrder: number;
   meta?: {
     title?: string | null;
     description?: string | null;
@@ -395,6 +389,12 @@ export interface Project {
      */
     image?: (number | null) | Media;
   };
+  /**
+   * Auto-generated from title, but can be edited.
+   */
+  slug: string;
+  section: 'featured' | 'newbie';
+  displayOrder: number;
   updatedAt: string;
   createdAt: string;
   _status?: ('draft' | 'published') | null;
@@ -617,8 +617,8 @@ export interface UsersSelect<T extends boolean = true> {
  * via the `definition` "media_select".
  */
 export interface MediaSelect<T extends boolean = true> {
-  caption?: T;
   alt?: T;
+  caption?: T;
   updatedAt?: T;
   createdAt?: T;
   url?: T;
@@ -639,7 +639,6 @@ export interface CategoriesSelect<T extends boolean = true> {
   name?: T;
   description?: T;
   parentCategory?: T;
-  slug?: T;
   meta?:
     | T
     | {
@@ -647,6 +646,7 @@ export interface CategoriesSelect<T extends boolean = true> {
         description?: T;
         image?: T;
       };
+  slug?: T;
   updatedAt?: T;
   createdAt?: T;
 }
@@ -685,6 +685,13 @@ export interface PostsSelect<T extends boolean = true> {
   tags?: T;
   series?: T;
   seriesOrder?: T;
+  meta?:
+    | T
+    | {
+        title?: T;
+        description?: T;
+        image?: T;
+      };
   slug?: T;
   publishedAt?: T;
   authors?: T;
@@ -699,13 +706,6 @@ export interface PostsSelect<T extends boolean = true> {
         githubUrl?: T;
       };
   featureOnHome?: T;
-  meta?:
-    | T
-    | {
-        title?: T;
-        description?: T;
-        image?: T;
-      };
   updatedAt?: T;
   createdAt?: T;
   _status?: T;
@@ -731,9 +731,6 @@ export interface ProjectsSelect<T extends boolean = true> {
         value?: T;
         id?: T;
       };
-  slug?: T;
-  section?: T;
-  displayOrder?: T;
   meta?:
     | T
     | {
@@ -741,6 +738,9 @@ export interface ProjectsSelect<T extends boolean = true> {
         description?: T;
         image?: T;
       };
+  slug?: T;
+  section?: T;
+  displayOrder?: T;
   updatedAt?: T;
   createdAt?: T;
   _status?: T;
@@ -863,11 +863,6 @@ export interface HomePage {
     };
     [k: string]: unknown;
   };
-  ctaPrimaryLabel: string;
-  ctaPrimaryUrl: string;
-  ctaSecondaryLabel: string;
-  ctaSecondaryUrl: string;
-  latestBlogTitle: string;
   meta?: {
     title?: string | null;
     description?: string | null;
@@ -876,6 +871,11 @@ export interface HomePage {
      */
     image?: (number | null) | Media;
   };
+  ctaPrimaryLabel: string;
+  ctaPrimaryUrl: string;
+  ctaSecondaryLabel: string;
+  ctaSecondaryUrl: string;
+  latestBlogTitle: string;
   updatedAt?: string | null;
   createdAt?: string | null;
 }
@@ -902,34 +902,89 @@ export interface CvPage {
   };
   education?:
     | {
-        title: string;
-        subtitle: string;
+        key: string;
+        summary?: string | null;
+        content: {
+          root: {
+            type: string;
+            children: {
+              type: any;
+              version: number;
+              [k: string]: unknown;
+            }[];
+            direction: ('ltr' | 'rtl') | null;
+            format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+            indent: number;
+            version: number;
+          };
+          [k: string]: unknown;
+        };
         id?: string | null;
       }[]
     | null;
   experience?:
     | {
-        title: string;
-        subtitle: string;
-        items?:
-          | {
-              value: string;
-              id?: string | null;
-            }[]
-          | null;
+        key: string;
+        summary?: string | null;
+        content: {
+          root: {
+            type: string;
+            children: {
+              type: any;
+              version: number;
+              [k: string]: unknown;
+            }[];
+            direction: ('ltr' | 'rtl') | null;
+            format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+            indent: number;
+            version: number;
+          };
+          [k: string]: unknown;
+        };
         id?: string | null;
       }[]
     | null;
   certifications?:
     | {
-        name: string;
-        url: string;
+        key: string;
+        summary?: string | null;
+        content: {
+          root: {
+            type: string;
+            children: {
+              type: any;
+              version: number;
+              [k: string]: unknown;
+            }[];
+            direction: ('ltr' | 'rtl') | null;
+            format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+            indent: number;
+            version: number;
+          };
+          [k: string]: unknown;
+        };
         id?: string | null;
       }[]
     | null;
   skills?:
     | {
-        value: string;
+        key: string;
+        summary?: string | null;
+        content: {
+          root: {
+            type: string;
+            children: {
+              type: any;
+              version: number;
+              [k: string]: unknown;
+            }[];
+            direction: ('ltr' | 'rtl') | null;
+            format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+            indent: number;
+            version: number;
+          };
+          [k: string]: unknown;
+        };
         id?: string | null;
       }[]
     | null;
@@ -1024,11 +1079,6 @@ export interface HomePageSelect<T extends boolean = true> {
   name?: T;
   role?: T;
   about?: T;
-  ctaPrimaryLabel?: T;
-  ctaPrimaryUrl?: T;
-  ctaSecondaryLabel?: T;
-  ctaSecondaryUrl?: T;
-  latestBlogTitle?: T;
   meta?:
     | T
     | {
@@ -1036,6 +1086,11 @@ export interface HomePageSelect<T extends boolean = true> {
         description?: T;
         image?: T;
       };
+  ctaPrimaryLabel?: T;
+  ctaPrimaryUrl?: T;
+  ctaSecondaryLabel?: T;
+  ctaSecondaryUrl?: T;
+  latestBlogTitle?: T;
   updatedAt?: T;
   createdAt?: T;
   globalType?: T;
@@ -1049,34 +1104,33 @@ export interface CvPageSelect<T extends boolean = true> {
   education?:
     | T
     | {
-        title?: T;
-        subtitle?: T;
+        key?: T;
+        summary?: T;
+        content?: T;
         id?: T;
       };
   experience?:
     | T
     | {
-        title?: T;
-        subtitle?: T;
-        items?:
-          | T
-          | {
-              value?: T;
-              id?: T;
-            };
+        key?: T;
+        summary?: T;
+        content?: T;
         id?: T;
       };
   certifications?:
     | T
     | {
-        name?: T;
-        url?: T;
+        key?: T;
+        summary?: T;
+        content?: T;
         id?: T;
       };
   skills?:
     | T
     | {
-        value?: T;
+        key?: T;
+        summary?: T;
+        content?: T;
         id?: T;
       };
   meta?:

@@ -68,26 +68,27 @@ export const Projects: CollectionConfig = {
             },
           ],
         },
-        {
-          label: "Settings",
-          fields: [
-            slugField({ fieldToUse: "title" }),
-            {
-              name: "section",
-              type: "select",
-              required: true,
-              defaultValue: "featured",
-              options: ["featured", "newbie"],
-            },
-            {
-              name: "displayOrder",
-              type: "number",
-              defaultValue: 0,
-              required: true,
-            },
-          ],
-        },
       ],
+    },
+    slugField({ fieldToUse: "title" }),
+    {
+      name: "section",
+      type: "select",
+      required: true,
+      defaultValue: "featured",
+      options: ["featured", "newbie"],
+      admin: {
+        position: "sidebar",
+      },
+    },
+    {
+      name: "displayOrder",
+      type: "number",
+      defaultValue: 0,
+      required: true,
+      admin: {
+        position: "sidebar",
+      },
     },
   ],
   versions: {

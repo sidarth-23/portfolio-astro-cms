@@ -26,13 +26,17 @@ export const CvPage: GlobalConfig = {
               type: "array",
               fields: [
                 {
-                  name: "title",
+                  name: "key",
                   type: "text",
                   required: true,
                 },
                 {
-                  name: "subtitle",
+                  name: "summary",
                   type: "text",
+                },
+                {
+                  name: "content",
+                  type: "richText",
                   required: true,
                 },
               ],
@@ -42,45 +46,37 @@ export const CvPage: GlobalConfig = {
               type: "array",
               fields: [
                 {
-                  name: "title",
+                  name: "key",
                   type: "text",
                   required: true,
                 },
                 {
-                  name: "subtitle",
+                  name: "summary",
                   type: "text",
-                  required: true,
                 },
                 {
-                  name: "items",
-                  type: "array",
-                  fields: [
-                    {
-                      name: "value",
-                      type: "text",
-                      required: true,
-                    },
-                  ],
+                  name: "content",
+                  type: "richText",
+                  required: true,
                 },
               ],
             },
-          ],
-        },
-        {
-          label: "Settings",
-          fields: [
             {
               name: "certifications",
               type: "array",
               fields: [
                 {
-                  name: "name",
+                  name: "key",
                   type: "text",
                   required: true,
                 },
                 {
-                  name: "url",
+                  name: "summary",
                   type: "text",
+                },
+                {
+                  name: "content",
+                  type: "richText",
                   required: true,
                 },
               ],
@@ -90,8 +86,17 @@ export const CvPage: GlobalConfig = {
               type: "array",
               fields: [
                 {
-                  name: "value",
+                  name: "key",
                   type: "text",
+                  required: true,
+                },
+                {
+                  name: "summary",
+                  type: "text",
+                },
+                {
+                  name: "content",
+                  type: "richText",
                   required: true,
                 },
               ],

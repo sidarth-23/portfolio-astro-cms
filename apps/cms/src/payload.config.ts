@@ -137,9 +137,19 @@ export default buildConfig({
   editor: defaultLexicalEditor,
   admin: {
     user: Users.slug,
+    components: {
+      views: {
+        dashboard: {
+          Component: "./components/admin/Dashboard#DashboardView",
+        },
+      },
+    },
     importMap: {
       baseDir: path.resolve(dirname),
     },
+  },
+  routes: {
+    admin: "/",
   },
   collections: [Users, Media, Categories, Tags, Series, Posts, Projects],
   globals: [SiteSettings, HomePage, CvPage, ProjectsPage],

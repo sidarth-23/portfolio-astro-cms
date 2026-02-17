@@ -73,85 +73,88 @@ export const Posts: CollectionConfig = {
             },
           ],
         },
-        {
-          label: "Settings",
-          fields: [
-            slugField({ fieldToUse: "title" }),
-            {
-              name: "publishedAt",
-              type: "date",
-              required: false,
-              admin: {
-                date: {
-                  pickerAppearance: "dayAndTime",
-                },
-              },
-              hooks: {
-                beforeChange: [
-                  ({ siblingData, value }) => {
-                    if (siblingData._status === "published" && !value) {
-                      return new Date();
-                    }
+      ],
+    },
+    slugField({ fieldToUse: "title" }),
+    {
+      name: "publishedAt",
+      type: "date",
+      required: false,
+      admin: {
+        position: "sidebar",
+        date: {
+          pickerAppearance: "dayAndTime",
+        },
+      },
+      hooks: {
+        beforeChange: [
+          ({ siblingData, value }) => {
+            if (siblingData._status === "published" && !value) {
+              return new Date();
+            }
 
-                    return value;
-                  },
-                ],
-              },
-            },
-            {
-              name: "authors",
-              type: "relationship",
-              relationTo: "users",
-              hasMany: true,
-              required: false,
-            },
-            {
-              name: "populatedAuthors",
-              type: "array",
-              access: {
-                update: () => false,
-              },
-              admin: {
-                disabled: true,
-                readOnly: true,
-              },
-              fields: [
-                {
-                  name: "id",
-                  type: "number",
-                },
-                {
-                  name: "name",
-                  type: "text",
-                },
-                {
-                  name: "bio",
-                  type: "richText",
-                },
-                {
-                  name: "avatar",
-                  type: "upload",
-                  relationTo: "media",
-                  required: false,
-                },
-                {
-                  name: "linkedInUrl",
-                  type: "text",
-                },
-                {
-                  name: "githubUrl",
-                  type: "text",
-                },
-              ],
-            },
-            {
-              name: "featureOnHome",
-              type: "checkbox",
-              defaultValue: false,
-            },
-          ],
+            return value;
+          },
+        ],
+      },
+    },
+    {
+      name: "authors",
+      type: "relationship",
+      relationTo: "users",
+      hasMany: true,
+      required: false,
+      admin: {
+        position: "sidebar",
+      },
+    },
+    {
+      name: "populatedAuthors",
+      type: "array",
+      access: {
+        update: () => false,
+      },
+      admin: {
+        position: "sidebar",
+        disabled: true,
+        readOnly: true,
+      },
+      fields: [
+        {
+          name: "id",
+          type: "number",
+        },
+        {
+          name: "name",
+          type: "text",
+        },
+        {
+          name: "bio",
+          type: "richText",
+        },
+        {
+          name: "avatar",
+          type: "upload",
+          relationTo: "media",
+          required: false,
+        },
+        {
+          name: "linkedInUrl",
+          type: "text",
+        },
+        {
+          name: "githubUrl",
+          type: "text",
         },
       ],
+    },
+    {
+      name: "featureOnHome",
+      type: "checkbox",
+      defaultValue: false,
+      admin: {
+        position: "sidebar",
+      },
     },
   ],
   versions: {

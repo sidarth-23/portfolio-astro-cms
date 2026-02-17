@@ -37,7 +37,13 @@ const cvPage = await getCvPage();
   <div class="time-line-container grid gap-4 mb-10">
     {
       (cvPage?.education || []).map((item) => (
-        <TimeLineElement title={item.title} subtitle={item.subtitle} />
+        <TimeLineElement title={item.key} subtitle={item.summary || ""}>
+          {item.content && (
+            <div class="prose prose-sm max-w-none">
+              <RichTextRenderer data={item.content} />
+            </div>
+          )}
+        </TimeLineElement>
       ))
     }
   </div>
@@ -49,12 +55,12 @@ const cvPage = await getCvPage();
   <div class="time-line-container mb-10">
     {
       (cvPage?.experience || []).map((item) => (
-        <TimeLineElement title={item.title} subtitle={item.subtitle}>
-          <ul class="list-disc mx-6 mb-10 grid gap-2">
-            {(item.items || []).map((expItem) => (
-              <li>{expItem.value}</li>
-            ))}
-          </ul>
+        <TimeLineElement title={item.key} subtitle={item.summary || ""}>
+          {item.content && (
+            <div class="prose prose-sm max-w-none">
+              <RichTextRenderer data={item.content} />
+            </div>
+          )}
         </TimeLineElement>
       ))
     }
@@ -68,9 +74,13 @@ const cvPage = await getCvPage();
     {
       (cvPage?.certifications || []).map((item) => (
         <li>
-          <a href={item.url} target="_blank">
-            {item.name}
-          </a>
+          <div class="font-medium">{item.key}</div>
+          {item.summary && <div class="text-sm opacity-80">{item.summary}</div>}
+          {item.content && (
+            <div class="prose prose-sm max-w-none">
+              <RichTextRenderer data={item.content} />
+            </div>
+          )}
         </li>
       ))
     }
@@ -80,8 +90,18 @@ const cvPage = await getCvPage();
     <div class="text-3xl w-full font-bold">Skills</div>
   </div>
 
-  <ul class="list-disc md:columns-5 columns-2 mx-6">
-    {(cvPage?.skills || []).map((item) => <li>{item.value}</li>)}
+  <ul class="list-disc md:columns-3 columns-1 mx-6 grid gap-4">
+    {(cvPage?.skills || []).map((item) => (
+      <li>
+        <div class="font-medium">{item.key}</div>
+        {item.summary && <div class="text-sm opacity-80">{item.summary}</div>}
+        {item.content && (
+          <div class="prose prose-sm max-w-none">
+            <RichTextRenderer data={item.content} />
+          </div>
+        )}
+      </li>
+    ))}
   </ul>
 </BaseLayout>
 

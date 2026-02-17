@@ -11,30 +11,16 @@ export const Media: CollectionConfig = {
     group: "Assets",
   },
   fields: [
+
     {
-      type: "tabs",
-      tabs: [
-        {
-          label: "Content",
-          fields: [
-            {
-              name: "caption",
-              type: "richText",
-            },
-          ],
-        },
-        {
-          label: "Settings",
-          fields: [
-            {
-              name: "alt",
-              type: "text",
-              required: true,
-              label: "Alt Text",
-            },
-          ],
-        },
-      ],
+      name: "alt",
+      type: "text",
+      required: true,
+      label: "Alt Text",
+    },
+    {
+      name: "caption",
+      type: "richText",
     },
   ],
 };

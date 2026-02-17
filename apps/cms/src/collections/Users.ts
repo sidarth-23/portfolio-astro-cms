@@ -37,51 +37,47 @@ export const Users: CollectionConfig = {
   },
   fields: [
     {
-      type: "tabs",
-      tabs: [
-        {
-          label: "Content",
-          admin: {
-            condition: showProfileFieldsAfterLogin,
-          },
-          fields: [
-            {
-              name: "name",
-              type: "text",
-              validate: nameRequiredAfterLogin,
-            },
-            {
-              name: "bio",
-              type: "richText",
-              required: false,
-            },
-            {
-              name: "avatar",
-              type: "upload",
-              relationTo: "media",
-              required: false,
-            },
-          ],
-        },
-        {
-          label: "Settings",
-          admin: {
-            condition: showProfileFieldsAfterLogin,
-          },
-          fields: [
-            {
-              name: "linkedInUrl",
-              type: "text",
-              required: false,
-            },
-            {
-              name: "githubUrl",
-              type: "text",
-              required: false,
-            },
-          ],
-        },
-      ],
+      name: "name",
+      type: "text",
+      validate: nameRequiredAfterLogin,
+      admin: {
+        condition: showProfileFieldsAfterLogin,
+      },
+    },
+    {
+      name: "bio",
+      type: "richText",
+      required: false,
+      admin: {
+        condition: showProfileFieldsAfterLogin,
+      },
+    },
+    {
+      name: "avatar",
+      type: "upload",
+      relationTo: "media",
+      required: false,
+      admin: {
+        condition: showProfileFieldsAfterLogin,
+      },
+    },
+    {
+      name: "linkedInUrl",
+      type: "text",
+      required: false,
+      admin: {
+        condition: showProfileFieldsAfterLogin,
+        position: "sidebar",
+      },
+    },
+    {
+      name: "githubUrl",
+      type: "text",
+      required: false,
+      admin: {
+        condition: showProfileFieldsAfterLogin,
+        position: "sidebar",
+      },
     },
   ],
 };

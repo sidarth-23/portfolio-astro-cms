@@ -14,27 +14,14 @@ export const Tags: CollectionConfig = {
   },
   fields: [
     {
-      type: "tabs",
-      tabs: [
-        {
-          label: "Content",
-          fields: [
-            {
-              name: "name",
-              type: "text",
-              required: true,
-            },
-            {
-              name: "description",
-              type: "textarea",
-            },
-          ],
-        },
-        {
-          label: "Settings",
-          fields: [slugField({ fieldToUse: "name" })],
-        },
-      ],
+      name: "name",
+      type: "text",
+      required: true,
     },
+    {
+      name: "description",
+      type: "textarea",
+    },
+    slugField({ fieldToUse: "name" }),
   ],
 };
