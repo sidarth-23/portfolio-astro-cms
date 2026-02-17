@@ -48,11 +48,11 @@ const {
 const contentClass = `hero-content flex-col ${reverse ? "md:flex-row-reverse" : "md:flex-row"} md:gap-8 lg:gap-10`;
 ---
 
-<a
-  href={url}
-  target={target}
-  class="card bg-base-100 transition ease-in-out rounded-lg block border border-transparent hover:border hover:border-base-200/50 group"
+<div
+  class="card bg-base-100 transition ease-in-out rounded-lg block border border-transparent hover:border hover:border-base-200/50 group relative"
 >
+  <a href={url} target={target} class="absolute inset-0 z-10" aria-label={title}
+  ></a>
   <div class={contentClass}>
     {
       img && (
@@ -113,4 +113,4 @@ const contentClass = `hero-content flex-col ${reverse ? "md:flex-row-reverse" : 
       }
     </div>
   </div>
-</a>
+</div>
