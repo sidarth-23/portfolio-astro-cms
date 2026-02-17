@@ -1,6 +1,7 @@
 ---
 import RichTextRenderer from "@/components/RichTextRenderer.astro";
 import { type RichTextValue } from "@sidshub/lexical/web";
+import { generateFilterUrl } from "@/lib/utils";
 
 type Tag = {
   name: string;
@@ -8,6 +9,11 @@ type Tag = {
 };
 
 type Category = {
+  name: string;
+  slug: string;
+};
+
+type Series = {
   name: string;
   slug: string;
 };
@@ -22,6 +28,7 @@ type Props = {
   badges?: string[];
   tags?: Tag[];
   category?: Category;
+  series?: Series;
   target?: string;
   tagBasePath?: string | null;
   reverse?: boolean;
@@ -38,6 +45,7 @@ const {
   badges = [],
   tags = [],
   category,
+  series,
   target = "_blank",
   tagBasePath = "/blog/tag",
   reverse = false,
@@ -45,6 +53,7 @@ const {
 } = Astro.props;
 const contentClass = `hero-content flex-col ${reverse ? "md:flex-row-reverse" : "md:flex-row"} md:gap-8 lg:gap-10`;
 const allBadges = (badge ? [badge] : []).concat(badges);
+const currentUrl = Astro.url;
 ---
 
 <div
@@ -72,6 +81,11 @@ const allBadges = (badge ? [badge] : []).concat(badges);
             {category && (
               <span class="badge badge-primary badge-sm mb-1">
                 {category.name}
+              </span>
+            )}
+            {series && (
+              <span class="badge badge-secondary badge-sm mb-1 ml-1">
+                {series.name}
               </span>
             )}
             <h1 class="text-xl font-bold">
@@ -118,10 +132,18 @@ const allBadges = (badge ? [badge] : []).concat(badges);
         <div class="grow w-full">
           {category && (
             <a
-              href={`/blog/category/${category.slug}`}
+              href={generateFilterUrl(currentUrl, "category", category.slug)}
               class="badge badge-primary badge-sm mb-1 no-underline"
             >
               {category.name}
+            </a>
+          )}
+          {series && (
+            <a
+              href={`/blog/series/${series.slug}`}
+              class="badge badge-secondary badge-sm mb-1 ml-1 no-underline"
+            >
+              {series.name}
             </a>
           )}
           <h1 class="text-xl font-bold">
@@ -149,7 +171,7 @@ const allBadges = (badge ? [badge] : []).concat(badges);
               {tags.map((tag) =>
                 tagBasePath ? (
                   <a
-                    href={`${tagBasePath}/${tag.slug}`}
+                    href={generateFilterUrl(currentUrl, "tag", tag.slug)}
                     class="badge badge-outline badge-sm"
                   >
                     {tag.name}

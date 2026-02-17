@@ -45,6 +45,8 @@ services:
     environment:
       ASTRO_CMS_API_URL: ${ASTRO_CMS_API_URL}
       ASTRO_CMS_READ_TOKEN: ${ASTRO_CMS_READ_TOKEN}
+      HOST: "0.0.0.0"
+      PORT: "4321"
     depends_on:
       - payload-cms
 

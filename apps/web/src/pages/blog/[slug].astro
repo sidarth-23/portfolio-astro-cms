@@ -1,24 +1,83 @@
 ---
 import RichTextRenderer from "@/components/RichTextRenderer.astro";
+import SeriesNav from "@/components/SeriesNav.astro";
 import PostLayout from "@/layouts/PostLayout.astro";
 import { getAllPublishedPosts } from "@/lib/cms/client";
 import { categoryFromPost, mediaToUrl, tagsFromPost } from "@/lib/cms/client";
 import type { CmsPost } from "@sidshub/cms-types";
 
+type SeriesNavProps = {
+  seriesName: string;
+  seriesSlug: string;
+  currentPart: number;
+  totalParts: number;
+  prevPost?: {
+    slug: string;
+    title: string;
+  };
+  nextPost?: {
+    slug: string;
+    title: string;
+  };
+};
+
 export async function getStaticPaths() {
   const posts = await getAllPublishedPosts();
 
-  return posts.map((post) => ({
-    params: { slug: post.slug },
-    props: { post },
-  }));
+  // Build a map of series slug to sorted posts
+  const seriesMap = new Map<string, CmsPost[]>();
+  posts.forEach((post) => {
+    if (post.series?.slug) {
+      const existing = seriesMap.get(post.series.slug) || [];
+      existing.push(post);
+      seriesMap.set(post.series.slug, existing);
+    }
+  });
+
+  // Sort each series by seriesOrder
+  seriesMap.forEach((seriesPosts, slug) => {
+    seriesPosts.sort((a, b) => {
+      const aOrder = a.seriesOrder ?? Number.MAX_SAFE_INTEGER;
+      const bOrder = b.seriesOrder ?? Number.MAX_SAFE_INTEGER;
+      return aOrder - bOrder;
+    });
+  });
+
+  return posts.map((post) => {
+    let seriesNav: SeriesNavProps | undefined;
+
+    if (post.series?.slug) {
+      const seriesPosts = seriesMap.get(post.series.slug) || [];
+      const currentIndex = seriesPosts.findIndex((p) => p.slug === post.slug);
+
+      if (currentIndex !== -1) {
+        const prevPost = currentIndex > 0 ? seriesPosts[currentIndex - 1] : undefined;
+        const nextPost = currentIndex < seriesPosts.length - 1 ? seriesPosts[currentIndex + 1] : undefined;
+
+        seriesNav = {
+          seriesName: post.series.name,
+          seriesSlug: post.series.slug,
+          currentPart: post.seriesOrder ?? currentIndex + 1,
+          totalParts: seriesPosts.length,
+          prevPost: prevPost ? { slug: prevPost.slug, title: prevPost.title } : undefined,
+          nextPost: nextPost ? { slug: nextPost.slug, title: nextPost.title } : undefined,
+        };
+      }
+    }
+
+    return {
+      params: { slug: post.slug },
+      props: { post, seriesNav },
+    };
+  });
 }
 
 interface Props {
   post: CmsPost;
+  seriesNav?: SeriesNavProps;
 }
 
-const { post } = Astro.props;
+const { post, seriesNav } = Astro.props;
 const category = categoryFromPost(post);
 const tags = tagsFromPost(post);
 const pubDate = post.publishedAt || post.createdAt || new Date().toISOString();
@@ -32,13 +91,37 @@ const pubDate = post.publishedAt || post.createdAt || new Date().toISOString();
   heroImage={mediaToUrl(post.coverImage)}
   tags={tags}
   category={category}
+  series={post.series}
   authors={post.populatedAuthors}
   canonicalUrl={post.seoOverrides?.canonicalUrl}
   robotsIndex={post.seoOverrides?.robotsIndex}
   robotsFollow={post.seoOverrides?.robotsFollow}
   schemaType={post.seoOverrides?.schemaType}
 >
+  {seriesNav && (
+    <SeriesNav
+      seriesName={seriesNav.seriesName}
+      seriesSlug={seriesNav.seriesSlug}
+      currentPart={seriesNav.currentPart}
+      totalParts={seriesNav.totalParts}
+      prevPost={seriesNav.prevPost}
+      nextPost={seriesNav.nextPost}
+    />
+  )}
+
   <RichTextRenderer data={post.content} />
+
+  {seriesNav && (
+    <SeriesNav
+      seriesName={seriesNav.seriesName}
+      seriesSlug={seriesNav.seriesSlug}
+      currentPart={seriesNav.currentPart}
+      totalParts={seriesNav.totalParts}
+      prevPost={seriesNav.prevPost}
+      nextPost={seriesNav.nextPost}
+    />
+  )}
+
   {
     post.populatedAuthors.length > 0 && (
       <section class="mt-10 border-t border-base-300 pt-6">

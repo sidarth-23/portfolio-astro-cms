@@ -7,10 +7,12 @@ import {
   normalizeProject,
   normalizeProjectsPage,
   normalizeSiteSettings,
+  type Category,
   type CmsCategory,
   type CmsMedia,
   type CmsPost,
   type CmsProject,
+  type CmsSeries,
   type CmsTag,
   type CvPageGlobal,
   type HomePageGlobal,
@@ -22,7 +24,9 @@ import {
   type RawProject,
   type RawProjectsPage,
   type RawSiteSettings,
+  type Series,
   type SiteSettingsGlobal,
+  type Tag,
 } from "@sidshub/cms-types";
 
 const API_BASE = ASTRO_CMS_API_URL.replace(/\/$/, "");
@@ -34,7 +38,9 @@ type PostFilterOptions = {
   slug?: string;
   tagSlug?: string;
   categorySlug?: string;
+  seriesSlug?: string;
   featureOnHome?: boolean;
+  search?: string;
 };
 
 type PublishedPostsQueryOptions = PostFilterOptions & {
@@ -142,24 +148,69 @@ const payloadFetch = async <T>(path: string, params?: Params): Promise<T> => {
 };
 
 const buildPublishedWhereParams = (options: PostFilterOptions = {}): Params => {
-  const params: Params = {
-    "where[_status][equals]": "published",
-  };
+  const params: Params = {};
 
-  if (options.slug) {
-    params["where[slug][equals]"] = options.slug;
-  }
+  // If search is provided, use indexed and/or syntax
+  if (options.search) {
+    let andIndex = 0;
 
-  if (options.tagSlug) {
-    params["where[tags.slug][equals]"] = options.tagSlug;
-  }
+    // First condition: status = published
+    params[`where[and][${andIndex}][_status][equals]`] = "published";
+    andIndex++;
 
-  if (options.categorySlug) {
-    params["where[primaryCategory.slug][equals]"] = options.categorySlug;
-  }
+    // Second condition: OR search on title and excerpt
+    params[`where[and][${andIndex}][or][0][title][like]`] = options.search;
+    params[`where[and][${andIndex}][or][1][excerpt][like]`] = options.search;
+    andIndex++;
 
-  if (options.featureOnHome !== undefined) {
-    params["where[featureOnHome][equals]"] = options.featureOnHome;
+    // Add other filters as additional AND conditions
+    if (options.slug) {
+      params[`where[and][${andIndex}][slug][equals]`] = options.slug;
+      andIndex++;
+    }
+
+    if (options.tagSlug) {
+      params[`where[and][${andIndex}][tags.slug][equals]`] = options.tagSlug;
+      andIndex++;
+    }
+
+    if (options.categorySlug) {
+      params[`where[and][${andIndex}][primaryCategory.slug][equals]`] = options.categorySlug;
+      andIndex++;
+    }
+
+    if (options.seriesSlug) {
+      params[`where[and][${andIndex}][series.slug][equals]`] = options.seriesSlug;
+      andIndex++;
+    }
+
+    if (options.featureOnHome !== undefined) {
+      params[`where[and][${andIndex}][featureOnHome][equals]`] = options.featureOnHome;
+      andIndex++;
+    }
+  } else {
+    // No search - use simple flat format (no breaking changes)
+    params["where[_status][equals]"] = "published";
+
+    if (options.slug) {
+      params["where[slug][equals]"] = options.slug;
+    }
+
+    if (options.tagSlug) {
+      params["where[tags.slug][equals]"] = options.tagSlug;
+    }
+
+    if (options.categorySlug) {
+      params["where[primaryCategory.slug][equals]"] = options.categorySlug;
+    }
+
+    if (options.seriesSlug) {
+      params["where[series.slug][equals]"] = options.seriesSlug;
+    }
+
+    if (options.featureOnHome !== undefined) {
+      params["where[featureOnHome][equals]"] = options.featureOnHome;
+    }
   }
 
   return params;
@@ -201,7 +252,7 @@ const sortPosts = (posts: CmsPost[]): CmsPost[] => {
   });
 };
 
-const fetchAllTaxonomySlugs = async (path: "/tags" | "/categories"): Promise<string[]> => {
+const fetchAllTaxonomySlugs = async (path: "/tags" | "/categories" | "/series"): Promise<string[]> => {
   const limit = 200;
   const firstPage = await payloadFetch<PayloadListResponse<TaxonomyDoc>>(path, {
     page: 1,
@@ -227,7 +278,7 @@ const fetchAllTaxonomySlugs = async (path: "/tags" | "/categories"): Promise<str
     .filter((slug): slug is string => typeof slug === "string" && slug.length > 0);
 };
 
-const hasPublishedPosts = async (filters: Pick<PostFilterOptions, "tagSlug" | "categorySlug">): Promise<boolean> => {
+const hasPublishedPosts = async (filters: Pick<PostFilterOptions, "tagSlug" | "categorySlug" | "seriesSlug">): Promise<boolean> => {
   const result = await fetchPublishedPostsPage({
     ...filters,
     limit: 1,
@@ -286,17 +337,23 @@ export const getPaginatedPublishedPosts = async ({
   pageSize,
   tagSlug,
   categorySlug,
+  seriesSlug,
+  search,
 }: {
   page: number;
   pageSize: number;
   tagSlug?: string;
   categorySlug?: string;
+  seriesSlug?: string;
+  search?: string;
 }): Promise<PaginatedPosts> => {
   const response = await fetchPublishedPostsPage({
     page,
     pageSize,
     tagSlug,
     categorySlug,
+    seriesSlug,
+    search,
   });
 
   return {
@@ -390,4 +447,121 @@ export const categoryFromPost = (post: CmsPost): CmsCategory | undefined => {
 
 export const tagsFromPost = (post: CmsPost): CmsTag[] => {
   return post.tags;
+};
+
+export const seriesFromPost = (post: CmsPost): { name: string; slug: string } | undefined => {
+  return post.series ? { name: post.series.name, slug: post.series.slug } : undefined;
+};
+
+export const getSeriesSlugs = async (): Promise<string[]> => {
+  const allSeriesSlugs = await fetchAllTaxonomySlugs("/series");
+  const hasPostsBySeries = await Promise.all(
+    allSeriesSlugs.map(async (seriesSlug) => {
+      return {
+        seriesSlug,
+        hasPosts: await hasPublishedPosts({ seriesSlug }),
+      };
+    }),
+  );
+
+  return hasPostsBySeries
+    .filter((item) => item.hasPosts)
+    .map((item) => item.seriesSlug)
+    .sort((a, b) => a.localeCompare(b));
+};
+
+export const getPostsBySeries = async (seriesSlug: string): Promise<CmsPost[]> => {
+  const posts = await getAllPublishedPosts({ seriesSlug });
+
+  return posts.sort((a, b) => {
+    const aOrder = a.seriesOrder ?? Number.MAX_SAFE_INTEGER;
+    const bOrder = b.seriesOrder ?? Number.MAX_SAFE_INTEGER;
+    return aOrder - bOrder;
+  });
+};
+
+export const getAllCategories = async (): Promise<CmsCategory[]> => {
+  const limit = 200;
+  const firstPage = await payloadFetch<PayloadListResponse<Category>>("/categories", {
+    page: 1,
+    limit,
+    sort: "name",
+    depth: 0,
+  });
+
+  const docs = [...firstPage.docs];
+
+  for (let page = 2; page <= firstPage.totalPages; page += 1) {
+    const nextPage = await payloadFetch<PayloadListResponse<Category>>("/categories", {
+      page,
+      limit,
+      sort: "name",
+      depth: 0,
+    });
+    docs.push(...nextPage.docs);
+  }
+
+  return docs.map((doc) => ({
+    id: doc.id,
+    name: doc.name,
+    slug: doc.slug,
+    description: doc.description,
+  }));
+};
+
+export const getAllTags = async (): Promise<CmsTag[]> => {
+  const limit = 200;
+  const firstPage = await payloadFetch<PayloadListResponse<Tag>>("/tags", {
+    page: 1,
+    limit,
+    sort: "name",
+    depth: 0,
+  });
+
+  const docs = [...firstPage.docs];
+
+  for (let page = 2; page <= firstPage.totalPages; page += 1) {
+    const nextPage = await payloadFetch<PayloadListResponse<Tag>>("/tags", {
+      page,
+      limit,
+      sort: "name",
+      depth: 0,
+    });
+    docs.push(...nextPage.docs);
+  }
+
+  return docs.map((doc) => ({
+    id: doc.id,
+    name: doc.name,
+    slug: doc.slug,
+  }));
+};
+
+export const getAllSeriesWithPosts = async (): Promise<Array<CmsSeries & { postCount: number }>> => {
+  const seriesSlugs = await getSeriesSlugs();
+
+  const seriesWithPosts = await Promise.all(
+    seriesSlugs.map(async (slug) => {
+      const posts = await getAllPublishedPosts({ seriesSlug: slug });
+
+      // Get series info from the first post (all posts in a series have the same series data)
+      const seriesInfo = posts[0]?.series;
+
+      if (!seriesInfo) {
+        return null;
+      }
+
+      return {
+        id: seriesInfo.id,
+        name: seriesInfo.name,
+        slug: seriesInfo.slug,
+        description: seriesInfo.description,
+        postCount: posts.length,
+      };
+    }),
+  );
+
+  return seriesWithPosts
+    .filter((series): series is NonNullable<typeof series> => series !== null)
+    .sort((a, b) => a.name.localeCompare(b.name));
 };

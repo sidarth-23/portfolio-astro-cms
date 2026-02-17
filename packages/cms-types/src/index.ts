@@ -81,6 +81,7 @@ export type CmsSeries = {
   id: number;
   name: string;
   slug: string;
+  description?: string | null;
 };
 
 export type CmsAuthor = {
@@ -301,6 +302,7 @@ const toSeries = (value: RelationValue<Series>): CmsSeries | undefined => {
     id: value.id,
     name: value.name,
     slug: value.slug,
+    description: value.description,
   };
 };
 

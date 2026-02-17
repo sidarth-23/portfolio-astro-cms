@@ -1,8 +1,10 @@
 ---
 import BaseLayout from "@/layouts/BaseLayout.astro";
+import { generateFilterUrl } from "@/lib/utils";
 
 type Tag = { name: string; slug: string };
 type Category = { name: string; slug: string };
+type Series = { name: string; slug: string };
 type Author = { id: number; name?: string | null };
 
 type Props = {
@@ -14,6 +16,7 @@ type Props = {
   badge?: string;
   tags?: Tag[];
   category?: Category;
+  series?: Series;
   authors?: Author[];
   canonicalUrl?: string;
   robotsIndex?: boolean;
@@ -30,12 +33,15 @@ const {
   badge,
   tags = [],
   category,
+  series,
   authors = [],
   canonicalUrl,
   robotsIndex,
   robotsFollow,
   schemaType = "Article",
 } = Astro.props;
+
+const currentUrl = Astro.url;
 
 const displayDate = new Intl.DateTimeFormat("en-US", {
   year: "numeric",
@@ -83,15 +89,25 @@ const jsonLd = {
   robotsFollow={robotsFollow}
   jsonLd={jsonLd}
 >
-  <main class="md:flex md:justify-center">
+  <main class="md:flex md:justify-center w-full container p-6">
     <article class="prose prose-lg max-w-[750px] prose-img:mx-auto">
       {
         category && (
           <a
-            href={`/blog/category/${category.slug}`}
+            href={generateFilterUrl(currentUrl, "category", category.slug)}
             class="badge badge-accent badge-lg no-underline"
           >
             {category.name}
+          </a>
+        )
+      }
+      {
+        series && (
+          <a
+            href={`/blog/series/${series.slug}`}
+            class="badge badge-secondary badge-lg no-underline ml-1"
+          >
+            {series.name}
           </a>
         )
       }
@@ -128,7 +144,7 @@ const jsonLd = {
             <div class="flex flex-wrap gap-1">
               {tags.map((tag) => (
                 <a
-                  href={`/blog/tag/${tag.slug}`}
+                  href={generateFilterUrl(currentUrl, "tag", tag.slug)}
                   class="badge badge-outline badge-sm no-underline opacity-70"
                 >
                   {tag.name}
