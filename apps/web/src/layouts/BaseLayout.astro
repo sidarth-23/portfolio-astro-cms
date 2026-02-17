@@ -58,7 +58,12 @@ const pageDescription = description ?? siteDescription;
           </main>
         </div>
       </div>
-      {includeSidebar && <SideBar sideBarActiveItemID={sideBarActiveItemID} />}
+      {includeSidebar && (
+        <SideBar
+          sideBarActiveItemID={sideBarActiveItemID}
+          footerItems={siteSettings.sidebarFooterItems}
+        />
+      )}
     </div>
   </body>
 </html>

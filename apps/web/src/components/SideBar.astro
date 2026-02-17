@@ -1,8 +1,16 @@
 ---
-import SideBarFooter from "./SideBarFooter.astro";
 import { Image } from "astro:assets";
+import type { SiteFooterItem } from "@sidshub/cms-types";
+
+import SideBarFooter from "./SideBarFooter.astro";
 import SideBarMenu from "./SideBarMenu.astro";
-const { sideBarActiveItemID } = Astro.props;
+
+type Props = {
+  sideBarActiveItemID?: string;
+  footerItems?: SiteFooterItem[];
+};
+
+const { sideBarActiveItemID, footerItems = [] }: Props = Astro.props;
 ---
 
 <div class="drawer-side z-40">
@@ -31,6 +39,6 @@ const { sideBarActiveItemID } = Astro.props;
       </a>
     </div>
     <SideBarMenu sideBarActiveItemID={sideBarActiveItemID} />
-    <SideBarFooter />
+    <SideBarFooter items={footerItems} />
   </aside>
 </div>

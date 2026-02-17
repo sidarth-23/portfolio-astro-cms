@@ -831,9 +831,35 @@ export interface SiteSetting {
      */
     image?: (number | null) | Media;
   };
-  linkedInUrl?: string | null;
-  githubUrl?: string | null;
-  email?: string | null;
+  sidebarFooterItems?:
+    | {
+        type:
+          | 'github'
+          | 'linkedin'
+          | 'email'
+          | 'rss'
+          | 'facebook'
+          | 'twitter'
+          | 'dribbble'
+          | 'instagram'
+          | 'youtube'
+          | 'twitch'
+          | 'tiktok'
+          | 'medium'
+          | 'whatsapp'
+          | 'telegram'
+          | 'discord'
+          | 'reddit'
+          | 'pinterest'
+          | 'behance'
+          | 'codepen'
+          | 'gitlab'
+          | 'stackoverflow'
+          | 'devto';
+        url: string;
+        id?: string | null;
+      }[]
+    | null;
   updatedAt?: string | null;
   createdAt?: string | null;
 }
@@ -995,9 +1021,13 @@ export interface SiteSettingsSelect<T extends boolean = true> {
         description?: T;
         image?: T;
       };
-  linkedInUrl?: T;
-  githubUrl?: T;
-  email?: T;
+  sidebarFooterItems?:
+    | T
+    | {
+        type?: T;
+        url?: T;
+        id?: T;
+      };
   updatedAt?: T;
   createdAt?: T;
   globalType?: T;

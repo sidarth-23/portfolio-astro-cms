@@ -128,13 +128,44 @@ export type CmsProject = {
   seoOverrides?: CmsSeoOverrides;
 };
 
+export const SITE_FOOTER_ITEM_TYPES = [
+  "github",
+  "linkedin",
+  "email",
+  "rss",
+  "facebook",
+  "twitter",
+  "dribbble",
+  "instagram",
+  "youtube",
+  "twitch",
+  "tiktok",
+  "medium",
+  "whatsapp",
+  "telegram",
+  "discord",
+  "reddit",
+  "pinterest",
+  "behance",
+  "codepen",
+  "gitlab",
+  "stackoverflow",
+  "devto",
+] as const;
+
+export type SiteFooterItemType = (typeof SITE_FOOTER_ITEM_TYPES)[number];
+
+export type SiteFooterItem = {
+  type: SiteFooterItemType;
+  url: string;
+  id?: string | null;
+};
+
 export type SiteSettingsGlobal = {
   siteTitle: string;
   siteDescription: string;
   defaultOgImage?: CmsMedia;
-  linkedInUrl?: string;
-  githubUrl?: string;
-  email?: string;
+  sidebarFooterItems: SiteFooterItem[];
   meta?: CmsMeta;
   seoOverrides?: CmsSeoOverrides;
 };
@@ -356,6 +387,40 @@ const toTextOrUndefined = (value: unknown): string | undefined => {
 
 const toTextOrNull = (value: unknown): string | null => {
   return typeof value === "string" && value.trim() ? value : null;
+};
+
+const isSiteFooterItemType = (value: unknown): value is SiteFooterItemType => {
+  return (
+    typeof value === "string" &&
+    (SITE_FOOTER_ITEM_TYPES as readonly string[]).includes(value)
+  );
+};
+
+const normalizeSiteFooterItems = (value: unknown): SiteFooterItem[] => {
+  if (!Array.isArray(value)) {
+    return [];
+  }
+
+  return value
+    .map((item): SiteFooterItem | null => {
+      if (!isObject<Record<string, unknown>>(item)) {
+        return null;
+      }
+
+      const type = item.type;
+      const url = toTextOrUndefined(item.url);
+
+      if (!isSiteFooterItemType(type) || !url) {
+        return null;
+      }
+
+      return {
+        type,
+        url,
+        id: toTextOrNull(item.id),
+      };
+    })
+    .filter((item): item is SiteFooterItem => Boolean(item));
 };
 
 const normalizeCvSectionItems = (value: unknown): CvSectionItem[] => {
@@ -595,9 +660,7 @@ export const normalizeSiteSettings = (siteSettings: RawSiteSettings): SiteSettin
     siteTitle: siteSettings.siteTitle,
     siteDescription: siteSettings.siteDescription,
     defaultOgImage: toMedia(siteSettings.defaultOgImage),
-    linkedInUrl: siteSettings.linkedInUrl || undefined,
-    githubUrl: siteSettings.githubUrl || undefined,
-    email: siteSettings.email || undefined,
+    sidebarFooterItems: normalizeSiteFooterItems(siteSettings.sidebarFooterItems),
     meta: toMeta(siteSettings.meta),
     seoOverrides: undefined,
   };

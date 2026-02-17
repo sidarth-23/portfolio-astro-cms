@@ -25,11 +25,11 @@ const [homePage, posts] = await Promise.all([
   robotsFollow={homePage?.seoOverrides?.robotsFollow}
   sideBarActiveItemID="home"
 >
-  <div class="py-6">
+  <div class="py-10">
     <div class="text-xl py-1">{homePage?.greeting}</div>
     <div class="text-5xl font-bold">{homePage?.name}</div>
     <div class="text-3xl py-3 font-bold">
-      {homePage?.role || "Full Stack Developer"}
+      {homePage?.role}
     </div>
 
     <div class="prose prose-lg py-2 max-w-none">
