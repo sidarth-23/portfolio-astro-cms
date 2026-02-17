@@ -1,10 +1,12 @@
 import type { CollectionConfig } from "payload";
 
+import { readAccess } from "../access/readAccess";
+
 export const Media: CollectionConfig = {
   slug: "media",
   upload: true,
   access: {
-    read: () => true,
+    read: readAccess,
   },
   admin: {
     useAsTitle: "alt",

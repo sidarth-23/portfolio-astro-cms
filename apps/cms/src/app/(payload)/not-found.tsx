@@ -7,7 +7,7 @@ import config from "@payload-config";
 import { importMap } from "./importMap.js";
 
 type Params = {
-  segments?: string[];
+  segments: string[];
 };
 
 type SearchParams = {

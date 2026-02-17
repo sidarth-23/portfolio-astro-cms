@@ -1,5 +1,7 @@
 import type { Field, GlobalConfig } from "payload";
 
+import { readAccess } from "../access/readAccess";
+
 const sectionItemFields: Field[] = [
   {
     name: "title",
@@ -20,7 +22,7 @@ export const CvPage: GlobalConfig = {
   slug: "cv-page",
   label: "CV Page",
   access: {
-    read: () => true,
+    read: readAccess,
   },
   admin: {
     group: "Pages",

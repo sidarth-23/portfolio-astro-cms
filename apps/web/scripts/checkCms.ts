@@ -4,9 +4,14 @@ if (!apiUrl) {
   process.exit(1);
 }
 
+const readToken = process.env.ASTRO_CMS_READ_TOKEN;
+if (!readToken) {
+  console.error("[check:cms] Missing required environment variable: ASTRO_CMS_READ_TOKEN");
+  process.exit(1);
+}
+
 const API_BASE = apiUrl.replace(/\/$/, "");
 const HEALTH_URL = `${API_BASE}/health`;
-const READ_TOKEN = process.env.ASTRO_CMS_READ_TOKEN;
 
 const timeoutValue = process.env.ASTRO_CMS_HEALTH_TIMEOUT_MS;
 const parsedTimeoutMs = timeoutValue ? Number(timeoutValue) : undefined;
@@ -25,14 +30,11 @@ const timeout = setTimeout(() => {
 }, timeoutMs);
 
 try {
-  const headers: HeadersInit = {};
-  if (READ_TOKEN) {
-    headers.Authorization = `Bearer ${READ_TOKEN}`;
-  }
-
   const response = await fetch(HEALTH_URL, {
     method: "GET",
-    headers,
+    headers: {
+      Authorization: `Bearer ${readToken}`,
+    },
     signal: controller.signal,
   });
 

@@ -105,7 +105,7 @@ tasks:
       - bun run dev:web
 
   web:build:
-    desc: Build Astro web for production (requires reachable CMS)
+    desc: Build Astro web for production (requires reachable CMS API)
     cmds:
       - bun run build:web
 

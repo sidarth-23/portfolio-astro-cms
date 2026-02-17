@@ -1,6 +1,6 @@
 import type { CollectionAfterReadHook } from "payload";
 
-import type { User } from "@sidshub/cms-types/payload-types";
+import type { User } from "../payload-types";
 
 type PopulatedAuthor = {
   id: number;

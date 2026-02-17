@@ -5,11 +5,11 @@
   "scripts": {
     "dev": "astro dev",
     "start": "astro dev",
-    "check:cms": "bun ./scripts/checkCms.ts",
     "build": "bun run check:cms && astro check && astro build",
     "preview": "astro preview",
     "check": "astro check",
-    "astro": "astro"
+    "astro": "astro",
+    "check:cms": "bun ./scripts/checkCms.ts"
   },
   "dependencies": {
     "@astrojs/check": "0.9.4",
@@ -17,7 +17,7 @@
     "@astrojs/rss": "4.0.11",
     "@astrojs/sitemap": "3.3.1",
     "@astrojs/tailwind": "6.0.2",
-    "@sidshub/cms-types": "workspace:*",
+    "@sidshub/cms-config": "workspace:*",
     "@sidshub/lexical": "workspace:*",
     "@tailwindcss/vite": "^4.1.4",
     "astro": "5.7.5",

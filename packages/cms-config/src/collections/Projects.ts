@@ -1,12 +1,14 @@
 import type { CollectionConfig } from "payload";
 
+import { readAccess } from "../access/readAccess";
+
 import { slugField } from "../fields/slug";
 import { triggerDokployRedeploy } from "../hooks/triggerDokployRedeploy";
 
 export const Projects: CollectionConfig = {
   slug: "projects",
   access: {
-    read: () => true,
+    read: readAccess,
   },
   admin: {
     useAsTitle: "title",

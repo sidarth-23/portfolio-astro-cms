@@ -25,6 +25,7 @@ services:
       dockerfile: apps/cms/Dockerfile
     environment:
       PAYLOAD_SECRET: ${PAYLOAD_SECRET}
+      CMS_READ_TOKEN: ${CMS_READ_TOKEN}
       PAYLOAD_PUBLIC_SERVER_URL: ${PAYLOAD_PUBLIC_SERVER_URL}
       DATABASE_URI: ${DATABASE_URI}
       S3_BUCKET: ${S3_BUCKET}
@@ -45,6 +46,7 @@ services:
     environment:
       ASTRO_CMS_API_URL: ${ASTRO_CMS_API_URL}
       ASTRO_CMS_READ_TOKEN: ${ASTRO_CMS_READ_TOKEN}
+      ASTRO_CMS_HEALTH_TIMEOUT_MS: ${ASTRO_CMS_HEALTH_TIMEOUT_MS:-5000}
       HOST: "0.0.0.0"
       PORT: "4321"
     depends_on:

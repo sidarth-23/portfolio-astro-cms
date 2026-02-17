@@ -2,7 +2,7 @@ FROM oven/bun:1 AS deps
 WORKDIR /app
 
 COPY package.json bun.lock ./
-COPY packages/cms-types/package.json ./packages/cms-types/package.json
+COPY packages/cms-config/package.json ./packages/cms-config/package.json
 COPY packages/lexical/package.json ./packages/lexical/package.json
 COPY apps/cms/package.json ./apps/cms/package.json
 RUN bun install
@@ -14,7 +14,7 @@ WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY package.json bun.lock ./
 COPY apps/cms ./apps/cms
-COPY packages/cms-types ./packages/cms-types
+COPY packages/cms-config ./packages/cms-config
 COPY packages/lexical ./packages/lexical
 
 WORKDIR /app/apps/cms

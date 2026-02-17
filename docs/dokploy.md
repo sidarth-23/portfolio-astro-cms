@@ -11,6 +11,7 @@
 
 ### payload-cms
 - `PAYLOAD_SECRET`
+- `CMS_READ_TOKEN`
 - `PAYLOAD_PUBLIC_SERVER_URL`
 - `DATABASE_URI`
 - `S3_BUCKET`
@@ -24,6 +25,7 @@
 ### astro-web
 - `ASTRO_CMS_API_URL`
 - `ASTRO_CMS_READ_TOKEN`
+- `ASTRO_CMS_HEALTH_TIMEOUT_MS` (optional)
 
 ## Publish Flow
 

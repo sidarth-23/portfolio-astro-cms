@@ -13,7 +13,7 @@
     "generate:importmap": "cross-env NODE_OPTIONS=--no-deprecation payload generate:importmap"
   },
   "dependencies": {
-    "@sidshub/cms-types": "workspace:*",
+    "@sidshub/cms-config": "workspace:*",
     "@sidshub/lexical": "workspace:*",
     "@payloadcms/db-postgres": "3.76.1",
     "@payloadcms/next": "3.76.1",

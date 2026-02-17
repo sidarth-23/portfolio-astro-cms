@@ -13,7 +13,7 @@
         "@payloadcms/plugin-seo": "3.76.1",
         "@payloadcms/richtext-lexical": "3.76.1",
         "@payloadcms/storage-s3": "3.76.1",
-        "@sidshub/cms-types": "workspace:*",
+        "@sidshub/cms-config": "workspace:*",
         "@sidshub/lexical": "workspace:*",
         "cross-env": "^7.0.3",
         "next": "^15.4.11",
@@ -34,7 +34,7 @@
         "@astrojs/rss": "4.0.11",
         "@astrojs/sitemap": "3.3.1",
         "@astrojs/tailwind": "6.0.2",
-        "@sidshub/cms-types": "workspace:*",
+        "@sidshub/cms-config": "workspace:*",
         "@sidshub/lexical": "workspace:*",
         "@tailwindcss/vite": "^4.1.4",
         "astro": "5.7.5",
@@ -48,12 +48,17 @@
         "prettier-plugin-astro": "^0.14.1",
       },
     },
-    "packages/cms-types": {
-      "name": "@sidshub/cms-types",
+    "packages/cms-config": {
+      "name": "@sidshub/cms-config",
       "version": "0.0.1",
       "dependencies": {
+        "@aws-sdk/client-s3": "^3.888.0",
+        "@payloadcms/db-postgres": "3.76.1",
+        "@payloadcms/plugin-seo": "3.76.1",
+        "@payloadcms/storage-s3": "3.76.1",
+        "@sidshub/lexical": "workspace:*",
         "lexical": "^0.35.0",
-        "payload": "^3.69.0",
+        "payload": "3.76.1",
       },
     },
     "packages/lexical": {
@@ -543,7 +548,7 @@
 
     "@sidshub/cms": ["@sidshub/cms@workspace:apps/cms"],
 
-    "@sidshub/cms-types": ["@sidshub/cms-types@workspace:packages/cms-types"],
+    "@sidshub/cms-config": ["@sidshub/cms-config@workspace:packages/cms-config"],
 
     "@sidshub/lexical": ["@sidshub/lexical@workspace:packages/lexical"],
 

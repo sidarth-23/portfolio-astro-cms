@@ -1,5 +1,7 @@
 import type { CollectionConfig } from "payload";
 
+import { readAccess } from "../access/readAccess";
+
 import { populateAuthors } from "../hooks/populateAuthors";
 import { triggerDokployRedeploy } from "../hooks/triggerDokployRedeploy";
 import { slugField } from "../fields/slug";
@@ -7,7 +9,7 @@ import { slugField } from "../fields/slug";
 export const Posts: CollectionConfig = {
   slug: "posts",
   access: {
-    read: () => true,
+    read: readAccess,
   },
   admin: {
     useAsTitle: "title",

@@ -10,7 +10,7 @@ import type {
   SiteSetting,
   Tag,
   User,
-} from "./payload-types";
+} from "@sidshub/cms-config/payload-types";
 import type {
   SerializedEditorState,
   SerializedRootNode,
@@ -18,7 +18,7 @@ import type {
   SerializedTextNode,
 } from "lexical";
 
-export * from "./payload-types";
+export * from "@sidshub/cms-config/payload-types";
 
 export type PayloadListResponse<T> = {
   docs: T[];
@@ -513,7 +513,7 @@ const normalizeCvSections = (value: unknown): CvSection[] => {
                   id: toTextOrNull(badge.id),
                 };
               })
-              .filter((badge): badge is { value: string; id?: string | null } => Boolean(badge))
+              .filter((badge): badge is { value: string; id: string | null } => badge !== null)
           : [];
 
         return {
@@ -635,7 +635,12 @@ export const normalizePost = (post: RawPost): CmsPost => {
     authors: authorsFromRelationship,
     populatedAuthors: populatedAuthors.length ? populatedAuthors : authorsFromRelationship,
     meta: toMeta(post.meta),
-    seoOverrides: toSeoOverrides(post.seoOverrides),
+    seoOverrides: toSeoOverrides((post as unknown as { seoOverrides?: unknown }).seoOverrides as {
+      canonicalUrl?: string | null;
+      robotsIndex?: boolean | null;
+      robotsFollow?: boolean | null;
+      schemaType?: ("Article" | "TechArticle") | null;
+    } | null | undefined),
   };
 };
 
@@ -651,7 +656,12 @@ export const normalizeProject = (project: RawProject): CmsProject => {
     displayOrder: project.displayOrder,
     image: toMedia(project.image),
     meta: toMeta(project.meta),
-    seoOverrides: toSeoOverrides(project.seoOverrides),
+    seoOverrides: toSeoOverrides((project as unknown as { seoOverrides?: unknown }).seoOverrides as {
+      canonicalUrl?: string | null;
+      robotsIndex?: boolean | null;
+      robotsFollow?: boolean | null;
+      schemaType?: ("Article" | "TechArticle") | null;
+    } | null | undefined),
   };
 };
 

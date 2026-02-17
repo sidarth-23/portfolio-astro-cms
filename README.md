@@ -26,8 +26,8 @@ See [docs/local-dev.md](docs/local-dev.md) for a clean local setup of Payload CM
 ## Build Contract
 
 - `bun run build:web` requires a reachable CMS at `ASTRO_CMS_API_URL` (default `http://localhost:3000/api`).
-- The web build runs a CMS preflight check and fails immediately if CMS is unreachable or unhealthy.
-- `task cms:types` only generates TypeScript types; it does not make web builds work without a live CMS.
+- The web build runs a CMS preflight check with bearer token auth and fails immediately if CMS is unreachable or unauthorized.
+- `task cms:types` regenerates shared Payload types in `packages/cms-config/src/payload-types.ts`.
 
 ## Taskfile Commands
 

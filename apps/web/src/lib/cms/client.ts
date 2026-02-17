@@ -24,10 +24,9 @@ import {
   type RawProject,
   type RawProjectsPage,
   type RawSiteSettings,
-  type Series,
   type SiteSettingsGlobal,
   type Tag,
-} from "@sidshub/cms-types";
+} from "@/lib/cms/models";
 
 const API_BASE = ASTRO_CMS_API_URL.replace(/\/$/, "");
 const READ_TOKEN = ASTRO_CMS_READ_TOKEN;
@@ -105,11 +104,8 @@ const payloadFetch = async <T>(path: string, params?: Params): Promise<T> => {
   const url = buildUrl(path, params);
   const headers: HeadersInit = {
     "Content-Type": "application/json",
+    Authorization: `Bearer ${READ_TOKEN}`,
   };
-
-  if (READ_TOKEN) {
-    headers.Authorization = `Bearer ${READ_TOKEN}`;
-  }
 
   let response: Response;
 
@@ -150,20 +146,16 @@ const payloadFetch = async <T>(path: string, params?: Params): Promise<T> => {
 const buildPublishedWhereParams = (options: PostFilterOptions = {}): Params => {
   const params: Params = {};
 
-  // If search is provided, use indexed and/or syntax
   if (options.search) {
     let andIndex = 0;
 
-    // First condition: status = published
     params[`where[and][${andIndex}][_status][equals]`] = "published";
     andIndex++;
 
-    // Second condition: OR search on title and excerpt
     params[`where[and][${andIndex}][or][0][title][like]`] = options.search;
     params[`where[and][${andIndex}][or][1][excerpt][like]`] = options.search;
     andIndex++;
 
-    // Add other filters as additional AND conditions
     if (options.slug) {
       params[`where[and][${andIndex}][slug][equals]`] = options.slug;
       andIndex++;
@@ -189,7 +181,6 @@ const buildPublishedWhereParams = (options: PostFilterOptions = {}): Params => {
       andIndex++;
     }
   } else {
-    // No search - use simple flat format (no breaking changes)
     params["where[_status][equals]"] = "published";
 
     if (options.slug) {
@@ -544,7 +535,6 @@ export const getAllSeriesWithPosts = async (): Promise<Array<CmsSeries & { postC
     seriesSlugs.map(async (slug) => {
       const posts = await getAllPublishedPosts({ seriesSlug: slug });
 
-      // Get series info from the first post (all posts in a series have the same series data)
       const seriesInfo = posts[0]?.series;
 
       if (!seriesInfo) {

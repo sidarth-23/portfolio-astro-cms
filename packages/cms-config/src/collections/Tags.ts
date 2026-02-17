@@ -1,11 +1,13 @@
 import type { CollectionConfig } from "payload";
 
+import { readAccess } from "../access/readAccess";
+
 import { slugField } from "../fields/slug";
 
 export const Tags: CollectionConfig = {
   slug: "tags",
   access: {
-    read: () => true,
+    read: readAccess,
   },
   admin: {
     useAsTitle: "name",

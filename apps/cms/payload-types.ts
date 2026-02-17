@@ -1,1 +1,1 @@
-export * from "@sidshub/cms-types/payload-types";
+export * from "@sidshub/cms-config/payload-types";

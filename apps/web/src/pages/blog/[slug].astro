@@ -4,7 +4,7 @@ import SeriesNav from "@/components/SeriesNav.astro";
 import PostLayout from "@/layouts/PostLayout.astro";
 import { getAllPublishedPosts } from "@/lib/cms/client";
 import { categoryFromPost, mediaToUrl, tagsFromPost } from "@/lib/cms/client";
-import type { CmsPost } from "@sidshub/cms-types";
+import type { CmsPost } from "@/lib/cms/models";
 
 type SeriesNavProps = {
   seriesName: string;

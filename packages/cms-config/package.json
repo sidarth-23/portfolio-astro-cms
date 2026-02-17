@@ -1,0 +1,20 @@
+{
+  "name": "@sidshub/cms-config",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/payload-types.ts",
+    "./payload-config": "./src/payload.config.ts",
+    "./payload-types": "./src/payload-types.ts"
+  },
+  "dependencies": {
+    "@aws-sdk/client-s3": "^3.888.0",
+    "@sidshub/lexical": "workspace:*",
+    "@payloadcms/db-postgres": "3.76.1",
+    "@payloadcms/plugin-seo": "3.76.1",
+    "@payloadcms/storage-s3": "3.76.1",
+    "lexical": "^0.35.0",
+    "payload": "3.76.1"
+  }
+}

@@ -1,10 +1,12 @@
 import type { GlobalConfig } from "payload";
 
+import { readAccess } from "../access/readAccess";
+
 export const SiteSettings: GlobalConfig = {
   slug: "site-settings",
   label: "Site Settings",
   access: {
-    read: () => true,
+    read: readAccess,
   },
   admin: {
     group: "Site",

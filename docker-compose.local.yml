@@ -28,6 +28,7 @@ services:
       dockerfile: apps/cms/Dockerfile
     environment:
       PAYLOAD_SECRET: "changeme-local-dev"
+      CMS_READ_TOKEN: "changeme-cms-read-token"
       PAYLOAD_PUBLIC_SERVER_URL: "http://localhost:3000"
       DATABASE_URI: "postgresql://postgres:postgres@postgres:5432/payload"
       S3_BUCKET: "sidshub-media"

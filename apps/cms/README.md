@@ -14,6 +14,9 @@ bun run --filter @sidshub/cms migrate
 
 Copy `.env.example` to `.env` and fill required values.
 
+Required for web read access over REST:
+- `CMS_READ_TOKEN` (must match `ASTRO_CMS_READ_TOKEN` used by the web app)
+
 ## Notes
 
 - Uses PostgreSQL as primary DB.
