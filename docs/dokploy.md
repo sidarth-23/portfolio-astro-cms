@@ -19,8 +19,9 @@
 - `S3_ENDPOINT`
 - `S3_ACCESS_KEY_ID`
 - `S3_SECRET_ACCESS_KEY`
-- `SITE_BUILD_HOOK_URL`
-- `SITE_BUILD_HOOK_SECRET` (optional)
+- `DOKPLOY_API_URL`
+- `DOKPLOY_API_KEY`
+- `DOKPLOY_APPLICATION_ID`
 
 ### astro-web
 - `ASTRO_SITE_URL`
@@ -31,7 +32,7 @@
 ## Publish Flow
 
 1. Editor publishes content in Payload.
-2. `afterChange` hook in Payload calls Dokploy deploy webhook (`SITE_BUILD_HOOK_URL`).
+2. `afterChange` hook in Payload triggers Dokploy deploy through API (`DOKPLOY_API_URL` + `DOKPLOY_API_KEY` + `DOKPLOY_APPLICATION_ID`).
 3. Dokploy rebuilds and redeploys `astro-web` static site.
 
 ## Deployment Order
