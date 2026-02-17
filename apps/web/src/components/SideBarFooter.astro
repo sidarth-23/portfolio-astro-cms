@@ -25,7 +25,7 @@ const cleanItems = items
 
 {
   cleanItems.length > 0 && (
-    <div class="social-icons px-4 pb-5 pt-1 flex self-center justify-center sticky bottom-0 bg-base-200">
+    <div class="social-icons px-4 pb-5 pt-1 flex flex-wrap gap-4 self-center justify-center sticky bottom-0 bg-base-200 group-[.collapsed]:px-1">
       {cleanItems.map((item) => {
         const Icon = getIconForType(item.type);
         const openInNewTab = item.type !== "email" && item.type !== "rss";
@@ -35,7 +35,7 @@ const cleanItems = items
             href={item.url}
             target={openInNewTab ? "_blank" : undefined}
             rel={openInNewTab ? "noreferrer noopener" : undefined}
-            class="mx-3"
+            class="mx-3 group-[.collapsed]:mx-1"
             aria-label={item.type}
             title={item.type}
           >

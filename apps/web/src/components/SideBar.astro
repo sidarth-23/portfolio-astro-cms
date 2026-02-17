@@ -1,5 +1,6 @@
 ---
 import { Image } from "astro:assets";
+import { PhCaretLeft, PhFileText } from "phosphor-icons-astro";
 import type { SiteFooterItem } from "@/lib/cms/models";
 
 import SideBarFooter from "./SideBarFooter.astro";
@@ -13,18 +14,20 @@ type Props = {
 const { sideBarActiveItemID, footerItems = [] }: Props = Astro.props;
 ---
 
-<div class="drawer-side z-40">
+<div class="drawer-side z-40 lg:overflow-visible">
   <label for="my-drawer" class="drawer-overlay"></label>
   <aside
-    class="px-2 pt-2 h-auto min-h-full w-[19rem] bg-base-200 text-base-content flex flex-col relative"
+    id="sidebar"
+    class="px-2 pt-2 h-auto min-h-full w-[19rem] bg-base-200 text-base-content flex flex-col relative transition-[width] duration-300 ease-in-out group overflow-visible"
   >
-    <div class="absolute top-5 right-5 hidden lg:block"></div>
     <div class="w-fit mx-auto mt-5 mb-6 relative">
       <a href="/">
         <div
           class="avatar transition ease-in-out hover:scale-[102%] block m-auto"
         >
-          <div class="w-[8.5rem]">
+          <div
+            class="w-[8.5rem] transition-[width] duration-300 group-[.collapsed]:w-[3rem]"
+          >
             <Image
               class="mask mask-circle"
               loading={"eager"}
@@ -38,7 +41,57 @@ const { sideBarActiveItemID, footerItems = [] }: Props = Astro.props;
         </div>
       </a>
     </div>
+
+    <div class="relative w-full h-0 z-50">
+      <button
+        id="sidebar-toggle"
+        class="absolute -top-6 -right-5 bg-base-300 p-1 rounded-full border border-base-content/20 cursor-pointer hidden lg:block hover:bg-base-100 z-50"
+        aria-label="Toggle Sidebar"
+      >
+        <PhCaretLeft
+          size={16}
+          class="transition-transform duration-300 group-[.collapsed]:rotate-180"
+        />
+      </button>
+    </div>
+
     <SideBarMenu sideBarActiveItemID={sideBarActiveItemID} />
-    <SideBarFooter items={footerItems} />
+
+    <div class="mt-auto flex flex-col gap-4 mb-6">
+      <div class="px-4">
+        <a
+          href="/cv"
+          class="btn btn-outline btn-block gap-2 group-[.collapsed]:px-0"
+        >
+          <PhFileText size={20} />
+          <span class="group-[.collapsed]:hidden">View My CV</span>
+        </a>
+      </div>
+      <SideBarFooter items={footerItems} />
+    </div>
   </aside>
 </div>
+
+<script is:inline>
+  const sidebar = document.getElementById("sidebar");
+  const toggleBtn = document.getElementById("sidebar-toggle");
+
+  // Initialize state from local storage
+  const isCollapsed = localStorage.getItem("sidebar-collapsed") === "true";
+  if (isCollapsed) {
+    sidebar?.classList.add("collapsed");
+    sidebar?.classList.replace("w-[19rem]", "w-[5rem]");
+  }
+
+  toggleBtn?.addEventListener("click", () => {
+    const collapsed = sidebar?.classList.toggle("collapsed");
+
+    if (collapsed) {
+      sidebar?.classList.replace("w-[19rem]", "w-[5rem]");
+      localStorage.setItem("sidebar-collapsed", "true");
+    } else {
+      sidebar?.classList.replace("w-[5rem]", "w-[19rem]");
+      localStorage.setItem("sidebar-collapsed", "false");
+    }
+  });
+</script>
