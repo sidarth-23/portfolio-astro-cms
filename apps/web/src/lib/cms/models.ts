@@ -179,7 +179,7 @@ export type HomePageGlobal = {
   ctaPrimaryUrl: string;
   ctaSecondaryLabel: string;
   ctaSecondaryUrl: string;
-  latestBlogTitle: string;
+  featuredSectionTitle: string;
   meta?: CmsMeta;
   seoOverrides?: CmsSeoOverrides;
 };
@@ -686,7 +686,7 @@ export const normalizeHomePage = (homePage: RawHomePage): HomePageGlobal => {
     ctaPrimaryUrl: homePage.ctaPrimaryUrl,
     ctaSecondaryLabel: homePage.ctaSecondaryLabel,
     ctaSecondaryUrl: homePage.ctaSecondaryUrl,
-    latestBlogTitle: homePage.latestBlogTitle,
+    featuredSectionTitle: homePage.featuredSectionTitle,
     meta: toMeta(homePage.meta),
     seoOverrides: undefined,
   };

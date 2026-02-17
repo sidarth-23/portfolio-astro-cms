@@ -36,11 +36,11 @@ const [homePage, posts] = await Promise.all([
       <RichTextRenderer data={homePage.about} />
     </div>
 
-    <div class="mt-8">
-      <a class="btn" href={homePage?.ctaPrimaryUrl} target="_blank">
+    <div class="mt-6 flex gap-4">
+      <a class="btn md:btn-lg" href={homePage?.ctaPrimaryUrl} target="_blank">
         {homePage?.ctaPrimaryLabel}
       </a>
-      <a href={homePage?.ctaSecondaryUrl} class="btn btn-outline ml-5">
+      <a href={homePage?.ctaSecondaryUrl} class="btn btn-outline md:btn-lg">
         {homePage?.ctaSecondaryLabel}
       </a>
     </div>
@@ -48,7 +48,7 @@ const [homePage, posts] = await Promise.all([
 
   <div>
     <div class="text-3xl w-full font-bold my-5">
-      {homePage?.latestBlogTitle}
+      {homePage?.featuredSectionTitle}
     </div>
   </div>
 

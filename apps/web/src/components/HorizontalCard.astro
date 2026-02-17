@@ -77,17 +77,19 @@ const currentUrl = Astro.url;
               />
             </div>
           )}
-          <div class="grow w-full">
-            {category && (
-              <span class="badge badge-primary badge-sm mb-1">
-                {category.name}
-              </span>
-            )}
-            {series && (
-              <span class="badge badge-secondary badge-sm mb-1 ml-1">
-                {series.name}
-              </span>
-            )}
+          <div class="grow w-full space-y-1">
+            <div>
+              {category && (
+                <span class="badge badge-primary badge-sm mb-1">
+                  {category.name}
+                </span>
+              )}
+              {series && (
+                <span class="badge badge-secondary badge-sm mb-1 ml-1">
+                  {series.name}
+                </span>
+              )}
+            </div>
             <h1 class="text-xl font-bold">
               {title}
               {allBadges.map((item) => (
@@ -129,23 +131,25 @@ const currentUrl = Astro.url;
             </div>
           </a>
         )}
-        <div class="grow w-full">
-          {category && (
-            <a
-              href={generateFilterUrl(currentUrl, "category", category.slug)}
-              class="badge badge-primary badge-sm mb-1 no-underline"
-            >
-              {category.name}
-            </a>
-          )}
-          {series && (
-            <a
-              href={`/blog/series/${series.slug}`}
-              class="badge badge-secondary badge-sm mb-1 ml-1 no-underline"
-            >
-              {series.name}
-            </a>
-          )}
+        <div class="grow w-full space-y-1">
+          <div>
+            {category && (
+              <a
+                href={generateFilterUrl(currentUrl, "category", category.slug)}
+                class="badge badge-primary badge-sm mb-1 no-underline"
+              >
+                {category.name}
+              </a>
+            )}
+            {series && (
+              <a
+                href={`/blog/series/${series.slug}`}
+                class="badge badge-secondary badge-sm mb-1 ml-1 no-underline"
+              >
+                {series.name}
+              </a>
+            )}
+          </div>
           <h1 class="text-xl font-bold">
             <a
               href={url}

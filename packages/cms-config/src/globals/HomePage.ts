@@ -75,7 +75,7 @@ export const HomePage: GlobalConfig = {
       },
     },
     {
-      name: "latestBlogTitle",
+      name: "featuredSectionTitle",
       type: "text",
       required: true,
       admin: {

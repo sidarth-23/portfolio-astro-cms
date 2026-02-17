@@ -899,7 +899,7 @@ export interface HomePage {
   ctaPrimaryUrl: string;
   ctaSecondaryLabel: string;
   ctaSecondaryUrl: string;
-  latestBlogTitle: string;
+  featuredSectionTitle: string;
   updatedAt?: string | null;
   createdAt?: string | null;
 }
@@ -1052,7 +1052,7 @@ export interface HomePageSelect<T extends boolean = true> {
   ctaPrimaryUrl?: T;
   ctaSecondaryLabel?: T;
   ctaSecondaryUrl?: T;
-  latestBlogTitle?: T;
+  featuredSectionTitle?: T;
   updatedAt?: T;
   createdAt?: T;
   globalType?: T;

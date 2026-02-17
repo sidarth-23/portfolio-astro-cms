@@ -168,10 +168,14 @@ const activeSeries = seriesFilter
     </form>
 
     <div class="dropdown dropdown-end">
-      <div tabindex="0" role="button" class="btn btn-outline">
+      <div
+        tabindex="0"
+        role="button"
+        class={`btn ${hasActiveFilters ? "btn-primary" : "btn-outline"} gap-2`}
+      >
         <svg
           xmlns="http://www.w3.org/2000/svg"
-          class="h-5 w-5 mr-2"
+          class="h-5 w-5"
           fill="none"
           viewBox="0 0 24 24"
           stroke="currentColor"
@@ -184,13 +188,36 @@ const activeSeries = seriesFilter
           ></path>
         </svg>
         Filter
+        {
+          hasActiveFilters && (
+            <div class="badge badge-sm badge-circle badge-ghost">
+              {(categoryFilter ? 1 : 0) +
+                (tagFilter ? 1 : 0) +
+                (seriesFilter ? 1 : 0)}
+            </div>
+          )
+        }
       </div>
       <div
         tabindex="0"
-        class="dropdown-content z-[1] card card-compact w-64 p-2 shadow bg-base-100 border border-base-200 h-96 overflow-y-auto"
+        class="dropdown-content z-[1] card card-compact w-72 sm:w-80 md:w-96 p-2 shadow-xl bg-base-200/90 backdrop-blur-md border border-base-200 max-h-[60vh] overflow-y-auto"
       >
         <div class="card-body">
-          <h3 class="card-title text-sm">Categories</h3>
+          <div class="flex justify-between items-center">
+            <h3 class="card-title text-sm uppercase tracking-wider opacity-70">
+              Categories
+            </h3>
+            {
+              categoryFilter && (
+                <a
+                  href={buildBlogUrl({ category: null, page: 1 })}
+                  class="btn btn-ghost btn-xs text-error"
+                >
+                  Clear
+                </a>
+              )
+            }
+          </div>
           <div class="flex flex-wrap gap-2">
             {
               allCategories.map((category) => (
@@ -200,7 +227,7 @@ const activeSeries = seriesFilter
                       category.slug === categoryFilter ? null : category.slug,
                     page: 1,
                   })}
-                  class={`badge ${category.slug === categoryFilter ? "badge-primary" : "badge-outline hover:badge-primary"}`}
+                  class={`btn btn-sm ${category.slug === categoryFilter ? "btn-primary" : "btn-ghost bg-base-200 hover:bg-base-300 font-normal"}`}
                 >
                   {category.name}
                 </a>
@@ -208,9 +235,23 @@ const activeSeries = seriesFilter
             }
           </div>
 
-          <div class="divider my-2"></div>
+          <div class="divider my-1"></div>
 
-          <h3 class="card-title text-sm">Tags</h3>
+          <div class="flex justify-between items-center">
+            <h3 class="card-title text-sm uppercase tracking-wider opacity-70">
+              Tags
+            </h3>
+            {
+              tagFilter && (
+                <a
+                  href={buildBlogUrl({ tag: null, page: 1 })}
+                  class="btn btn-ghost btn-xs text-error"
+                >
+                  Clear
+                </a>
+              )
+            }
+          </div>
           <div class="flex flex-wrap gap-2">
             {
               allTags.map((tag) => (
@@ -219,8 +260,9 @@ const activeSeries = seriesFilter
                     tag: tag.slug === tagFilter ? null : tag.slug,
                     page: 1,
                   })}
-                  class={`badge ${tag.slug === tagFilter ? "badge-accent" : "badge-outline hover:badge-accent"}`}
+                  class={`btn btn-sm ${tag.slug === tagFilter ? "btn-accent text-accent-content" : "btn-ghost bg-base-200 hover:bg-base-300 font-normal"}`}
                 >
+                  <span class="opacity-70">#</span>
                   {tag.name}
                 </a>
               ))
@@ -362,7 +404,7 @@ const activeSeries = seriesFilter
             .map((series) => (
               <a
                 href={`/blog/series/${series.slug}`}
-                class="card card-compact bg-base-100 hover:bg-base-200 transition-all border border-base-200 hover:shadow-md group no-underline"
+                class="card card-compact bg-base-200 hover:bg-base-300 transition-all border border-base-200 hover:shadow-md group no-underline"
               >
                 <div class="card-body">
                   <h3 class="card-title text-lg">
