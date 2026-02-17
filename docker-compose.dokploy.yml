@@ -38,16 +38,17 @@ services:
     depends_on:
       - postgres
       - minio
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:3000/api/health >/dev/null 2>&1 || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 40s
 
   astro-web:
     build:
       context: .
       dockerfile: apps/web/Dockerfile
-      args:
-        ASTRO_SITE_URL: ${ASTRO_SITE_URL}
-        ASTRO_CMS_API_URL: ${ASTRO_CMS_API_URL}
-        ASTRO_CMS_READ_TOKEN: ${CMS_READ_TOKEN}
-        ASTRO_CMS_HEALTH_TIMEOUT_MS: ${ASTRO_CMS_HEALTH_TIMEOUT_MS:-5000}
     environment:
       ASTRO_SITE_URL: ${ASTRO_SITE_URL}
       ASTRO_CMS_API_URL: ${ASTRO_CMS_API_URL}
@@ -56,7 +57,8 @@ services:
       HOST: "0.0.0.0"
       PORT: "4321"
     depends_on:
-      - payload-cms
+      payload-cms:
+        condition: service_healthy
 
 volumes:
   postgres_data:

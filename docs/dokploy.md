@@ -34,6 +34,11 @@
 2. `afterChange` hook in Payload calls Dokploy deploy webhook (`SITE_BUILD_HOOK_URL`).
 3. Dokploy rebuilds and redeploys `astro-web` static site.
 
+## Deployment Order
+
+- `astro-web` waits for `payload-cms` health before starting.
+- `astro-web` runs `bun run build` at container startup, so the CMS is available during build on first deploy.
+
 ## Domain Suggestion
 
 - `www.sidshub.in` -> `astro-web`
