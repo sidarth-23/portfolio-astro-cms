@@ -7,6 +7,7 @@ import { postgresAdapter } from "@payloadcms/db-postgres";
 import { seoPlugin } from "@payloadcms/plugin-seo";
 import { s3Storage } from "@payloadcms/storage-s3";
 import { buildConfig } from "payload";
+import type { CollectionConfig, GlobalConfig } from "payload";
 
 import { Categories } from "./collections/Categories";
 import { Media } from "./collections/Media";
@@ -19,6 +20,8 @@ import { CvPage } from "./globals/CvPage";
 import { HomePage } from "./globals/HomePage";
 import { ProjectsPage } from "./globals/ProjectsPage";
 import { SiteSettings } from "./globals/SiteSettings";
+import { triggerDokployRedeploy } from "./hooks/triggerDokployRedeploy";
+import { triggerDokployRedeployGlobal } from "./hooks/triggerDokployRedeployGlobal";
 
 const filename = fileURLToPath(import.meta.url);
 const dirname = path.dirname(filename);
@@ -133,6 +136,35 @@ const ensureS3BucketExists = async (): Promise<void> => {
   }
 };
 
+const withCollectionAfterChangeHook = (collection: CollectionConfig): CollectionConfig => {
+  const existingAfterChange = collection.hooks?.afterChange ?? [];
+
+  return {
+    ...collection,
+    hooks: {
+      ...collection.hooks,
+      afterChange: [...existingAfterChange, triggerDokployRedeploy],
+    },
+  };
+};
+
+const withGlobalAfterChangeHook = (globalConfig: GlobalConfig): GlobalConfig => {
+  const existingAfterChange = globalConfig.hooks?.afterChange ?? [];
+
+  return {
+    ...globalConfig,
+    hooks: {
+      ...globalConfig.hooks,
+      afterChange: [...existingAfterChange, triggerDokployRedeployGlobal],
+    },
+  };
+};
+
+const collections: CollectionConfig[] = [Users, Media, Categories, Tags, Series, Posts, Projects].map(
+  withCollectionAfterChangeHook,
+);
+const globals: GlobalConfig[] = [SiteSettings, HomePage, CvPage, ProjectsPage].map(withGlobalAfterChangeHook);
+
 export default buildConfig({
   editor: defaultLexicalEditor,
   admin: {
@@ -151,8 +183,8 @@ export default buildConfig({
   routes: {
     admin: "/",
   },
-  collections: [Users, Media, Categories, Tags, Series, Posts, Projects],
-  globals: [SiteSettings, HomePage, CvPage, ProjectsPage],
+  collections,
+  globals,
   onInit: async () => {
     await ensureS3BucketExists();
   },

@@ -4,10 +4,12 @@ import { getAllPublishedPosts, getSiteSettings } from "@/lib/cms/client";
 
 export async function GET(context) {
   const [posts, siteSettings] = await Promise.all([getAllPublishedPosts(), getSiteSettings()]);
+  const title = siteSettings.siteTitle?.trim() || "Sid's Hub";
+  const description = siteSettings.siteDescription?.trim() || "Personal website and blog.";
 
   return rss({
-    title: siteSettings.siteTitle,
-    description: siteSettings.siteDescription,
+    title,
+    description,
     site: context.site,
     items: posts.map((post) => ({
       title: post.title,

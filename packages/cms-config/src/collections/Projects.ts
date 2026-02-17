@@ -3,7 +3,6 @@ import type { CollectionConfig } from "payload";
 import { readAccess } from "../access/readAccess";
 
 import { slugField } from "../fields/slug";
-import { triggerDokployRedeploy } from "../hooks/triggerDokployRedeploy";
 
 export const Projects: CollectionConfig = {
   slug: "projects",
@@ -14,9 +13,6 @@ export const Projects: CollectionConfig = {
     useAsTitle: "title",
     defaultColumns: ["title", "_status", "displayOrder", "updatedAt"],
     group: "Content",
-  },
-  hooks: {
-    afterChange: [triggerDokployRedeploy],
   },
   fields: [
     {
