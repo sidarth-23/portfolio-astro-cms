@@ -1,7 +1,7 @@
 import type { CollectionConfig } from "payload";
 
-import { triggerDokployRedeploy } from "../hooks/triggerDokployRedeploy";
 import { slugField } from "../fields/slug";
+import { triggerDokployRedeploy } from "../hooks/triggerDokployRedeploy";
 
 export const Projects: CollectionConfig = {
   slug: "projects",
@@ -10,7 +10,7 @@ export const Projects: CollectionConfig = {
   },
   admin: {
     useAsTitle: "title",
-    defaultColumns: ["title", "_status", "section", "displayOrder", "updatedAt"],
+    defaultColumns: ["title", "_status", "displayOrder", "updatedAt"],
     group: "Content",
   },
   hooks: {
@@ -71,16 +71,6 @@ export const Projects: CollectionConfig = {
       ],
     },
     slugField({ fieldToUse: "title" }),
-    {
-      name: "section",
-      type: "select",
-      required: true,
-      defaultValue: "featured",
-      options: ["featured", "newbie"],
-      admin: {
-        position: "sidebar",
-      },
-    },
     {
       name: "displayOrder",
       type: "number",

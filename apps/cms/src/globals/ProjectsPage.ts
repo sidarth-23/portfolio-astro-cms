@@ -17,24 +17,29 @@ export const ProjectsPage: GlobalConfig = {
           label: "Content",
           fields: [
             {
-              name: "featuredTitle",
-              type: "text",
+              name: "sections",
+              type: "array",
               required: true,
-            },
-            {
-              name: "featuredDescription",
-              type: "richText",
-              required: true,
-            },
-            {
-              name: "newbieTitle",
-              type: "text",
-              required: true,
-            },
-            {
-              name: "newbieDescription",
-              type: "richText",
-              required: true,
+              minRows: 1,
+              fields: [
+                {
+                  name: "title",
+                  type: "text",
+                  required: true,
+                },
+                {
+                  name: "description",
+                  type: "richText",
+                },
+                {
+                  name: "projects",
+                  type: "relationship",
+                  relationTo: "projects",
+                  hasMany: true,
+                  required: true,
+                  minRows: 1,
+                },
+              ],
             },
           ],
         },

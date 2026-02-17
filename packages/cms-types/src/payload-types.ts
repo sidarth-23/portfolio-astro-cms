@@ -148,7 +148,7 @@ export interface UserAuthOperations {
  */
 export interface User {
   id: number;
-  name?: string | null;
+  name: string;
   bio?: {
     root: {
       type: string;
@@ -393,7 +393,6 @@ export interface Project {
    * Auto-generated from title, but can be edited.
    */
   slug: string;
-  section: 'featured' | 'newbie';
   displayOrder: number;
   updatedAt: string;
   createdAt: string;
@@ -739,7 +738,6 @@ export interface ProjectsSelect<T extends boolean = true> {
         image?: T;
       };
   slug?: T;
-  section?: T;
   displayOrder?: T;
   updatedAt?: T;
   createdAt?: T;
@@ -825,9 +823,6 @@ export interface SiteSetting {
   siteTitle: string;
   siteDescription: string;
   defaultOgImage?: (number | null) | Media;
-  linkedInUrl?: string | null;
-  githubUrl?: string | null;
-  email?: string | null;
   meta?: {
     title?: string | null;
     description?: string | null;
@@ -836,6 +831,9 @@ export interface SiteSetting {
      */
     image?: (number | null) | Media;
   };
+  linkedInUrl?: string | null;
+  githubUrl?: string | null;
+  email?: string | null;
   updatedAt?: string | null;
   createdAt?: string | null;
 }
@@ -885,109 +883,55 @@ export interface HomePage {
  */
 export interface CvPage {
   id: number;
-  profile: {
-    root: {
-      type: string;
-      children: {
-        type: any;
+  sections: {
+    title: string;
+    type: 'description' | 'items' | 'badges';
+    description?: {
+      root: {
+        type: string;
+        children: {
+          type: any;
+          version: number;
+          [k: string]: unknown;
+        }[];
+        direction: ('ltr' | 'rtl') | null;
+        format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+        indent: number;
         version: number;
-        [k: string]: unknown;
-      }[];
-      direction: ('ltr' | 'rtl') | null;
-      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
-      indent: number;
-      version: number;
-    };
-    [k: string]: unknown;
-  };
-  education?:
-    | {
-        key: string;
-        summary?: string | null;
-        content: {
-          root: {
-            type: string;
-            children: {
-              type: any;
+      };
+      [k: string]: unknown;
+    } | null;
+    itemsVariant?: ('timeline' | 'list' | 'columns') | null;
+    items?:
+      | {
+          title: string;
+          subtitle?: string | null;
+          content?: {
+            root: {
+              type: string;
+              children: {
+                type: any;
+                version: number;
+                [k: string]: unknown;
+              }[];
+              direction: ('ltr' | 'rtl') | null;
+              format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+              indent: number;
               version: number;
-              [k: string]: unknown;
-            }[];
-            direction: ('ltr' | 'rtl') | null;
-            format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
-            indent: number;
-            version: number;
-          };
-          [k: string]: unknown;
-        };
-        id?: string | null;
-      }[]
-    | null;
-  experience?:
-    | {
-        key: string;
-        summary?: string | null;
-        content: {
-          root: {
-            type: string;
-            children: {
-              type: any;
-              version: number;
-              [k: string]: unknown;
-            }[];
-            direction: ('ltr' | 'rtl') | null;
-            format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
-            indent: number;
-            version: number;
-          };
-          [k: string]: unknown;
-        };
-        id?: string | null;
-      }[]
-    | null;
-  certifications?:
-    | {
-        key: string;
-        summary?: string | null;
-        content: {
-          root: {
-            type: string;
-            children: {
-              type: any;
-              version: number;
-              [k: string]: unknown;
-            }[];
-            direction: ('ltr' | 'rtl') | null;
-            format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
-            indent: number;
-            version: number;
-          };
-          [k: string]: unknown;
-        };
-        id?: string | null;
-      }[]
-    | null;
-  skills?:
-    | {
-        key: string;
-        summary?: string | null;
-        content: {
-          root: {
-            type: string;
-            children: {
-              type: any;
-              version: number;
-              [k: string]: unknown;
-            }[];
-            direction: ('ltr' | 'rtl') | null;
-            format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
-            indent: number;
-            version: number;
-          };
-          [k: string]: unknown;
-        };
-        id?: string | null;
-      }[]
-    | null;
+            };
+            [k: string]: unknown;
+          } | null;
+          id?: string | null;
+        }[]
+      | null;
+    badges?:
+      | {
+          value: string;
+          id?: string | null;
+        }[]
+      | null;
+    id?: string | null;
+  }[];
   meta?: {
     title?: string | null;
     description?: string | null;
@@ -1005,38 +949,26 @@ export interface CvPage {
  */
 export interface ProjectsPage {
   id: number;
-  featuredTitle: string;
-  featuredDescription: {
-    root: {
-      type: string;
-      children: {
-        type: any;
+  sections: {
+    title: string;
+    description?: {
+      root: {
+        type: string;
+        children: {
+          type: any;
+          version: number;
+          [k: string]: unknown;
+        }[];
+        direction: ('ltr' | 'rtl') | null;
+        format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+        indent: number;
         version: number;
-        [k: string]: unknown;
-      }[];
-      direction: ('ltr' | 'rtl') | null;
-      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
-      indent: number;
-      version: number;
-    };
-    [k: string]: unknown;
-  };
-  newbieTitle: string;
-  newbieDescription: {
-    root: {
-      type: string;
-      children: {
-        type: any;
-        version: number;
-        [k: string]: unknown;
-      }[];
-      direction: ('ltr' | 'rtl') | null;
-      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
-      indent: number;
-      version: number;
-    };
-    [k: string]: unknown;
-  };
+      };
+      [k: string]: unknown;
+    } | null;
+    projects: (number | Project)[];
+    id?: string | null;
+  }[];
   meta?: {
     title?: string | null;
     description?: string | null;
@@ -1056,9 +988,6 @@ export interface SiteSettingsSelect<T extends boolean = true> {
   siteTitle?: T;
   siteDescription?: T;
   defaultOgImage?: T;
-  linkedInUrl?: T;
-  githubUrl?: T;
-  email?: T;
   meta?:
     | T
     | {
@@ -1066,6 +995,9 @@ export interface SiteSettingsSelect<T extends boolean = true> {
         description?: T;
         image?: T;
       };
+  linkedInUrl?: T;
+  githubUrl?: T;
+  email?: T;
   updatedAt?: T;
   createdAt?: T;
   globalType?: T;
@@ -1100,37 +1032,27 @@ export interface HomePageSelect<T extends boolean = true> {
  * via the `definition` "cv-page_select".
  */
 export interface CvPageSelect<T extends boolean = true> {
-  profile?: T;
-  education?:
+  sections?:
     | T
     | {
-        key?: T;
-        summary?: T;
-        content?: T;
-        id?: T;
-      };
-  experience?:
-    | T
-    | {
-        key?: T;
-        summary?: T;
-        content?: T;
-        id?: T;
-      };
-  certifications?:
-    | T
-    | {
-        key?: T;
-        summary?: T;
-        content?: T;
-        id?: T;
-      };
-  skills?:
-    | T
-    | {
-        key?: T;
-        summary?: T;
-        content?: T;
+        title?: T;
+        type?: T;
+        description?: T;
+        itemsVariant?: T;
+        items?:
+          | T
+          | {
+              title?: T;
+              subtitle?: T;
+              content?: T;
+              id?: T;
+            };
+        badges?:
+          | T
+          | {
+              value?: T;
+              id?: T;
+            };
         id?: T;
       };
   meta?:
@@ -1149,10 +1071,14 @@ export interface CvPageSelect<T extends boolean = true> {
  * via the `definition` "projects-page_select".
  */
 export interface ProjectsPageSelect<T extends boolean = true> {
-  featuredTitle?: T;
-  featuredDescription?: T;
-  newbieTitle?: T;
-  newbieDescription?: T;
+  sections?:
+    | T
+    | {
+        title?: T;
+        description?: T;
+        projects?: T;
+        id?: T;
+      };
   meta?:
     | T
     | {

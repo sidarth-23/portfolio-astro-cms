@@ -121,7 +121,6 @@ export type CmsProject = {
   externalUrl: string;
   badges?: Array<{ value: string; id?: string | null }> | null;
   techTags?: Array<{ value: string; id?: string | null }> | null;
-  section: "featured" | "newbie";
   displayOrder: number;
   image?: CmsMedia;
   meta?: CmsMeta;
@@ -153,32 +152,51 @@ export type HomePageGlobal = {
   seoOverrides?: CmsSeoOverrides;
 };
 
+export type CvSectionItem = {
+  title: string;
+  subtitle?: string | null;
+  content?: RichTextValue | null;
+  id?: string | null;
+};
+
+export type CvSection = {
+  title: string;
+  type: "description";
+  description: RichTextValue | null;
+  id?: string | null;
+} | {
+  title: string;
+  type: "items";
+  itemsVariant: "timeline" | "list" | "columns";
+  items: CvSectionItem[];
+  id?: string | null;
+} | {
+  title: string;
+  type: "badges";
+  badges: Array<{ value: string; id?: string | null }>;
+  id?: string | null;
+};
+
 export type CvPageGlobal = {
-  profile: RichTextValue | null;
-  education?: CvSectionEntry[] | null;
-  experience?: CvSectionEntry[] | null;
-  certifications?: CvSectionEntry[] | null;
-  skills?: CvSectionEntry[] | null;
+  sections: CvSection[];
   meta?: CmsMeta;
   seoOverrides?: CmsSeoOverrides;
 };
 
+export type ProjectsPageSection = {
+  title: string;
+  description: RichTextValue | null;
+  projects: CmsProject[];
+  id?: string | null;
+};
+
 export type ProjectsPageGlobal = {
-  featuredTitle: string;
-  featuredDescription: RichTextValue | null;
-  newbieTitle: string;
-  newbieDescription: RichTextValue | null;
+  sections: ProjectsPageSection[];
   meta?: CmsMeta;
   seoOverrides?: CmsSeoOverrides;
 };
 
 type RelationValue<T> = number | T | null | undefined;
-type CvSectionEntry = {
-  key: string;
-  summary?: string | null;
-  content: RichTextValue | null;
-  id?: string | null;
-};
 
 const isObject = <T extends object>(value: unknown): value is T => {
   return typeof value === "object" && value !== null;
@@ -338,81 +356,150 @@ const toTextOrNull = (value: unknown): string | null => {
   return typeof value === "string" && value.trim() ? value : null;
 };
 
-const normalizeCvSectionItems = (value: unknown): CvSectionEntry[] | null => {
+const normalizeCvSectionItems = (value: unknown): CvSectionItem[] => {
   if (!Array.isArray(value)) {
-    return null;
+    return [];
   }
 
-  const items = value
-    .map((item): CvSectionEntry | null => {
+  return value
+    .map((item): CvSectionItem | null => {
       if (!isObject<Record<string, unknown>>(item)) {
         return null;
       }
 
+      const title = toTextOrUndefined(item.title);
       const id = toTextOrNull(item.id);
-      const key = toTextOrUndefined(item.key);
-      const summary = toTextOrNull(item.summary);
+      const subtitle = toTextOrNull(item.subtitle);
 
-      if (key) {
+      if (!title) {
+        return null;
+      }
+
+      return {
+        title,
+        subtitle,
+        content: toRichText(item.content),
+        id,
+      };
+    })
+    .filter((item): item is CvSectionItem => Boolean(item));
+};
+
+const normalizeCvSections = (value: unknown): CvSection[] => {
+  if (!Array.isArray(value)) {
+    return [];
+  }
+
+  return value
+    .map((section): CvSection | null => {
+      if (!isObject<Record<string, unknown>>(section)) {
+        return null;
+      }
+
+      const title = toTextOrUndefined(section.title);
+      const type = toTextOrUndefined(section.type);
+      const id = toTextOrNull(section.id);
+
+      if (!title || !type) {
+        return null;
+      }
+
+      if (type === "description") {
         return {
-          key,
-          summary,
-          content: toRichText(item.content),
+          title,
+          type,
+          description: toRichText(section.description),
           id,
         };
       }
 
-      const legacyTitle = toTextOrUndefined(item.title);
-      const legacySubtitle = toTextOrNull(item.subtitle);
-      const legacyName = toTextOrUndefined(item.name);
-      const legacyUrl = toTextOrNull(item.url);
-      const legacyValue = toTextOrUndefined(item.value);
-      const legacyItems = Array.isArray(item.items) ? item.items : [];
+      if (type === "items") {
+        const itemsVariant = toTextOrUndefined(section.itemsVariant);
+        if (itemsVariant !== "timeline" && itemsVariant !== "list" && itemsVariant !== "columns") {
+          return null;
+        }
 
-      const legacyExperienceItems = legacyItems
-        .map((legacyItem) => {
-          if (!isObject<Record<string, unknown>>(legacyItem)) {
-            return null;
-          }
-
-          return toTextOrUndefined(legacyItem.value) || null;
-        })
-        .filter((legacyItem): legacyItem is string => Boolean(legacyItem));
-
-      if (legacyTitle) {
         return {
-          key: legacyTitle,
-          summary: legacySubtitle,
-          content: toRichText(
-            legacyExperienceItems.length > 0 ? legacyExperienceItems.join("\n") : legacySubtitle,
-          ),
+          title,
+          type,
+          itemsVariant,
+          items: normalizeCvSectionItems(section.items),
           id,
         };
       }
 
-      if (legacyName) {
-        return {
-          key: legacyName,
-          summary: legacyUrl,
-          content: toRichText(legacyUrl),
-          id,
-        };
-      }
+      if (type === "badges") {
+        const badges = Array.isArray(section.badges)
+          ? section.badges
+              .map((badge) => {
+                if (!isObject<Record<string, unknown>>(badge)) {
+                  return null;
+                }
 
-      if (legacyValue) {
+                const value = toTextOrUndefined(badge.value);
+                if (!value) {
+                  return null;
+                }
+
+                return {
+                  value,
+                  id: toTextOrNull(badge.id),
+                };
+              })
+              .filter((badge): badge is { value: string; id?: string | null } => Boolean(badge))
+          : [];
+
         return {
-          key: legacyValue,
-          summary: null,
-          content: toRichText(legacyValue),
+          title,
+          type,
+          badges,
           id,
         };
       }
 
       return null;
     })
-    .filter((item): item is CvSectionEntry => Boolean(item));
+    .filter((section): section is CvSection => Boolean(section));
+};
 
-  return items.length > 0 ? items : null;
+const toProjectFromRelation = (value: RelationValue<Project>): CmsProject | undefined => {
+  if (!isObject<Project>(value)) {
+    return undefined;
+  }
+
+  return normalizeProject(value);
+};
+
+const normalizeProjectsPageSections = (value: unknown): ProjectsPageSection[] => {
+  if (!Array.isArray(value)) {
+    return [];
+  }
+
+  return value
+    .map((section): ProjectsPageSection | null => {
+      if (!isObject<Record<string, unknown>>(section)) {
+        return null;
+      }
+
+      const title = toTextOrUndefined(section.title);
+      if (!title) {
+        return null;
+      }
+
+      const projects = Array.isArray(section.projects)
+        ? section.projects
+            .map((project) => toProjectFromRelation(project as RelationValue<Project>))
+            .filter((project): project is CmsProject => Boolean(project))
+        : [];
+
+      return {
+        title,
+        description: toRichText(section.description),
+        projects,
+        id: toTextOrNull(section.id),
+      };
+    })
+    .filter((section): section is ProjectsPageSection => Boolean(section));
 };
 
 type RawPopulatedAuthor = {
@@ -494,7 +581,6 @@ export const normalizeProject = (project: RawProject): CmsProject => {
     externalUrl: project.externalUrl,
     badges: project.badges,
     techTags: project.techTags,
-    section: project.section,
     displayOrder: project.displayOrder,
     image: toMedia(project.image),
     meta: toMeta(project.meta),
@@ -532,23 +618,20 @@ export const normalizeHomePage = (homePage: RawHomePage): HomePageGlobal => {
 };
 
 export const normalizeCvPage = (cvPage: RawCvPage): CvPageGlobal => {
+  const sections = (cvPage as unknown as { sections?: unknown }).sections;
+
   return {
-    profile: toRichText(cvPage.profile),
-    education: normalizeCvSectionItems(cvPage.education),
-    experience: normalizeCvSectionItems(cvPage.experience),
-    certifications: normalizeCvSectionItems(cvPage.certifications),
-    skills: normalizeCvSectionItems(cvPage.skills),
+    sections: normalizeCvSections(sections),
     meta: toMeta(cvPage.meta),
     seoOverrides: undefined,
   };
 };
 
 export const normalizeProjectsPage = (projectsPage: RawProjectsPage): ProjectsPageGlobal => {
+  const sections = (projectsPage as unknown as { sections?: unknown }).sections;
+
   return {
-    featuredTitle: projectsPage.featuredTitle,
-    featuredDescription: toRichText(projectsPage.featuredDescription),
-    newbieTitle: projectsPage.newbieTitle,
-    newbieDescription: toRichText(projectsPage.newbieDescription),
+    sections: normalizeProjectsPageSections(sections),
     meta: toMeta(projectsPage.meta),
     seoOverrides: undefined,
   };

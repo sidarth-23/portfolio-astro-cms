@@ -39,10 +39,7 @@ export const Users: CollectionConfig = {
     {
       name: "name",
       type: "text",
-      validate: nameRequiredAfterLogin,
-      admin: {
-        condition: showProfileFieldsAfterLogin,
-      },
+      required: true
     },
     {
       name: "bio",

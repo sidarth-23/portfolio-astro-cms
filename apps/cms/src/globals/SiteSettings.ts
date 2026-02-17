@@ -34,27 +34,31 @@ export const SiteSettings: GlobalConfig = {
             },
           ],
         },
-        {
-          label: "Settings",
-          fields: [
-            {
-              name: "linkedInUrl",
-              type: "text",
-              required: false,
-            },
-            {
-              name: "githubUrl",
-              type: "text",
-              required: false,
-            },
-            {
-              name: "email",
-              type: "text",
-              required: false,
-            },
-          ],
-        },
       ],
+    },
+    {
+      name: "linkedInUrl",
+      type: "text",
+      required: false,
+      admin: {
+        position: "sidebar",
+      },
+    },
+    {
+      name: "githubUrl",
+      type: "text",
+      required: false,
+      admin: {
+        position: "sidebar",
+      },
+    },
+    {
+      name: "email",
+      type: "text",
+      required: false,
+      admin: {
+        position: "sidebar",
+      },
     },
   ],
 };

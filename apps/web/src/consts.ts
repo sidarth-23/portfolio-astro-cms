@@ -1,7 +1,2 @@
-// Place any global data in this file.
-// You can import this data from anywhere in your site by using the `import` keyword.
-
-export const SITE_TITLE = "Sidarth";
-export const SITE_DESCRIPTION = 'Welcome to my website!';
-export const GENERATE_SLUG_FROM_TITLE = true;
+// This file contains constants used across the web application.
 export const TRANSITION_API = true;

@@ -12,8 +12,6 @@ import {
   tagsFromPost,
 } from "@/lib/cms/client";
 
-const PAGE_SIZE = 10;
-
 type CategoryPageProps = {
   page: {
     data: CmsPost[];
@@ -29,13 +27,14 @@ const buildCategoryPageUrl = (category: string, pageNumber: number): string => {
 };
 
 export const getStaticPaths = (async () => {
+  const pageSize = 10;
   const allCategories = await getCategorySlugs();
   const paths: Awaited<ReturnType<GetStaticPaths>> = [];
 
   for (const category of allCategories) {
     const firstPage = await getPaginatedPublishedPosts({
       page: 1,
-      pageSize: PAGE_SIZE,
+      pageSize,
       categorySlug: category,
     });
 
@@ -49,7 +48,7 @@ export const getStaticPaths = (async () => {
           ? firstPage
           : await getPaginatedPublishedPosts({
               page: pageNumber,
-              pageSize: PAGE_SIZE,
+              pageSize,
               categorySlug: category,
             });
 

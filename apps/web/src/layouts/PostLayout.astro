@@ -42,7 +42,22 @@ const displayDate = new Intl.DateTimeFormat("en-US", {
   month: "short",
   day: "numeric",
 }).format(new Date(pubDate));
-const authorNames = authors.map((author) => author.name).filter((name): name is string => Boolean(name));
+const authorNames = authors
+  .map((author) => author.name)
+  .filter((name): name is string => Boolean(name));
+
+const pubDateOnly = new Date(pubDate).toDateString();
+const updatedDateOnly = updatedDate
+  ? new Date(updatedDate).toDateString()
+  : null;
+const showUpdatedDate = updatedDateOnly && updatedDateOnly !== pubDateOnly;
+const formattedUpdatedDate = updatedDate
+  ? new Intl.DateTimeFormat("en-US", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+    }).format(new Date(updatedDate))
+  : null;
 
 const jsonLd = {
   "@context": "https://schema.org",
@@ -51,7 +66,9 @@ const jsonLd = {
   description,
   image: heroImage ? [new URL(heroImage, Astro.url).toString()] : undefined,
   datePublished: new Date(pubDate).toISOString(),
-  dateModified: updatedDate ? new Date(updatedDate).toISOString() : new Date(pubDate).toISOString(),
+  dateModified: updatedDate
+    ? new Date(updatedDate).toISOString()
+    : new Date(pubDate).toISOString(),
   mainEntityOfPage: canonicalUrl || Astro.url.toString(),
 };
 ---
@@ -68,33 +85,59 @@ const jsonLd = {
 >
   <main class="md:flex md:justify-center">
     <article class="prose prose-lg max-w-[750px] prose-img:mx-auto">
-      {heroImage && <img src={heroImage} alt={title} class="w-full mb-6 rounded-lg" loading="eager" />}
-      <h1 class="title my-2 text-4xl font-bold">{title}</h1>
-      <time>{displayDate}</time>
-      {authorNames.length > 0 && <div class="text-sm mt-1">By {authorNames.join(", ")}</div>}
-      <br />
-      {badge && <div class="badge badge-secondary my-1">{badge}</div>}
       {
         category && (
-          <a href={`/blog/category/${category.slug}`} class="badge badge-primary ml-2 no-underline">
+          <a
+            href={`/blog/category/${category.slug}`}
+            class="badge badge-accent badge-lg no-underline"
+          >
             {category.name}
           </a>
         )
       }
       {
-        tags.map((tag) => (
-          <a href={`/blog/tag/${tag.slug}`} class="badge badge-outline ml-2 no-underline">
-            {tag.name}
-          </a>
-        ))
-      }
-      {
-        updatedDate && (
-          <div>
-            Last updated on <time>{new Date(updatedDate).toDateString()}</time>
-          </div>
+        heroImage && (
+          <img
+            src={heroImage}
+            alt={title}
+            class="w-full mb-6 rounded-lg"
+            loading="eager"
+          />
         )
       }
+      <h1 class="title my-2 text-4xl font-bold">{title}</h1>
+      {
+        authorNames.length > 0 && (
+          <div class="text-sm mt-1">By {authorNames.join(", ")}</div>
+        )
+      }
+      <div class="flex flex-wrap items-center justify-between gap-2">
+        <div class="text-sm opacity-70">
+          <time>{displayDate}</time>
+          {
+            showUpdatedDate && (
+              <span>
+                {" "}
+                (updated <time>{formattedUpdatedDate}</time>)
+              </span>
+            )
+          }
+        </div>
+        {
+          tags.length > 0 && (
+            <div class="flex flex-wrap gap-1">
+              {tags.map((tag) => (
+                <a
+                  href={`/blog/tag/${tag.slug}`}
+                  class="badge badge-outline badge-sm no-underline opacity-70"
+                >
+                  {tag.name}
+                </a>
+              ))}
+            </div>
+          )
+        }
+      </div>
       <div class="divider my-2"></div>
       <slot />
     </article>

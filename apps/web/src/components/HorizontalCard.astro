@@ -59,14 +59,21 @@ const allBadges = (badge ? [badge] : []).concat(badges);
       >
         <div class={contentClass}>
           {img && (
-            <img
-              src={img}
-              loading="lazy"
-              alt={title}
-              class="max-w-full md:max-w-52 rounded-lg"
-            />
+            <div class="w-full md:w-56 h-40 md:h-40 flex-shrink-0 overflow-hidden rounded-lg">
+              <img
+                src={img}
+                loading="lazy"
+                alt={title}
+                class="w-full h-full object-contain"
+              />
+            </div>
           )}
           <div class="grow w-full">
+            {category && (
+              <span class="badge badge-primary badge-sm mb-1">
+                {category.name}
+              </span>
+            )}
             <h1 class="text-xl font-bold">
               {title}
               {allBadges.map((item) => (
@@ -80,14 +87,13 @@ const allBadges = (badge ? [badge] : []).concat(badges);
             ) : (
               <p class="py-1 text-1xl">{desc}</p>
             )}
-            <div class="card-actions justify-end gap-2">
-              {category && (
-                <span class="badge badge-primary">{category.name}</span>
-              )}
-              {tags.map((tag) => (
-                <span class="badge badge-outline">{tag.name}</span>
-              ))}
-            </div>
+            {tags.length > 0 && (
+              <div class="card-actions justify-end gap-2 mt-2">
+                {tags.map((tag) => (
+                  <span class="badge badge-outline badge-sm">{tag.name}</span>
+                ))}
+              </div>
+            )}
           </div>
         </div>
       </a>
@@ -99,15 +105,25 @@ const allBadges = (badge ? [badge] : []).concat(badges);
             target={target}
             rel={target === "_blank" ? "noreferrer" : undefined}
           >
-            <img
-              src={img}
-              loading="lazy"
-              alt={title}
-              class="max-w-full md:max-w-52 rounded-lg"
-            />
+            <div class="w-full md:w-56 h-40 md:h-40 flex-shrink-0 overflow-hidden rounded-lg">
+              <img
+                src={img}
+                loading="lazy"
+                alt={title}
+                class="w-full h-full object-cover"
+              />
+            </div>
           </a>
         )}
         <div class="grow w-full">
+          {category && (
+            <a
+              href={`/blog/category/${category.slug}`}
+              class="badge badge-primary badge-sm mb-1 no-underline"
+            >
+              {category.name}
+            </a>
+          )}
           <h1 class="text-xl font-bold">
             <a
               href={url}
@@ -128,28 +144,22 @@ const allBadges = (badge ? [badge] : []).concat(badges);
           ) : (
             <p class="py-1 text-1xl">{desc}</p>
           )}
-          <div class="card-actions justify-end gap-2">
-            {category && (
-              <a
-                href={`/blog/category/${category.slug}`}
-                class="badge badge-primary"
-              >
-                {category.name}
-              </a>
-            )}
-            {tags.map((tag) =>
-              tagBasePath ? (
-                <a
-                  href={`${tagBasePath}/${tag.slug}`}
-                  class="badge badge-outline"
-                >
-                  {tag.name}
-                </a>
-              ) : (
-                <span class="badge badge-outline">{tag.name}</span>
-              ),
-            )}
-          </div>
+          {tags.length > 0 && (
+            <div class="card-actions justify-end gap-2 mt-2">
+              {tags.map((tag) =>
+                tagBasePath ? (
+                  <a
+                    href={`${tagBasePath}/${tag.slug}`}
+                    class="badge badge-outline badge-sm"
+                  >
+                    {tag.name}
+                  </a>
+                ) : (
+                  <span class="badge badge-outline badge-sm">{tag.name}</span>
+                ),
+              )}
+            </div>
+          )}
         </div>
       </div>
     )

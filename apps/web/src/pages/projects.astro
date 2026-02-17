@@ -2,19 +2,9 @@
 import RichTextRenderer from "@/components/RichTextRenderer.astro";
 import HorizontalCard from "@/components/HorizontalCard.astro";
 import BaseLayout from "@/layouts/BaseLayout.astro";
-import { getProjects, getProjectsPage, mediaToUrl } from "@/lib/cms/client";
+import { getProjectsPage, mediaToUrl } from "@/lib/cms/client";
 
-const [projectsPage, projects] = await Promise.all([
-  getProjectsPage(),
-  getProjects(),
-]);
-
-const featuredProjects = projects.filter(
-  (project) => project.section === "featured",
-);
-const newbieProjects = projects.filter(
-  (project) => project.section === "newbie",
-);
+const projectsPage = await getProjectsPage();
 
 const toTags = (tags?: Array<{ value: string }> | null) => {
   return (tags || []).map((tag) => ({
@@ -37,62 +27,36 @@ const toBadges = (badges?: Array<{ value: string }> | null) => {
   robotsFollow={projectsPage?.seoOverrides?.robotsFollow}
   sideBarActiveItemID="projects"
 >
-  <div class="mb-8">
-    <div class="text-3xl w-full font-bold mb-2">
-      {projectsPage?.featuredTitle}
-    </div>
-
-    <div class="prose max-w-none">
-      <RichTextRenderer data={projectsPage.featuredDescription} />
-    </div>
-  </div>
-
   {
-    featuredProjects.map((project, index) => (
-      <>
-        <HorizontalCard
-          title={project.title}
-          img={mediaToUrl(project.image)}
-          descRich={project.description}
-          badges={toBadges(project.badges)}
-          tags={toTags(project.techTags)}
-          tagBasePath={null}
-          url={project.externalUrl}
-          reverse={index % 2 === 1}
-          wholeCardLink={true}
-        />
-        <div class="divider my-0" />
-      </>
-    ))
-  }
+    projectsPage.sections.map((section) => (
+      <section class="mb-14 last:mb-0">
+        <div class="mb-8">
+          <h2 class="text-3xl w-full font-bold mb-2">{section.title}</h2>
 
-  <div class="my-8 mt-16">
-    <div class="text-3xl w-full font-bold mb-2">
-      {projectsPage?.newbieTitle}
-    </div>
+          {section.description && (
+            <div class="prose max-w-none">
+              <RichTextRenderer data={section.description} />
+            </div>
+          )}
+        </div>
 
-    <RichTextRenderer
-      className="text-md"
-      data={projectsPage.newbieDescription}
-    />
-  </div>
-
-  {
-    newbieProjects.map((project, index) => (
-      <>
-        <HorizontalCard
-          title={project.title}
-          img={mediaToUrl(project.image)}
-          descRich={project.description}
-          badges={toBadges(project.badges)}
-          tags={toTags(project.techTags)}
-          tagBasePath={null}
-          url={project.externalUrl}
-          reverse={index % 2 === 1}
-          wholeCardLink={true}
-        />
-        <div class="divider my-0" />
-      </>
+        {section.projects.map((project, index) => (
+          <>
+            <HorizontalCard
+              title={project.title}
+              img={mediaToUrl(project.image)}
+              descRich={project.description}
+              badges={toBadges(project.badges)}
+              tags={toTags(project.techTags)}
+              tagBasePath={null}
+              url={project.externalUrl}
+              reverse={index % 2 === 1}
+              wholeCardLink={true}
+            />
+            <div class="divider my-0" />
+          </>
+        ))}
+      </section>
     ))
   }
 </BaseLayout>

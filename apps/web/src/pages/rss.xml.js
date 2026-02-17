@@ -1,14 +1,13 @@
 import rss from "@astrojs/rss";
 
-import { SITE_DESCRIPTION, SITE_TITLE } from "@/consts";
-import { getAllPublishedPosts } from "@/lib/cms/client";
+import { getAllPublishedPosts, getSiteSettings } from "@/lib/cms/client";
 
 export async function GET(context) {
-  const posts = await getAllPublishedPosts();
+  const [posts, siteSettings] = await Promise.all([getAllPublishedPosts(), getSiteSettings()]);
 
   return rss({
-    title: SITE_TITLE,
-    description: SITE_DESCRIPTION,
+    title: siteSettings.siteTitle,
+    description: siteSettings.siteDescription,
     site: context.site,
     items: posts.map((post) => ({
       title: post.title,

@@ -1,4 +1,20 @@
-import type { GlobalConfig } from "payload";
+import type { Field, GlobalConfig } from "payload";
+
+const sectionItemFields: Field[] = [
+  {
+    name: "title",
+    type: "text",
+    required: true,
+  },
+  {
+    name: "subtitle",
+    type: "text",
+  },
+  {
+    name: "content",
+    type: "richText",
+  },
+];
 
 export const CvPage: GlobalConfig = {
   slug: "cv-page",
@@ -17,87 +33,63 @@ export const CvPage: GlobalConfig = {
           label: "Content",
           fields: [
             {
-              name: "profile",
-              type: "richText",
+              name: "sections",
+              type: "array",
               required: true,
-            },
-            {
-              name: "education",
-              type: "array",
+              minRows: 1,
               fields: [
                 {
-                  name: "key",
+                  name: "title",
                   type: "text",
                   required: true,
                 },
                 {
-                  name: "summary",
-                  type: "text",
+                  name: "type",
+                  type: "select",
+                  required: true,
+                  defaultValue: "description",
+                  options: ["description", "items", "badges"],
                 },
                 {
-                  name: "content",
+                  name: "description",
                   type: "richText",
+                  admin: {
+                    condition: (_, siblingData) => siblingData?.type === "description",
+                  },
+                },
+                {
+                  name: "itemsVariant",
+                  type: "select",
                   required: true,
-                },
-              ],
-            },
-            {
-              name: "experience",
-              type: "array",
-              fields: [
-                {
-                  name: "key",
-                  type: "text",
-                  required: true,
+                  defaultValue: "list",
+                  options: ["timeline", "list", "columns"],
+                  admin: {
+                    condition: (_, siblingData) => siblingData?.type === "items",
+                  },
                 },
                 {
-                  name: "summary",
-                  type: "text",
+                  name: "items",
+                  type: "array",
+                  minRows: 1,
+                  fields: sectionItemFields,
+                  admin: {
+                    condition: (_, siblingData) => siblingData?.type === "items",
+                  },
                 },
                 {
-                  name: "content",
-                  type: "richText",
-                  required: true,
-                },
-              ],
-            },
-            {
-              name: "certifications",
-              type: "array",
-              fields: [
-                {
-                  name: "key",
-                  type: "text",
-                  required: true,
-                },
-                {
-                  name: "summary",
-                  type: "text",
-                },
-                {
-                  name: "content",
-                  type: "richText",
-                  required: true,
-                },
-              ],
-            },
-            {
-              name: "skills",
-              type: "array",
-              fields: [
-                {
-                  name: "key",
-                  type: "text",
-                  required: true,
-                },
-                {
-                  name: "summary",
-                  type: "text",
-                },
-                {
-                  name: "content",
-                  type: "richText",
-                  required: true,
+                  name: "badges",
+                  type: "array",
+                  minRows: 1,
+                  fields: [
+                    {
+                      name: "value",
+                      type: "text",
+                      required: true,
+                    },
+                  ],
+                  admin: {
+                    condition: (_, siblingData) => siblingData?.type === "badges",
+                  },
                 },
               ],
             },
