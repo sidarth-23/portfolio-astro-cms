@@ -38,7 +38,7 @@ services:
       S3_SECRET_ACCESS_KEY: "minioadmin"
       DOKPLOY_API_URL: ""
       DOKPLOY_API_KEY: ""
-      DOKPLOY_APPLICATION_ID: ""
+      DOKPLOY_COMPOSE_ID: ""
     ports:
       - "3000:3000"
     depends_on:

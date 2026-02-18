@@ -13,17 +13,17 @@ export const triggerDokployDeploy = async (
 ): Promise<void> => {
   const apiBaseUrl = process.env.DOKPLOY_API_URL;
   const apiKey = process.env.DOKPLOY_API_KEY;
-  const applicationId = process.env.DOKPLOY_APPLICATION_ID;
+  const composeId = process.env.DOKPLOY_COMPOSE_ID;
 
-  if (!apiBaseUrl || !apiKey || !applicationId) {
+  if (!apiBaseUrl || !apiKey || !composeId) {
     logger.error({
-      message: "Dokploy API deploy trigger is not configured. Missing DOKPLOY_API_URL, DOKPLOY_API_KEY, or DOKPLOY_APPLICATION_ID.",
+      message: "Dokploy API deploy trigger is not configured. Missing DOKPLOY_API_URL, DOKPLOY_API_KEY, or DOKPLOY_COMPOSE_ID.",
       ...meta,
     });
     return;
   }
 
-  const deployUrl = `${apiBaseUrl.replace(/\/$/, "")}/api/application.deploy`;
+  const deployUrl = `${apiBaseUrl.replace(/\/$/, "")}/api/compose.deploy`;
 
   try {
     const response = await fetch(deployUrl, {
@@ -33,7 +33,7 @@ export const triggerDokployDeploy = async (
         "x-api-key": apiKey,
       },
       body: JSON.stringify({
-        applicationId,
+        composeId,
       }),
     });
 
@@ -51,14 +51,14 @@ export const triggerDokployDeploy = async (
 
     logger.info({
       message: "Triggered Dokploy deploy via API",
-      applicationId,
+      composeId,
       ...meta,
     });
   } catch (error) {
     logger.error({
       message: "Failed to trigger Dokploy deploy via API",
       error,
-      applicationId,
+      composeId,
       ...meta,
     });
   }
