@@ -23,7 +23,7 @@ export const triggerDokployDeploy = async (
     return;
   }
 
-  const deployUrl = `${apiBaseUrl.replace(/\/$/, "")}/api/compose.deploy`;
+  const deployUrl = `${apiBaseUrl.replace(/\/$/, "")}/api/compose.redeploy`;
 
   try {
     const response = await fetch(deployUrl, {
@@ -52,7 +52,7 @@ export const triggerDokployDeploy = async (
     }
 
     logger.info({
-      message: "Triggered Dokploy deploy via API",
+      message: "Triggered Dokploy redeploy via API",
       status: response.status,
       statusText: response.statusText,
       bodySnippet,
