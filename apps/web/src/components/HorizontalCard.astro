@@ -1,5 +1,6 @@
 ---
 import RichTextRenderer from "@/components/RichTextRenderer.astro";
+import { PhGithubLogo } from "phosphor-icons-astro";
 import { type RichTextValue } from "@sidshub/lexical/web";
 
 type Tag = {
@@ -30,6 +31,7 @@ type Props = {
   series?: Series;
   target?: string;
   reverse?: boolean;
+  githubUrl?: string;
 };
 
 const {
@@ -44,6 +46,7 @@ const {
   series,
   target = "_blank",
   reverse = false,
+  githubUrl,
 } = Astro.props;
 const contentClass = `hero-content flex-col ${reverse ? "md:flex-row-reverse" : "md:flex-row"} md:gap-8 lg:gap-10`;
 ---
@@ -83,10 +86,21 @@ const contentClass = `hero-content flex-col ${reverse ? "md:flex-row-reverse" : 
           )
         }
       </div>
-      <h1
-        class="text-xl font-bold group-hover:underline decoration-2 underline-offset-4"
-      >
-        {title}
+      <h1 class="text-xl font-bold decoration-2 underline-offset-4 flex items-center gap-2">
+        {
+          githubUrl && (
+            <a
+              href={githubUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label={`View ${title} on GitHub`}
+              class="relative z-20 text-base-content/80 hover:text-base-content"
+            >
+              <PhGithubLogo size={20} />
+            </a>
+          )
+        }
+        <span class="group-hover:underline">{title}</span>
         {
           badges.map((item) => (
             <div class="badge badge-secondary mx-2">{item}</div>

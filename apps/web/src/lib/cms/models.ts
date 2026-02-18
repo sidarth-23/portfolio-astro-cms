@@ -120,6 +120,7 @@ export type CmsProject = {
   slug: string;
   description: RichTextValue | null;
   externalUrl: string;
+  githubUrl?: string;
   badges?: Array<{ value: string; id?: string | null }> | null;
   tags?: Array<{ value: string; id?: string | null }> | null;
   displayOrder: number;
@@ -162,9 +163,7 @@ export type SiteFooterItem = {
 };
 
 export type SiteSettingsGlobal = {
-  siteTitle: string;
-  siteDescription: string;
-  defaultOgImage?: CmsMedia;
+  profileImage?: CmsMedia;
   sidebarFooterItems: SiteFooterItem[];
   meta?: CmsMeta;
   seoOverrides?: CmsSeoOverrides;
@@ -651,6 +650,7 @@ export const normalizeProject = (project: RawProject): CmsProject => {
     slug: project.slug,
     description: toRichText(project.description),
     externalUrl: project.externalUrl,
+    githubUrl: project.githubUrl || undefined,
     badges: project.badges,
     tags: project.tags,
     displayOrder: project.displayOrder,
@@ -667,9 +667,7 @@ export const normalizeProject = (project: RawProject): CmsProject => {
 
 export const normalizeSiteSettings = (siteSettings: RawSiteSettings): SiteSettingsGlobal => {
   return {
-    siteTitle: siteSettings.siteTitle,
-    siteDescription: siteSettings.siteDescription,
-    defaultOgImage: toMedia(siteSettings.defaultOgImage),
+    profileImage: toMedia(siteSettings.profileImage),
     sidebarFooterItems: normalizeSiteFooterItems(siteSettings.sidebarFooterItems),
     meta: toMeta(siteSettings.meta),
     seoOverrides: undefined,

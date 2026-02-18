@@ -5,7 +5,7 @@ import SideBar from "../components/SideBar.astro";
 import { ClientRouter } from "astro:transitions";
 
 import { TRANSITION_API } from "../consts";
-import { getHomePage, getSiteSettings } from "@/lib/cms/client";
+import { getHomePage, getSiteSettings, mediaToUrl } from "@/lib/cms/client";
 
 const {
   image,
@@ -25,10 +25,12 @@ const [homePage, siteSettings] = await Promise.all([
   getSiteSettings(),
 ]);
 
-const siteTitle = siteSettings.siteTitle;
-const siteDescription = siteSettings.siteDescription;
+const siteTitle = siteSettings.meta?.title?.trim() || "Sid's Hub";
+const siteDescription = siteSettings.meta?.description?.trim() || "Personal website and blog.";
 const pageTitle = title ?? siteTitle;
 const pageDescription = description ?? siteDescription;
+const pageImage = image ?? mediaToUrl(siteSettings.meta?.image);
+const profileImage = mediaToUrl(siteSettings.profileImage);
 ---
 
 <!doctype html>
@@ -37,7 +39,7 @@ const pageDescription = description ?? siteDescription;
     <BaseHead
       title={`${siteTitle} | ${pageTitle}`}
       description={pageDescription}
-      image={image}
+      image={pageImage}
       ogType={ogType}
       canonicalUrl={canonicalUrl}
       robotsIndex={robotsIndex}
@@ -63,6 +65,7 @@ const pageDescription = description ?? siteDescription;
           <SideBar
             sideBarActiveItemID={sideBarActiveItemID}
             footerItems={siteSettings.sidebarFooterItems}
+            profileImage={profileImage}
           />
         )
       }

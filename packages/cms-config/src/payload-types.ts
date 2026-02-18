@@ -369,6 +369,7 @@ export interface Project {
   };
   image?: (number | null) | Media;
   externalUrl: string;
+  githubUrl?: string | null;
   badges?:
     | {
         value: string;
@@ -718,6 +719,7 @@ export interface ProjectsSelect<T extends boolean = true> {
   description?: T;
   image?: T;
   externalUrl?: T;
+  githubUrl?: T;
   badges?:
     | T
     | {
@@ -820,9 +822,7 @@ export interface PayloadMigrationsSelect<T extends boolean = true> {
  */
 export interface SiteSetting {
   id: number;
-  siteTitle: string;
-  siteDescription: string;
-  defaultOgImage?: (number | null) | Media;
+  profileImage?: (number | null) | Media;
   meta?: {
     title?: string | null;
     description?: string | null;
@@ -1011,9 +1011,7 @@ export interface ProjectsPage {
  * via the `definition` "site-settings_select".
  */
 export interface SiteSettingsSelect<T extends boolean = true> {
-  siteTitle?: T;
-  siteDescription?: T;
-  defaultOgImage?: T;
+  profileImage?: T;
   meta?:
     | T
     | {

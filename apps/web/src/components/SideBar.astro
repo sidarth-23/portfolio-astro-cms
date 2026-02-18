@@ -1,5 +1,4 @@
 ---
-import { Image } from "astro:assets";
 import { PhCaretLeft, PhFileText } from "phosphor-icons-astro";
 import type { SiteFooterItem } from "@/lib/cms/models";
 
@@ -9,9 +8,10 @@ import SideBarMenu from "./SideBarMenu.astro";
 type Props = {
   sideBarActiveItemID?: string;
   footerItems?: SiteFooterItem[];
+  profileImage?: string;
 };
 
-const { sideBarActiveItemID, footerItems = [] }: Props = Astro.props;
+const { sideBarActiveItemID, footerItems = [], profileImage }: Props = Astro.props;
 ---
 
 <div class="drawer-side z-40 lg:overflow-visible">
@@ -28,15 +28,20 @@ const { sideBarActiveItemID, footerItems = [] }: Props = Astro.props;
           <div
             class="w-[8.5rem] transition-[width] duration-300 group-[.collapsed]:w-[3rem]"
           >
-            <Image
-              class="mask mask-circle"
-              loading={"eager"}
-              format="webp"
-              width={300}
-              height={300}
-              src="/profile.jpg"
-              alt="Profile"
-            />
+            {
+              profileImage ? (
+                <img
+                  class="mask mask-circle w-full h-full object-cover"
+                  loading="eager"
+                  width={300}
+                  height={300}
+                  src={profileImage}
+                  alt="Profile"
+                />
+              ) : (
+                <div class="mask mask-circle w-full h-full bg-base-300" aria-hidden="true"></div>
+              )
+            }
           </div>
         </div>
       </a>

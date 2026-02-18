@@ -49,6 +49,7 @@ const toBadges = (badges?: Array<{ value: string }> | null) => {
               badges={toBadges(project.badges)}
               tags={toTags(project.tags)}
               url={project.externalUrl}
+              githubUrl={project.githubUrl}
               reverse={index % 2 === 1}
             />
             <div class="divider my-0" />

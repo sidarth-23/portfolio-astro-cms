@@ -43,6 +43,11 @@ export const Projects: CollectionConfig = {
               required: true,
             },
             {
+              name: "githubUrl",
+              type: "text",
+              required: false,
+            },
+            {
               name: "badges",
               type: "array",
               fields: [

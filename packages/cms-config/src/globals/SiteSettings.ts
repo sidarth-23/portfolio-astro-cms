@@ -19,17 +19,7 @@ export const SiteSettings: GlobalConfig = {
           label: "Content",
           fields: [
             {
-              name: "siteTitle",
-              type: "text",
-              required: true,
-            },
-            {
-              name: "siteDescription",
-              type: "textarea",
-              required: true,
-            },
-            {
-              name: "defaultOgImage",
+              name: "profileImage",
               type: "upload",
               relationTo: "media",
               required: false,
