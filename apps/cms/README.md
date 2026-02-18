@@ -39,6 +39,14 @@ Required for web read access over REST:
   - Apply migrations in CI/CD before starting CMS: `bun run --filter @sidshub/cms migrate`
   - Do not auto-run migrations in app startup.
 
+## Staging/Prod Release Order
+
+1. Run migrations: `bun run --filter @sidshub/cms migrate`
+2. Start CMS: `bun run build:cms` / `bun run --filter @sidshub/cms start`
+3. Build/deploy web after CMS health is green.
+
+This order is required because `apps/web` fetches CMS globals at build time and should fail fast when CMS is unhealthy.
+
 ## Troubleshooting
 
 If you see errors like `Cannot find module './vendor-chunks/date-fns.js'` while running CMS dev:
@@ -50,3 +58,12 @@ If you see S3 errors like `NoSuchBucket` for media files:
 
 - Cause: local MinIO bucket has not been created yet.
 - Resolution: set `S3_AUTO_CREATE_BUCKET=true` (default in `.env.example`) and restart CMS dev.
+
+If you see `column site_settings.profile_image_id does not exist`:
+
+- Cause: missing migration in the target environment.
+- Resolution:
+  - Run `bun run --filter @sidshub/cms migrate`
+  - Verify with SQL:
+    `SELECT column_name FROM information_schema.columns WHERE table_name='site_settings' AND column_name='profile_image_id';`
+  - Confirm `/api/globals/site-settings?depth=2` returns `200`
