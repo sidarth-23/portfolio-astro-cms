@@ -21,10 +21,11 @@ services:
     build:
       context: .
       dockerfile: apps/cms/Dockerfile
-    command: ["npm", "run", "migrate"]
+    command: ["sh", "-c", "printf 'y\\n' | npm run migrate"]
     restart: "no"
     environment:
       NODE_ENV: "production"
+      PAYLOAD_DB_PUSH: "false"
       PAYLOAD_SECRET: ${PAYLOAD_SECRET}
       CMS_READ_TOKEN: ${CMS_READ_TOKEN}
       PAYLOAD_PUBLIC_SERVER_URL: ${PAYLOAD_PUBLIC_SERVER_URL}
@@ -47,6 +48,7 @@ services:
       dockerfile: apps/cms/Dockerfile
     environment:
       NODE_ENV: "production"
+      PAYLOAD_DB_PUSH: "false"
       PAYLOAD_SECRET: ${PAYLOAD_SECRET}
       CMS_READ_TOKEN: ${CMS_READ_TOKEN}
       PAYLOAD_PUBLIC_SERVER_URL: ${PAYLOAD_PUBLIC_SERVER_URL}
