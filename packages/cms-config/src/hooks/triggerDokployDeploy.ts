@@ -17,13 +17,13 @@ export const triggerDokployDeploy = async (
 
   if (!apiBaseUrl || !apiKey || !composeId) {
     logger.error({
-      message: "Dokploy API deploy trigger is not configured. Missing DOKPLOY_API_URL, DOKPLOY_API_KEY, or DOKPLOY_COMPOSE_ID.",
+      message: "Dokploy API redeploy trigger is not configured. Missing DOKPLOY_API_URL, DOKPLOY_API_KEY, or DOKPLOY_COMPOSE_ID.",
       ...meta,
     });
     return;
   }
 
-  const deployUrl = `${apiBaseUrl.replace(/\/$/, "")}/api/compose.deploy`;
+  const deployUrl = `${apiBaseUrl.replace(/\/$/, "")}/api/compose.redeploy`;
 
   try {
     const response = await fetch(deployUrl, {
@@ -40,7 +40,7 @@ export const triggerDokployDeploy = async (
     if (!response.ok) {
       const body = await response.text();
       logger.error({
-        message: "Dokploy API deploy trigger returned non-OK response",
+        message: "Dokploy API redeploy trigger returned non-OK response",
         status: response.status,
         statusText: response.statusText,
         bodySnippet: buildBodySnippet(body),
@@ -50,13 +50,13 @@ export const triggerDokployDeploy = async (
     }
 
     logger.info({
-      message: "Triggered Dokploy deploy via API",
+      message: "Triggered Dokploy redeploy via API",
       composeId,
       ...meta,
     });
   } catch (error) {
     logger.error({
-      message: "Failed to trigger Dokploy deploy via API",
+      message: "Failed to trigger Dokploy redeploy via API",
       error,
       composeId,
       ...meta,
