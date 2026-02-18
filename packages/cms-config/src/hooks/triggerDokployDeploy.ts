@@ -23,7 +23,7 @@ export const triggerDokployDeploy = async (
     return;
   }
 
-  const deployUrl = `${apiBaseUrl.replace(/\/$/, "")}/api/compose.redeploy`;
+  const deployUrl = `${apiBaseUrl.replace(/\/$/, "")}/api/compose.deploy`;
 
   try {
     const response = await fetch(deployUrl, {
@@ -37,20 +37,25 @@ export const triggerDokployDeploy = async (
       }),
     });
 
+    const responseBody = await response.text();
+    const bodySnippet = buildBodySnippet(responseBody);
+
     if (!response.ok) {
-      const body = await response.text();
       logger.error({
         message: "Dokploy API redeploy trigger returned non-OK response",
         status: response.status,
         statusText: response.statusText,
-        bodySnippet: buildBodySnippet(body),
+        bodySnippet,
         ...meta,
       });
       return;
     }
 
     logger.info({
-      message: "Triggered Dokploy redeploy via API",
+      message: "Triggered Dokploy deploy via API",
+      status: response.status,
+      statusText: response.statusText,
+      bodySnippet,
       composeId,
       ...meta,
     });
