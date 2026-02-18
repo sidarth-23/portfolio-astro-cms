@@ -3,6 +3,7 @@ import BaseHead from "../components/BaseHead.astro";
 import Header from "../components/Header.astro";
 import SideBar from "../components/SideBar.astro";
 import { ClientRouter } from "astro:transitions";
+import type { HomePage, SiteSetting } from "@sidshub/cms-config/payload-types";
 
 import { TRANSITION_API } from "../consts";
 import { footerItemsFromSiteSettings, getHomePage, getSiteSettings, mediaToUrl } from "@/lib/cms/client";
@@ -10,6 +11,7 @@ import { footerItemsFromSiteSettings, getHomePage, getSiteSettings, mediaToUrl }
 const {
   image,
   title,
+  seoTitle,
   description,
   includeSidebar = true,
   sideBarActiveItemID,
@@ -20,17 +22,19 @@ const {
   jsonLd,
 } = Astro.props;
 
-const [homePage, siteSettings] = await Promise.all([
+const [homePage, siteSettings]: [HomePage, SiteSetting] = await Promise.all([
   getHomePage(),
   getSiteSettings(),
 ]);
 
 const siteTitle = siteSettings.meta?.title?.trim() || "Sid's Hub";
 const siteDescription = siteSettings.meta?.description?.trim() || "Personal website and blog.";
-const pageTitle = title ?? siteTitle;
-const resolvedHeadTitle = pageTitle.trim().toLowerCase() === siteTitle.trim().toLowerCase()
+const fallbackTitle = typeof title === "string" ? title.trim() : "";
+const seoPageTitle = typeof seoTitle === "string" ? seoTitle.trim() : "";
+const pageTitleSegment = seoPageTitle || fallbackTitle || siteTitle;
+const resolvedHeadTitle = pageTitleSegment.toLowerCase() === siteTitle.toLowerCase()
   ? siteTitle
-  : `${siteTitle} | ${pageTitle}`;
+  : `${siteTitle} | ${pageTitleSegment}`;
 const pageDescription = description ?? siteDescription;
 const pageImage = image ?? mediaToUrl(siteSettings.meta?.image);
 const profileImage = mediaToUrl(siteSettings.profileImage);

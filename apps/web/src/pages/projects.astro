@@ -24,7 +24,8 @@ const toBadges = (badges?: Array<{ value: string }> | null) => {
 ---
 
 <BaseLayout
-  title={projectsPage?.meta?.title || "Projects"}
+  title="Projects"
+  seoTitle={projectsPage?.meta?.title}
   description={projectsPage?.meta?.description || "Projects"}
   image={mediaToUrl(projectsPage?.meta?.image)}
   canonicalUrl={projectsPage?.seoOverrides?.canonicalUrl ?? undefined}

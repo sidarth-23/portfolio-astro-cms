@@ -26,8 +26,18 @@ const currentPage = pageParam ? Math.max(1, parseInt(pageParam, 10)) : 1;
 
 const pageSize = 10;
 
+type PaginatedPostsData = Awaited<ReturnType<typeof getPaginatedPublishedPosts>>;
+type CategoriesData = Awaited<ReturnType<typeof getAllCategories>>;
+type TagsData = Awaited<ReturnType<typeof getAllTags>>;
+type SeriesData = Awaited<ReturnType<typeof getAllSeriesWithPosts>>;
+
 // Fetch data
-const [paginatedPosts, allCategories, allTags, allSeries] = await Promise.all([
+const [paginatedPosts, allCategories, allTags, allSeries]: [
+  PaginatedPostsData,
+  CategoriesData,
+  TagsData,
+  SeriesData,
+] = await Promise.all([
   getPaginatedPublishedPosts({
     page: currentPage,
     pageSize,

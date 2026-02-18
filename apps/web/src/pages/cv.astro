@@ -8,7 +8,8 @@ const cvPage = await getCvPage();
 ---
 
 <BaseLayout
-  title={cvPage?.meta?.title || "Resume"}
+  title="Resume"
+  seoTitle={cvPage?.meta?.title}
   description={cvPage?.meta?.description || "Resume"}
   image={mediaToUrl(cvPage?.meta?.image)}
   canonicalUrl={cvPage?.seoOverrides?.canonicalUrl ?? undefined}
