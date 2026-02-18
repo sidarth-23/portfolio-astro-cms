@@ -76,10 +76,57 @@ export const asProjectArray = (value: ProjectsPage["sections"][number]["projects
 export type SiteFooterItem = NonNullable<SiteSetting["sidebarFooterItems"]>[number];
 export type SiteFooterItemType = SiteFooterItem["type"];
 
+const SITE_FOOTER_ITEM_TYPES: SiteFooterItemType[] = [
+  "github",
+  "linkedin",
+  "email",
+  "rss",
+  "facebook",
+  "twitter",
+  "dribbble",
+  "instagram",
+  "youtube",
+  "twitch",
+  "tiktok",
+  "medium",
+  "whatsapp",
+  "telegram",
+  "discord",
+  "reddit",
+  "pinterest",
+  "behance",
+  "codepen",
+  "gitlab",
+  "stackoverflow",
+  "devto",
+];
+
+const normalizeFooterItemType = (value: unknown): SiteFooterItemType | undefined => {
+  if (typeof value !== "string") {
+    return undefined;
+  }
+
+  const normalized = value.trim().toLowerCase().replace(/[\s.]+/g, "");
+  if (!normalized) {
+    return undefined;
+  }
+
+  return SITE_FOOTER_ITEM_TYPES.find((type) => type === normalized);
+};
+
 export const asSiteFooterItems = (value: SiteSetting["sidebarFooterItems"]): SiteFooterItem[] => {
   if (!Array.isArray(value)) {
     return [];
   }
 
-  return value.filter((item): item is SiteFooterItem => Boolean(item?.type) && typeof item.url === "string");
+  return value.flatMap((item) => {
+    const type = normalizeFooterItemType(item?.type);
+    const url = typeof item?.url === "string" ? item.url.trim() : "";
+
+    if (!type || url.length === 0) {
+      return [];
+    }
+
+    return [{ ...item, type, url }];
+  });
 };
