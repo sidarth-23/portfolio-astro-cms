@@ -5,7 +5,7 @@ import { generateFilterUrl } from "@/lib/utils";
 type Tag = { name: string; slug: string };
 type Category = { name: string; slug: string };
 type Series = { name: string; slug: string };
-type Author = { id: number; name?: string | null };
+type Author = { id?: number | null; name?: string | null };
 
 type Props = {
   title: string;

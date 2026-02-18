@@ -3,8 +3,14 @@ import RichTextRenderer from "@/components/RichTextRenderer.astro";
 import SeriesNav from "@/components/SeriesNav.astro";
 import PostLayout from "@/layouts/PostLayout.astro";
 import { getAllPublishedPosts } from "@/lib/cms/client";
-import { categoryFromPost, mediaToUrl, tagsFromPost } from "@/lib/cms/client";
-import type { CmsPost } from "@/lib/cms/models";
+import {
+  authorsFromPost,
+  categoryFromPost,
+  mediaToUrl,
+  seriesFromPost,
+  tagsFromPost,
+} from "@/lib/cms/client";
+import type { Post } from "@sidshub/cms-config/payload-types";
 
 type SeriesNavProps = {
   seriesName: string;
@@ -25,17 +31,18 @@ export async function getStaticPaths() {
   const posts = await getAllPublishedPosts();
 
   // Build a map of series slug to sorted posts
-  const seriesMap = new Map<string, CmsPost[]>();
+  const seriesMap = new Map<string, Post[]>();
   posts.forEach((post) => {
-    if (post.series?.slug) {
-      const existing = seriesMap.get(post.series.slug) || [];
+    const series = seriesFromPost(post);
+    if (series?.slug) {
+      const existing = seriesMap.get(series.slug) || [];
       existing.push(post);
-      seriesMap.set(post.series.slug, existing);
+      seriesMap.set(series.slug, existing);
     }
   });
 
   // Sort each series by seriesOrder
-  seriesMap.forEach((seriesPosts, slug) => {
+  seriesMap.forEach((seriesPosts) => {
     seriesPosts.sort((a, b) => {
       const aOrder = a.seriesOrder ?? Number.MAX_SAFE_INTEGER;
       const bOrder = b.seriesOrder ?? Number.MAX_SAFE_INTEGER;
@@ -46,8 +53,9 @@ export async function getStaticPaths() {
   return posts.map((post) => {
     let seriesNav: SeriesNavProps | undefined;
 
-    if (post.series?.slug) {
-      const seriesPosts = seriesMap.get(post.series.slug) || [];
+    const series = seriesFromPost(post);
+    if (series?.slug) {
+      const seriesPosts = seriesMap.get(series.slug) || [];
       const currentIndex = seriesPosts.findIndex((p) => p.slug === post.slug);
 
       if (currentIndex !== -1) {
@@ -55,8 +63,8 @@ export async function getStaticPaths() {
         const nextPost = currentIndex < seriesPosts.length - 1 ? seriesPosts[currentIndex + 1] : undefined;
 
         seriesNav = {
-          seriesName: post.series.name,
-          seriesSlug: post.series.slug,
+          seriesName: series.name,
+          seriesSlug: series.slug,
           currentPart: post.seriesOrder ?? currentIndex + 1,
           totalParts: seriesPosts.length,
           prevPost: prevPost ? { slug: prevPost.slug, title: prevPost.title } : undefined,
@@ -73,13 +81,15 @@ export async function getStaticPaths() {
 }
 
 interface Props {
-  post: CmsPost;
+  post: Post;
   seriesNav?: SeriesNavProps;
 }
 
 const { post, seriesNav } = Astro.props;
 const category = categoryFromPost(post);
+const series = seriesFromPost(post);
 const tags = tagsFromPost(post);
+const authors = authorsFromPost(post);
 const pubDate = post.publishedAt || post.createdAt || new Date().toISOString();
 ---
 
@@ -91,12 +101,12 @@ const pubDate = post.publishedAt || post.createdAt || new Date().toISOString();
   heroImage={mediaToUrl(post.coverImage)}
   tags={tags}
   category={category}
-  series={post.series}
-  authors={post.populatedAuthors}
-  canonicalUrl={post.seoOverrides?.canonicalUrl}
-  robotsIndex={post.seoOverrides?.robotsIndex}
-  robotsFollow={post.seoOverrides?.robotsFollow}
-  schemaType={post.seoOverrides?.schemaType}
+  series={series}
+  authors={authors}
+  canonicalUrl={post.seoOverrides?.canonicalUrl ?? undefined}
+  robotsIndex={post.seoOverrides?.robotsIndex ?? undefined}
+  robotsFollow={post.seoOverrides?.robotsFollow ?? undefined}
+  schemaType={post.seoOverrides?.schemaType ?? undefined}
 >
   {seriesNav && (
     <SeriesNav
@@ -123,11 +133,11 @@ const pubDate = post.publishedAt || post.createdAt || new Date().toISOString();
   )}
 
   {
-    post.populatedAuthors.length > 0 && (
+    authors.length > 0 && (
       <section class="mt-10 border-t border-base-300 pt-6">
         <h2 class="text-xl font-semibold mb-4">Authors</h2>
         <div class="grid gap-6">
-          {post.populatedAuthors.map((author) => (
+          {authors.map((author) => (
             <article>
               <h3 class="text-lg font-medium mb-2">{author.name || "Unknown Author"}</h3>
               {author.bio && <RichTextRenderer data={author.bio} />}

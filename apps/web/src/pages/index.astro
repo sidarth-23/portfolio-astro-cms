@@ -7,6 +7,7 @@ import {
   getFeaturedPublishedPosts,
   getHomePage,
   mediaToUrl,
+  seriesFromPost,
   tagsFromPost,
 } from "@/lib/cms/client";
 
@@ -20,9 +21,9 @@ const [homePage, posts] = await Promise.all([
   title={homePage?.meta?.title}
   description={homePage?.meta?.description}
   image={mediaToUrl(homePage?.meta?.image)}
-  canonicalUrl={homePage?.seoOverrides?.canonicalUrl}
-  robotsIndex={homePage?.seoOverrides?.robotsIndex}
-  robotsFollow={homePage?.seoOverrides?.robotsFollow}
+  canonicalUrl={homePage?.seoOverrides?.canonicalUrl ?? undefined}
+  robotsIndex={homePage?.seoOverrides?.robotsIndex ?? undefined}
+  robotsFollow={homePage?.seoOverrides?.robotsFollow ?? undefined}
   sideBarActiveItemID="home"
 >
   <div>
@@ -63,7 +64,7 @@ const [homePage, posts] = await Promise.all([
           target="_self"
           category={categoryFromPost(post)}
           tags={tagsFromPost(post)}
-          series={post.series}
+          series={seriesFromPost(post)}
         />
         <div class="divider my-0" />
       </>

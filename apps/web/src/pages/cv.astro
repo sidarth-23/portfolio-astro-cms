@@ -11,9 +11,9 @@ const cvPage = await getCvPage();
   title={cvPage?.meta?.title || "Resume"}
   description={cvPage?.meta?.description || "Resume"}
   image={mediaToUrl(cvPage?.meta?.image)}
-  canonicalUrl={cvPage?.seoOverrides?.canonicalUrl}
-  robotsIndex={cvPage?.seoOverrides?.robotsIndex}
-  robotsFollow={cvPage?.seoOverrides?.robotsFollow}
+  canonicalUrl={cvPage?.seoOverrides?.canonicalUrl ?? undefined}
+  robotsIndex={cvPage?.seoOverrides?.robotsIndex ?? undefined}
+  robotsFollow={cvPage?.seoOverrides?.robotsFollow ?? undefined}
   sideBarActiveItemID="cv"
 >
   {
@@ -31,7 +31,7 @@ const cvPage = await getCvPage();
 
         {section.type === "items" && section.itemsVariant === "timeline" && (
           <div class="time-line-container grid gap-4">
-            {section.items.map((item) => (
+            {(section.items || []).map((item) => (
               <TimeLineElement
                 title={item.title}
                 subtitle={item.subtitle || ""}
@@ -48,7 +48,7 @@ const cvPage = await getCvPage();
 
         {section.type === "items" && section.itemsVariant === "list" && (
           <ul class="list-disc mx-6 grid gap-2">
-            {section.items.map((item) => (
+            {(section.items || []).map((item) => (
               <li>
                 <div class="font-medium">{item.title}</div>
                 {item.subtitle && (
@@ -66,7 +66,7 @@ const cvPage = await getCvPage();
 
         {section.type === "items" && section.itemsVariant === "columns" && (
           <ul class="list-disc mx-6 grid gap-4 md:columns-3 columns-1">
-            {section.items.map((item) => (
+            {(section.items || []).map((item) => (
               <li>
                 <div class="font-medium">{item.title}</div>
                 {item.subtitle && (
@@ -84,7 +84,7 @@ const cvPage = await getCvPage();
 
         {section.type === "badges" && (
           <div class="flex flex-wrap gap-2">
-            {section.badges.map((badge) => (
+            {(section.badges || []).map((badge) => (
               <span class="badge badge-outline">{badge.value}</span>
             ))}
           </div>

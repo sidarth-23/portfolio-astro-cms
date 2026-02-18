@@ -5,7 +5,7 @@ import SideBar from "../components/SideBar.astro";
 import { ClientRouter } from "astro:transitions";
 
 import { TRANSITION_API } from "../consts";
-import { getHomePage, getSiteSettings, mediaToUrl } from "@/lib/cms/client";
+import { footerItemsFromSiteSettings, getHomePage, getSiteSettings, mediaToUrl } from "@/lib/cms/client";
 
 const {
   image,
@@ -28,16 +28,20 @@ const [homePage, siteSettings] = await Promise.all([
 const siteTitle = siteSettings.meta?.title?.trim() || "Sid's Hub";
 const siteDescription = siteSettings.meta?.description?.trim() || "Personal website and blog.";
 const pageTitle = title ?? siteTitle;
+const resolvedHeadTitle = pageTitle.trim().toLowerCase() === siteTitle.trim().toLowerCase()
+  ? siteTitle
+  : `${siteTitle} | ${pageTitle}`;
 const pageDescription = description ?? siteDescription;
 const pageImage = image ?? mediaToUrl(siteSettings.meta?.image);
 const profileImage = mediaToUrl(siteSettings.profileImage);
+const footerItems = footerItemsFromSiteSettings(siteSettings);
 ---
 
 <!doctype html>
 <html lang="en" data-theme="abyss">
   <head>
     <BaseHead
-      title={`${siteTitle} | ${pageTitle}`}
+      title={resolvedHeadTitle}
       description={pageDescription}
       image={pageImage}
       ogType={ogType}
@@ -62,11 +66,11 @@ const profileImage = mediaToUrl(siteSettings.profileImage);
       </div>
       {
         includeSidebar && (
-          <SideBar
-            sideBarActiveItemID={sideBarActiveItemID}
-            footerItems={siteSettings.sidebarFooterItems}
-            profileImage={profileImage}
-          />
+            <SideBar
+              sideBarActiveItemID={sideBarActiveItemID}
+              footerItems={footerItems}
+              profileImage={profileImage}
+            />
         )
       }
     </div>

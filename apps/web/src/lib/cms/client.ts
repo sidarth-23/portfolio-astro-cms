@@ -1,32 +1,27 @@
 import { ASTRO_CMS_API_URL, ASTRO_CMS_READ_TOKEN } from "astro:env/server";
 
+import type {
+  Category,
+  CvPage,
+  HomePage,
+  Media,
+  Post,
+  Project,
+  ProjectsPage,
+  SiteSetting,
+  Tag,
+  User,
+} from "@sidshub/cms-config/payload-types";
 import {
-  normalizeCvPage,
-  normalizeHomePage,
-  normalizePost,
-  normalizeProject,
-  normalizeProjectsPage,
-  normalizeSiteSettings,
-  type Category,
-  type CmsCategory,
-  type CmsMedia,
-  type CmsPost,
-  type CmsProject,
-  type CmsSeries,
-  type CmsTag,
-  type CvPageGlobal,
-  type HomePageGlobal,
-  type PayloadListResponse,
-  type ProjectsPageGlobal,
-  type RawCvPage,
-  type RawHomePage,
-  type RawPost,
-  type RawProject,
-  type RawProjectsPage,
-  type RawSiteSettings,
-  type SiteSettingsGlobal,
-  type Tag,
-} from "@/lib/cms/models";
+  asCategory,
+  asPopulatedAuthors,
+  asSeries,
+  asSiteFooterItems,
+  asTagArray,
+  asUserArray,
+  type PopulatedAuthor,
+} from "@/lib/cms/guards";
+import type { PayloadListResponse } from "@/lib/cms/types";
 
 const API_BASE = ASTRO_CMS_API_URL.replace(/\/$/, "");
 const READ_TOKEN = ASTRO_CMS_READ_TOKEN;
@@ -51,7 +46,7 @@ type PublishedPostsQueryOptions = PostFilterOptions & {
 };
 
 type PaginatedPosts = {
-  docs: CmsPost[];
+  docs: Post[];
   page: number;
   pageSize: number;
   totalDocs: number;
@@ -70,13 +65,17 @@ const responseSnippet = (value: string): string => {
   return value.replace(/\s+/g, " ").trim().slice(0, 240);
 };
 
-const toAbsoluteMediaUrl = (media: CmsMedia | string | null | undefined): string | undefined => {
+const toAbsoluteMediaUrl = (media: Media | string | number | null | undefined): string | undefined => {
   if (!media) {
     return undefined;
   }
 
   if (typeof media === "string") {
     return media;
+  }
+
+  if (typeof media === "number") {
+    return undefined;
   }
 
   if (!media.url) {
@@ -231,11 +230,11 @@ const buildPublishedPostsQueryParams = (options: PublishedPostsQueryOptions = {}
 
 const fetchPublishedPostsPage = async (
   options: PublishedPostsQueryOptions = {},
-): Promise<PayloadListResponse<RawPost>> => {
-  return payloadFetch<PayloadListResponse<RawPost>>("/posts", buildPublishedPostsQueryParams(options));
+): Promise<PayloadListResponse<Post>> => {
+  return payloadFetch<PayloadListResponse<Post>>("/posts", buildPublishedPostsQueryParams(options));
 };
 
-const sortPosts = (posts: CmsPost[]): CmsPost[] => {
+const sortPosts = (posts: Post[]): Post[] => {
   return posts.sort((a, b) => {
     const aDate = a.publishedAt ? new Date(a.publishedAt).getTime() : 0;
     const bDate = b.publishedAt ? new Date(b.publishedAt).getTime() : 0;
@@ -279,29 +278,25 @@ const hasPublishedPosts = async (filters: Pick<PostFilterOptions, "tagSlug" | "c
   return result.totalDocs > 0;
 };
 
-export const getSiteSettings = async (): Promise<SiteSettingsGlobal> => {
-  const raw = await payloadFetch<RawSiteSettings>("/globals/site-settings", { depth: 2 });
-  return normalizeSiteSettings(raw);
+export const getSiteSettings = async (): Promise<SiteSetting> => {
+  return payloadFetch<SiteSetting>("/globals/site-settings", { depth: 2 });
 };
 
-export const getHomePage = async (): Promise<HomePageGlobal> => {
-  const raw = await payloadFetch<RawHomePage>("/globals/home-page", { depth: 2 });
-  return normalizeHomePage(raw);
+export const getHomePage = async (): Promise<HomePage> => {
+  return payloadFetch<HomePage>("/globals/home-page", { depth: 2 });
 };
 
-export const getCvPage = async (): Promise<CvPageGlobal> => {
-  const raw = await payloadFetch<RawCvPage>("/globals/cv-page", { depth: 2 });
-  return normalizeCvPage(raw);
+export const getCvPage = async (): Promise<CvPage> => {
+  return payloadFetch<CvPage>("/globals/cv-page", { depth: 2 });
 };
 
-export const getProjectsPage = async (): Promise<ProjectsPageGlobal> => {
-  const raw = await payloadFetch<RawProjectsPage>("/globals/projects-page", { depth: 2 });
-  return normalizeProjectsPage(raw);
+export const getProjectsPage = async (): Promise<ProjectsPage> => {
+  return payloadFetch<ProjectsPage>("/globals/projects-page", { depth: 2 });
 };
 
 export const getAllPublishedPosts = async (
   filters: Omit<PostFilterOptions, "slug"> = {},
-): Promise<CmsPost[]> => {
+): Promise<Post[]> => {
   const limit = 100;
   const firstPage = await fetchPublishedPostsPage({
     ...filters,
@@ -320,7 +315,7 @@ export const getAllPublishedPosts = async (
     rawPosts.push(...nextPage.docs);
   }
 
-  return sortPosts(rawPosts.map((post) => normalizePost(post)));
+  return sortPosts(rawPosts);
 };
 
 export const getPaginatedPublishedPosts = async ({
@@ -348,7 +343,7 @@ export const getPaginatedPublishedPosts = async ({
   });
 
   return {
-    docs: response.docs.map((post) => normalizePost(post)),
+    docs: response.docs,
     page: response.page,
     pageSize: response.limit,
     totalDocs: response.totalDocs,
@@ -360,16 +355,16 @@ export const getPaginatedPublishedPosts = async ({
   };
 };
 
-export const getFeaturedPublishedPosts = async (limit = 3): Promise<CmsPost[]> => {
+export const getFeaturedPublishedPosts = async (limit = 3): Promise<Post[]> => {
   const response = await fetchPublishedPostsPage({
     featureOnHome: true,
     limit,
   });
 
-  return response.docs.map((post) => normalizePost(post));
+  return response.docs;
 };
 
-export const getPostBySlug = async (slug: string): Promise<CmsPost | null> => {
+export const getPostBySlug = async (slug: string): Promise<Post | null> => {
   const response = await fetchPublishedPostsPage({
     slug,
     limit: 1,
@@ -380,7 +375,7 @@ export const getPostBySlug = async (slug: string): Promise<CmsPost | null> => {
     return null;
   }
 
-  return normalizePost(rawPost);
+  return rawPost;
 };
 
 export const getTagSlugs = async (): Promise<string[]> => {
@@ -417,31 +412,45 @@ export const getCategorySlugs = async (): Promise<string[]> => {
     .sort((a, b) => a.localeCompare(b));
 };
 
-export const getProjects = async (): Promise<CmsProject[]> => {
-  const res = await payloadFetch<PayloadListResponse<RawProject>>("/projects", {
+export const getProjects = async (): Promise<Project[]> => {
+  const res = await payloadFetch<PayloadListResponse<Project>>("/projects", {
     depth: 3,
     limit: 200,
     sort: "displayOrder",
     "where[_status][equals]": "published",
   });
 
-  return res.docs
-    .map((project) => normalizeProject(project))
-    .sort((a, b) => a.displayOrder - b.displayOrder);
+  return res.docs.sort((a, b) => a.displayOrder - b.displayOrder);
 };
 
 export const mediaToUrl = toAbsoluteMediaUrl;
 
-export const categoryFromPost = (post: CmsPost): CmsCategory | undefined => {
-  return post.primaryCategory;
+export const categoryFromPost = (post: Post): { name: string; slug: string } | undefined => {
+  const category = asCategory(post.primaryCategory);
+  if (!category) {
+    return undefined;
+  }
+
+  return {
+    name: category.name,
+    slug: category.slug,
+  };
 };
 
-export const tagsFromPost = (post: CmsPost): CmsTag[] => {
-  return post.tags;
+export const tagsFromPost = (post: Post): Array<{ name: string; slug: string }> => {
+  return asTagArray(post.tags).map((tag) => ({
+    name: tag.name,
+    slug: tag.slug,
+  }));
 };
 
-export const seriesFromPost = (post: CmsPost): { name: string; slug: string } | undefined => {
-  return post.series ? { name: post.series.name, slug: post.series.slug } : undefined;
+export const seriesFromPost = (post: Post): { name: string; slug: string } | undefined => {
+  const series = asSeries(post.series);
+  if (!series) {
+    return undefined;
+  }
+
+  return { name: series.name, slug: series.slug };
 };
 
 export const getSeriesSlugs = async (): Promise<string[]> => {
@@ -461,7 +470,7 @@ export const getSeriesSlugs = async (): Promise<string[]> => {
     .sort((a, b) => a.localeCompare(b));
 };
 
-export const getPostsBySeries = async (seriesSlug: string): Promise<CmsPost[]> => {
+export const getPostsBySeries = async (seriesSlug: string): Promise<Post[]> => {
   const posts = await getAllPublishedPosts({ seriesSlug });
 
   return posts.sort((a, b) => {
@@ -471,7 +480,7 @@ export const getPostsBySeries = async (seriesSlug: string): Promise<CmsPost[]> =
   });
 };
 
-export const getAllCategories = async (): Promise<CmsCategory[]> => {
+export const getAllCategories = async (): Promise<Category[]> => {
   const limit = 200;
   const firstPage = await payloadFetch<PayloadListResponse<Category>>("/categories", {
     page: 1,
@@ -492,15 +501,10 @@ export const getAllCategories = async (): Promise<CmsCategory[]> => {
     docs.push(...nextPage.docs);
   }
 
-  return docs.map((doc) => ({
-    id: doc.id,
-    name: doc.name,
-    slug: doc.slug,
-    description: doc.description,
-  }));
+  return docs;
 };
 
-export const getAllTags = async (): Promise<CmsTag[]> => {
+export const getAllTags = async (): Promise<Tag[]> => {
   const limit = 200;
   const firstPage = await payloadFetch<PayloadListResponse<Tag>>("/tags", {
     page: 1,
@@ -521,21 +525,23 @@ export const getAllTags = async (): Promise<CmsTag[]> => {
     docs.push(...nextPage.docs);
   }
 
-  return docs.map((doc) => ({
-    id: doc.id,
-    name: doc.name,
-    slug: doc.slug,
-  }));
+  return docs;
 };
 
-export const getAllSeriesWithPosts = async (): Promise<Array<CmsSeries & { postCount: number }>> => {
+export const getAllSeriesWithPosts = async (): Promise<Array<{
+  id: number;
+  name: string;
+  slug: string;
+  description?: string | null;
+  postCount: number;
+}>> => {
   const seriesSlugs = await getSeriesSlugs();
 
   const seriesWithPosts = await Promise.all(
     seriesSlugs.map(async (slug) => {
       const posts = await getAllPublishedPosts({ seriesSlug: slug });
 
-      const seriesInfo = posts[0]?.series;
+      const seriesInfo = posts[0] ? asSeries(posts[0].series) : undefined;
 
       if (!seriesInfo) {
         return null;
@@ -554,4 +560,17 @@ export const getAllSeriesWithPosts = async (): Promise<Array<CmsSeries & { postC
   return seriesWithPosts
     .filter((series): series is NonNullable<typeof series> => series !== null)
     .sort((a, b) => a.name.localeCompare(b.name));
+};
+
+export const footerItemsFromSiteSettings = (siteSettings: SiteSetting): NonNullable<SiteSetting["sidebarFooterItems"]> => {
+  return asSiteFooterItems(siteSettings.sidebarFooterItems);
+};
+
+export const authorsFromPost = (post: Post): Array<PopulatedAuthor | User> => {
+  const populatedAuthors = asPopulatedAuthors(post.populatedAuthors);
+  if (populatedAuthors.length > 0) {
+    return populatedAuthors;
+  }
+
+  return asUserArray(post.authors);
 };

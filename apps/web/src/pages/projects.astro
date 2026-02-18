@@ -3,8 +3,13 @@ import RichTextRenderer from "@/components/RichTextRenderer.astro";
 import HorizontalCard from "@/components/HorizontalCard.astro";
 import BaseLayout from "@/layouts/BaseLayout.astro";
 import { getProjectsPage, mediaToUrl } from "@/lib/cms/client";
+import { asProjectArray } from "@/lib/cms/guards";
 
 const projectsPage = await getProjectsPage();
+const sections = projectsPage.sections.map((section) => ({
+  ...section,
+  projects: asProjectArray(section.projects),
+}));
 
 const toTags = (tags?: Array<{ value: string }> | null) => {
   return (tags || []).map((tag) => ({
@@ -22,13 +27,13 @@ const toBadges = (badges?: Array<{ value: string }> | null) => {
   title={projectsPage?.meta?.title || "Projects"}
   description={projectsPage?.meta?.description || "Projects"}
   image={mediaToUrl(projectsPage?.meta?.image)}
-  canonicalUrl={projectsPage?.seoOverrides?.canonicalUrl}
-  robotsIndex={projectsPage?.seoOverrides?.robotsIndex}
-  robotsFollow={projectsPage?.seoOverrides?.robotsFollow}
+  canonicalUrl={projectsPage?.seoOverrides?.canonicalUrl ?? undefined}
+  robotsIndex={projectsPage?.seoOverrides?.robotsIndex ?? undefined}
+  robotsFollow={projectsPage?.seoOverrides?.robotsFollow ?? undefined}
   sideBarActiveItemID="projects"
 >
   {
-    projectsPage.sections.map((section) => (
+    sections.map((section) => (
       <section class="mb-14 last:mb-0">
         <div class="mb-8">
           <h2 class="text-3xl w-full font-bold mb-2">{section.title}</h2>
@@ -49,7 +54,7 @@ const toBadges = (badges?: Array<{ value: string }> | null) => {
               badges={toBadges(project.badges)}
               tags={toTags(project.tags)}
               url={project.externalUrl}
-              githubUrl={project.githubUrl}
+              githubUrl={project.githubUrl ?? undefined}
               reverse={index % 2 === 1}
             />
             <div class="divider my-0" />

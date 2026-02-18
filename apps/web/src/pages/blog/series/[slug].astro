@@ -1,6 +1,6 @@
 ---
 import type { GetStaticPaths } from "astro";
-import type { CmsPost, CmsSeries } from "@/lib/cms/models";
+import type { Post, Series } from "@sidshub/cms-config/payload-types";
 
 import HorizontalCard from "@/components/HorizontalCard.astro";
 import BaseLayout from "@/layouts/BaseLayout.astro";
@@ -12,10 +12,11 @@ import {
   seriesFromPost,
   tagsFromPost,
 } from "@/lib/cms/client";
+import { asSeries } from "@/lib/cms/guards";
 
 type SeriesPageProps = {
-  series: CmsSeries;
-  posts: CmsPost[];
+  series: Series;
+  posts: Post[];
 };
 
 export const getStaticPaths = (async () => {
@@ -29,7 +30,7 @@ export const getStaticPaths = (async () => {
         return null;
       }
 
-      const series = posts[0].series;
+      const series = posts[0] ? asSeries(posts[0].series) : undefined;
       if (!series) {
         return null;
       }

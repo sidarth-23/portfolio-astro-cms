@@ -17,4 +17,9 @@ I want a portfolio that is simple, clean, and easy to navigate. I want to showca
 - Sitemap support
 - RSS Feed support
 
+## Payload Typing Note
+
+- `apps/web` consumes generated Payload types directly from `@sidshub/cms-config/payload-types`.
+- SEO plugin fields (`seoOverrides`) are locally type-augmented in `apps/web/src/lib/cms/payload-seo-augment.d.ts` until they are emitted by generated Payload types.
+
 If you have any questions or comments, or with to connect with me, feel free to reach out to me on [LinkedIn](https://www.linkedin.com/in/sidarth-g/).
