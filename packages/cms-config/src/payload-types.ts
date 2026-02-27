@@ -894,6 +894,31 @@ export interface HomePage {
     };
     [k: string]: unknown;
   };
+  /**
+   * Create and reorder featured sections for the home page.
+   */
+  featuredSections?:
+    | {
+        name: string;
+        description?: {
+          root: {
+            type: string;
+            children: {
+              type: any;
+              version: number;
+              [k: string]: unknown;
+            }[];
+            direction: ('ltr' | 'rtl') | null;
+            format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+            indent: number;
+            version: number;
+          };
+          [k: string]: unknown;
+        } | null;
+        posts?: (number | Post)[] | null;
+        id?: string | null;
+      }[]
+    | null;
   meta?: {
     title?: string | null;
     description?: string | null;
@@ -920,31 +945,6 @@ export interface HomePage {
                 value: number | Project;
               } | null);
         };
-        id?: string | null;
-      }[]
-    | null;
-  /**
-   * Create and reorder featured sections for the home page.
-   */
-  featuredSections?:
-    | {
-        name: string;
-        description?: {
-          root: {
-            type: string;
-            children: {
-              type: any;
-              version: number;
-              [k: string]: unknown;
-            }[];
-            direction: ('ltr' | 'rtl') | null;
-            format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
-            indent: number;
-            version: number;
-          };
-          [k: string]: unknown;
-        } | null;
-        posts?: (number | Post)[] | null;
         id?: string | null;
       }[]
     | null;
@@ -1087,6 +1087,14 @@ export interface HomePageSelect<T extends boolean = true> {
   name?: T;
   role?: T;
   about?: T;
+  featuredSections?:
+    | T
+    | {
+        name?: T;
+        description?: T;
+        posts?: T;
+        id?: T;
+      };
   meta?:
     | T
     | {
@@ -1107,14 +1115,6 @@ export interface HomePageSelect<T extends boolean = true> {
               url?: T;
               reference?: T;
             };
-        id?: T;
-      };
-  featuredSections?:
-    | T
-    | {
-        name?: T;
-        description?: T;
-        posts?: T;
         id?: T;
       };
   updatedAt?: T;

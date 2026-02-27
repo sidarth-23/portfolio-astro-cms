@@ -43,6 +43,35 @@ export const HomePage: GlobalConfig = {
               type: "richText",
               required: true,
             },
+            {
+              name: "featuredSections",
+              type: "array",
+              admin: {
+                description: "Create and reorder featured sections for the home page.",
+                components: {
+                  RowLabel: "./components/admin/rowLabels/SectionRowLabel#SectionRowLabel",
+                },
+              },
+              fields: [
+                {
+                  name: "name",
+                  type: "text",
+                  required: true,
+                },
+                {
+                  name: "description",
+                  type: "richText",
+                  required: false,
+                },
+                {
+                  name: "posts",
+                  type: "relationship",
+                  relationTo: "posts",
+                  hasMany: true,
+                  required: false,
+                },
+              ],
+            },
           ],
         },
       ],
@@ -100,35 +129,6 @@ export const HomePage: GlobalConfig = {
           name: "link",
           label: "Link",
         }),
-      ],
-    },
-    {
-      name: "featuredSections",
-      type: "array",
-      admin: {
-        description: "Create and reorder featured sections for the home page.",
-        components: {
-          RowLabel: "./components/admin/rowLabels/SectionRowLabel#SectionRowLabel",
-        },
-      },
-      fields: [
-        {
-          name: "name",
-          type: "text",
-          required: true,
-        },
-        {
-          name: "description",
-          type: "richText",
-          required: false,
-        },
-        {
-          name: "posts",
-          type: "relationship",
-          relationTo: "posts",
-          hasMany: true,
-          required: false,
-        },
       ],
     },
   ],
