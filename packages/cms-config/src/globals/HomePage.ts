@@ -1,6 +1,7 @@
 import type { GlobalConfig } from "payload";
 
 import { readAccess } from "../access/readAccess";
+import { syncHomeSectionsToPosts } from "../hooks/syncHomeSectionsToPosts";
 
 export const HomePage: GlobalConfig = {
   slug: "home-page",
@@ -10,6 +11,9 @@ export const HomePage: GlobalConfig = {
   },
   admin: {
     group: "Pages",
+  },
+  hooks: {
+    afterChange: [syncHomeSectionsToPosts],
   },
   fields: [
     {
@@ -75,12 +79,30 @@ export const HomePage: GlobalConfig = {
       },
     },
     {
-      name: "featuredSectionTitle",
-      type: "text",
-      required: true,
+      name: "featuredSections",
+      type: "array",
       admin: {
-        position: "sidebar",
+        description: "Create and reorder featured sections for the home page.",
       },
+      fields: [
+        {
+          name: "name",
+          type: "text",
+          required: true,
+        },
+        {
+          name: "description",
+          type: "richText",
+          required: false,
+        },
+        {
+          name: "posts",
+          type: "relationship",
+          relationTo: "posts",
+          hasMany: true,
+          required: false,
+        },
+      ],
     },
   ],
 };

@@ -1,6 +1,7 @@
 import type { CollectionConfig } from "payload";
 
 import { readAccess } from "../access/readAccess";
+import { syncSeriesPostsToPosts } from "../hooks/syncSeriesPostsToPosts";
 
 import { slugField } from "../fields/slug";
 
@@ -14,6 +15,9 @@ export const Series: CollectionConfig = {
     defaultColumns: ["name", "slug", "updatedAt"],
     group: "Taxonomy",
   },
+  hooks: {
+    afterChange: [syncSeriesPostsToPosts],
+  },
   fields: [
     {
       name: "name",
@@ -23,6 +27,16 @@ export const Series: CollectionConfig = {
     {
       name: "description",
       type: "textarea",
+    },
+    {
+      name: "posts",
+      type: "relationship",
+      relationTo: "posts",
+      hasMany: true,
+      required: false,
+      admin: {
+        description: "Select and reorder posts in this series.",
+      },
     },
     slugField({ fieldToUse: "name" }),
   ],

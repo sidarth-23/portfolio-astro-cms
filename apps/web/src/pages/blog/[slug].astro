@@ -2,10 +2,11 @@
 import RichTextRenderer from "@/components/RichTextRenderer.astro";
 import SeriesNav from "@/components/SeriesNav.astro";
 import PostLayout from "@/layouts/PostLayout.astro";
-import { getAllPublishedPosts } from "@/lib/cms/client";
 import {
   authorsFromPost,
   categoryFromPost,
+  getAllPublishedPosts,
+  getPostsBySeries,
   mediaToUrl,
   seriesFromPost,
   tagsFromPost,
@@ -29,25 +30,24 @@ type SeriesNavProps = {
 
 export async function getStaticPaths() {
   const posts = await getAllPublishedPosts();
+  const seriesSlugs = Array.from(
+    new Set(
+      posts
+        .map((post) => seriesFromPost(post)?.slug)
+        .filter((slug): slug is string => Boolean(slug)),
+    ),
+  );
 
-  // Build a map of series slug to sorted posts
+  // Build a map of series slug to posts ordered in CMS.
   const seriesMap = new Map<string, Post[]>();
-  posts.forEach((post) => {
-    const series = seriesFromPost(post);
-    if (series?.slug) {
-      const existing = seriesMap.get(series.slug) || [];
-      existing.push(post);
-      seriesMap.set(series.slug, existing);
-    }
-  });
-
-  // Sort each series by seriesOrder
-  seriesMap.forEach((seriesPosts) => {
-    seriesPosts.sort((a, b) => {
-      const aOrder = a.seriesOrder ?? Number.MAX_SAFE_INTEGER;
-      const bOrder = b.seriesOrder ?? Number.MAX_SAFE_INTEGER;
-      return aOrder - bOrder;
-    });
+  const orderedSeriesPosts = await Promise.all(
+    seriesSlugs.map(async (slug) => ({
+      slug,
+      posts: await getPostsBySeries(slug),
+    })),
+  );
+  orderedSeriesPosts.forEach((item) => {
+    seriesMap.set(item.slug, item.posts);
   });
 
   return posts.map((post) => {
@@ -65,7 +65,7 @@ export async function getStaticPaths() {
         seriesNav = {
           seriesName: series.name,
           seriesSlug: series.slug,
-          currentPart: post.seriesOrder ?? currentIndex + 1,
+          currentPart: currentIndex + 1,
           totalParts: seriesPosts.length,
           prevPost: prevPost ? { slug: prevPost.slug, title: prevPost.title } : undefined,
           nextPost: nextPost ? { slug: nextPost.slug, title: nextPost.title } : undefined,

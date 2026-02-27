@@ -64,12 +64,14 @@ export const Posts: CollectionConfig = {
               type: "relationship",
               relationTo: "series",
               required: false,
-            },
-            {
-              name: "seriesOrder",
-              type: "number",
-              required: false,
-              min: 1,
+              admin: {
+                readOnly: true,
+                description: "Managed from the Series collection.",
+              },
+              access: {
+                create: () => false,
+                update: () => false,
+              },
             },
           ],
         },
@@ -149,11 +151,16 @@ export const Posts: CollectionConfig = {
       ],
     },
     {
-      name: "featureOnHome",
-      type: "checkbox",
-      defaultValue: false,
+      name: "homeSectionsSummary",
+      type: "text",
       admin: {
         position: "sidebar",
+        readOnly: true,
+        description: "Managed from Home Page featured sections.",
+      },
+      access: {
+        create: () => false,
+        update: () => false,
       },
     },
   ],

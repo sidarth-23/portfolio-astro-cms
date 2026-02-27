@@ -268,6 +268,10 @@ export interface Series {
   name: string;
   description?: string | null;
   /**
+   * Select and reorder posts in this series.
+   */
+  posts?: (number | Post)[] | null;
+  /**
    * Auto-generated from title, but can be edited.
    */
   slug: string;
@@ -300,8 +304,10 @@ export interface Post {
   coverImage?: (number | null) | Media;
   primaryCategory: number | Category;
   tags?: (number | Tag)[] | null;
+  /**
+   * Managed from the Series collection.
+   */
   series?: (number | null) | Series;
-  seriesOrder?: number | null;
   meta?: {
     title?: string | null;
     description?: string | null;
@@ -340,7 +346,10 @@ export interface Post {
         githubUrl?: string | null;
       }[]
     | null;
-  featureOnHome?: boolean | null;
+  /**
+   * Managed from Home Page featured sections.
+   */
+  homeSectionsSummary?: string | null;
   updatedAt: string;
   createdAt: string;
   _status?: ('draft' | 'published') | null;
@@ -668,6 +677,7 @@ export interface TagsSelect<T extends boolean = true> {
 export interface SeriesSelect<T extends boolean = true> {
   name?: T;
   description?: T;
+  posts?: T;
   slug?: T;
   updatedAt?: T;
   createdAt?: T;
@@ -684,7 +694,6 @@ export interface PostsSelect<T extends boolean = true> {
   primaryCategory?: T;
   tags?: T;
   series?: T;
-  seriesOrder?: T;
   meta?:
     | T
     | {
@@ -705,7 +714,7 @@ export interface PostsSelect<T extends boolean = true> {
         linkedInUrl?: T;
         githubUrl?: T;
       };
-  featureOnHome?: T;
+  homeSectionsSummary?: T;
   updatedAt?: T;
   createdAt?: T;
   _status?: T;
@@ -899,7 +908,31 @@ export interface HomePage {
   ctaPrimaryUrl: string;
   ctaSecondaryLabel: string;
   ctaSecondaryUrl: string;
-  featuredSectionTitle: string;
+  /**
+   * Create and reorder featured sections for the home page.
+   */
+  featuredSections?:
+    | {
+        name: string;
+        description?: {
+          root: {
+            type: string;
+            children: {
+              type: any;
+              version: number;
+              [k: string]: unknown;
+            }[];
+            direction: ('ltr' | 'rtl') | null;
+            format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+            indent: number;
+            version: number;
+          };
+          [k: string]: unknown;
+        } | null;
+        posts?: (number | Post)[] | null;
+        id?: string | null;
+      }[]
+    | null;
   updatedAt?: string | null;
   createdAt?: string | null;
 }
@@ -1050,7 +1083,14 @@ export interface HomePageSelect<T extends boolean = true> {
   ctaPrimaryUrl?: T;
   ctaSecondaryLabel?: T;
   ctaSecondaryUrl?: T;
-  featuredSectionTitle?: T;
+  featuredSections?:
+    | T
+    | {
+        name?: T;
+        description?: T;
+        posts?: T;
+        id?: T;
+      };
   updatedAt?: T;
   createdAt?: T;
   globalType?: T;

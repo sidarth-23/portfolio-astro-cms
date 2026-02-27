@@ -8,6 +8,7 @@ import type {
   Post,
   Project,
   ProjectsPage,
+  Series,
   SiteSetting,
   Tag,
   User,
@@ -33,7 +34,6 @@ type PostFilterOptions = {
   tagSlug?: string;
   categorySlug?: string;
   seriesSlug?: string;
-  featureOnHome?: boolean;
   search?: string;
 };
 
@@ -175,10 +175,6 @@ const buildPublishedWhereParams = (options: PostFilterOptions = {}): Params => {
       andIndex++;
     }
 
-    if (options.featureOnHome !== undefined) {
-      params[`where[and][${andIndex}][featureOnHome][equals]`] = options.featureOnHome;
-      andIndex++;
-    }
   } else {
     params["where[_status][equals]"] = "published";
 
@@ -198,9 +194,6 @@ const buildPublishedWhereParams = (options: PostFilterOptions = {}): Params => {
       params["where[series.slug][equals]"] = options.seriesSlug;
     }
 
-    if (options.featureOnHome !== undefined) {
-      params["where[featureOnHome][equals]"] = options.featureOnHome;
-    }
   }
 
   return params;
@@ -240,6 +233,10 @@ const sortPosts = (posts: Post[]): Post[] => {
     const bDate = b.publishedAt ? new Date(b.publishedAt).getTime() : 0;
     return bDate - aDate;
   });
+};
+
+const isPublishedPostRelation = (value: number | Post | null | undefined): value is Post => {
+  return typeof value === "object" && value !== null && value._status !== "draft";
 };
 
 const fetchAllTaxonomySlugs = async (path: "/tags" | "/categories" | "/series"): Promise<string[]> => {
@@ -355,15 +352,6 @@ export const getPaginatedPublishedPosts = async ({
   };
 };
 
-export const getFeaturedPublishedPosts = async (limit = 3): Promise<Post[]> => {
-  const response = await fetchPublishedPostsPage({
-    featureOnHome: true,
-    limit,
-  });
-
-  return response.docs;
-};
-
 export const getPostBySlug = async (slug: string): Promise<Post | null> => {
   const response = await fetchPublishedPostsPage({
     slug,
@@ -471,13 +459,18 @@ export const getSeriesSlugs = async (): Promise<string[]> => {
 };
 
 export const getPostsBySeries = async (seriesSlug: string): Promise<Post[]> => {
-  const posts = await getAllPublishedPosts({ seriesSlug });
-
-  return posts.sort((a, b) => {
-    const aOrder = a.seriesOrder ?? Number.MAX_SAFE_INTEGER;
-    const bOrder = b.seriesOrder ?? Number.MAX_SAFE_INTEGER;
-    return aOrder - bOrder;
+  const response = await payloadFetch<PayloadListResponse<Series>>("/series", {
+    depth: 3,
+    limit: 1,
+    "where[slug][equals]": seriesSlug,
   });
+
+  const series = response.docs[0];
+  if (!series?.posts || series.posts.length === 0) {
+    return [];
+  }
+
+  return series.posts.filter(isPublishedPostRelation);
 };
 
 export const getAllCategories = async (): Promise<Category[]> => {
@@ -535,30 +528,39 @@ export const getAllSeriesWithPosts = async (): Promise<Array<{
   description?: string | null;
   postCount: number;
 }>> => {
-  const seriesSlugs = await getSeriesSlugs();
+  const limit = 200;
+  const firstPage = await payloadFetch<PayloadListResponse<Series>>("/series", {
+    page: 1,
+    limit,
+    sort: "name",
+    depth: 2,
+  });
 
-  const seriesWithPosts = await Promise.all(
-    seriesSlugs.map(async (slug) => {
-      const posts = await getAllPublishedPosts({ seriesSlug: slug });
+  const docs = [...firstPage.docs];
 
-      const seriesInfo = posts[0] ? asSeries(posts[0].series) : undefined;
+  for (let page = 2; page <= firstPage.totalPages; page += 1) {
+    const nextPage = await payloadFetch<PayloadListResponse<Series>>("/series", {
+      page,
+      limit,
+      sort: "name",
+      depth: 2,
+    });
+    docs.push(...nextPage.docs);
+  }
 
-      if (!seriesInfo) {
-        return null;
-      }
+  return docs
+    .map((series) => {
+      const postCount = (series.posts ?? []).filter(isPublishedPostRelation).length;
 
       return {
-        id: seriesInfo.id,
-        name: seriesInfo.name,
-        slug: seriesInfo.slug,
-        description: seriesInfo.description,
-        postCount: posts.length,
+        id: series.id,
+        name: series.name,
+        slug: series.slug,
+        description: series.description,
+        postCount,
       };
-    }),
-  );
-
-  return seriesWithPosts
-    .filter((series): series is NonNullable<typeof series> => series !== null)
+    })
+    .filter((series) => series.postCount > 0)
     .sort((a, b) => a.name.localeCompare(b.name));
 };
 

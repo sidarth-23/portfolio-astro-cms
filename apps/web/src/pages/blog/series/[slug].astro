@@ -102,7 +102,7 @@ const { series, posts } = Astro.props as SeriesPageProps;
         {posts.map((post, index) => (
           <li>
             <HorizontalCard
-              title={`Part ${post.seriesOrder ?? index + 1}: ${post.title}`}
+              title={`Part ${index + 1}: ${post.title}`}
               img={mediaToUrl(post.coverImage)}
               desc={post.excerpt}
               url={`/blog/${post.slug}`}
