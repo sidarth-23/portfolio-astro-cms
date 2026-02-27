@@ -800,6 +800,29 @@ export interface PayloadMigrationsSelect<T extends boolean = true> {
 export interface SiteSetting {
   id: number;
   profileImage?: (number | null) | Media;
+  routeSeo: {
+    blogHome: {
+      title: string;
+      description: string;
+      image?: (number | null) | Media;
+    };
+    blogSeries: {
+      /**
+       * Use {seriesName} to insert the current series name.
+       */
+      title: string;
+      /**
+       * Use {seriesName} to insert the current series name.
+       */
+      description: string;
+      image?: (number | null) | Media;
+    };
+    notFound: {
+      title: string;
+      description: string;
+      image?: (number | null) | Media;
+    };
+  };
   sidebarFooterItems?:
     | {
         type:
@@ -1022,6 +1045,31 @@ export interface ProjectsPage {
  */
 export interface SiteSettingsSelect<T extends boolean = true> {
   profileImage?: T;
+  routeSeo?:
+    | T
+    | {
+        blogHome?:
+          | T
+          | {
+              title?: T;
+              description?: T;
+              image?: T;
+            };
+        blogSeries?:
+          | T
+          | {
+              title?: T;
+              description?: T;
+              image?: T;
+            };
+        notFound?:
+          | T
+          | {
+              title?: T;
+              description?: T;
+              image?: T;
+            };
+      };
   sidebarFooterItems?:
     | T
     | {

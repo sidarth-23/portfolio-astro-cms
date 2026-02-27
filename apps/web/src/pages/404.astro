@@ -1,11 +1,16 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
+import { getSiteSettings, mediaToUrl, routeSeoFromSiteSettings } from "@/lib/cms/client";
+
+const siteSettings = await getSiteSettings();
+const notFoundSeo = routeSeoFromSiteSettings(siteSettings, "notFound");
 ---
 
 <BaseLayout
   title="404: Not Found"
-  seoTitle="404 Not Found"
-  description="The page you're looking for could not be found."
+  seoTitle={notFoundSeo.title}
+  description={notFoundSeo.description}
+  image={mediaToUrl(notFoundSeo.image)}
   includeSidebar={false}
 >
   <div class="text-center">

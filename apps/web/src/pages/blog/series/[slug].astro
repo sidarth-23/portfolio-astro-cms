@@ -8,7 +8,10 @@ import {
   categoryFromPost,
   getPostsBySeries,
   getSeriesSlugs,
+  getSiteSettings,
   mediaToUrl,
+  resolveSeriesSeoTemplate,
+  routeSeoFromSiteSettings,
   seriesFromPost,
   tagsFromPost,
 } from "@/lib/cms/client";
@@ -51,12 +54,17 @@ export const getStaticPaths = (async () => {
 }) satisfies GetStaticPaths;
 
 const { series, posts } = Astro.props as SeriesPageProps;
+const siteSettings = await getSiteSettings();
+const blogSeriesSeo = routeSeoFromSiteSettings(siteSettings, "blogSeries");
+const blogSeriesSeoTitle = resolveSeriesSeoTemplate(blogSeriesSeo.title, series.name);
+const blogSeriesSeoDescription = resolveSeriesSeoTemplate(blogSeriesSeo.description, series.name);
 ---
 
 <BaseLayout
   title={`${series.name} - Series`}
-  seoTitle="Blog Series"
-  description="Browse posts in this blog series."
+  seoTitle={blogSeriesSeoTitle}
+  description={blogSeriesSeoDescription}
+  image={mediaToUrl(blogSeriesSeo.image)}
   sideBarActiveItemID="blog"
 >
   <div class="mb-6">

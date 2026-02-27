@@ -61,8 +61,24 @@ type TaxonomyDoc = {
   slug?: string | null;
 };
 
+type RouteSeoKey = "blogHome" | "blogSeries" | "notFound";
+
+type RouteSeo = {
+  title: string;
+  description: string;
+  image?: (number | null) | Media;
+};
+
 const responseSnippet = (value: string): string => {
   return value.replace(/\s+/g, " ").trim().slice(0, 240);
+};
+
+const ensureNonEmptySeoValue = (value: unknown, fieldPath: string): string => {
+  if (typeof value !== "string" || value.trim().length === 0) {
+    throw new Error(`Site settings SEO field \`${fieldPath}\` must be a non-empty string.`);
+  }
+
+  return value.trim();
 };
 
 const toAbsoluteMediaUrl = (media: Media | string | number | null | undefined): string | undefined => {
@@ -555,6 +571,26 @@ export const getAllSeriesWithPosts = async (): Promise<Array<{
 
 export const footerItemsFromSiteSettings = (siteSettings: SiteSetting): NonNullable<SiteSetting["sidebarFooterItems"]> => {
   return asSiteFooterItems(siteSettings.sidebarFooterItems);
+};
+
+export const routeSeoFromSiteSettings = (siteSettings: SiteSetting, key: RouteSeoKey): RouteSeo => {
+  const routeSeo = siteSettings.routeSeo?.[key];
+
+  return {
+    title: ensureNonEmptySeoValue(routeSeo?.title, `routeSeo.${key}.title`),
+    description: ensureNonEmptySeoValue(routeSeo?.description, `routeSeo.${key}.description`),
+    image: routeSeo?.image ?? undefined,
+  };
+};
+
+export const resolveSeriesSeoTemplate = (template: string, seriesName: string): string => {
+  const resolved = template.split("{seriesName}").join(seriesName).trim();
+
+  if (!resolved) {
+    throw new Error("Resolved series SEO value cannot be empty.");
+  }
+
+  return resolved;
 };
 
 export const authorsFromPost = (post: Post): Array<PopulatedAuthor | User> => {
