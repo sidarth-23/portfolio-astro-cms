@@ -229,14 +229,6 @@ export interface Category {
   name: string;
   description?: string | null;
   parentCategory?: (number | null) | Category;
-  meta?: {
-    title?: string | null;
-    description?: string | null;
-    /**
-     * Maximum upload file size: 12MB. Recommended file size for images is <500KB.
-     */
-    image?: (number | null) | Media;
-  };
   /**
    * Auto-generated from title, but can be edited.
    */
@@ -308,9 +300,9 @@ export interface Post {
    * Managed from the Series collection.
    */
   series?: (number | null) | Series;
-  meta?: {
-    title?: string | null;
-    description?: string | null;
+  meta: {
+    title: string;
+    description: string;
     /**
      * Maximum upload file size: 12MB. Recommended file size for images is <500KB.
      */
@@ -391,14 +383,6 @@ export interface Project {
         id?: string | null;
       }[]
     | null;
-  meta?: {
-    title?: string | null;
-    description?: string | null;
-    /**
-     * Maximum upload file size: 12MB. Recommended file size for images is <500KB.
-     */
-    image?: (number | null) | Media;
-  };
   /**
    * Auto-generated from title, but can be edited.
    */
@@ -647,13 +631,6 @@ export interface CategoriesSelect<T extends boolean = true> {
   name?: T;
   description?: T;
   parentCategory?: T;
-  meta?:
-    | T
-    | {
-        title?: T;
-        description?: T;
-        image?: T;
-      };
   slug?: T;
   updatedAt?: T;
   createdAt?: T;
@@ -740,13 +717,6 @@ export interface ProjectsSelect<T extends boolean = true> {
         value?: T;
         id?: T;
       };
-  meta?:
-    | T
-    | {
-        title?: T;
-        description?: T;
-        image?: T;
-      };
   slug?: T;
   updatedAt?: T;
   createdAt?: T;
@@ -830,14 +800,6 @@ export interface PayloadMigrationsSelect<T extends boolean = true> {
 export interface SiteSetting {
   id: number;
   profileImage?: (number | null) | Media;
-  meta?: {
-    title?: string | null;
-    description?: string | null;
-    /**
-     * Maximum upload file size: 12MB. Recommended file size for images is <500KB.
-     */
-    image?: (number | null) | Media;
-  };
   sidebarFooterItems?:
     | {
         type:
@@ -919,9 +881,9 @@ export interface HomePage {
         id?: string | null;
       }[]
     | null;
-  meta?: {
-    title?: string | null;
-    description?: string | null;
+  meta: {
+    title: string;
+    description: string;
     /**
      * Maximum upload file size: 12MB. Recommended file size for images is <500KB.
      */
@@ -1006,9 +968,9 @@ export interface CvPage {
       | null;
     id?: string | null;
   }[];
-  meta?: {
-    title?: string | null;
-    description?: string | null;
+  meta: {
+    title: string;
+    description: string;
     /**
      * Maximum upload file size: 12MB. Recommended file size for images is <500KB.
      */
@@ -1043,9 +1005,9 @@ export interface ProjectsPage {
     projects: (number | Project)[];
     id?: string | null;
   }[];
-  meta?: {
-    title?: string | null;
-    description?: string | null;
+  meta: {
+    title: string;
+    description: string;
     /**
      * Maximum upload file size: 12MB. Recommended file size for images is <500KB.
      */
@@ -1060,13 +1022,6 @@ export interface ProjectsPage {
  */
 export interface SiteSettingsSelect<T extends boolean = true> {
   profileImage?: T;
-  meta?:
-    | T
-    | {
-        title?: T;
-        description?: T;
-        image?: T;
-      };
   sidebarFooterItems?:
     | T
     | {

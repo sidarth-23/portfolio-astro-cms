@@ -6,6 +6,13 @@ import { getProjectsPage, mediaToUrl } from "@/lib/cms/client";
 import { asProjectArray } from "@/lib/cms/guards";
 
 const projectsPage = await getProjectsPage();
+const projectsSeoTitle = projectsPage.meta?.title?.trim();
+const projectsSeoDescription = projectsPage.meta?.description?.trim();
+
+if (!projectsSeoTitle || !projectsSeoDescription) {
+  throw new Error("Projects page requires SEO `meta.title` and `meta.description`.");
+}
+
 const sections = projectsPage.sections.map((section) => ({
   ...section,
   projects: asProjectArray(section.projects),
@@ -25,12 +32,9 @@ const toBadges = (badges?: Array<{ value: string }> | null) => {
 
 <BaseLayout
   title="Projects"
-  seoTitle={projectsPage?.meta?.title}
-  description={projectsPage?.meta?.description || "Projects"}
-  image={mediaToUrl(projectsPage?.meta?.image)}
-  canonicalUrl={projectsPage?.seoOverrides?.canonicalUrl ?? undefined}
-  robotsIndex={projectsPage?.seoOverrides?.robotsIndex ?? undefined}
-  robotsFollow={projectsPage?.seoOverrides?.robotsFollow ?? undefined}
+  seoTitle={projectsSeoTitle}
+  description={projectsSeoDescription}
+  image={mediaToUrl(projectsPage.meta?.image)}
   sideBarActiveItemID="projects"
 >
   {

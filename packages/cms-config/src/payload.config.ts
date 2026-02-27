@@ -7,7 +7,7 @@ import { postgresAdapter } from "@payloadcms/db-postgres";
 import { seoPlugin } from "@payloadcms/plugin-seo";
 import { s3Storage } from "@payloadcms/storage-s3";
 import { buildConfig } from "payload";
-import type { CollectionConfig, GlobalConfig } from "payload";
+import type { CollectionConfig, Field, GlobalConfig } from "payload";
 
 import { Categories } from "./collections/Categories";
 import { Media } from "./collections/Media";
@@ -26,7 +26,6 @@ import { triggerDokployRedeployGlobal } from "./hooks/triggerDokployRedeployGlob
 const filename = fileURLToPath(import.meta.url);
 const dirname = path.dirname(filename);
 
-const serverURL = process.env.PAYLOAD_PUBLIC_SERVER_URL || "http://localhost:3000";
 const s3Bucket = process.env.S3_BUCKET || "sidshub-media";
 const s3Region = process.env.S3_REGION || "us-east-1";
 const s3Endpoint = process.env.S3_ENDPOINT;
@@ -63,42 +62,6 @@ const shouldPushDbSchema = (): boolean => {
   }
 
   return process.env.NODE_ENV !== "production";
-};
-
-const richTextToPlainText = (value: unknown): string => {
-  if (!value || typeof value !== "object") {
-    return "";
-  }
-
-  const root = (value as { root?: unknown }).root;
-  if (!root || typeof root !== "object") {
-    return "";
-  }
-
-  const children = (root as { children?: unknown }).children;
-  if (!Array.isArray(children)) {
-    return "";
-  }
-
-  const output: string[] = [];
-  const walk = (node: unknown): void => {
-    if (!node || typeof node !== "object") {
-      return;
-    }
-
-    const text = (node as { text?: unknown }).text;
-    if (typeof text === "string" && text.trim()) {
-      output.push(text.trim());
-    }
-
-    const nestedChildren = (node as { children?: unknown }).children;
-    if (Array.isArray(nestedChildren)) {
-      nestedChildren.forEach(walk);
-    }
-  };
-
-  children.forEach(walk);
-  return output.join(" ").trim();
 };
 
 const isNoSuchBucketError = (error: unknown): boolean => {
@@ -165,6 +128,19 @@ const collections: CollectionConfig[] = [Users, Media, Categories, Tags, Series,
 );
 const globals: GlobalConfig[] = [SiteSettings, HomePage, CvPage, ProjectsPage].map(withGlobalAfterChangeHook);
 
+const withRequiredSeoFields = ({ defaultFields }: { defaultFields: Field[] }): Field[] => {
+  return defaultFields.map((field) => {
+    if ("name" in field && (field.name === "title" || field.name === "description")) {
+      return {
+        ...field,
+        required: true,
+      };
+    }
+
+    return field;
+  });
+};
+
 export default buildConfig({
   editor: defaultLexicalEditor,
   admin: {
@@ -190,43 +166,11 @@ export default buildConfig({
   },
   plugins: [
     seoPlugin({
-      collections: ["posts", "projects", "categories"],
-      globals: ["site-settings", "home-page", "cv-page", "projects-page"],
+      collections: ["posts"],
+      globals: ["home-page", "cv-page", "projects-page"],
       tabbedUI: true,
       uploadsCollection: "media",
-      generateTitle: ({ doc }) => {
-        if (typeof doc?.title === "string") {
-          return `${doc.title} | Sidarth`;
-        }
-        if (typeof doc?.name === "string") {
-          return `${doc.name} | Sidarth`;
-        }
-        return "Sidarth";
-      },
-      generateDescription: ({ doc }) => {
-        if (typeof doc?.excerpt === "string" && doc.excerpt.trim()) {
-          return doc.excerpt;
-        }
-        if (typeof doc?.description === "string" && doc.description.trim()) {
-          return doc.description;
-        }
-        return richTextToPlainText(doc?.description);
-      },
-      generateURL: ({ doc, collectionSlug, globalSlug }) => {
-        if (globalSlug) {
-          return `${serverURL}/${globalSlug}`;
-        }
-
-        if (collectionSlug === "posts") {
-          return `${serverURL}/blog/${doc?.slug}`;
-        }
-
-        if (collectionSlug === "projects") {
-          return `${serverURL}/projects#${doc?.slug}`;
-        }
-
-        return serverURL;
-      },
+      fields: withRequiredSeoFields,
     }),
     s3Storage({
       collections: {

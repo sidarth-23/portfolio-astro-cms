@@ -91,11 +91,18 @@ const series = seriesFromPost(post);
 const tags = tagsFromPost(post);
 const authors = authorsFromPost(post);
 const pubDate = post.publishedAt || post.createdAt || new Date().toISOString();
+const postSeoTitle = post.meta?.title?.trim();
+const postSeoDescription = post.meta?.description?.trim();
+
+if (!postSeoTitle || !postSeoDescription) {
+  throw new Error(`Post "${post.slug}" requires SEO \`meta.title\` and \`meta.description\`.`);
+}
 ---
 
 <PostLayout
   title={post.title}
-  description={post.excerpt}
+  seoTitle={postSeoTitle}
+  description={postSeoDescription}
   pubDate={pubDate}
   updatedDate={post.updatedAt}
   heroImage={mediaToUrl(post.coverImage)}
@@ -103,10 +110,6 @@ const pubDate = post.publishedAt || post.createdAt || new Date().toISOString();
   category={category}
   series={series}
   authors={authors}
-  canonicalUrl={post.seoOverrides?.canonicalUrl ?? undefined}
-  robotsIndex={post.seoOverrides?.robotsIndex ?? undefined}
-  robotsFollow={post.seoOverrides?.robotsFollow ?? undefined}
-  schemaType={post.seoOverrides?.schemaType ?? undefined}
 >
   {seriesNav && (
     <SeriesNav

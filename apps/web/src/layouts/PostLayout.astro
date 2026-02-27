@@ -9,6 +9,7 @@ type Author = { id?: number | null; name?: string | null };
 
 type Props = {
   title: string;
+  seoTitle?: string;
   description: string;
   pubDate: string;
   updatedDate?: string;
@@ -18,14 +19,11 @@ type Props = {
   category?: Category;
   series?: Series;
   authors?: Author[];
-  canonicalUrl?: string;
-  robotsIndex?: boolean;
-  robotsFollow?: boolean;
-  schemaType?: "Article" | "TechArticle";
 };
 
 const {
   title,
+  seoTitle,
   description,
   pubDate,
   updatedDate,
@@ -35,10 +33,6 @@ const {
   category,
   series,
   authors = [],
-  canonicalUrl,
-  robotsIndex,
-  robotsFollow,
-  schemaType = "Article",
 } = Astro.props;
 
 const currentUrl = Astro.url;
@@ -67,7 +61,7 @@ const formattedUpdatedDate = updatedDate
 
 const jsonLd = {
   "@context": "https://schema.org",
-  "@type": schemaType,
+  "@type": "Article",
   headline: title,
   description,
   image: heroImage ? [new URL(heroImage, Astro.url).toString()] : undefined,
@@ -75,18 +69,16 @@ const jsonLd = {
   dateModified: updatedDate
     ? new Date(updatedDate).toISOString()
     : new Date(pubDate).toISOString(),
-  mainEntityOfPage: canonicalUrl || Astro.url.toString(),
+  mainEntityOfPage: Astro.url.toString(),
 };
 ---
 
 <BaseLayout
   title={title}
+  seoTitle={seoTitle}
   description={description}
   image={heroImage}
   ogType="article"
-  canonicalUrl={canonicalUrl}
-  robotsIndex={robotsIndex}
-  robotsFollow={robotsFollow}
   jsonLd={jsonLd}
 >
   <main class="md:flex md:justify-center w-full container px-6 py-14">

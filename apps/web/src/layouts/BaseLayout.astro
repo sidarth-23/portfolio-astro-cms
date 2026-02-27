@@ -16,9 +16,6 @@ const {
   includeSidebar = true,
   sideBarActiveItemID,
   ogType,
-  canonicalUrl,
-  robotsIndex,
-  robotsFollow,
   jsonLd,
 } = Astro.props;
 
@@ -27,23 +24,19 @@ const [homePage, siteSettings]: [HomePage, SiteSetting] = await Promise.all([
   getSiteSettings(),
 ]);
 
-const siteTitle = siteSettings.meta?.title?.trim() || "Sid's Hub";
-const siteDescription = siteSettings.meta?.description?.trim() || "Personal website and blog.";
 const fallbackTitle = typeof title === "string" ? title.trim() : "";
 const seoPageTitle = typeof seoTitle === "string" ? seoTitle.trim() : "";
-const normalizedSeoPageTitle =
-  fallbackTitle &&
-    seoPageTitle.toLowerCase() === `${fallbackTitle.toLowerCase()} page`
-    ? fallbackTitle
-    : seoPageTitle;
-const pageTitleSegment = fallbackTitle || siteTitle;
-const resolvedHeadTitle = normalizedSeoPageTitle
-  ? `${siteTitle} | ${normalizedSeoPageTitle}`
-  : (pageTitleSegment.toLowerCase() === siteTitle.toLowerCase()
-      ? siteTitle
-      : `${siteTitle} | ${pageTitleSegment}`);
-const pageDescription = description ?? siteDescription;
-const pageImage = image ?? mediaToUrl(siteSettings.meta?.image);
+const pageTitle = seoPageTitle || fallbackTitle;
+const pageDescription = typeof description === "string" ? description.trim() : "";
+
+if (!pageTitle) {
+  throw new Error("BaseLayout requires a non-empty SEO title via `seoTitle` or `title`.");
+}
+
+if (!pageDescription) {
+  throw new Error("BaseLayout requires a non-empty SEO description via `description`.");
+}
+
 const profileImage = mediaToUrl(siteSettings.profileImage);
 const footerItems = footerItemsFromSiteSettings(siteSettings);
 ---
@@ -52,13 +45,10 @@ const footerItems = footerItemsFromSiteSettings(siteSettings);
 <html lang="en" data-theme="abyss">
   <head>
     <BaseHead
-      title={resolvedHeadTitle}
+      title={pageTitle}
       description={pageDescription}
-      image={pageImage}
+      image={image}
       ogType={ogType}
-      canonicalUrl={canonicalUrl}
-      robotsIndex={robotsIndex}
-      robotsFollow={robotsFollow}
       jsonLd={jsonLd}
     />
     {TRANSITION_API && <ClientRouter />}

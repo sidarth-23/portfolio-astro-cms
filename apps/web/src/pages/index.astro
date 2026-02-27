@@ -12,6 +12,13 @@ import {
 } from "@/lib/cms/client";
 
 const homePage: HomePage = await getHomePage();
+const homeSeoTitle = homePage.meta?.title?.trim();
+const homeSeoDescription = homePage.meta?.description?.trim();
+
+if (!homeSeoTitle || !homeSeoDescription) {
+  throw new Error("Home page requires SEO `meta.title` and `meta.description`.");
+}
+
 const isPost = (value: number | Post): value is Post =>
   typeof value === "object" && value !== null && value._status !== "draft";
 const isProject = (value: number | Project | null | undefined): value is Project =>
@@ -74,12 +81,9 @@ const featuredSections = homePage.featuredSections ?? [];
 
 <BaseLayout
   title="Home"
-  seoTitle={homePage?.meta?.title}
-  description={homePage?.meta?.description}
-  image={mediaToUrl(homePage?.meta?.image)}
-  canonicalUrl={homePage?.seoOverrides?.canonicalUrl ?? undefined}
-  robotsIndex={homePage?.seoOverrides?.robotsIndex ?? undefined}
-  robotsFollow={homePage?.seoOverrides?.robotsFollow ?? undefined}
+  seoTitle={homeSeoTitle}
+  description={homeSeoDescription}
+  image={mediaToUrl(homePage.meta?.image)}
   sideBarActiveItemID="home"
 >
   <div>

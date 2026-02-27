@@ -53,7 +53,12 @@ export const getStaticPaths = (async () => {
 const { series, posts } = Astro.props as SeriesPageProps;
 ---
 
-<BaseLayout title={`${series.name} - Series`} sideBarActiveItemID="blog">
+<BaseLayout
+  title={`${series.name} - Series`}
+  seoTitle="Blog Series"
+  description="Browse posts in this blog series."
+  sideBarActiveItemID="blog"
+>
   <div class="mb-6">
     <a
       href="/blog?view=series"
