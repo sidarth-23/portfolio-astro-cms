@@ -11,7 +11,11 @@ type Props = {
   profileImage?: string;
 };
 
-const { sideBarActiveItemID, footerItems = [], profileImage }: Props = Astro.props;
+const {
+  sideBarActiveItemID,
+  footerItems = [],
+  profileImage,
+}: Props = Astro.props;
 ---
 
 <div class="drawer-side z-40 lg:overflow-visible">
@@ -39,7 +43,10 @@ const { sideBarActiveItemID, footerItems = [], profileImage }: Props = Astro.pro
                   alt="Profile"
                 />
               ) : (
-                <div class="mask mask-circle w-full h-full bg-base-300" aria-hidden="true"></div>
+                <div
+                  class="mask mask-circle w-full h-full bg-base-300"
+                  aria-hidden="true"
+                />
               )
             }
           </div>
@@ -63,13 +70,17 @@ const { sideBarActiveItemID, footerItems = [], profileImage }: Props = Astro.pro
     <SideBarMenu sideBarActiveItemID={sideBarActiveItemID} />
 
     <div class="mt-auto flex flex-col gap-4 mb-6">
-      <div class="px-4">
+      <div class="px-4 group-[.collapsed]:px-2">
         <a
           href="/cv"
-          class="btn btn-outline btn-block gap-2 group-[.collapsed]:px-0"
+          class="btn btn-outline btn-block gap-2 group-[.collapsed]:px-0 group-[.collapsed]:gap-0"
         >
           <PhFileText size={20} />
-          <span class="group-[.collapsed]:hidden">View My CV</span>
+          <span
+            class="inline-block overflow-hidden whitespace-nowrap transition-[max-width,opacity,margin] duration-300 ease-in-out max-w-32 opacity-100 ml-1 group-[.collapsed]:max-w-0 group-[.collapsed]:opacity-0 group-[.collapsed]:ml-0"
+          >
+            View My CV
+          </span>
         </a>
       </div>
       <SideBarFooter items={footerItems} />
@@ -78,25 +89,44 @@ const { sideBarActiveItemID, footerItems = [], profileImage }: Props = Astro.pro
 </div>
 
 <script is:inline>
-  const sidebar = document.getElementById("sidebar");
-  const toggleBtn = document.getElementById("sidebar-toggle");
+  const SIDEBAR_WIDTH_EXPANDED = "w-[19rem]";
+  const SIDEBAR_WIDTH_COLLAPSED = "w-[5rem]";
 
-  // Initialize state from local storage
-  const isCollapsed = localStorage.getItem("sidebar-collapsed") === "true";
-  if (isCollapsed) {
-    sidebar?.classList.add("collapsed");
-    sidebar?.classList.replace("w-[19rem]", "w-[5rem]");
-  }
+  const applyCollapsedState = (sidebar, isCollapsed) => {
+    sidebar.classList.toggle("collapsed", isCollapsed);
+    sidebar.classList.remove(SIDEBAR_WIDTH_EXPANDED, SIDEBAR_WIDTH_COLLAPSED);
+    sidebar.classList.add(
+      isCollapsed ? SIDEBAR_WIDTH_COLLAPSED : SIDEBAR_WIDTH_EXPANDED,
+    );
+  };
 
-  toggleBtn?.addEventListener("click", () => {
-    const collapsed = sidebar?.classList.toggle("collapsed");
+  const initializeSidebar = () => {
+    const sidebar = document.getElementById("sidebar");
+    const toggleBtn = document.getElementById("sidebar-toggle");
+    const drawerCheckbox = document.getElementById("my-drawer");
 
-    if (collapsed) {
-      sidebar?.classList.replace("w-[19rem]", "w-[5rem]");
-      localStorage.setItem("sidebar-collapsed", "true");
-    } else {
-      sidebar?.classList.replace("w-[5rem]", "w-[19rem]");
-      localStorage.setItem("sidebar-collapsed", "false");
+    if (!sidebar || !toggleBtn) {
+      return;
     }
-  });
+
+    const isCollapsed = localStorage.getItem("sidebar-collapsed") === "true";
+    applyCollapsedState(sidebar, isCollapsed);
+
+    toggleBtn.onclick = () => {
+      const nextCollapsed = !sidebar.classList.contains("collapsed");
+      applyCollapsedState(sidebar, nextCollapsed);
+      localStorage.setItem("sidebar-collapsed", String(nextCollapsed));
+    };
+
+    if (drawerCheckbox instanceof HTMLInputElement) {
+      drawerCheckbox.checked = false;
+    }
+  };
+
+  initializeSidebar();
+
+  if (!document.documentElement.dataset.sidebarPageLoadBound) {
+    document.addEventListener("astro:page-load", initializeSidebar);
+    document.documentElement.dataset.sidebarPageLoadBound = "true";
+  }
 </script>

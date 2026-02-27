@@ -90,6 +90,11 @@ export const ProjectsPage: GlobalConfig = {
               type: "array",
               required: true,
               minRows: 1,
+              admin: {
+                components: {
+                  RowLabel: "./components/admin/rowLabels/SectionRowLabel#SectionRowLabel",
+                },
+              },
               fields: [
                 {
                   name: "title",

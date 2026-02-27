@@ -11,7 +11,7 @@ export const Projects: CollectionConfig = {
   },
   admin: {
     useAsTitle: "title",
-    defaultColumns: ["title", "_status", "displayOrder", "updatedAt"],
+    defaultColumns: ["title", "_status", "updatedAt"],
     group: "Content",
   },
   fields: [
@@ -74,15 +74,6 @@ export const Projects: CollectionConfig = {
       ],
     },
     slugField({ fieldToUse: "title" }),
-    {
-      name: "displayOrder",
-      type: "number",
-      defaultValue: 0,
-      required: true,
-      admin: {
-        position: "sidebar",
-      },
-    },
   ],
   versions: {
     drafts: {

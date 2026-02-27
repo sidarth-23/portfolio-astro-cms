@@ -1,6 +1,7 @@
 import type { GlobalConfig } from "payload";
 
 import { readAccess } from "../access/readAccess";
+import { linkField } from "../fields/link";
 import { syncHomeSectionsToPosts } from "../hooks/syncHomeSectionsToPosts";
 
 export const HomePage: GlobalConfig = {
@@ -47,42 +48,68 @@ export const HomePage: GlobalConfig = {
       ],
     },
     {
-      name: "ctaPrimaryLabel",
-      type: "text",
-      required: true,
+      name: "ctaButtons",
+      type: "array",
+      required: false,
+      maxRows: 3,
       admin: {
         position: "sidebar",
+        components: {
+          RowLabel: "./components/admin/rowLabels/CtaButtonRowLabel#CtaButtonRowLabel",
+        },
       },
-    },
-    {
-      name: "ctaPrimaryUrl",
-      type: "text",
-      required: true,
-      admin: {
-        position: "sidebar",
-      },
-    },
-    {
-      name: "ctaSecondaryLabel",
-      type: "text",
-      required: true,
-      admin: {
-        position: "sidebar",
-      },
-    },
-    {
-      name: "ctaSecondaryUrl",
-      type: "text",
-      required: true,
-      admin: {
-        position: "sidebar",
-      },
+      fields: [
+        {
+          name: "title",
+          type: "text",
+          required: true,
+        },
+        {
+          name: "variant",
+          type: "select",
+          required: true,
+          defaultValue: "default",
+          options: [
+            {
+              label: "Default",
+              value: "default",
+            },
+            {
+              label: "Primary",
+              value: "primary",
+            },
+            {
+              label: "Secondary",
+              value: "secondary",
+            },
+            {
+              label: "Accent",
+              value: "accent",
+            },
+            {
+              label: "Outline",
+              value: "outline",
+            },
+            {
+              label: "Ghost",
+              value: "ghost",
+            },
+          ],
+        },
+        linkField({
+          name: "link",
+          label: "Link",
+        }),
+      ],
     },
     {
       name: "featuredSections",
       type: "array",
       admin: {
         description: "Create and reorder featured sections for the home page.",
+        components: {
+          RowLabel: "./components/admin/rowLabels/SectionRowLabel#SectionRowLabel",
+        },
       },
       fields: [
         {

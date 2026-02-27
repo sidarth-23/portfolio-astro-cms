@@ -39,6 +39,11 @@ export const CvPage: GlobalConfig = {
               type: "array",
               required: true,
               minRows: 1,
+              admin: {
+                components: {
+                  RowLabel: "./components/admin/rowLabels/SectionRowLabel#SectionRowLabel",
+                },
+              },
               fields: [
                 {
                   name: "title",
@@ -87,6 +92,9 @@ export const CvPage: GlobalConfig = {
                   admin: {
                     condition: (_, siblingData) =>
                       siblingData?.type === "items",
+                    components: {
+                      RowLabel: "./components/admin/rowLabels/ItemRowLabel#ItemRowLabel",
+                    },
                   },
                 },
                 {
@@ -103,6 +111,9 @@ export const CvPage: GlobalConfig = {
                   admin: {
                     condition: (_, siblingData) =>
                       siblingData?.type === "badges",
+                    components: {
+                      RowLabel: "./components/admin/rowLabels/BadgeRowLabel#BadgeRowLabel",
+                    },
                   },
                 },
               ],

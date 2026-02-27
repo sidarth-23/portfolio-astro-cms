@@ -403,7 +403,6 @@ export interface Project {
    * Auto-generated from title, but can be edited.
    */
   slug: string;
-  displayOrder: number;
   updatedAt: string;
   createdAt: string;
   _status?: ('draft' | 'published') | null;
@@ -749,7 +748,6 @@ export interface ProjectsSelect<T extends boolean = true> {
         image?: T;
       };
   slug?: T;
-  displayOrder?: T;
   updatedAt?: T;
   createdAt?: T;
   _status?: T;
@@ -904,10 +902,27 @@ export interface HomePage {
      */
     image?: (number | null) | Media;
   };
-  ctaPrimaryLabel: string;
-  ctaPrimaryUrl: string;
-  ctaSecondaryLabel: string;
-  ctaSecondaryUrl: string;
+  ctaButtons?:
+    | {
+        title: string;
+        variant: 'default' | 'primary' | 'secondary' | 'accent' | 'outline' | 'ghost';
+        link?: {
+          type?: ('custom' | 'reference') | null;
+          newTab?: boolean | null;
+          url?: string | null;
+          reference?:
+            | ({
+                relationTo: 'posts';
+                value: number | Post;
+              } | null)
+            | ({
+                relationTo: 'projects';
+                value: number | Project;
+              } | null);
+        };
+        id?: string | null;
+      }[]
+    | null;
   /**
    * Create and reorder featured sections for the home page.
    */
@@ -1079,10 +1094,21 @@ export interface HomePageSelect<T extends boolean = true> {
         description?: T;
         image?: T;
       };
-  ctaPrimaryLabel?: T;
-  ctaPrimaryUrl?: T;
-  ctaSecondaryLabel?: T;
-  ctaSecondaryUrl?: T;
+  ctaButtons?:
+    | T
+    | {
+        title?: T;
+        variant?: T;
+        link?:
+          | T
+          | {
+              type?: T;
+              newTab?: T;
+              url?: T;
+              reference?: T;
+            };
+        id?: T;
+      };
   featuredSections?:
     | T
     | {

@@ -2,30 +2,53 @@
 import { PhHouse, PhBriefcase, PhNewspaper } from "phosphor-icons-astro";
 
 const { sideBarActiveItemID } = Astro.props;
-const activeClass = "bg-base-300"; // For primary color replace with `active` class
+const activeClass = "is-active";
 ---
 
-<ul class="menu grow shrink menu-md overflow-y-auto w-full">
+<ul id="sidebar-menu" class="menu grow shrink menu-md overflow-y-auto w-full">
   <li>
-    <a class="py-3 text-base flex items-center gap-4" id="home" href="/">
+    <a
+      class="py-3 text-base flex items-center gap-4 group-[.collapsed]:justify-center group-[.collapsed]:px-0 group-[.collapsed]:gap-0"
+      id="home"
+      href="/"
+      data-sidebar-item
+    >
       <PhHouse size={24} />
-      <span class="group-[.collapsed]:hidden">Home</span>
+      <span
+        class="inline-block overflow-hidden whitespace-nowrap transition-[max-width,opacity,margin] duration-300 ease-in-out max-w-24 opacity-100 group-[.collapsed]:max-w-0 group-[.collapsed]:opacity-0"
+      >
+        Home
+      </span>
     </a>
   </li>
   <li>
     <a
-      class="py-3 text-base flex items-center gap-4"
+      class="py-3 text-base flex items-center gap-4 group-[.collapsed]:justify-center group-[.collapsed]:px-0 group-[.collapsed]:gap-0"
       id="projects"
       href="/projects"
+      data-sidebar-item
     >
       <PhBriefcase size={24} />
-      <span class="group-[.collapsed]:hidden">Projects</span>
+      <span
+        class="inline-block overflow-hidden whitespace-nowrap transition-[max-width,opacity,margin] duration-300 ease-in-out max-w-24 opacity-100 group-[.collapsed]:max-w-0 group-[.collapsed]:opacity-0"
+      >
+        Projects
+      </span>
     </a>
   </li>
   <li>
-    <a class="py-3 text-base flex items-center gap-4" id="blog" href="/blog/">
+    <a
+      class="py-3 text-base flex items-center gap-4 group-[.collapsed]:justify-center group-[.collapsed]:px-0 group-[.collapsed]:gap-0"
+      id="blog"
+      href="/blog/"
+      data-sidebar-item
+    >
       <PhNewspaper size={24} />
-      <span class="group-[.collapsed]:hidden">Blog</span>
+      <span
+        class="inline-block overflow-hidden whitespace-nowrap transition-[max-width,opacity,margin] duration-300 ease-in-out max-w-24 opacity-100 group-[.collapsed]:max-w-0 group-[.collapsed]:opacity-0"
+      >
+        Blog
+      </span>
     </a>
   </li>
 </ul>
@@ -37,6 +60,35 @@ const activeClass = "bg-base-300"; // For primary color replace with `active` cl
     activeClass: activeClass,
   }}
 >
-  const activeItemElem = document.getElementById(sideBarActiveItemID);
-  activeItemElem && activeItemElem.classList.add(activeClass);
+  const setActiveMenuItem = () => {
+    const menuElem = document.getElementById("sidebar-menu");
+    if (!menuElem) {
+      return;
+    }
+
+    const menuItems = menuElem.querySelectorAll("[data-sidebar-item]");
+    menuItems.forEach((item) => item.classList.remove(activeClass));
+
+    if (!sideBarActiveItemID) {
+      return;
+    }
+
+    const activeItemElem = document.getElementById(sideBarActiveItemID);
+    if (activeItemElem && menuElem.contains(activeItemElem)) {
+      activeItemElem.classList.add(activeClass);
+    }
+  };
+
+  setActiveMenuItem();
+
+  if (!document.documentElement.dataset.sidebarMenuPageLoadBound) {
+    document.addEventListener("astro:page-load", setActiveMenuItem);
+    document.documentElement.dataset.sidebarMenuPageLoadBound = "true";
+  }
 </script>
+
+<style>
+  #sidebar-menu :global(a.is-active) {
+    background-color: var(--color-base-300);
+  }
+</style>

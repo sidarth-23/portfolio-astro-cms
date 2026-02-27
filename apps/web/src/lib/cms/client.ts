@@ -400,17 +400,6 @@ export const getCategorySlugs = async (): Promise<string[]> => {
     .sort((a, b) => a.localeCompare(b));
 };
 
-export const getProjects = async (): Promise<Project[]> => {
-  const res = await payloadFetch<PayloadListResponse<Project>>("/projects", {
-    depth: 3,
-    limit: 200,
-    sort: "displayOrder",
-    "where[_status][equals]": "published",
-  });
-
-  return res.docs.sort((a, b) => a.displayOrder - b.displayOrder);
-};
-
 export const mediaToUrl = toAbsoluteMediaUrl;
 
 export const categoryFromPost = (post: Post): { name: string; slug: string } | undefined => {

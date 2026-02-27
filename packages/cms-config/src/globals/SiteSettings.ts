@@ -35,6 +35,9 @@ export const SiteSettings: GlobalConfig = {
       maxRows: 4,
       admin: {
         position: "sidebar",
+        components: {
+          RowLabel: "./components/admin/rowLabels/FooterItemRowLabel#FooterItemRowLabel",
+        },
       },
       fields: [
         {
