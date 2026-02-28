@@ -1,0 +1,47 @@
+---
+import { ClientRouter } from "astro:transitions";
+
+import BaseHead from "@/components/BaseHead.astro";
+import { TRANSITION_API } from "@/consts";
+
+type Props = {
+  title?: string;
+  description?: string;
+  image?: string;
+  ogType?: string;
+  jsonLd?: unknown;
+};
+
+const {
+  title = "Something went wrong",
+  description = "This page is unavailable right now.",
+  image,
+  ogType = "website",
+  jsonLd,
+} = Astro.props;
+---
+
+<!doctype html>
+<html lang="en" data-theme="abyss">
+  <head>
+    <BaseHead
+      title={title}
+      description={description}
+      image={image}
+      ogType={ogType}
+      jsonLd={jsonLd}
+      robotsIndex={false}
+    />
+    {TRANSITION_API && <ClientRouter />}
+  </head>
+
+  <body>
+    <main class="min-h-screen bg-base-100 text-base-content">
+      <div class="mx-auto flex min-h-screen w-full max-w-4xl items-center justify-center px-6 py-14">
+        <div class="w-full">
+          <slot />
+        </div>
+      </div>
+    </main>
+  </body>
+</html>
