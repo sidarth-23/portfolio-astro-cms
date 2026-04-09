@@ -1,0 +1,15 @@
+.git
+.gitignore
+.turbo
+node_modules
+**/node_modules
+dist
+**/dist
+.next
+**/.next
+.astro
+**/.astro
+coverage
+**/coverage
+*.log
+docker-compose*.yml

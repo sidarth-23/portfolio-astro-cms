@@ -2,9 +2,12 @@
 dist/
 # generated types
 .astro/
+.next/
+.turbo/
 
 # dependencies
 node_modules/
+.turbo/
 
 # logs
 npm-debug.log*
