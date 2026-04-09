@@ -1,5 +1,5 @@
 ---
-import { PhHouse, PhBriefcase, PhNewspaper } from "phosphor-icons-astro";
+import { PhHouse, PhBriefcase, PhNewspaper, PhFileText } from "phosphor-icons-astro";
 
 const { sideBarActiveItemID } = Astro.props;
 const activeClass = "is-active";
@@ -48,6 +48,21 @@ const activeClass = "is-active";
         class="inline-block overflow-hidden whitespace-nowrap transition-[max-width,opacity,margin] duration-300 ease-in-out max-w-24 opacity-100 group-[.collapsed]:max-w-0 group-[.collapsed]:opacity-0"
       >
         Blog
+      </span>
+    </a>
+  </li>
+  <li>
+    <a
+      class="py-3 text-base flex items-center gap-4 group-[.collapsed]:justify-center group-[.collapsed]:px-0 group-[.collapsed]:gap-0"
+      id="cv"
+      href="/cv"
+      data-sidebar-item
+    >
+      <PhFileText size={24} />
+      <span
+        class="inline-block overflow-hidden whitespace-nowrap transition-[max-width,opacity,margin] duration-300 ease-in-out max-w-24 opacity-100 group-[.collapsed]:max-w-0 group-[.collapsed]:opacity-0"
+      >
+        Resume
       </span>
     </a>
   </li>
