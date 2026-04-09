@@ -7,12 +7,11 @@ import HorizontalCard from "@/components/HorizontalCard.astro";
 import BaseLayout from "@/layouts/BaseLayout.astro";
 import {
   categoryFromPost,
+  getBlogPage,
   getPostsBySeries,
   getSeriesSlugs,
-  getSiteSettings,
   mediaToUrl,
   resolveSeriesSeoTemplate,
-  routeSeoFromSiteSettings,
   seriesFromPost,
   tagsFromPost,
 } from "@/lib/cms/client";
@@ -55,17 +54,28 @@ export const getStaticPaths = (async () => {
 }) satisfies GetStaticPaths;
 
 const { series, posts } = Astro.props as SeriesPageProps;
-const siteSettings = await getSiteSettings();
-const blogSeriesSeo = routeSeoFromSiteSettings(siteSettings, "blogSeries");
-const blogSeriesSeoTitle = resolveSeriesSeoTemplate(blogSeriesSeo.title, series.name);
-const blogSeriesSeoDescription = resolveSeriesSeoTemplate(blogSeriesSeo.description, series.name);
+const blogPage = await getBlogPage();
+
+const blogSeoTitle = blogPage.meta?.title?.trim();
+const blogSeoDescription = blogPage.meta?.description?.trim();
+
+if (!blogSeoTitle || !blogSeoDescription) {
+  throw new Error("Blog page requires SEO `meta.title` and `meta.description`.");
+}
+
+const seriesSeoTitle = blogPage.seriesSeoTitleTemplate
+  ? resolveSeriesSeoTemplate(blogPage.seriesSeoTitleTemplate, series.name)
+  : blogSeoTitle;
+const seriesSeoDescription = blogPage.seriesSeoDescriptionTemplate
+  ? resolveSeriesSeoTemplate(blogPage.seriesSeoDescriptionTemplate, series.name)
+  : blogSeoDescription;
 ---
 
 <BaseLayout
   title={`${series.name} - Series`}
-  seoTitle={blogSeriesSeoTitle}
-  description={blogSeriesSeoDescription}
-  image={mediaToUrl(blogSeriesSeo.image)}
+  seoTitle={seriesSeoTitle}
+  description={seriesSeoDescription}
+  image={mediaToUrl(blogPage.meta?.image)}
   sideBarActiveItemID="blog"
 >
   <div class="mb-6">

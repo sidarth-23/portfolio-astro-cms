@@ -19,6 +19,7 @@ import { Tags } from "./collections/Tags";
 import { Users } from "./collections/Users";
 import { CvPage } from "./globals/CvPage";
 import { HomePage } from "./globals/HomePage";
+import { BlogPage } from "./globals/BlogPage";
 import { ProjectsPage } from "./globals/ProjectsPage";
 import { SiteSettings } from "./globals/SiteSettings";
 import { triggerCollectionRedeploy } from "./hooks/triggerCollectionRedeploy";
@@ -142,7 +143,7 @@ const withGlobalAfterChangeHook = (globalConfig: GlobalConfig): GlobalConfig => 
 const collections: CollectionConfig[] = [Users, Media, Categories, Tags, Series, Posts, Projects].map(
   withCollectionAfterChangeHook,
 );
-const globals: GlobalConfig[] = [SiteSettings, HomePage, CvPage, ProjectsPage].map(withGlobalAfterChangeHook);
+const globals: GlobalConfig[] = [SiteSettings, HomePage, CvPage, BlogPage, ProjectsPage].map(withGlobalAfterChangeHook);
 
 const withRequiredSeoFields = ({ defaultFields }: { defaultFields: Field[] }): Field[] => {
   return defaultFields.map((field) => {
@@ -189,7 +190,7 @@ export default buildConfig({
   plugins: [
     seoPlugin({
       collections: ["posts"],
-      globals: ["home-page", "cv-page", "projects-page"],
+      globals: ["home-page", "cv-page", "blog-page", "projects-page"],
       tabbedUI: true,
       uploadsCollection: "media",
       fields: withRequiredSeoFields,

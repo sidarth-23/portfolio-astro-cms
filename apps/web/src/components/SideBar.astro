@@ -1,5 +1,4 @@
 ---
-import { ASTRO_RESUME_FILE_ID} from "astro:env/client"
 import { PhCaretLeft, PhFileText } from "phosphor-icons-astro";
 import type { SiteFooterItem } from "@/lib/cms/types";
 
@@ -10,15 +9,15 @@ type Props = {
   sideBarActiveItemID?: string;
   footerItems?: SiteFooterItem[];
   profileImage?: string;
+  resumeDownloadUrl?: string;
 };
 
 const {
   sideBarActiveItemID,
   footerItems = [],
   profileImage,
+  resumeDownloadUrl,
 }: Props = Astro.props;
-
-const resumeDownloadUrl = `https://drive.google.com/file/d/${ASTRO_RESUME_FILE_ID}/view?usp=sharing`;
 ---
 
 <div class="drawer-side z-40 lg:overflow-visible">
@@ -73,21 +72,23 @@ const resumeDownloadUrl = `https://drive.google.com/file/d/${ASTRO_RESUME_FILE_I
     <SideBarMenu sideBarActiveItemID={sideBarActiveItemID} />
 
     <div class="mt-auto flex flex-col gap-4 mb-6">
-      <div class="px-4 group-[.collapsed]:px-2">
-        <a
-          href={resumeDownloadUrl}
-          target="_blank"
-          rel="noopener noreferrer"
-          class="btn btn-outline btn-block gap-2 group-[.collapsed]:px-0 group-[.collapsed]:gap-0"
-        >
-          <PhFileText size={20} />
-          <span
-            class="inline-block overflow-hidden whitespace-nowrap transition-[max-width,opacity,margin] duration-300 ease-in-out max-w-32 opacity-100 ml-1 group-[.collapsed]:max-w-0 group-[.collapsed]:opacity-0 group-[.collapsed]:ml-0"
+      {resumeDownloadUrl && (
+        <div class="px-4 group-[.collapsed]:px-2">
+          <a
+            href={resumeDownloadUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            class="btn btn-outline btn-block gap-2 group-[.collapsed]:px-0 group-[.collapsed]:gap-0"
           >
-            Download My CV
-          </span>
-        </a>
-      </div>
+            <PhFileText size={20} />
+            <span
+              class="inline-block overflow-hidden whitespace-nowrap transition-[max-width,opacity,margin] duration-300 ease-in-out max-w-32 opacity-100 ml-1 group-[.collapsed]:max-w-0 group-[.collapsed]:opacity-0 group-[.collapsed]:ml-0"
+            >
+              Download My CV
+            </span>
+          </a>
+        </div>
+      )}
       <SideBarFooter items={footerItems} />
     </div>
   </aside>

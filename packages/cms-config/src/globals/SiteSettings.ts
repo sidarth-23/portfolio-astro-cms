@@ -1,5 +1,6 @@
 import type { GlobalConfig } from "payload";
 
+import { resumeLinkFields } from "../fields/resumeLink";
 import { readAccess } from "../access/readAccess";
 
 export const SiteSettings: GlobalConfig = {
@@ -24,92 +25,7 @@ export const SiteSettings: GlobalConfig = {
               relationTo: "media",
               required: false,
             },
-          ],
-        },
-        {
-          label: "SEO",
-          fields: [
-            {
-              name: "routeSeo",
-              type: "group",
-              fields: [
-                {
-                  name: "blogHome",
-                  type: "group",
-                  label: "Blog Home",
-                  fields: [
-                    {
-                      name: "title",
-                      type: "text",
-                      required: true,
-                    },
-                    {
-                      name: "description",
-                      type: "textarea",
-                      required: true,
-                    },
-                    {
-                      name: "image",
-                      type: "upload",
-                      relationTo: "media",
-                      required: false,
-                    },
-                  ],
-                },
-                {
-                  name: "blogSeries",
-                  type: "group",
-                  label: "Blog Series",
-                  fields: [
-                    {
-                      name: "title",
-                      type: "text",
-                      required: true,
-                      admin: {
-                        description: "Use {seriesName} to insert the current series name.",
-                      },
-                    },
-                    {
-                      name: "description",
-                      type: "textarea",
-                      required: true,
-                      admin: {
-                        description: "Use {seriesName} to insert the current series name.",
-                      },
-                    },
-                    {
-                      name: "image",
-                      type: "upload",
-                      relationTo: "media",
-                      required: false,
-                    },
-                  ],
-                },
-                {
-                  name: "notFound",
-                  type: "group",
-                  label: "404 Page",
-                  fields: [
-                    {
-                      name: "title",
-                      type: "text",
-                      required: true,
-                    },
-                    {
-                      name: "description",
-                      type: "textarea",
-                      required: true,
-                    },
-                    {
-                      name: "image",
-                      type: "upload",
-                      relationTo: "media",
-                      required: false,
-                    },
-                  ],
-                },
-              ],
-            },
+            ...resumeLinkFields,
           ],
         },
       ],

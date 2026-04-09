@@ -27,11 +27,6 @@ export default defineConfig({
         min: 1,
         default: 5000,
       }),
-      ASTRO_RESUME_FILE_ID: envField.string({
-        context: "client",
-        access: "public",
-        default: "11b-14LpVAj4N0t2oE48UKhVarS09YzWW"
-      })
     },
   },
   vite: {

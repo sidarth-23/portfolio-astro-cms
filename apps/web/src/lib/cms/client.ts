@@ -1,6 +1,7 @@
 import { ASTRO_CMS_API_URL, ASTRO_CMS_READ_TOKEN } from "astro:env/server";
 
 import type {
+  BlogPage,
   Category,
   CvPage,
   HomePage,
@@ -61,24 +62,8 @@ type TaxonomyDoc = {
   slug?: string | null;
 };
 
-type RouteSeoKey = "blogHome" | "blogSeries" | "notFound";
-
-type RouteSeo = {
-  title: string;
-  description: string;
-  image?: (number | null) | Media;
-};
-
 const responseSnippet = (value: string): string => {
   return value.replace(/\s+/g, " ").trim().slice(0, 240);
-};
-
-const ensureNonEmptySeoValue = (value: unknown, fieldPath: string): string => {
-  if (typeof value !== "string" || value.trim().length === 0) {
-    throw new Error(`Site settings SEO field \`${fieldPath}\` must be a non-empty string.`);
-  }
-
-  return value.trim();
 };
 
 const toAbsoluteMediaUrl = (media: Media | string | number | null | undefined): string | undefined => {
@@ -573,14 +558,8 @@ export const footerItemsFromSiteSettings = (siteSettings: SiteSetting): NonNulla
   return asSiteFooterItems(siteSettings.sidebarFooterItems);
 };
 
-export const routeSeoFromSiteSettings = (siteSettings: SiteSetting, key: RouteSeoKey): RouteSeo => {
-  const routeSeo = siteSettings.routeSeo?.[key];
-
-  return {
-    title: ensureNonEmptySeoValue(routeSeo?.title, `routeSeo.${key}.title`),
-    description: ensureNonEmptySeoValue(routeSeo?.description, `routeSeo.${key}.description`),
-    image: routeSeo?.image ?? undefined,
-  };
+export const getBlogPage = async (): Promise<BlogPage> => {
+  return payloadFetch<BlogPage>("/globals/blog-page", { depth: 2 });
 };
 
 export const resolveSeriesSeoTemplate = (template: string, seriesName: string): string => {

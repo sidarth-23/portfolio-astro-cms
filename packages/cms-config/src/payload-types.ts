@@ -103,12 +103,14 @@ export interface Config {
     'site-settings': SiteSetting;
     'home-page': HomePage;
     'cv-page': CvPage;
+    'blog-page': BlogPage;
     'projects-page': ProjectsPage;
   };
   globalsSelect: {
     'site-settings': SiteSettingsSelect<false> | SiteSettingsSelect<true>;
     'home-page': HomePageSelect<false> | HomePageSelect<true>;
     'cv-page': CvPageSelect<false> | CvPageSelect<true>;
+    'blog-page': BlogPageSelect<false> | BlogPageSelect<true>;
     'projects-page': ProjectsPageSelect<false> | ProjectsPageSelect<true>;
   };
   locale: null;
@@ -800,29 +802,18 @@ export interface PayloadMigrationsSelect<T extends boolean = true> {
 export interface SiteSetting {
   id: number;
   profileImage?: (number | null) | Media;
-  routeSeo: {
-    blogHome: {
-      title: string;
-      description: string;
-      image?: (number | null) | Media;
-    };
-    blogSeries: {
-      /**
-       * Use {seriesName} to insert the current series name.
-       */
-      title: string;
-      /**
-       * Use {seriesName} to insert the current series name.
-       */
-      description: string;
-      image?: (number | null) | Media;
-    };
-    notFound: {
-      title: string;
-      description: string;
-      image?: (number | null) | Media;
-    };
-  };
+  /**
+   * Select Google Drive to auto-convert a sharing URL into a download link. Select Custom Link for any direct download URL.
+   */
+  resumeUrlType?: ('google' | 'custom') | null;
+  /**
+   * Paste the full URL — a Google Drive sharing link or a direct download link.
+   */
+  resumeUrl?: string | null;
+  /**
+   * Auto-generated downloadable link. For Google Drive: converted from the sharing URL above. For Custom: used as-is.
+   */
+  resumeDownloadUrl?: string | null;
   sidebarFooterItems?:
     | {
         type:
@@ -1004,6 +995,31 @@ export interface CvPage {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "blog-page".
+ */
+export interface BlogPage {
+  id: number;
+  /**
+   * SEO title template for series pages. Use {seriesName} to insert the series name. Falls back to the page SEO title if empty.
+   */
+  seriesSeoTitleTemplate?: string | null;
+  /**
+   * SEO description template for series pages. Use {seriesName} to insert the series name. Falls back to the page SEO description if empty.
+   */
+  seriesSeoDescriptionTemplate?: string | null;
+  meta: {
+    title: string;
+    description: string;
+    /**
+     * Maximum upload file size: 12MB. Recommended file size for images is <500KB.
+     */
+    image?: (number | null) | Media;
+  };
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "projects-page".
  */
 export interface ProjectsPage {
@@ -1045,31 +1061,9 @@ export interface ProjectsPage {
  */
 export interface SiteSettingsSelect<T extends boolean = true> {
   profileImage?: T;
-  routeSeo?:
-    | T
-    | {
-        blogHome?:
-          | T
-          | {
-              title?: T;
-              description?: T;
-              image?: T;
-            };
-        blogSeries?:
-          | T
-          | {
-              title?: T;
-              description?: T;
-              image?: T;
-            };
-        notFound?:
-          | T
-          | {
-              title?: T;
-              description?: T;
-              image?: T;
-            };
-      };
+  resumeUrlType?: T;
+  resumeUrl?: T;
+  resumeDownloadUrl?: T;
   sidebarFooterItems?:
     | T
     | {
@@ -1152,6 +1146,24 @@ export interface CvPageSelect<T extends boolean = true> {
             };
         id?: T;
       };
+  meta?:
+    | T
+    | {
+        title?: T;
+        description?: T;
+        image?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "blog-page_select".
+ */
+export interface BlogPageSelect<T extends boolean = true> {
+  seriesSeoTitleTemplate?: T;
+  seriesSeoDescriptionTemplate?: T;
   meta?:
     | T
     | {

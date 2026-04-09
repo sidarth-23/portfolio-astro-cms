@@ -39,6 +39,7 @@ if (!pageDescription) {
 
 const profileImage = mediaToUrl(siteSettings.profileImage);
 const footerItems = footerItemsFromSiteSettings(siteSettings);
+const resumeDownloadUrl = siteSettings.resumeDownloadUrl?.trim() || undefined;
 ---
 
 <!doctype html>
@@ -71,6 +72,7 @@ const footerItems = footerItemsFromSiteSettings(siteSettings);
               sideBarActiveItemID={sideBarActiveItemID}
               footerItems={footerItems}
               profileImage={profileImage}
+              resumeDownloadUrl={resumeDownloadUrl}
             />
         )
       }
