@@ -1,0 +1,12 @@
+services:
+  astro-web:
+    build:
+      context: .
+      dockerfile: apps/web/Dockerfile
+      args:
+        ASTRO_SITE_URL: ${ASTRO_SITE_URL}
+        ASTRO_CMS_API_URL: ${ASTRO_CMS_API_URL}
+        ASTRO_CMS_READ_TOKEN: ${ASTRO_CMS_READ_TOKEN}
+        ASTRO_CMS_HEALTH_TIMEOUT_MS: ${ASTRO_CMS_HEALTH_TIMEOUT_MS:-5000}
+    ports:
+      - "${WEB_PORT:-4321}:80"

@@ -1,0 +1,108 @@
+version: '3'
+
+vars:
+  COMPOSE_FILE: docker-compose.local.yml
+  POSTGRES_CONTAINER: portfolio-postgres-1
+  CMS_CONTAINER: portfolio-payload-cms-1
+
+tasks:
+  # Docker Compose Operations
+  up:
+    desc: Start all local services (Postgres, MinIO, Payload CMS)
+    cmds:
+      - docker compose -f {{.COMPOSE_FILE}} up -d
+
+  up:build:
+    desc: Build and start all local services
+    cmds:
+      - docker compose -f {{.COMPOSE_FILE}} up -d --build
+
+  down:
+    desc: Stop all local services
+    cmds:
+      - docker compose -f {{.COMPOSE_FILE}} down
+
+  restart:
+    desc: Restart all local services
+    cmds:
+      - task: down
+      - task: up
+
+  logs:
+    desc: Follow logs from all services
+    cmds:
+      - docker compose -f {{.COMPOSE_FILE}} logs -f
+
+  logs:cms:
+    desc: Follow logs from Payload CMS
+    cmds:
+      - docker compose -f {{.COMPOSE_FILE}} logs -f payload-cms
+
+  logs:postgres:
+    desc: Follow logs from Postgres
+    cmds:
+      - docker compose -f {{.COMPOSE_FILE}} logs -f postgres
+
+  logs:minio:
+    desc: Follow logs from MinIO
+    cmds:
+      - docker compose -f {{.COMPOSE_FILE}} logs -f minio
+
+  clean:
+    desc: "Stop services, remove volumes and clean local installed packages (WARNING: deletes all data)"
+    prompt: This will delete all database and media data. Continue?
+    cmds:
+      - docker compose -f {{.COMPOSE_FILE}} down -v
+      - echo "Removed all installed packages and cache files in project"
+      - rm -rf node_modules
+      - rm -rf apps/cms/node_modules
+      - rm -rf apps/web/node_modules
+      - echo "All node_modules removed. Run 'task install' to reinstall."
+
+  # Database Operations
+  db:reset:
+    desc: Reset the database (drop and recreate)
+    prompt: This will delete all database data. Continue?
+    cmds:
+      - docker compose -f {{.COMPOSE_FILE}} exec postgres psql -U postgres -c "DROP DATABASE IF EXISTS payload;"
+      - docker compose -f {{.COMPOSE_FILE}} exec postgres psql -U postgres -c "CREATE DATABASE payload;"
+      - echo "Database reset complete. Restart CMS to apply migrations."
+
+  db:shell:
+    desc: Open psql shell to the database
+    cmds:
+      - docker compose -f {{.COMPOSE_FILE}} exec postgres psql -U postgres -d payload
+
+  db:backup:
+    desc: "Backup database to ./backups/payload-{timestamp}.sql"
+    cmds:
+      - mkdir -p backups
+      - docker compose -f {{.COMPOSE_FILE}} exec -T postgres pg_dump -U postgres payload > backups/payload-$(date +%Y%m%d_%H%M%S).sql
+      - echo "Backup created in backups/"
+
+  db:restore:
+    desc: "Restore database from backup (usage: task db:restore -- backups/payload-20260214.sql)"
+    cmds:
+      - docker compose -f {{.COMPOSE_FILE}} exec -T postgres psql -U postgres payload < {{.CLI_ARGS}}
+      - echo "Database restored from {{.CLI_ARGS}}"
+
+  # CMS Operations
+  cms:shell:
+    desc: Open bash shell in Payload CMS container
+    cmds:
+      - docker compose -f {{.COMPOSE_FILE}} exec payload-cms bash
+
+  format:
+    desc: Format code with Prettier
+    cmds:
+      - bunx prettier --write --plugin prettier-plugin-astro "apps/web/src/**/*.{astro,ts,tsx,js,mjs,css,md,mdx}"
+      - bunx prettier --write "apps/cms/src/**/*.{ts,js}"
+
+  # Complete Reset
+  reset:
+    desc: "Complete reset - stop services, remove volumes, clean node_modules"
+    prompt: This will delete ALL data and dependencies. Continue?
+    cmds:
+      - task: clean
+      - task: clean:node_modules
+      - echo "Complete reset done. Run 'task install' then 'task up:build' to start fresh."
