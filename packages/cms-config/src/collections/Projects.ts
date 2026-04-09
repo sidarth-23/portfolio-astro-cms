@@ -1,0 +1,84 @@
+import type { CollectionConfig } from "payload";
+
+import { readAccess } from "../access/readAccess";
+
+import { slugField } from "../fields/slug";
+
+export const Projects: CollectionConfig = {
+  slug: "projects",
+  access: {
+    read: readAccess,
+  },
+  admin: {
+    useAsTitle: "title",
+    defaultColumns: ["title", "_status", "updatedAt"],
+    group: "Content",
+  },
+  fields: [
+    {
+      type: "tabs",
+      tabs: [
+        {
+          label: "Content",
+          fields: [
+            {
+              name: "title",
+              type: "text",
+              required: true,
+            },
+            {
+              name: "description",
+              type: "richText",
+              required: true,
+            },
+            {
+              name: "image",
+              type: "upload",
+              relationTo: "media",
+              required: false,
+            },
+            {
+              name: "externalUrl",
+              type: "text",
+              required: true,
+            },
+            {
+              name: "githubUrl",
+              type: "text",
+              required: false,
+            },
+            {
+              name: "badges",
+              type: "array",
+              fields: [
+                {
+                  name: "value",
+                  type: "text",
+                  required: true,
+                },
+              ],
+            },
+            {
+              name: "tags",
+              type: "array",
+              fields: [
+                {
+                  name: "value",
+                  type: "text",
+                  required: true,
+                },
+              ],
+            },
+          ],
+        },
+      ],
+    },
+    slugField({ fieldToUse: "title" }),
+  ],
+  versions: {
+    drafts: {
+      schedulePublish: true,
+    },
+    maxPerDoc: 50,
+  },
+};

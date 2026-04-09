@@ -1,0 +1,37 @@
+{
+  "name": "@sidshub/cms",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "clean:next": "rm -rf .next",
+    "dev": "npm run clean:next && npm run generate:importmap && cross-env NODE_OPTIONS=--no-deprecation next dev -p 3000",
+    "build": "npm run generate:importmap && npm run generate:types && cross-env NODE_OPTIONS=--no-deprecation next build",
+    "start": "cross-env NODE_OPTIONS=--no-deprecation next start -p 3000",
+    "lint": "cross-env NODE_OPTIONS=--no-deprecation eslint .",
+    "lint:fix": "cross-env NODE_OPTIONS=--no-deprecation eslint . --fix",
+    "migrate": "cross-env NODE_OPTIONS=--no-deprecation payload migrate",
+    "migrate:create": "cross-env NODE_OPTIONS=--no-deprecation payload migrate:create",
+    "generate:types": "cross-env NODE_OPTIONS=--no-deprecation payload generate:types",
+    "generate:importmap": "cross-env NODE_OPTIONS=--no-deprecation payload generate:importmap"
+  },
+  "dependencies": {
+    "@sidshub/cms-config": "workspace:*",
+    "@sidshub/lexical": "workspace:*",
+    "@payloadcms/db-postgres": "3.76.1",
+    "@payloadcms/next": "3.76.1",
+    "@payloadcms/plugin-seo": "3.76.1",
+    "@payloadcms/richtext-lexical": "3.76.1",
+    "@payloadcms/storage-s3": "3.76.1",
+    "cross-env": "^7.0.3",
+    "next": "^15.4.11",
+    "payload": "3.76.1",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0"
+  },
+  "devDependencies": {
+    "@eslint/eslintrc": "^3.3.1",
+    "eslint": "^9.24.0",
+    "eslint-config-next": "^15.4.11",
+    "typescript": "^5.7.2"
+  }
+}

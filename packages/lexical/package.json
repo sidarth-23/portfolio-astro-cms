@@ -1,0 +1,13 @@
+{
+  "name": "@sidshub/lexical",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./cms": "./src/cms.ts",
+    "./web": "./src/web.ts"
+  },
+  "dependencies": {
+    "@payloadcms/richtext-lexical": "3.76.1"
+  }
+}
