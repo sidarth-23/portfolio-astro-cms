@@ -49,10 +49,15 @@ tasks:
       - docker compose -f {{.COMPOSE_FILE}} logs -f minio
 
   clean:
-    desc: "Stop services and remove volumes (WARNING: deletes all data)"
+    desc: "Stop services, remove volumes and clean local installed packages (WARNING: deletes all data)"
     prompt: This will delete all database and media data. Continue?
     cmds:
       - docker compose -f {{.COMPOSE_FILE}} down -v
+      - echo "Removed all installed packages and cache files in project"
+      - rm -rf node_modules
+      - rm -rf apps/cms/node_modules
+      - rm -rf apps/web/node_modules
+      - echo "All node_modules removed. Run 'task install' to reinstall."
 
   # Database Operations
   db:reset:
@@ -87,88 +92,11 @@ tasks:
     cmds:
       - docker compose -f {{.COMPOSE_FILE}} exec payload-cms bash
 
-  cms:types:
-    desc: Generate Payload TypeScript types
-    cmds:
-      - bun run payload:types
-
-  cms:dev:
-    desc: Run CMS in dev mode (outside Docker)
-    dir: apps/cms
-    cmds:
-      - bun run dev
-
-  # Web Operations
-  web:dev:
-    desc: Run Astro web in dev mode
-    cmds:
-      - bun run dev:web
-
-  web:build:
-    desc: Build Astro web for production (requires reachable CMS API)
-    cmds:
-      - bun run build:web
-
-  web:check:
-    desc: Run Astro type checking
-    cmds:
-      - bun run check:web
-
-  web:preview:
-    desc: Preview production build locally
-    dir: apps/web
-    cmds:
-      - bun run preview
-
-  # Development Workflow
-  dev:
-    desc: Start all services and run CMS in watch mode
-    cmds:
-      - task: up
-      - task: logs:cms
-
-  dev:all:
-    desc: Start all services and run both CMS and Web locally
-    deps: [up]
-    cmds:
-      - echo "Services started. Run 'bun run dev:cms' and 'bun run dev:web' in separate terminals."
-
-  # Utility Tasks
-  install:
-    desc: Install all dependencies
-    cmds:
-      - bun install
-
-  clean:node_modules:
-    desc: Remove all node_modules directories
-    prompt: This will delete all node_modules. Continue?
-    cmds:
-      - rm -rf node_modules
-      - rm -rf apps/cms/node_modules
-      - rm -rf apps/web/node_modules
-      - echo "All node_modules removed. Run 'task install' to reinstall."
-
   format:
     desc: Format code with Prettier
     cmds:
       - bunx prettier --write --plugin prettier-plugin-astro "apps/web/src/**/*.{astro,ts,tsx,js,mjs,css,md,mdx}"
       - bunx prettier --write "apps/cms/src/**/*.{ts,js}"
-
-  # Health Checks
-  status:
-    desc: Show status of all services
-    cmds:
-      - docker compose -f {{.COMPOSE_FILE}} ps
-
-  health:
-    desc: Check health of all services
-    cmds:
-      - echo "Checking Postgres..."
-      - docker compose -f {{.COMPOSE_FILE}} exec postgres pg_isready -U postgres || echo "Postgres not ready"
-      - echo "\nChecking MinIO..."
-      - curl -f http://localhost:9000/minio/health/live || echo "MinIO not ready"
-      - echo "\nChecking Payload CMS..."
-      - curl -f http://localhost:3000/api/health || echo "CMS not ready"
 
   # Complete Reset
   reset:

@@ -84,23 +84,25 @@ const jsonLd = {
   <main class="md:flex md:justify-center w-full container px-6 py-14">
     <article class="prose prose-lg max-w-[750px] prose-img:mx-auto">
       {
-        category && (
-          <a
-            href={generateFilterUrl(currentUrl, "category", category.slug)}
-            class="badge badge-accent badge-lg no-underline"
-          >
-            {category.name}
-          </a>
-        )
-      }
-      {
-        series && (
-          <a
-            href={`/blog/series/${series.slug}`}
-            class="badge badge-secondary badge-lg no-underline ml-1"
-          >
-            {series.name}
-          </a>
+        (category || series) && (
+          <div class="flex flex-wrap gap-2 mb-4">
+            {category && (
+              <a
+                href={generateFilterUrl(currentUrl, "category", category.slug)}
+                class="badge badge-accent no-underline"
+              >
+                {category.name}
+              </a>
+            )}
+            {series && (
+              <a
+                href={`/blog/series/${series.slug}`}
+                class="badge badge-secondary no-underline"
+              >
+                {series.name}
+              </a>
+            )}
+          </div>
         )
       }
       {

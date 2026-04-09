@@ -1,9 +1,12 @@
 ---
+import { PhArrowSquareOut, PhCaretLeft, PhCaretRight } from "phosphor-icons-astro";
+
 type Props = {
   seriesName: string;
   seriesSlug: string;
   currentPart: number;
   totalParts: number;
+  position?: "top" | "bottom";
   prevPost?: {
     slug: string;
     title: string;
@@ -14,66 +17,70 @@ type Props = {
   };
 };
 
-const { seriesName, seriesSlug, currentPart, totalParts, prevPost, nextPost } =
-  Astro.props;
+const {
+  seriesName,
+  seriesSlug,
+  currentPart,
+  totalParts,
+  prevPost,
+  nextPost,
+  position = "top",
+} = Astro.props;
 ---
 
-<div class="bg-base-200 rounded-lg p-4 my-6">
-  <div class="text-center mb-4">
-    <a
-      href={`/blog/series/${seriesSlug}`}
-      class="font-bold text-lg hover:underline"
-    >
-      {seriesName}
-    </a>
-    <div class="text-sm text-base-content/70 mt-1">
-      Part {currentPart} of {totalParts}
-    </div>
-  </div>
-
-  <div class="grid grid-cols-2 gap-4">
-    {
-      prevPost ? (
+<div class="bg-base-200 rounded-lg p-4 mt-6">
+  {
+    position === "top" && (
+      <div class={`${prevPost || nextPost ? "mb-4" : ""} flex items-center justify-between gap-4`}>
         <a
-          href={`/blog/${prevPost.slug}`}
-          class="flex items-center gap-2 p-2 rounded-lg hover:bg-base-300 transition-colors justify-start text-left"
+          href={`/blog/series/${seriesSlug}`}
+          class="font-bold text-lg hover:text-primary transition-colors flex items-center gap-2 group outline-none"
         >
-          <svg
-            class="h-4 w-4 fill-current flex-shrink-0"
-            xmlns="http://www.w3.org/2000/svg"
-            width="24"
-            height="24"
-            viewBox="0 0 24 24"
-          >
-            <path d="M15.41,16.58L10.83,12L15.41,7.41L14,6L8,12L14,18L15.41,16.58Z" />
-          </svg>
-          <span class="text-sm font-medium">{prevPost.title}</span>
+          <span class="truncate">{seriesName}</span>
+          <PhArrowSquareOut
+            class="w-4 h-4 flex-shrink-0 opacity-60 group-hover:opacity-100"
+          />
         </a>
-      ) : (
-        <div />
-      )
-    }
+        <span class="badge badge-secondary badge-sm whitespace-nowrap">
+          Part {currentPart} of {totalParts}
+        </span>
+      </div>
+    )
+  }
 
-    {
-      nextPost ? (
-        <a
-          href={`/blog/${nextPost.slug}`}
-          class="flex items-center gap-2 p-2 rounded-lg hover:bg-base-300 transition-colors justify-end text-right"
-        >
-          <span class="text-sm font-medium">{nextPost.title}</span>
-          <svg
-            class="h-4 w-4 fill-current flex-shrink-0"
-            xmlns="http://www.w3.org/2000/svg"
-            width="24"
-            height="24"
-            viewBox="0 0 24 24"
-          >
-            <path d="M8.59,16.58L13.17,12L8.59,7.41L10,6L16,12L10,18L8.59,16.58Z" />
-          </svg>
-        </a>
-      ) : (
-        <div />
-      )
-    }
-  </div>
+  {
+    position === "bottom" && (
+      <div class="flex items-center justify-between gap-4">
+        {
+          prevPost ? (
+            <a
+              href={`/blog/${prevPost.slug}`}
+              class="flex items-center gap-2 p-2 rounded-lg hover:bg-base-300 transition-colors max-w-[45%] text-left"
+              title={prevPost.title}
+            >
+              <PhCaretLeft class="h-4 w-4 flex-shrink-0" />
+              <span class="text-sm font-medium truncate">{prevPost.title}</span>
+            </a>
+          ) : (
+            <div />
+          )
+        }
+
+        {
+          nextPost ? (
+            <a
+              href={`/blog/${nextPost.slug}`}
+              class="flex items-center gap-2 p-2 rounded-lg hover:bg-base-300 transition-colors max-w-[45%] justify-end text-right"
+              title={nextPost.title}
+            >
+              <span class="text-sm font-medium truncate">{nextPost.title}</span>
+              <PhCaretRight class="h-4 w-4 flex-shrink-0" />
+            </a>
+          ) : (
+            <div />
+          )
+        }
+      </div>
+    )
+  }
 </div>

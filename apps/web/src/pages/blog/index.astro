@@ -1,4 +1,6 @@
 ---
+import { PhFunnel, PhInfo, PhMagnifyingGlass, PhX } from "phosphor-icons-astro";
+
 import HorizontalCard from "@/components/HorizontalCard.astro";
 import BlogPagination from "@/components/BlogPagination.astro";
 import BaseLayout from "@/layouts/BaseLayout.astro";
@@ -173,19 +175,7 @@ const activeSeries = seriesFilter
       {view !== "posts" && <input type="hidden" name="view" value={view} />}
 
       <button type="submit" class="btn btn-primary join-item">
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          class="h-5 w-5"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
-        >
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="2"
-            d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
-        </svg>
+        <PhMagnifyingGlass class="h-5 w-5" />
       </button>
     </form>
 
@@ -195,20 +185,7 @@ const activeSeries = seriesFilter
         role="button"
         class={`btn ${hasActiveFilters ? "btn-primary" : "btn-outline"} gap-2`}
       >
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          class="h-5 w-5"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
-        >
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="2"
-            d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"
-          ></path>
-        </svg>
+        <PhFunnel class="h-5 w-5" />
         Filter
         {
           hasActiveFilters && (
@@ -304,23 +281,10 @@ const activeSeries = seriesFilter
         {searchQuery && (
           <a
             href={buildBlogUrl({ q: null, page: 1 })}
-            class="badge badge-lg gap-2 hover:badge-error group"
+            class="badge gap-2 hover:badge-error group"
           >
             "{searchQuery}"
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              class="h-4 w-4 group-hover:block"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M6 18L18 6M6 6l12 12"
-              />
-            </svg>
+            <PhX class="h-4 w-4 group-hover:block" />
           </a>
         )}
 
@@ -330,20 +294,7 @@ const activeSeries = seriesFilter
             class="badge badge-primary badge-sm gap-2 hover:badge-error"
           >
             {activeCategory.name}
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              class="h-4 w-4"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M6 18L18 6M6 6l12 12"
-              />
-            </svg>
+            <PhX class="h-4 w-4" />
           </a>
         )}
 
@@ -353,43 +304,17 @@ const activeSeries = seriesFilter
             class="badge badge-accent badge-sm gap-2 hover:badge-error"
           >
             {activeTag.name}
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              class="h-4 w-4"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M6 18L18 6M6 6l12 12"
-              />
-            </svg>
+            <PhX class="h-4 w-4" />
           </a>
         )}
 
         {activeSeries && (
           <a
             href={buildBlogUrl({ series: null, page: 1 })}
-            class="badge badge-info badge-lg gap-2 hover:badge-error"
+            class="badge badge-info gap-2 hover:badge-error"
           >
             {activeSeries.name}
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              class="h-4 w-4"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M6 18L18 6M6 6l12 12"
-              />
-            </svg>
+            <PhX class="h-4 w-4" />
           </a>
         )}
 
@@ -426,7 +351,7 @@ const activeSeries = seriesFilter
             .map((series) => (
               <a
                 href={`/blog/series/${series.slug}`}
-                class="card card-compact bg-base-200 hover:bg-base-300 transition-all border border-base-200 hover:shadow-md group no-underline"
+                class="card card-compact bg-base-200 transition-colors duration-300 ease-in-out hover:bg-base-300 group no-underline"
               >
                 <div class="card-body">
                   <h3 class="card-title text-lg">
@@ -463,19 +388,7 @@ const activeSeries = seriesFilter
 
         {paginatedPosts.docs.length === 0 ? (
           <div class="alert bg-base-200">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              class="stroke-current shrink-0 h-6 w-6"
-              fill="none"
-              viewBox="0 0 24 24"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-              />
-            </svg>
+            <PhInfo class="shrink-0 h-6 w-6" />
             <div>
               <p class="font-bold">No posts found matching your filters.</p>
               <p>Try clearing some filters or searching for something else.</p>
