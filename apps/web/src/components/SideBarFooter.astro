@@ -1,0 +1,48 @@
+---
+import type { SiteFooterItem } from "@/lib/cms/types";
+import { getIconForType } from "@/lib/social-icons";
+
+type Props = {
+  items?: SiteFooterItem[];
+};
+
+const { items = [] }: Props = Astro.props;
+
+const cleanItems = items
+  .filter((item): item is SiteFooterItem => Boolean(item?.type))
+  .map((item) => ({
+    ...item,
+    url: item.url.trim(),
+  }))
+  .slice(0, 4)
+  .filter((item) => item.url.length > 0);
+---
+
+<div
+  class="block sticky pointer-events-none bottom-10 bg-base-200 justify-center h-12 [mask-image:linear-gradient(transparent,#000000)]"
+>
+</div>
+
+{
+  cleanItems.length > 0 && (
+    <div class="social-icons px-4 pb-5 pt-1 flex flex-wrap gap-4 self-center justify-center sticky bottom-0 bg-base-200 group-[.collapsed]:px-1">
+      {cleanItems.map((item) => {
+        const Icon = getIconForType(item.type);
+        const openInNewTab = item.type !== "email" && item.type !== "rss";
+
+        return (
+          <a
+            href={item.url}
+            target={openInNewTab ? "_blank" : undefined}
+            rel={openInNewTab ? "noreferrer noopener" : undefined}
+            class="mx-3 group-[.collapsed]:mx-1"
+            aria-label={item.type}
+            title={item.type}
+          >
+            <Icon size={24} weight="duotone" />
+          </a>
+        );
+      })}
+    </div>
+  )
+}

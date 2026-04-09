@@ -1,0 +1,79 @@
+---
+import BaseHead from "../components/BaseHead.astro";
+import Header from "../components/Header.astro";
+import SideBar from "../components/SideBar.astro";
+import { ClientRouter } from "astro:transitions";
+import type { HomePage, SiteSetting } from "@sidshub/cms-config/payload-types";
+
+import { TRANSITION_API } from "../consts";
+import { footerItemsFromSiteSettings, getHomePage, getSiteSettings, mediaToUrl } from "@/lib/cms/client";
+
+const {
+  image,
+  title,
+  seoTitle,
+  description,
+  includeSidebar = true,
+  sideBarActiveItemID,
+  ogType,
+  jsonLd,
+} = Astro.props;
+
+const [homePage, siteSettings]: [HomePage, SiteSetting] = await Promise.all([
+  getHomePage(),
+  getSiteSettings(),
+]);
+
+const fallbackTitle = typeof title === "string" ? title.trim() : "";
+const seoPageTitle = typeof seoTitle === "string" ? seoTitle.trim() : "";
+const pageTitle = seoPageTitle || fallbackTitle;
+const pageDescription = typeof description === "string" ? description.trim() : "";
+
+if (!pageTitle) {
+  throw new Error("BaseLayout requires a non-empty SEO title via `seoTitle` or `title`.");
+}
+
+if (!pageDescription) {
+  throw new Error("BaseLayout requires a non-empty SEO description via `description`.");
+}
+
+const profileImage = mediaToUrl(siteSettings.profileImage);
+const footerItems = footerItemsFromSiteSettings(siteSettings);
+---
+
+<!doctype html>
+<html lang="en" data-theme="abyss">
+  <head>
+    <BaseHead
+      title={pageTitle}
+      description={pageDescription}
+      image={image}
+      ogType={ogType}
+      jsonLd={jsonLd}
+    />
+    {TRANSITION_API && <ClientRouter />}
+  </head>
+
+  <body>
+    <div class="bg-base-100 drawer lg:drawer-open">
+      <input id="my-drawer" type="checkbox" class="drawer-toggle" />
+      <div class="drawer-content bg-base-100">
+        <Header name={homePage.name} />
+        <div class="md:flex md:justify-center w-full container px-6 py-14">
+          <main class="container w-full max-w-4xl">
+            <slot />
+          </main>
+        </div>
+      </div>
+      {
+        includeSidebar && (
+            <SideBar
+              sideBarActiveItemID={sideBarActiveItemID}
+              footerItems={footerItems}
+              profileImage={profileImage}
+            />
+        )
+      }
+    </div>
+  </body>
+</html>

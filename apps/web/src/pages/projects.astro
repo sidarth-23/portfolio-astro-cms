@@ -1,0 +1,71 @@
+---
+import RichTextRenderer from "@/components/RichTextRenderer.astro";
+import HorizontalCard from "@/components/HorizontalCard.astro";
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import { getProjectsPage, mediaToUrl } from "@/lib/cms/client";
+import { asProjectArray } from "@/lib/cms/guards";
+
+const projectsPage = await getProjectsPage();
+const projectsSeoTitle = projectsPage.meta?.title?.trim();
+const projectsSeoDescription = projectsPage.meta?.description?.trim();
+
+if (!projectsSeoTitle || !projectsSeoDescription) {
+  throw new Error("Projects page requires SEO `meta.title` and `meta.description`.");
+}
+
+const sections = projectsPage.sections.map((section) => ({
+  ...section,
+  projects: asProjectArray(section.projects),
+}));
+
+const toTags = (tags?: Array<{ value: string }> | null) => {
+  return (tags || []).map((tag) => ({
+    name: tag.value,
+    slug: tag.value.toLowerCase().replace(/\s+/g, "-"),
+  }));
+};
+
+const toBadges = (badges?: Array<{ value: string }> | null) => {
+  return (badges || []).map((badge) => badge.value);
+};
+---
+
+<BaseLayout
+  title="Projects"
+  seoTitle={projectsSeoTitle}
+  description={projectsSeoDescription}
+  image={mediaToUrl(projectsPage.meta?.image)}
+  sideBarActiveItemID="projects"
+>
+  {
+    sections.map((section) => (
+      <section class="mb-14 last:mb-0">
+        <div class="mb-8">
+          <h2 class="text-3xl w-full font-bold mb-2">{section.title}</h2>
+
+          {section.description && (
+            <div class="prose max-w-none">
+              <RichTextRenderer data={section.description} />
+            </div>
+          )}
+        </div>
+
+        {section.projects.map((project, index) => (
+          <>
+            <HorizontalCard
+              title={project.title}
+              img={mediaToUrl(project.image)}
+              descRich={project.description}
+              badges={toBadges(project.badges)}
+              tags={toTags(project.tags)}
+              url={project.externalUrl}
+              githubUrl={project.githubUrl ?? undefined}
+              reverse={index % 2 === 1}
+            />
+            <div class="divider my-0" />
+          </>
+        ))}
+      </section>
+    ))
+  }
+</BaseLayout>

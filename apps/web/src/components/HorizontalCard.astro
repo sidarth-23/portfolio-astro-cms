@@ -1,0 +1,130 @@
+---
+import RichTextRenderer from "@/components/RichTextRenderer.astro";
+import { PhGithubLogo } from "phosphor-icons-astro";
+import { type RichTextValue } from "@sidshub/lexical/web";
+
+type Tag = {
+  name: string;
+  slug: string;
+};
+
+type Category = {
+  name: string;
+  slug: string;
+};
+
+type Series = {
+  name: string;
+  slug: string;
+};
+
+type Props = {
+  title: string;
+  img?: string;
+  desc?: string;
+  descRich?: RichTextValue | null;
+  url: string;
+  badge?: string;
+  badges?: string[];
+  tags?: Tag[];
+  category?: Category;
+  series?: Series;
+  target?: string;
+  reverse?: boolean;
+  githubUrl?: string;
+};
+
+const {
+  title,
+  img,
+  desc = "",
+  descRich,
+  url,
+  badges = [],
+  tags = [],
+  category,
+  series,
+  target = "_blank",
+  reverse = false,
+  githubUrl,
+} = Astro.props;
+const contentClass = `hero-content flex-col ${reverse ? "md:flex-row-reverse" : "md:flex-row"} md:gap-8 lg:gap-10`;
+---
+
+<div
+  class="card bg-base-100 transition-colors duration-300 ease-in-out rounded-xl block hover:bg-base-200/20 group relative"
+>
+  <a href={url} target={target} class="absolute inset-0 z-10" aria-label={title}
+  ></a>
+  <div class={contentClass}>
+    {
+      img && (
+        <div class="w-full md:w-56 h-40 md:h-40 flex-shrink-0 overflow-hidden rounded-lg">
+          <img
+            src={img}
+            loading="lazy"
+            alt={title}
+            class="w-full h-full object-cover"
+          />
+        </div>
+      )
+    }
+    <div class="grow w-full space-y-1">
+      <div>
+        {
+          category && (
+            <span class="badge badge-primary badge-sm mb-1">
+              {category.name}
+            </span>
+          )
+        }
+        {
+          series && (
+            <span class="badge badge-secondary badge-sm mb-1 ml-1">
+              {series.name}
+            </span>
+          )
+        }
+      </div>
+      <h1 class="text-xl font-bold decoration-2 underline-offset-4 flex items-center gap-2">
+        {
+          githubUrl && (
+            <a
+              href={githubUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label={`View ${title} on GitHub`}
+              class="relative z-20 text-base-content/80 hover:text-base-content"
+            >
+              <PhGithubLogo size={20} />
+            </a>
+          )
+        }
+        <span class="group-hover:underline">{title}</span>
+        {
+          badges.map((item) => (
+            <div class="badge badge-secondary mx-2">{item}</div>
+          ))
+        }
+      </h1>
+      {
+        descRich ? (
+          <div class="py-1 text-1xl">
+            <RichTextRenderer data={descRich} />
+          </div>
+        ) : (
+          <p class="py-1 text-1xl">{desc}</p>
+        )
+      }
+      {
+        tags.length > 0 && (
+          <div class="card-actions justify-end gap-2 mt-2">
+            {tags.map((tag) => (
+              <span class="badge badge-outline badge-sm">{tag.name}</span>
+            ))}
+          </div>
+        )
+      }
+    </div>
+  </div>
+</div>

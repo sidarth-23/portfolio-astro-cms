@@ -1,0 +1,117 @@
+---
+import RichTextRenderer from "@/components/RichTextRenderer.astro";
+import TimeLineElement from "@/components/cv/TimeLine.astro";
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import { getCvPage, mediaToUrl } from "@/lib/cms/client";
+
+const cvPage = await getCvPage();
+const cvSeoTitle = cvPage.meta?.title?.trim();
+const cvSeoDescription = cvPage.meta?.description?.trim();
+
+if (!cvSeoTitle || !cvSeoDescription) {
+  throw new Error("CV page requires SEO `meta.title` and `meta.description`.");
+}
+---
+
+<BaseLayout
+  title="Resume"
+  seoTitle={cvSeoTitle}
+  description={cvSeoDescription}
+  image={mediaToUrl(cvPage.meta?.image)}
+  sideBarActiveItemID="cv"
+>
+  {
+    cvPage.sections.map((section) => (
+      <section class="mb-10">
+        <div class="mb-5">
+          <h2 class="text-3xl w-full font-bold">{section.title}</h2>
+        </div>
+
+        {section.type === "description" && section.description && (
+          <div class="prose max-w-none text-justify">
+            <RichTextRenderer data={section.description} />
+          </div>
+        )}
+
+        {section.type === "items" && section.itemsVariant === "timeline" && (
+          <div class="time-line-container grid gap-4">
+            {(section.items || []).map((item) => (
+              <TimeLineElement
+                title={item.title}
+                subtitle={item.subtitle || ""}
+              >
+                {item.content && (
+                  <div class="prose max-w-none">
+                    <RichTextRenderer data={item.content} />
+                  </div>
+                )}
+              </TimeLineElement>
+            ))}
+          </div>
+        )}
+
+        {section.type === "items" && section.itemsVariant === "list" && (
+          <ul class="list-disc mx-6 grid gap-2">
+            {(section.items || []).map((item) => (
+              <li>
+                <div class="font-medium">{item.title}</div>
+                {item.subtitle && (
+                  <div class="text-sm opacity-80">{item.subtitle}</div>
+                )}
+                {item.content && (
+                  <div class="prose max-w-none">
+                    <RichTextRenderer data={item.content} />
+                  </div>
+                )}
+              </li>
+            ))}
+          </ul>
+        )}
+
+        {section.type === "items" && section.itemsVariant === "columns" && (
+          <ul class="list-disc mx-6 grid gap-4 md:columns-3 columns-1">
+            {(section.items || []).map((item) => (
+              <li>
+                <div class="font-medium">{item.title}</div>
+                {item.subtitle && (
+                  <div class="text-sm opacity-80">{item.subtitle}</div>
+                )}
+                {item.content && (
+                  <div class="prose max-w-none">
+                    <RichTextRenderer data={item.content} />
+                  </div>
+                )}
+              </li>
+            ))}
+          </ul>
+        )}
+
+        {section.type === "badges" && (
+          <div class="flex flex-wrap gap-2">
+            {(section.badges || []).map((badge) => (
+              <span class="badge badge-outline">{badge.value}</span>
+            ))}
+          </div>
+        )}
+      </section>
+    ))
+  }
+</BaseLayout>
+
+<style>
+  .time-line-container > div:last-child .education__time > .education__line {
+    display: none;
+  }
+
+  a {
+    transition: opacity 0.3s ease-in-out;
+  }
+
+  a:hover {
+    opacity: 0.8;
+  }
+
+  a:hover:after {
+    opacity: 1;
+  }
+</style>

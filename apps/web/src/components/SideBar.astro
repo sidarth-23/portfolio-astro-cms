@@ -1,0 +1,137 @@
+---
+import { ASTRO_RESUME_FILE_ID} from "astro:env/client"
+import { PhCaretLeft, PhFileText } from "phosphor-icons-astro";
+import type { SiteFooterItem } from "@/lib/cms/types";
+
+import SideBarFooter from "./SideBarFooter.astro";
+import SideBarMenu from "./SideBarMenu.astro";
+
+type Props = {
+  sideBarActiveItemID?: string;
+  footerItems?: SiteFooterItem[];
+  profileImage?: string;
+};
+
+const {
+  sideBarActiveItemID,
+  footerItems = [],
+  profileImage,
+}: Props = Astro.props;
+
+const resumeDownloadUrl = `https://drive.google.com/file/d/${ASTRO_RESUME_FILE_ID}/view?usp=sharing`;
+---
+
+<div class="drawer-side z-40 lg:overflow-visible">
+  <label for="my-drawer" class="drawer-overlay"></label>
+  <aside
+    id="sidebar"
+    class="px-2 pt-2 h-auto min-h-full w-[19rem] bg-base-200 text-base-content flex flex-col relative transition-[width] duration-300 ease-in-out group overflow-visible"
+  >
+    <div class="w-fit mx-auto mt-5 mb-6 relative">
+      <a href="/">
+        <div
+          class="avatar transition ease-in-out hover:scale-[102%] block m-auto"
+        >
+          <div
+            class="w-[8.5rem] transition-[width] duration-300 group-[.collapsed]:w-[3rem]"
+          >
+            {
+              profileImage ? (
+                <img
+                  class="mask mask-circle w-full h-full object-cover"
+                  loading="eager"
+                  width={300}
+                  height={300}
+                  src={profileImage}
+                  alt="Profile"
+                />
+              ) : (
+                <div
+                  class="mask mask-circle w-full h-full bg-base-300"
+                  aria-hidden="true"
+                />
+              )
+            }
+          </div>
+        </div>
+      </a>
+    </div>
+
+    <div class="relative w-full h-0 z-50">
+      <button
+        id="sidebar-toggle"
+        class="absolute -top-6 -right-5 bg-base-300 p-1 rounded-full border border-base-content/20 cursor-pointer hidden lg:block hover:bg-base-100 z-50"
+        aria-label="Toggle Sidebar"
+      >
+        <PhCaretLeft
+          size={16}
+          class="transition-transform duration-300 group-[.collapsed]:rotate-180"
+        />
+      </button>
+    </div>
+
+    <SideBarMenu sideBarActiveItemID={sideBarActiveItemID} />
+
+    <div class="mt-auto flex flex-col gap-4 mb-6">
+      <div class="px-4 group-[.collapsed]:px-2">
+        <a
+          href={resumeDownloadUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          class="btn btn-outline btn-block gap-2 group-[.collapsed]:px-0 group-[.collapsed]:gap-0"
+        >
+          <PhFileText size={20} />
+          <span
+            class="inline-block overflow-hidden whitespace-nowrap transition-[max-width,opacity,margin] duration-300 ease-in-out max-w-32 opacity-100 ml-1 group-[.collapsed]:max-w-0 group-[.collapsed]:opacity-0 group-[.collapsed]:ml-0"
+          >
+            Download My CV
+          </span>
+        </a>
+      </div>
+      <SideBarFooter items={footerItems} />
+    </div>
+  </aside>
+</div>
+
+<script is:inline>
+  const SIDEBAR_WIDTH_EXPANDED = "w-[19rem]";
+  const SIDEBAR_WIDTH_COLLAPSED = "w-[5rem]";
+
+  const applyCollapsedState = (sidebar, isCollapsed) => {
+    sidebar.classList.toggle("collapsed", isCollapsed);
+    sidebar.classList.remove(SIDEBAR_WIDTH_EXPANDED, SIDEBAR_WIDTH_COLLAPSED);
+    sidebar.classList.add(
+      isCollapsed ? SIDEBAR_WIDTH_COLLAPSED : SIDEBAR_WIDTH_EXPANDED,
+    );
+  };
+
+  const initializeSidebar = () => {
+    const sidebar = document.getElementById("sidebar");
+    const toggleBtn = document.getElementById("sidebar-toggle");
+    const drawerCheckbox = document.getElementById("my-drawer");
+
+    if (!sidebar || !toggleBtn) {
+      return;
+    }
+
+    const isCollapsed = localStorage.getItem("sidebar-collapsed") === "true";
+    applyCollapsedState(sidebar, isCollapsed);
+
+    toggleBtn.onclick = () => {
+      const nextCollapsed = !sidebar.classList.contains("collapsed");
+      applyCollapsedState(sidebar, nextCollapsed);
+      localStorage.setItem("sidebar-collapsed", String(nextCollapsed));
+    };
+
+    if (drawerCheckbox instanceof HTMLInputElement) {
+      drawerCheckbox.checked = false;
+    }
+  };
+
+  initializeSidebar();
+
+  if (!document.documentElement.dataset.sidebarPageLoadBound) {
+    document.addEventListener("astro:page-load", initializeSidebar);
+    document.documentElement.dataset.sidebarPageLoadBound = "true";
+  }
+</script>

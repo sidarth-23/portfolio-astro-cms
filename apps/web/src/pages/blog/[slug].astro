@@ -1,0 +1,155 @@
+---
+import RichTextRenderer from "@/components/RichTextRenderer.astro";
+import SeriesNav from "@/components/SeriesNav.astro";
+import PostLayout from "@/layouts/PostLayout.astro";
+import {
+  authorsFromPost,
+  categoryFromPost,
+  getAllPublishedPosts,
+  getPostsBySeries,
+  mediaToUrl,
+  seriesFromPost,
+  tagsFromPost,
+} from "@/lib/cms/client";
+import type { Post } from "@sidshub/cms-config/payload-types";
+
+type SeriesNavProps = {
+  seriesName: string;
+  seriesSlug: string;
+  currentPart: number;
+  totalParts: number;
+  prevPost?: {
+    slug: string;
+    title: string;
+  };
+  nextPost?: {
+    slug: string;
+    title: string;
+  };
+};
+
+export async function getStaticPaths() {
+  const posts = await getAllPublishedPosts();
+  const seriesSlugs = Array.from(
+    new Set(
+      posts
+        .map((post) => seriesFromPost(post)?.slug)
+        .filter((slug): slug is string => Boolean(slug)),
+    ),
+  );
+
+  // Build a map of series slug to posts ordered in CMS.
+  const seriesMap = new Map<string, Post[]>();
+  const orderedSeriesPosts = await Promise.all(
+    seriesSlugs.map(async (slug) => ({
+      slug,
+      posts: await getPostsBySeries(slug),
+    })),
+  );
+  orderedSeriesPosts.forEach((item) => {
+    seriesMap.set(item.slug, item.posts);
+  });
+
+  return posts.map((post) => {
+    let seriesNav: SeriesNavProps | undefined;
+
+    const series = seriesFromPost(post);
+    if (series?.slug) {
+      const seriesPosts = seriesMap.get(series.slug) || [];
+      const currentIndex = seriesPosts.findIndex((p) => p.slug === post.slug);
+
+      if (currentIndex !== -1) {
+        const prevPost = currentIndex > 0 ? seriesPosts[currentIndex - 1] : undefined;
+        const nextPost = currentIndex < seriesPosts.length - 1 ? seriesPosts[currentIndex + 1] : undefined;
+
+        seriesNav = {
+          seriesName: series.name,
+          seriesSlug: series.slug,
+          currentPart: currentIndex + 1,
+          totalParts: seriesPosts.length,
+          prevPost: prevPost ? { slug: prevPost.slug, title: prevPost.title } : undefined,
+          nextPost: nextPost ? { slug: nextPost.slug, title: nextPost.title } : undefined,
+        };
+      }
+    }
+
+    return {
+      params: { slug: post.slug },
+      props: { post, seriesNav },
+    };
+  });
+}
+
+interface Props {
+  post: Post;
+  seriesNav?: SeriesNavProps;
+}
+
+const { post, seriesNav } = Astro.props;
+const category = categoryFromPost(post);
+const series = seriesFromPost(post);
+const tags = tagsFromPost(post);
+const authors = authorsFromPost(post);
+const pubDate = post.publishedAt || post.createdAt || new Date().toISOString();
+const postSeoTitle = post.meta?.title?.trim();
+const postSeoDescription = post.meta?.description?.trim();
+
+if (!postSeoTitle || !postSeoDescription) {
+  throw new Error(`Post "${post.slug}" requires SEO \`meta.title\` and \`meta.description\`.`);
+}
+---
+
+<PostLayout
+  title={post.title}
+  seoTitle={postSeoTitle}
+  description={postSeoDescription}
+  pubDate={pubDate}
+  updatedDate={post.updatedAt}
+  heroImage={mediaToUrl(post.coverImage)}
+  tags={tags}
+  category={category}
+  series={series}
+  authors={authors}
+>
+  {seriesNav && (
+    <SeriesNav
+      position="top"
+      seriesName={seriesNav.seriesName}
+      seriesSlug={seriesNav.seriesSlug}
+      currentPart={seriesNav.currentPart}
+      totalParts={seriesNav.totalParts}
+      prevPost={seriesNav.prevPost}
+      nextPost={seriesNav.nextPost}
+    />
+  )}
+
+  <RichTextRenderer data={post.content} />
+
+  {seriesNav && (
+    <SeriesNav
+      position="bottom"
+      seriesName={seriesNav.seriesName}
+      seriesSlug={seriesNav.seriesSlug}
+      currentPart={seriesNav.currentPart}
+      totalParts={seriesNav.totalParts}
+      prevPost={seriesNav.prevPost}
+      nextPost={seriesNav.nextPost}
+    />
+  )}
+
+  {
+    authors.length > 0 && (
+      <section class="mt-10 border-t border-base-300 pt-6">
+        <h2 class="text-xl font-semibold mb-4">Authors</h2>
+        <div class="grid gap-6">
+          {authors.map((author) => (
+            <article>
+              <h3 class="text-lg font-medium mb-2">{author.name || "Unknown Author"}</h3>
+              {author.bio && <RichTextRenderer data={author.bio} />}
+            </article>
+          ))}
+        </div>
+      </section>
+    )
+  }
+</PostLayout>

@@ -1,0 +1,22 @@
+import rss from "@astrojs/rss";
+
+import { getAllPublishedPosts, getSiteSettings } from "@/lib/cms/client";
+
+export async function GET(context) {
+  /** @type {[import("@sidshub/cms-config/payload-types").Post[], import("@sidshub/cms-config/payload-types").SiteSetting]} */
+  const [posts, siteSettings] = await Promise.all([getAllPublishedPosts(), getSiteSettings()]);
+  const title = siteSettings.meta?.title?.trim() || "Sid's Hub";
+  const description = siteSettings.meta?.description?.trim() || "Personal website and blog.";
+
+  return rss({
+    title,
+    description,
+    site: context.site,
+    items: posts.map((post) => ({
+      title: post.title,
+      description: post.excerpt,
+      pubDate: post.publishedAt || post.createdAt,
+      link: `/blog/${post.slug}/`,
+    })),
+  });
+}

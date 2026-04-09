@@ -1,0 +1,86 @@
+---
+import { PhArrowSquareOut, PhCaretLeft, PhCaretRight } from "phosphor-icons-astro";
+
+type Props = {
+  seriesName: string;
+  seriesSlug: string;
+  currentPart: number;
+  totalParts: number;
+  position?: "top" | "bottom";
+  prevPost?: {
+    slug: string;
+    title: string;
+  };
+  nextPost?: {
+    slug: string;
+    title: string;
+  };
+};
+
+const {
+  seriesName,
+  seriesSlug,
+  currentPart,
+  totalParts,
+  prevPost,
+  nextPost,
+  position = "top",
+} = Astro.props;
+---
+
+<div class="bg-base-200 rounded-lg p-4 mt-6">
+  {
+    position === "top" && (
+      <div class={`${prevPost || nextPost ? "mb-4" : ""} flex items-center justify-between gap-4`}>
+        <a
+          href={`/blog/series/${seriesSlug}`}
+          class="font-bold text-lg hover:text-primary transition-colors flex items-center gap-2 group outline-none"
+        >
+          <span class="truncate">{seriesName}</span>
+          <PhArrowSquareOut
+            class="w-4 h-4 flex-shrink-0 opacity-60 group-hover:opacity-100"
+          />
+        </a>
+        <span class="badge badge-secondary badge-sm whitespace-nowrap">
+          Part {currentPart} of {totalParts}
+        </span>
+      </div>
+    )
+  }
+
+  {
+    position === "bottom" && (
+      <div class="flex items-center justify-between gap-4">
+        {
+          prevPost ? (
+            <a
+              href={`/blog/${prevPost.slug}`}
+              class="flex items-center gap-2 p-2 rounded-lg hover:bg-base-300 transition-colors max-w-[45%] text-left"
+              title={prevPost.title}
+            >
+              <PhCaretLeft class="h-4 w-4 flex-shrink-0" />
+              <span class="text-sm font-medium truncate">{prevPost.title}</span>
+            </a>
+          ) : (
+            <div />
+          )
+        }
+
+        {
+          nextPost ? (
+            <a
+              href={`/blog/${nextPost.slug}`}
+              class="flex items-center gap-2 p-2 rounded-lg hover:bg-base-300 transition-colors max-w-[45%] justify-end text-right"
+              title={nextPost.title}
+            >
+              <span class="text-sm font-medium truncate">{nextPost.title}</span>
+              <PhCaretRight class="h-4 w-4 flex-shrink-0" />
+            </a>
+          ) : (
+            <div />
+          )
+        }
+      </div>
+    )
+  }
+</div>
