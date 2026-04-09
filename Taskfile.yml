@@ -3,17 +3,16 @@ version: '3'
 vars:
   COMPOSE_FILE: docker-compose.local.yml
   POSTGRES_CONTAINER: portfolio-postgres-1
-  CMS_CONTAINER: portfolio-payload-cms-1
 
 tasks:
   # Docker Compose Operations
   up:
-    desc: Start all local services (Postgres, MinIO, Payload CMS)
+    desc: Start local infrastructure (Postgres, MinIO)
     cmds:
       - docker compose -f {{.COMPOSE_FILE}} up -d
 
   up:build:
-    desc: Build and start all local services
+    desc: Build and start local infrastructure
     cmds:
       - docker compose -f {{.COMPOSE_FILE}} up -d --build
 
@@ -32,11 +31,6 @@ tasks:
     desc: Follow logs from all services
     cmds:
       - docker compose -f {{.COMPOSE_FILE}} logs -f
-
-  logs:cms:
-    desc: Follow logs from Payload CMS
-    cmds:
-      - docker compose -f {{.COMPOSE_FILE}} logs -f payload-cms
 
   logs:postgres:
     desc: Follow logs from Postgres
@@ -85,12 +79,6 @@ tasks:
     cmds:
       - docker compose -f {{.COMPOSE_FILE}} exec -T postgres psql -U postgres payload < {{.CLI_ARGS}}
       - echo "Database restored from {{.CLI_ARGS}}"
-
-  # CMS Operations
-  cms:shell:
-    desc: Open bash shell in Payload CMS container
-    cmds:
-      - docker compose -f {{.COMPOSE_FILE}} exec payload-cms bash
 
   format:
     desc: Format code with Prettier
