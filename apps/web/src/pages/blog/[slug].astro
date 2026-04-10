@@ -3,6 +3,7 @@ import RichTextRenderer from "@/components/RichTextRenderer.astro";
 import SeriesNav from "@/components/SeriesNav.astro";
 import PostLayout from "@/layouts/PostLayout.astro";
 import { ASTRO_CMS_API_URL, ASTRO_CMS_READ_TOKEN } from "astro:env/server";
+import { extractTableOfContents } from "@sidshub/lexical/web";
 import { createCmsRestClient } from "@sidshub/cms-config/rest-client";
 import type { Post } from "@sidshub/cms-config/payload-types";
 
@@ -90,6 +91,7 @@ const category = cmsClient.categoryFromPost(post);
 const series = cmsClient.seriesFromPost(post);
 const tags = cmsClient.tagsFromPost(post);
 const authors = cmsClient.authorsFromPost(post);
+const toc = extractTableOfContents(post.content);
 const pubDate = post.publishedAt || post.createdAt || new Date().toISOString();
 const postSeoTitle = post.meta?.title?.trim();
 const postSeoDescription = post.meta?.description?.trim();
@@ -110,6 +112,7 @@ if (!postSeoTitle || !postSeoDescription) {
   category={category}
   series={series}
   authors={authors}
+  toc={toc}
 >
   {seriesNav && (
     <SeriesNav
