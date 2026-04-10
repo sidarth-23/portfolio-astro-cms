@@ -10,7 +10,8 @@
     "check": "astro check",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
-    "astro": "astro"
+    "astro": "astro",
+    "check:cms": "bun ./scripts/checkCms.ts"
   },
   "dependencies": {
     "@astrojs/check": "0.9.4",
