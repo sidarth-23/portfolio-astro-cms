@@ -6,10 +6,11 @@ import type {
   CvPage,
   HomePage,
   Media,
+  NotFoundPage,
   Post,
-  Project,
   ProjectsPage,
   Series,
+  SeriesPage,
   SiteSetting,
   Tag,
   User,
@@ -292,6 +293,14 @@ export const getProjectsPage = async (): Promise<ProjectsPage> => {
   return payloadFetch<ProjectsPage>("/globals/projects-page", { depth: 2 });
 };
 
+export const getSeriesPage = async (): Promise<SeriesPage> => {
+  return payloadFetch<SeriesPage>("/globals/series-page", { depth: 2 });
+};
+
+export const getNotFoundPage = async (): Promise<NotFoundPage> => {
+  return payloadFetch<NotFoundPage>("/globals/not-found-page", { depth: 2 });
+};
+
 export const getAllPublishedPosts = async (
   filters: Omit<PostFilterOptions, "slug"> = {},
 ): Promise<Post[]> => {
@@ -463,6 +472,16 @@ export const getPostsBySeries = async (seriesSlug: string): Promise<Post[]> => {
   return series.posts.filter(isPublishedPostRelation);
 };
 
+export const getSeriesBySlug = async (slug: string): Promise<Series | null> => {
+  const response = await payloadFetch<PayloadListResponse<Series>>("/series", {
+    depth: 2,
+    limit: 1,
+    "where[slug][equals]": slug,
+  });
+
+  return response.docs[0] ?? null;
+};
+
 export const getAllCategories = async (): Promise<Category[]> => {
   const limit = 200;
   const firstPage = await payloadFetch<PayloadListResponse<Category>>("/categories", {
@@ -560,16 +579,6 @@ export const footerItemsFromSiteSettings = (siteSettings: SiteSetting): NonNulla
 
 export const getBlogPage = async (): Promise<BlogPage> => {
   return payloadFetch<BlogPage>("/globals/blog-page", { depth: 2 });
-};
-
-export const resolveSeriesSeoTemplate = (template: string, seriesName: string): string => {
-  const resolved = template.split("{seriesName}").join(seriesName).trim();
-
-  if (!resolved) {
-    throw new Error("Resolved series SEO value cannot be empty.");
-  }
-
-  return resolved;
 };
 
 export const authorsFromPost = (post: Post): Array<PopulatedAuthor | User> => {

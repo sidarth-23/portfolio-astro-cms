@@ -20,7 +20,9 @@ import { Users } from "./collections/Users";
 import { CvPage } from "./globals/CvPage";
 import { HomePage } from "./globals/HomePage";
 import { BlogPage } from "./globals/BlogPage";
+import { NotFoundPage } from "./globals/NotFoundPage";
 import { ProjectsPage } from "./globals/ProjectsPage";
+import { SeriesPage } from "./globals/SeriesPage";
 import { SiteSettings } from "./globals/SiteSettings";
 import { triggerCollectionRedeploy } from "./hooks/triggerCollectionRedeploy";
 import { triggerGlobalRedeploy } from "./hooks/triggerGlobalRedeploy";
@@ -143,7 +145,9 @@ const withGlobalAfterChangeHook = (globalConfig: GlobalConfig): GlobalConfig => 
 const collections: CollectionConfig[] = [Users, Media, Categories, Tags, Series, Posts, Projects].map(
   withCollectionAfterChangeHook,
 );
-const globals: GlobalConfig[] = [SiteSettings, HomePage, CvPage, BlogPage, ProjectsPage].map(withGlobalAfterChangeHook);
+const globals: GlobalConfig[] = [SiteSettings, HomePage, CvPage, BlogPage, SeriesPage, ProjectsPage, NotFoundPage].map(
+  withGlobalAfterChangeHook,
+);
 
 const withRequiredSeoFields = ({ defaultFields }: { defaultFields: Field[] }): Field[] => {
   return defaultFields.map((field) => {
@@ -189,8 +193,8 @@ export default buildConfig({
   },
   plugins: [
     seoPlugin({
-      collections: ["posts"],
-      globals: ["home-page", "cv-page", "blog-page", "projects-page"],
+      collections: ["posts", "series"],
+      globals: ["home-page", "cv-page", "blog-page", "series-page", "projects-page", "not-found-page"],
       tabbedUI: true,
       uploadsCollection: "media",
       fields: withRequiredSeoFields,

@@ -104,14 +104,18 @@ export interface Config {
     'home-page': HomePage;
     'cv-page': CvPage;
     'blog-page': BlogPage;
+    'series-page': SeriesPage;
     'projects-page': ProjectsPage;
+    'not-found-page': NotFoundPage;
   };
   globalsSelect: {
     'site-settings': SiteSettingsSelect<false> | SiteSettingsSelect<true>;
     'home-page': HomePageSelect<false> | HomePageSelect<true>;
     'cv-page': CvPageSelect<false> | CvPageSelect<true>;
     'blog-page': BlogPageSelect<false> | BlogPageSelect<true>;
+    'series-page': SeriesPageSelect<false> | SeriesPageSelect<true>;
     'projects-page': ProjectsPageSelect<false> | ProjectsPageSelect<true>;
+    'not-found-page': NotFoundPageSelect<false> | NotFoundPageSelect<true>;
   };
   locale: null;
   user: User;
@@ -269,6 +273,14 @@ export interface Series {
    * Auto-generated from title, but can be edited.
    */
   slug: string;
+  meta: {
+    title: string;
+    description: string;
+    /**
+     * Maximum upload file size: 12MB. Recommended file size for images is <500KB.
+     */
+    image?: (number | null) | Media;
+  };
   updatedAt: string;
   createdAt: string;
 }
@@ -657,6 +669,13 @@ export interface SeriesSelect<T extends boolean = true> {
   description?: T;
   posts?: T;
   slug?: T;
+  meta?:
+    | T
+    | {
+        title?: T;
+        description?: T;
+        image?: T;
+      };
   updatedAt?: T;
   createdAt?: T;
 }
@@ -999,14 +1018,26 @@ export interface CvPage {
  */
 export interface BlogPage {
   id: number;
-  /**
-   * SEO title template for series pages. Use {seriesName} to insert the series name. Falls back to the page SEO title if empty.
-   */
-  seriesSeoTitleTemplate?: string | null;
-  /**
-   * SEO description template for series pages. Use {seriesName} to insert the series name. Falls back to the page SEO description if empty.
-   */
-  seriesSeoDescriptionTemplate?: string | null;
+  title: string;
+  intro?: string | null;
+  meta: {
+    title: string;
+    description: string;
+    /**
+     * Maximum upload file size: 12MB. Recommended file size for images is <500KB.
+     */
+    image?: (number | null) | Media;
+  };
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "series-page".
+ */
+export interface SeriesPage {
+  id: number;
+  backToSeriesLabel?: string | null;
   meta: {
     title: string;
     description: string;
@@ -1044,6 +1075,28 @@ export interface ProjectsPage {
     projects: (number | Project)[];
     id?: string | null;
   }[];
+  meta: {
+    title: string;
+    description: string;
+    /**
+     * Maximum upload file size: 12MB. Recommended file size for images is <500KB.
+     */
+    image?: (number | null) | Media;
+  };
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "not-found-page".
+ */
+export interface NotFoundPage {
+  id: number;
+  title: string;
+  description: string;
+  ctaLabel?: string | null;
+  ctaHref?: string | null;
+  emoji?: string | null;
   meta: {
     title: string;
     description: string;
@@ -1162,8 +1215,25 @@ export interface CvPageSelect<T extends boolean = true> {
  * via the `definition` "blog-page_select".
  */
 export interface BlogPageSelect<T extends boolean = true> {
-  seriesSeoTitleTemplate?: T;
-  seriesSeoDescriptionTemplate?: T;
+  title?: T;
+  intro?: T;
+  meta?:
+    | T
+    | {
+        title?: T;
+        description?: T;
+        image?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "series-page_select".
+ */
+export interface SeriesPageSelect<T extends boolean = true> {
+  backToSeriesLabel?: T;
   meta?:
     | T
     | {
@@ -1188,6 +1258,27 @@ export interface ProjectsPageSelect<T extends boolean = true> {
         projects?: T;
         id?: T;
       };
+  meta?:
+    | T
+    | {
+        title?: T;
+        description?: T;
+        image?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "not-found-page_select".
+ */
+export interface NotFoundPageSelect<T extends boolean = true> {
+  title?: T;
+  description?: T;
+  ctaLabel?: T;
+  ctaHref?: T;
+  emoji?: T;
   meta?:
     | T
     | {

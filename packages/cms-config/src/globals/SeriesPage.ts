@@ -2,9 +2,9 @@ import type { GlobalConfig } from "payload";
 
 import { readAccess } from "../access/readAccess";
 
-export const BlogPage: GlobalConfig = {
-  slug: "blog-page",
-  label: "Blog Page",
+export const SeriesPage: GlobalConfig = {
+  slug: "series-page",
+  label: "Series Page",
   access: {
     read: readAccess,
   },
@@ -19,14 +19,10 @@ export const BlogPage: GlobalConfig = {
           label: "Content",
           fields: [
             {
-              name: "title",
+              name: "backToSeriesLabel",
               type: "text",
-              required: true,
-            },
-            {
-              name: "intro",
-              type: "textarea",
               required: false,
+              defaultValue: "Back to Series",
             },
           ],
         },

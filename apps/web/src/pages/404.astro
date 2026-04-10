@@ -1,15 +1,33 @@
 ---
 import ErrorLayout from "@/layouts/ErrorLayout.astro";
+import { getNotFoundPage, mediaToUrl } from "@/lib/cms/client";
+
+const notFoundPage = await getNotFoundPage();
+
+const pageTitle = notFoundPage.title?.trim();
+const pageDescription = notFoundPage.description?.trim();
+const seoTitle = notFoundPage.meta?.title?.trim();
+const seoDescription = notFoundPage.meta?.description?.trim();
+const ctaLabel = notFoundPage.ctaLabel?.trim() || "Home";
+const ctaHref = notFoundPage.ctaHref?.trim() || "/";
+const emoji = notFoundPage.emoji?.trim() || "🏝";
+
+if (!pageTitle || !pageDescription || !seoTitle || !seoDescription) {
+  throw new Error(
+    "404 page requires `title`, `description`, and SEO `meta.title` + `meta.description`.",
+  );
+}
 ---
 
 <ErrorLayout
-  title="404: Not Found"
-  description="The page you're looking for couldn't be found."
+  title={seoTitle}
+  description={seoDescription}
+  image={mediaToUrl(notFoundPage.meta?.image)}
 >
   <div class="text-center">
-    <h1 class="text-9xl font-bold mb-4">🏝</h1>
-    <h1 class="text-9xl font-bold mb-2">404</h1>
-    <h3 class="text-2xl">The page you're looking for couldn't be found.</h3>
-    <a class="btn btn-accent mt-9" href="/">Home</a>
+    <h1 class="text-9xl font-bold mb-4">{emoji}</h1>
+    <h1 class="text-9xl font-bold mb-2">{pageTitle}</h1>
+    <h3 class="text-2xl">{pageDescription}</h3>
+    <a class="btn btn-accent mt-9" href={ctaHref}>{ctaLabel}</a>
   </div>
 </ErrorLayout>

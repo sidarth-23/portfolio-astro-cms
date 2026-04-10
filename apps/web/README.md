@@ -20,6 +20,6 @@ I want a portfolio that is simple, clean, and easy to navigate. I want to showca
 ## Payload Typing Note
 
 - `apps/web` consumes generated Payload types directly from `@sidshub/cms-config/payload-types`.
-- Non-CMS route SEO for `/blog`, `/blog/series/[slug]`, and `/404` is configured in `Site Settings > SEO`.
+- Route SEO is configured in page globals: `Blog Page`, `Series Page`, and `404 Page`; per-series SEO is configured on each `Series` entry.
 
 If you have any questions or comments, or with to connect with me, feel free to reach out to me on [LinkedIn](https://www.linkedin.com/in/sidarth-g/).

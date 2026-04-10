@@ -59,9 +59,14 @@ const [paginatedPosts, allCategories, allTags, allSeries, blogPage]: [
 
 const blogSeoTitle = blogPage.meta?.title?.trim();
 const blogSeoDescription = blogPage.meta?.description?.trim();
+const blogTitle = blogPage.title?.trim();
 
 if (!blogSeoTitle || !blogSeoDescription) {
   throw new Error("Blog page requires SEO `meta.title` and `meta.description`.");
+}
+
+if (!blogTitle) {
+  throw new Error("Blog page requires a non-empty `title` field.");
 }
 
 // Helper to build blog URLs with filters
@@ -125,7 +130,7 @@ const activeSeries = seriesFilter
 ---
 
 <BaseLayout
-  title="Blog"
+  title={blogTitle}
   seoTitle={blogSeoTitle}
   description={blogSeoDescription}
   image={mediaToUrl(blogPage.meta?.image)}
@@ -134,7 +139,7 @@ const activeSeries = seriesFilter
   <div
     class="mb-5 flex flex-col md:flex-row items-center justify-between gap-4"
   >
-    <h1 class="text-3xl font-bold">Blog</h1>
+    <h1 class="text-3xl font-bold">{blogTitle}</h1>
 
     {/* Tabs */}
     <div role="tablist" class="tabs tabs-boxed">
@@ -154,6 +159,12 @@ const activeSeries = seriesFilter
       </a>
     </div>
   </div>
+
+  {
+    blogPage.intro && (
+      <p class="mb-6 text-base-content/80 leading-relaxed">{blogPage.intro}</p>
+    )
+  }
 
   {/* Search and Filter Bar */}
   <div class="flex flex-col md:flex-row gap-4 mb-6">

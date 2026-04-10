@@ -7,15 +7,14 @@ import HorizontalCard from "@/components/HorizontalCard.astro";
 import BaseLayout from "@/layouts/BaseLayout.astro";
 import {
   categoryFromPost,
-  getBlogPage,
+  getSeriesBySlug,
   getPostsBySeries,
+  getSeriesPage,
   getSeriesSlugs,
   mediaToUrl,
-  resolveSeriesSeoTemplate,
   seriesFromPost,
   tagsFromPost,
 } from "@/lib/cms/client";
-import { asSeries } from "@/lib/cms/guards";
 
 type SeriesPageProps = {
   series: Series;
@@ -28,13 +27,9 @@ export const getStaticPaths = (async () => {
   const paths = await Promise.all(
     seriesSlugs.map(async (slug) => {
       const posts = await getPostsBySeries(slug);
+      const series = await getSeriesBySlug(slug);
 
-      if (posts.length === 0) {
-        return null;
-      }
-
-      const series = posts[0] ? asSeries(posts[0].series) : undefined;
-      if (!series) {
+      if (posts.length === 0 || !series) {
         return null;
       }
 
@@ -54,28 +49,26 @@ export const getStaticPaths = (async () => {
 }) satisfies GetStaticPaths;
 
 const { series, posts } = Astro.props as SeriesPageProps;
-const blogPage = await getBlogPage();
+const seriesPage = await getSeriesPage();
 
-const blogSeoTitle = blogPage.meta?.title?.trim();
-const blogSeoDescription = blogPage.meta?.description?.trim();
+const seriesPageSeoTitle = seriesPage.meta?.title?.trim();
+const seriesPageSeoDescription = seriesPage.meta?.description?.trim();
 
-if (!blogSeoTitle || !blogSeoDescription) {
-  throw new Error("Blog page requires SEO `meta.title` and `meta.description`.");
+if (!seriesPageSeoTitle || !seriesPageSeoDescription) {
+  throw new Error("Series page requires SEO `meta.title` and `meta.description`.");
 }
 
-const seriesSeoTitle = blogPage.seriesSeoTitleTemplate
-  ? resolveSeriesSeoTemplate(blogPage.seriesSeoTitleTemplate, series.name)
-  : blogSeoTitle;
-const seriesSeoDescription = blogPage.seriesSeoDescriptionTemplate
-  ? resolveSeriesSeoTemplate(blogPage.seriesSeoDescriptionTemplate, series.name)
-  : blogSeoDescription;
+const seriesSeoTitle = series.meta?.title?.trim() || seriesPageSeoTitle;
+const seriesSeoDescription =
+  series.meta?.description?.trim() || seriesPageSeoDescription;
+const backToSeriesLabel = seriesPage.backToSeriesLabel?.trim() || "Back to Series";
 ---
 
 <BaseLayout
   title={`${series.name} - Series`}
   seoTitle={seriesSeoTitle}
   description={seriesSeoDescription}
-  image={mediaToUrl(blogPage.meta?.image)}
+  image={mediaToUrl(series.meta?.image) ?? mediaToUrl(seriesPage.meta?.image)}
   sideBarActiveItemID="blog"
 >
   <div class="mb-6">
@@ -84,7 +77,7 @@ const seriesSeoDescription = blogPage.seriesSeoDescriptionTemplate
       class="btn btn-ghost btn-sm pl-0 hover:bg-transparent hover:text-secondary transition-colors"
     >
       <PhCaretLeft class="h-5 w-5 inline-block mr-1" />
-      Back to Series
+      {backToSeriesLabel}
     </a>
   </div>
 
