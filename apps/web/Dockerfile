@@ -20,8 +20,10 @@ ENV ASTRO_CMS_READ_TOKEN=${ASTRO_CMS_READ_TOKEN}
 ENV ASTRO_CMS_HEALTH_TIMEOUT_MS=${ASTRO_CMS_HEALTH_TIMEOUT_MS}
 RUN bunx turbo run build --filter=@sidshub/web
 
-FROM nginx:1.27-alpine AS runtime
-WORKDIR /usr/share/nginx/html
-COPY --from=installer /app/apps/web/dist/ ./
-EXPOSE 80
-CMD ["nginx", "-g", "daemon off;"]
+FROM oven/bun:1.3.6 AS runtime
+WORKDIR /app
+COPY --from=installer /app/apps/web/dist ./apps/web/dist
+ENV HOST=0.0.0.0
+ENV PORT=4321
+EXPOSE 4321
+CMD ["bun", "./apps/web/dist/server/entry.mjs"]

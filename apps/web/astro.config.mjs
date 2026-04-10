@@ -1,4 +1,5 @@
 import { defineConfig, envField } from "astro/config";
+import node from "@astrojs/node";
 import sitemap from "@astrojs/sitemap";
 import tailwindcss from "@tailwindcss/vite";
 
@@ -7,6 +8,7 @@ const siteUrl = process.env.ASTRO_SITE_URL ?? "http://localhost:4321";
 export default defineConfig({
   site: siteUrl,
   output: "static",
+  adapter: node({ mode: "standalone" }),
   integrations: [sitemap()],
   env: {
     schema: {
