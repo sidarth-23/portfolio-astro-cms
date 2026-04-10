@@ -3,10 +3,13 @@ import BaseHead from "../components/BaseHead.astro";
 import Header from "../components/Header.astro";
 import SideBar from "../components/SideBar.astro";
 import { ClientRouter } from "astro:transitions";
+import { ASTRO_CMS_API_URL, ASTRO_CMS_READ_TOKEN } from "astro:env/server";
+import { createCmsRestClient } from "@sidshub/cms-config/rest-client";
 import type { HomePage, SiteSetting } from "@sidshub/cms-config/payload-types";
 
 import { TRANSITION_API } from "../consts";
-import { footerItemsFromSiteSettings, getHomePage, getSiteSettings, mediaToUrl } from "@/lib/cms/client";
+
+const cmsClient = createCmsRestClient({ apiUrl: ASTRO_CMS_API_URL, token: ASTRO_CMS_READ_TOKEN });
 
 const {
   image,
@@ -20,8 +23,8 @@ const {
 } = Astro.props;
 
 const [homePage, siteSettings]: [HomePage, SiteSetting] = await Promise.all([
-  getHomePage(),
-  getSiteSettings(),
+  cmsClient.getHomePage(),
+  cmsClient.getSiteSettings(),
 ]);
 
 const fallbackTitle = typeof title === "string" ? title.trim() : "";
@@ -37,8 +40,8 @@ if (!pageDescription) {
   throw new Error("BaseLayout requires a non-empty SEO description via `description`.");
 }
 
-const profileImage = mediaToUrl(siteSettings.profileImage);
-const footerItems = footerItemsFromSiteSettings(siteSettings);
+const profileImage = cmsClient.mediaToUrl(siteSettings.profileImage);
+const footerItems = cmsClient.footerItemsFromSiteSettings(siteSettings);
 const resumeDownloadUrl = siteSettings.resumeDownloadUrl?.trim() || undefined;
 ---
 

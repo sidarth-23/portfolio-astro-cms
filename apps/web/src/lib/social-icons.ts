@@ -1,4 +1,4 @@
-import type { SiteFooterItemType } from "@/lib/cms/types";
+import type { SiteFooterItemType } from "@sidshub/cms-config/client-core";
 import {
   PhGithubLogo,
   PhLinkedinLogo,

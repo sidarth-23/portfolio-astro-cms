@@ -2,16 +2,11 @@
 import RichTextRenderer from "@/components/RichTextRenderer.astro";
 import SeriesNav from "@/components/SeriesNav.astro";
 import PostLayout from "@/layouts/PostLayout.astro";
-import {
-  authorsFromPost,
-  categoryFromPost,
-  getAllPublishedPosts,
-  getPostsBySeries,
-  mediaToUrl,
-  seriesFromPost,
-  tagsFromPost,
-} from "@/lib/cms/client";
+import { ASTRO_CMS_API_URL, ASTRO_CMS_READ_TOKEN } from "astro:env/server";
+import { createCmsRestClient } from "@sidshub/cms-config/rest-client";
 import type { Post } from "@sidshub/cms-config/payload-types";
+
+const cmsClient = createCmsRestClient({ apiUrl: ASTRO_CMS_API_URL, token: ASTRO_CMS_READ_TOKEN });
 
 type SeriesNavProps = {
   seriesName: string;
@@ -29,11 +24,11 @@ type SeriesNavProps = {
 };
 
 export async function getStaticPaths() {
-  const posts = await getAllPublishedPosts();
+  const posts = await cmsClient.getAllPublishedPosts();
   const seriesSlugs = Array.from(
     new Set(
       posts
-        .map((post) => seriesFromPost(post)?.slug)
+        .map((post) => cmsClient.seriesFromPost(post)?.slug)
         .filter((slug): slug is string => Boolean(slug)),
     ),
   );
@@ -43,7 +38,7 @@ export async function getStaticPaths() {
   const orderedSeriesPosts = await Promise.all(
     seriesSlugs.map(async (slug) => ({
       slug,
-      posts: await getPostsBySeries(slug),
+      posts: await cmsClient.getPostsBySeries(slug),
     })),
   );
   orderedSeriesPosts.forEach((item) => {
@@ -53,7 +48,7 @@ export async function getStaticPaths() {
   return posts.map((post) => {
     let seriesNav: SeriesNavProps | undefined;
 
-    const series = seriesFromPost(post);
+    const series = cmsClient.seriesFromPost(post);
     if (series?.slug) {
       const seriesPosts = seriesMap.get(series.slug) || [];
       const currentIndex = seriesPosts.findIndex((p) => p.slug === post.slug);
@@ -86,10 +81,10 @@ interface Props {
 }
 
 const { post, seriesNav } = Astro.props;
-const category = categoryFromPost(post);
-const series = seriesFromPost(post);
-const tags = tagsFromPost(post);
-const authors = authorsFromPost(post);
+const category = cmsClient.categoryFromPost(post);
+const series = cmsClient.seriesFromPost(post);
+const tags = cmsClient.tagsFromPost(post);
+const authors = cmsClient.authorsFromPost(post);
 const pubDate = post.publishedAt || post.createdAt || new Date().toISOString();
 const postSeoTitle = post.meta?.title?.trim();
 const postSeoDescription = post.meta?.description?.trim();
@@ -105,7 +100,7 @@ if (!postSeoTitle || !postSeoDescription) {
   description={postSeoDescription}
   pubDate={pubDate}
   updatedDate={post.updatedAt}
-  heroImage={mediaToUrl(post.coverImage)}
+  heroImage={cmsClient.mediaToUrl(post.coverImage)}
   tags={tags}
   category={category}
   series={series}

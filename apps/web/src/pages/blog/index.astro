@@ -1,20 +1,13 @@
 ---
 import { PhFunnel, PhInfo, PhMagnifyingGlass, PhX } from "phosphor-icons-astro";
+import { ASTRO_CMS_API_URL, ASTRO_CMS_READ_TOKEN } from "astro:env/server";
+import { createCmsRestClient } from "@sidshub/cms-config/rest-client";
 
 import HorizontalCard from "@/components/HorizontalCard.astro";
 import BlogPagination from "@/components/BlogPagination.astro";
 import BaseLayout from "@/layouts/BaseLayout.astro";
-import {
-  categoryFromPost,
-  getAllCategories,
-  getAllSeriesWithPosts,
-  getBlogPage,
-  getAllTags,
-  getPaginatedPublishedPosts,
-  mediaToUrl,
-  seriesFromPost,
-  tagsFromPost,
-} from "@/lib/cms/client";
+
+const cmsClient = createCmsRestClient({ apiUrl: ASTRO_CMS_API_URL, token: ASTRO_CMS_READ_TOKEN });
 
 export const prerender = false;
 
@@ -29,11 +22,11 @@ const currentPage = pageParam ? Math.max(1, parseInt(pageParam, 10)) : 1;
 
 const pageSize = 10;
 
-type PaginatedPostsData = Awaited<ReturnType<typeof getPaginatedPublishedPosts>>;
-type CategoriesData = Awaited<ReturnType<typeof getAllCategories>>;
-type TagsData = Awaited<ReturnType<typeof getAllTags>>;
-type SeriesData = Awaited<ReturnType<typeof getAllSeriesWithPosts>>;
-type BlogPageData = Awaited<ReturnType<typeof getBlogPage>>;
+type PaginatedPostsData = Awaited<ReturnType<typeof cmsClient.getPaginatedPublishedPosts>>;
+type CategoriesData = Awaited<ReturnType<typeof cmsClient.getAllCategories>>;
+type TagsData = Awaited<ReturnType<typeof cmsClient.getAllTags>>;
+type SeriesData = Awaited<ReturnType<typeof cmsClient.getAllSeriesWithPosts>>;
+type BlogPageData = Awaited<ReturnType<typeof cmsClient.getBlogPage>>;
 
 // Fetch data
 const [paginatedPosts, allCategories, allTags, allSeries, blogPage]: [
@@ -43,7 +36,7 @@ const [paginatedPosts, allCategories, allTags, allSeries, blogPage]: [
   SeriesData,
   BlogPageData,
 ] = await Promise.all([
-  getPaginatedPublishedPosts({
+  cmsClient.getPaginatedPublishedPosts({
     page: currentPage,
     pageSize,
     search: searchQuery,
@@ -51,10 +44,10 @@ const [paginatedPosts, allCategories, allTags, allSeries, blogPage]: [
     tagSlug: tagFilter,
     seriesSlug: seriesFilter,
   }),
-  getAllCategories(),
-  getAllTags(),
-  getAllSeriesWithPosts(),
-  getBlogPage(),
+  cmsClient.getAllCategories(),
+  cmsClient.getAllTags(),
+  cmsClient.getAllSeriesWithPosts(),
+  cmsClient.getBlogPage(),
 ]);
 
 const blogSeoTitle = blogPage.meta?.title?.trim();
@@ -133,7 +126,7 @@ const activeSeries = seriesFilter
   title={blogTitle}
   seoTitle={blogSeoTitle}
   description={blogSeoDescription}
-  image={mediaToUrl(blogPage.meta?.image)}
+  image={cmsClient.mediaToUrl(blogPage.meta?.image)}
   sideBarActiveItemID="blog"
 >
   <div
@@ -416,13 +409,13 @@ const activeSeries = seriesFilter
               <>
                 <HorizontalCard
                   title={post.title}
-                  img={mediaToUrl(post.coverImage)}
+                  img={cmsClient.mediaToUrl(post.coverImage)}
                   desc={post.excerpt}
                   url={`/blog/${post.slug}`}
                   target="_self"
-                  category={categoryFromPost(post)}
-                  series={seriesFromPost(post)}
-                  tags={tagsFromPost(post)}
+                  category={cmsClient.categoryFromPost(post)}
+                  series={cmsClient.seriesFromPost(post)}
+                  tags={cmsClient.tagsFromPost(post)}
                 />
                 {index < paginatedPosts.docs.length - 1 && (
                   <div class="divider my-0 opacity-50" />

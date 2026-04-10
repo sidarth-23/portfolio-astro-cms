@@ -8,9 +8,8 @@ import type {
   SiteSetting,
   Tag,
   User,
-} from "@sidshub/cms-config/payload-types";
-
-type RelationValue<T> = number | T | null | undefined;
+} from "../payload-types";
+import type { PopulatedAuthor, RelationValue, SiteFooterItem, SiteFooterItemType } from "./types";
 
 export const isObjectRelation = <T extends object>(value: RelationValue<T>): value is T => {
   return typeof value === "object" && value !== null;
@@ -44,15 +43,6 @@ export const asUserArray = (value: Post["authors"]): User[] => {
   return value.filter((author): author is User => isObjectRelation<User>(author));
 };
 
-export type PopulatedAuthor = {
-  id?: number | null;
-  name?: string | null;
-  bio?: User["bio"];
-  avatar?: RelationValue<Media>;
-  linkedInUrl?: string | null;
-  githubUrl?: string | null;
-};
-
 const isPopulatedAuthor = (value: unknown): value is PopulatedAuthor => {
   return typeof value === "object" && value !== null;
 };
@@ -72,9 +62,6 @@ export const asProjectArray = (value: ProjectsPage["sections"][number]["projects
 
   return value.filter((project): project is Project => isObjectRelation<Project>(project));
 };
-
-export type SiteFooterItem = NonNullable<SiteSetting["sidebarFooterItems"]>[number];
-export type SiteFooterItemType = SiteFooterItem["type"];
 
 const SITE_FOOTER_ITEM_TYPES: SiteFooterItemType[] = [
   "github",

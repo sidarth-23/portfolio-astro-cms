@@ -2,10 +2,12 @@
 import RichTextRenderer from "@/components/RichTextRenderer.astro";
 import HorizontalCard from "@/components/HorizontalCard.astro";
 import BaseLayout from "@/layouts/BaseLayout.astro";
-import { getProjectsPage, mediaToUrl } from "@/lib/cms/client";
-import { asProjectArray } from "@/lib/cms/guards";
+import { ASTRO_CMS_API_URL, ASTRO_CMS_READ_TOKEN } from "astro:env/server";
+import { asProjectArray } from "@sidshub/cms-config/client-core";
+import { createCmsRestClient } from "@sidshub/cms-config/rest-client";
 
-const projectsPage = await getProjectsPage();
+const cmsClient = createCmsRestClient({ apiUrl: ASTRO_CMS_API_URL, token: ASTRO_CMS_READ_TOKEN });
+const projectsPage = await cmsClient.getProjectsPage();
 const projectsSeoTitle = projectsPage.meta?.title?.trim();
 const projectsSeoDescription = projectsPage.meta?.description?.trim();
 
@@ -34,7 +36,7 @@ const toBadges = (badges?: Array<{ value: string }> | null) => {
   title="Projects"
   seoTitle={projectsSeoTitle}
   description={projectsSeoDescription}
-  image={mediaToUrl(projectsPage.meta?.image)}
+  image={cmsClient.mediaToUrl(projectsPage.meta?.image)}
   sideBarActiveItemID="projects"
 >
   {
@@ -52,10 +54,10 @@ const toBadges = (badges?: Array<{ value: string }> | null) => {
 
         {section.projects.map((project, index) => (
           <>
-            <HorizontalCard
-              title={project.title}
-              img={mediaToUrl(project.image)}
-              descRich={project.description}
+              <HorizontalCard
+                title={project.title}
+                img={cmsClient.mediaToUrl(project.image)}
+                descRich={project.description}
               badges={toBadges(project.badges)}
               tags={toTags(project.tags)}
               url={project.externalUrl}

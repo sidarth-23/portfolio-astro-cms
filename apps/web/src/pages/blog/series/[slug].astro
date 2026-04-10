@@ -1,20 +1,14 @@
 ---
 import { PhCaretLeft } from "phosphor-icons-astro";
 import type { GetStaticPaths } from "astro";
+import { ASTRO_CMS_API_URL, ASTRO_CMS_READ_TOKEN } from "astro:env/server";
+import { createCmsRestClient } from "@sidshub/cms-config/rest-client";
 import type { Post, Series } from "@sidshub/cms-config/payload-types";
 
 import HorizontalCard from "@/components/HorizontalCard.astro";
 import BaseLayout from "@/layouts/BaseLayout.astro";
-import {
-  categoryFromPost,
-  getSeriesBySlug,
-  getPostsBySeries,
-  getSeriesPage,
-  getSeriesSlugs,
-  mediaToUrl,
-  seriesFromPost,
-  tagsFromPost,
-} from "@/lib/cms/client";
+
+const cmsClient = createCmsRestClient({ apiUrl: ASTRO_CMS_API_URL, token: ASTRO_CMS_READ_TOKEN });
 
 type SeriesPageProps = {
   series: Series;
@@ -22,12 +16,12 @@ type SeriesPageProps = {
 };
 
 export const getStaticPaths = (async () => {
-  const seriesSlugs = await getSeriesSlugs();
+  const seriesSlugs = await cmsClient.getSeriesSlugs();
 
   const paths = await Promise.all(
     seriesSlugs.map(async (slug) => {
-      const posts = await getPostsBySeries(slug);
-      const series = await getSeriesBySlug(slug);
+      const posts = await cmsClient.getPostsBySeries(slug);
+      const series = await cmsClient.getSeriesBySlug(slug);
 
       if (posts.length === 0 || !series) {
         return null;
@@ -49,7 +43,7 @@ export const getStaticPaths = (async () => {
 }) satisfies GetStaticPaths;
 
 const { series, posts } = Astro.props as SeriesPageProps;
-const seriesPage = await getSeriesPage();
+const seriesPage = await cmsClient.getSeriesPage();
 
 const seriesPageSeoTitle = seriesPage.meta?.title?.trim();
 const seriesPageSeoDescription = seriesPage.meta?.description?.trim();
@@ -68,7 +62,7 @@ const backToSeriesLabel = seriesPage.backToSeriesLabel?.trim() || "Back to Serie
   title={`${series.name} - Series`}
   seoTitle={seriesSeoTitle}
   description={seriesSeoDescription}
-  image={mediaToUrl(series.meta?.image) ?? mediaToUrl(seriesPage.meta?.image)}
+  image={cmsClient.mediaToUrl(series.meta?.image) ?? cmsClient.mediaToUrl(seriesPage.meta?.image)}
   sideBarActiveItemID="blog"
 >
   <div class="mb-6">
@@ -111,13 +105,13 @@ const backToSeriesLabel = seriesPage.backToSeriesLabel?.trim() || "Back to Serie
           <li>
             <HorizontalCard
               title={`Part ${index + 1}: ${post.title}`}
-              img={mediaToUrl(post.coverImage)}
+              img={cmsClient.mediaToUrl(post.coverImage)}
               desc={post.excerpt}
               url={`/blog/${post.slug}`}
               target="_self"
-              category={categoryFromPost(post)}
-              series={seriesFromPost(post)}
-              tags={tagsFromPost(post)}
+              category={cmsClient.categoryFromPost(post)}
+              series={cmsClient.seriesFromPost(post)}
+              tags={cmsClient.tagsFromPost(post)}
             />
             {index < posts.length - 1 && (
               <div class="divider my-0 opacity-50" />

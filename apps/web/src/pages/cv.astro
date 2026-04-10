@@ -2,9 +2,11 @@
 import RichTextRenderer from "@/components/RichTextRenderer.astro";
 import TimeLineElement from "@/components/cv/TimeLine.astro";
 import BaseLayout from "@/layouts/BaseLayout.astro";
-import { getCvPage, mediaToUrl } from "@/lib/cms/client";
+import { ASTRO_CMS_API_URL, ASTRO_CMS_READ_TOKEN } from "astro:env/server";
+import { createCmsRestClient } from "@sidshub/cms-config/rest-client";
 
-const cvPage = await getCvPage();
+const cmsClient = createCmsRestClient({ apiUrl: ASTRO_CMS_API_URL, token: ASTRO_CMS_READ_TOKEN });
+const cvPage = await cmsClient.getCvPage();
 const cvSeoTitle = cvPage.meta?.title?.trim();
 const cvSeoDescription = cvPage.meta?.description?.trim();
 
@@ -17,7 +19,7 @@ if (!cvSeoTitle || !cvSeoDescription) {
   title="Resume"
   seoTitle={cvSeoTitle}
   description={cvSeoDescription}
-  image={mediaToUrl(cvPage.meta?.image)}
+  image={cmsClient.mediaToUrl(cvPage.meta?.image)}
   sideBarActiveItemID="cv"
 >
   {

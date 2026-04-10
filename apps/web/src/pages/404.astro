@@ -1,8 +1,10 @@
 ---
 import ErrorLayout from "@/layouts/ErrorLayout.astro";
-import { getNotFoundPage, mediaToUrl } from "@/lib/cms/client";
+import { ASTRO_CMS_API_URL, ASTRO_CMS_READ_TOKEN } from "astro:env/server";
+import { createCmsRestClient } from "@sidshub/cms-config/rest-client";
 
-const notFoundPage = await getNotFoundPage();
+const cmsClient = createCmsRestClient({ apiUrl: ASTRO_CMS_API_URL, token: ASTRO_CMS_READ_TOKEN });
+const notFoundPage = await cmsClient.getNotFoundPage();
 
 const pageTitle = notFoundPage.title?.trim();
 const pageDescription = notFoundPage.description?.trim();
@@ -22,7 +24,7 @@ if (!pageTitle || !pageDescription || !seoTitle || !seoDescription) {
 <ErrorLayout
   title={seoTitle}
   description={seoDescription}
-  image={mediaToUrl(notFoundPage.meta?.image)}
+  image={cmsClient.mediaToUrl(notFoundPage.meta?.image)}
 >
   <div class="text-center">
     <h1 class="text-9xl font-bold mb-4">{emoji}</h1>
