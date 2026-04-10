@@ -63,8 +63,8 @@ const resumeDownloadUrl = siteSettings.resumeDownloadUrl?.trim() || undefined;
       <input id="my-drawer" type="checkbox" class="drawer-toggle" />
       <div class="drawer-content bg-base-100">
         <Header name={homePage.name} />
-        <div class="md:flex md:justify-center w-full container px-6 py-14">
-          <main class="container w-full max-w-4xl">
+        <div class="w-full px-6 py-14">
+          <main class="mx-auto w-full max-w-5xl 2xl:max-w-6xl">
             <slot />
           </main>
         </div>

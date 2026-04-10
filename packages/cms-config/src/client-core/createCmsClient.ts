@@ -28,6 +28,7 @@ import type {
   PopulatedAuthor,
   PostFilterOptions,
   PublishedPostsQueryOptions,
+  SiteFooterItem,
 } from "./types";
 
 type TaxonomyDoc = {
@@ -494,7 +495,7 @@ export const createCmsClient = ({ fetch, mediaBaseUrl }: CmsTransport) => {
       return { name: series.name, slug: series.slug };
     },
 
-    footerItemsFromSiteSettings: (siteSettings: SiteSetting): NonNullable<SiteSetting["sidebarFooterItems"]> => {
+    footerItemsFromSiteSettings: (siteSettings: SiteSetting): SiteFooterItem[] => {
       return asSiteFooterItems(siteSettings.sidebarFooterItems);
     },
 

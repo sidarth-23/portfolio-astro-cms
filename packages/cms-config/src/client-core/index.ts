@@ -11,6 +11,7 @@ export {
   asUserArray,
   isObjectRelation,
 } from "./guards";
+export { getFooterLinkRule, normalizeFooterItemType, resolveFooterLink } from "./footerLinks";
 export type {
   PaginatedPosts,
   Params,
@@ -18,6 +19,7 @@ export type {
   PopulatedAuthor,
   PostFilterOptions,
   PublishedPostsQueryOptions,
+  RawSiteFooterItem,
   RelationValue,
   SiteFooterItem,
   SiteFooterItemType,

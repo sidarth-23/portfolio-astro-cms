@@ -2,6 +2,44 @@ import type { GlobalConfig } from "payload";
 
 import { resumeLinkFields } from "../fields/resumeLink";
 import { readAccess } from "../access/readAccess";
+import { getFooterLinkRule, normalizeFooterItemType, resolveFooterLink } from "../client-core/footerLinks";
+
+const normalizeSidebarFooterItems = (value: unknown): unknown => {
+  if (!Array.isArray(value)) {
+    return value;
+  }
+
+  return value.map((item) => {
+    if (!item || typeof item !== "object") {
+      return item;
+    }
+
+    const typedItem = item as { type?: unknown; url?: unknown };
+    const type = normalizeFooterItemType(typedItem.type);
+    if (!type) {
+      return item;
+    }
+
+    const rawValue =
+      type === "email"
+        ? typeof (typedItem as { email?: unknown }).email === "string"
+          ? String((typedItem as { email?: unknown }).email)
+          : ""
+        : typeof typedItem.url === "string"
+          ? typedItem.url
+          : "";
+    const resolved = resolveFooterLink(type, rawValue);
+    if (!resolved) {
+      return item;
+    }
+
+    return {
+      ...item,
+      type,
+      url: resolved.url,
+    };
+  });
+};
 
 export const SiteSettings: GlobalConfig = {
   slug: "site-settings",
@@ -11,6 +49,22 @@ export const SiteSettings: GlobalConfig = {
   },
   admin: {
     group: "Site",
+  },
+  hooks: {
+    beforeValidate: [
+      ({ data }) => {
+        if (!data || typeof data !== "object") {
+          return data;
+        }
+
+        return {
+          ...data,
+          sidebarFooterItems: normalizeSidebarFooterItems(
+            (data as { sidebarFooterItems?: unknown }).sidebarFooterItems,
+          ),
+        };
+      },
+    ],
   },
   fields: [
     {
@@ -74,13 +128,56 @@ export const SiteSettings: GlobalConfig = {
         {
           name: "url",
           type: "text",
-          required: true,
-          validate: (value: unknown) => {
-            if (typeof value === "string" && value.trim().length > 0) {
+          required: false,
+          label: "URL",
+          admin: {
+            condition: (_, siblingData) => {
+              const type = normalizeFooterItemType(siblingData?.type);
+              return Boolean(type && type !== "rss" && type !== "email");
+            },
+            description: getFooterLinkRule("github").inputDescription,
+          },
+          validate: (value: unknown, { siblingData }: { siblingData?: { type?: unknown } }) => {
+            const type = normalizeFooterItemType(siblingData?.type);
+            if (!type) {
+              return "Select a link type first.";
+            }
+
+            if (type === "rss" || type === "email") {
               return true;
             }
 
-            return "URL is required for footer items.";
+            const rawValue = typeof value === "string" ? value : "";
+            const resolved = resolveFooterLink(type, rawValue);
+            if (resolved) {
+              return true;
+            }
+
+            return "Enter a valid URL that starts with https:// or http://.";
+          },
+        },
+        {
+          name: "email",
+          type: "text",
+          required: false,
+          label: getFooterLinkRule("email").inputLabel,
+          admin: {
+            condition: (_, siblingData) => normalizeFooterItemType(siblingData?.type) === "email",
+            description: getFooterLinkRule("email").inputDescription,
+          },
+          validate: (value: unknown, { siblingData }: { siblingData?: { type?: unknown } }) => {
+            const type = normalizeFooterItemType(siblingData?.type);
+            if (type !== "email") {
+              return true;
+            }
+
+            const rawValue = typeof value === "string" ? value : "";
+            const resolved = resolveFooterLink("email", rawValue);
+            if (resolved) {
+              return true;
+            }
+
+            return "Enter a valid email address, for example name@example.com.";
           },
         },
       ],

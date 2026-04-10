@@ -10,10 +10,6 @@ const { items = [] }: Props = Astro.props;
 
 const cleanItems = items
   .filter((item): item is SiteFooterItem => Boolean(item?.type))
-  .map((item) => ({
-    ...item,
-    url: item.url.trim(),
-  }))
   .slice(0, 4)
   .filter((item) => item.url.length > 0);
 ---
@@ -28,13 +24,12 @@ const cleanItems = items
     <div class="social-icons px-4 pb-5 pt-1 flex flex-wrap gap-4 self-center justify-center sticky bottom-0 bg-base-200 group-[.collapsed]:px-1">
       {cleanItems.map((item) => {
         const Icon = getIconForType(item.type);
-        const openInNewTab = item.type !== "email" && item.type !== "rss";
 
         return (
           <a
             href={item.url}
-            target={openInNewTab ? "_blank" : undefined}
-            rel={openInNewTab ? "noreferrer noopener" : undefined}
+            target={item.openInNewTab ? "_blank" : undefined}
+            rel={item.openInNewTab ? "noreferrer noopener" : undefined}
             class="mx-3 group-[.collapsed]:mx-1"
             aria-label={item.type}
             title={item.type}

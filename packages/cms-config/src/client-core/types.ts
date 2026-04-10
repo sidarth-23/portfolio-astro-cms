@@ -54,5 +54,10 @@ export type PopulatedAuthor = {
   githubUrl?: string | null;
 };
 
-export type SiteFooterItem = NonNullable<SiteSetting["sidebarFooterItems"]>[number];
-export type SiteFooterItemType = SiteFooterItem["type"];
+export type RawSiteFooterItem = NonNullable<SiteSetting["sidebarFooterItems"]>[number];
+export type SiteFooterItemType = RawSiteFooterItem["type"];
+export type SiteFooterItem = {
+  type: SiteFooterItemType;
+  url: string;
+  openInNewTab: boolean;
+};
