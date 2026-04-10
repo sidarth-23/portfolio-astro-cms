@@ -1,6 +1,5 @@
 ---
 import { PhCaretLeft } from "phosphor-icons-astro";
-import type { GetStaticPaths } from "astro";
 import { ASTRO_CMS_API_URL, ASTRO_CMS_READ_TOKEN } from "astro:env/server";
 import { createCmsRestClient } from "@sidshub/cms-config/rest-client";
 import type { Post, Series } from "@sidshub/cms-config/payload-types";
@@ -15,7 +14,8 @@ type SeriesPageProps = {
   posts: Post[];
 };
 
-export const getStaticPaths = (async () => {
+export async function getStaticPaths() {
+  const cmsClient = createCmsRestClient({ apiUrl: ASTRO_CMS_API_URL, token: ASTRO_CMS_READ_TOKEN });
   const seriesSlugs = await cmsClient.getSeriesSlugs();
 
   const paths = await Promise.all(
@@ -40,7 +40,7 @@ export const getStaticPaths = (async () => {
   return paths.filter(
     (path): path is NonNullable<typeof path> => path !== null,
   );
-}) satisfies GetStaticPaths;
+}
 
 const { series, posts } = Astro.props as SeriesPageProps;
 const seriesPage = await cmsClient.getSeriesPage();
