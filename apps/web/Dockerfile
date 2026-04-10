@@ -22,8 +22,13 @@ RUN bunx turbo run build --filter=@sidshub/web
 
 FROM oven/bun:1.3.6 AS runtime
 WORKDIR /app
+COPY --from=pruner /app/out/json/ .
+COPY --from=pruner /app/out/json/bun.lock ./bun.lock
+RUN bun install --frozen-lockfile --production
+COPY --from=pruner /app/out/full/ .
 COPY --from=installer /app/apps/web/dist ./apps/web/dist
+ENV NODE_ENV=production
 ENV HOST=0.0.0.0
 ENV PORT=4321
 EXPOSE 4321
-CMD ["bun", "./apps/web/dist/server/entry.mjs"]
+CMD ["bun", "--no-install", "./apps/web/dist/server/entry.mjs"]
