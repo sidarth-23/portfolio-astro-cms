@@ -24,11 +24,16 @@ type SeriesNavProps = {
 };
 
 export async function getStaticPaths() {
-  const posts = await cmsClient.getAllPublishedPosts();
+  const staticPathsCmsClient = createCmsRestClient({
+    apiUrl: ASTRO_CMS_API_URL,
+    token: ASTRO_CMS_READ_TOKEN,
+  });
+
+  const posts = await staticPathsCmsClient.getAllPublishedPosts();
   const seriesSlugs = Array.from(
     new Set(
       posts
-        .map((post) => cmsClient.seriesFromPost(post)?.slug)
+        .map((post) => staticPathsCmsClient.seriesFromPost(post)?.slug)
         .filter((slug): slug is string => Boolean(slug)),
     ),
   );
@@ -38,7 +43,7 @@ export async function getStaticPaths() {
   const orderedSeriesPosts = await Promise.all(
     seriesSlugs.map(async (slug) => ({
       slug,
-      posts: await cmsClient.getPostsBySeries(slug),
+      posts: await staticPathsCmsClient.getPostsBySeries(slug),
     })),
   );
   orderedSeriesPosts.forEach((item) => {
@@ -48,7 +53,7 @@ export async function getStaticPaths() {
   return posts.map((post) => {
     let seriesNav: SeriesNavProps | undefined;
 
-    const series = cmsClient.seriesFromPost(post);
+    const series = staticPathsCmsClient.seriesFromPost(post);
     if (series?.slug) {
       const seriesPosts = seriesMap.get(series.slug) || [];
       const currentIndex = seriesPosts.findIndex((p) => p.slug === post.slug);
