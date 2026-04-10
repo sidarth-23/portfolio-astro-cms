@@ -166,7 +166,7 @@ const jsonLd = {
             {
               showTableOfContents && (
                 <aside class="hidden xl:block">
-                  <div class="sticky top-24 max-h-[calc(100vh-8rem)] overflow-y-auto">
+                  <div class="sticky top-24 max-h-[calc(100vh-8rem)] overflow-y-auto border-l border-base-300 pl-6 2xl:pl-8">
                     <TableOfContents items={toc} />
                   </div>
                 </aside>
@@ -183,17 +183,16 @@ const jsonLd = {
 
             <div class="min-h-full w-80 max-w-[85vw] border-l border-base-300 bg-base-200/95 p-4 backdrop-blur">
               <div class="mb-4 flex items-center justify-between gap-4">
-                <div>
-                  <div class="text-sm font-semibold uppercase tracking-[0.2em] opacity-70">Navigate</div>
-                  <div class="text-lg font-semibold">Table of contents</div>
-                </div>
+                <div class="text-lg font-semibold">Table of contents</div>
 
                 <label for="post-toc-drawer" class="btn btn-square btn-ghost" aria-label="Close table of contents">
                   <PhX size={18} />
                 </label>
               </div>
 
-              <TableOfContents items={toc} className="border-none bg-transparent p-0" />
+              <div class="border-l border-base-300 pl-5">
+                <TableOfContents items={toc} />
+              </div>
             </div>
           </div>
         )
@@ -217,7 +216,7 @@ const jsonLd = {
     showTableOfContents && (
       <script is:inline>
         const POST_TOC_DRAWER_ID = "post-toc-drawer";
-        const TOC_ACTIVE_CLASSES = ["bg-base-300/70", "text-primary", "opacity-100"];
+        const TOC_ACTIVE_CLASSES = ["border-primary", "text-base-content", "opacity-100", "font-medium"];
 
         const initializePostTableOfContents = () => {
           const existingCleanup = window.__postTocCleanup;
@@ -235,7 +234,17 @@ const jsonLd = {
             return;
           }
 
+          let currentActiveId = "";
+
+          const getHashId = () => window.location.hash.replace(/^#/, "");
+
+          const getHeadingById = (id) => {
+            return headings.find((heading) => heading.id === id);
+          };
+
           const setActiveId = (id) => {
+            currentActiveId = id;
+
             links.forEach((link) => {
               const isActive = link.dataset.tocId === id;
 
@@ -251,6 +260,30 @@ const jsonLd = {
             });
           };
 
+          const syncHash = (id) => {
+            if (!id || getHashId() === id) {
+              return;
+            }
+
+            const nextUrl = `${window.location.pathname}${window.location.search}#${id}`;
+            window.history.replaceState(window.history.state, "", nextUrl);
+          };
+
+          const applyHashState = () => {
+            const hashId = getHashId();
+
+            if (!hashId) {
+              return false;
+            }
+
+            if (!getHeadingById(hashId)) {
+              return false;
+            }
+
+            setActiveId(hashId);
+            return true;
+          };
+
           const updateActiveId = () => {
             const topOffset = window.innerWidth >= 1280 ? 112 : 96;
             let activeHeading = headings[0];
@@ -262,7 +295,18 @@ const jsonLd = {
             });
 
             if (activeHeading && activeHeading.id) {
+              if (activeHeading.id === currentActiveId) {
+                return;
+              }
+
               setActiveId(activeHeading.id);
+              syncHash(activeHeading.id);
+            }
+          };
+
+          const handleHashChange = () => {
+            if (!applyHashState()) {
+              updateActiveId();
             }
           };
 
@@ -274,6 +318,7 @@ const jsonLd = {
           headings.forEach((heading) => observer.observe(heading));
           window.addEventListener("scroll", updateActiveId, { passive: true });
           window.addEventListener("resize", updateActiveId);
+          window.addEventListener("hashchange", handleHashChange);
 
           links.forEach((link) => {
             link.addEventListener("click", () => {
@@ -283,12 +328,15 @@ const jsonLd = {
             });
           });
 
-          updateActiveId();
+          if (!applyHashState()) {
+            updateActiveId();
+          }
 
           window.__postTocCleanup = () => {
             observer.disconnect();
             window.removeEventListener("scroll", updateActiveId);
             window.removeEventListener("resize", updateActiveId);
+            window.removeEventListener("hashchange", handleHashChange);
           };
         };
 

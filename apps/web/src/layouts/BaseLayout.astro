@@ -17,7 +17,6 @@ const {
   seoTitle,
   description,
   includeSidebar = true,
-  sideBarActiveItemID,
   ogType,
   jsonLd,
 } = Astro.props;
@@ -72,7 +71,6 @@ const resumeDownloadUrl = siteSettings.resumeDownloadUrl?.trim() || undefined;
       {
         includeSidebar && (
             <SideBar
-              sideBarActiveItemID={sideBarActiveItemID}
               footerItems={footerItems}
               profileImage={profileImage}
               resumeDownloadUrl={resumeDownloadUrl}

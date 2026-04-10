@@ -11,17 +11,17 @@ const { className = "", items }: Props = Astro.props;
 
 <nav
   aria-label="Table of contents"
-  class={`rounded-xl border border-base-300 bg-base-200/70 p-4 backdrop-blur ${className}`.trim()}
+  class={`text-sm ${className}`.trim()}
   data-toc-root
 >
-  <div class="mb-3 text-sm font-semibold uppercase tracking-[0.2em] opacity-70">On this page</div>
+  <div class="mb-3 text-sm font-medium opacity-70">On this page</div>
 
-  <ul class="space-y-1">
+  <ul class="space-y-1.5">
     {items.map((item) => (
       <li>
         <a
           href={`#${item.id}`}
-          class={`block rounded-lg px-3 py-2 text-sm leading-6 opacity-70 transition-colors hover:bg-base-300/60 hover:opacity-100 ${item.depth === 3 ? "pl-7" : ""}`.trim()}
+          class={`block border-l border-transparent py-1 text-sm leading-6 opacity-70 transition-colors hover:border-base-content/20 hover:opacity-100 ${item.depth === 3 ? "pl-6" : "pl-3"}`.trim()}
           data-toc-id={item.id}
           data-toc-link
         >

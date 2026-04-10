@@ -50,6 +50,11 @@ export const Projects: CollectionConfig = {
             {
               name: "badges",
               type: "array",
+              admin: {
+                components: {
+                  RowLabel: "./components/admin/rowLabels/BadgeRowLabel#BadgeRowLabel",
+                },
+              },
               fields: [
                 {
                   name: "value",
@@ -61,6 +66,11 @@ export const Projects: CollectionConfig = {
             {
               name: "tags",
               type: "array",
+              admin: {
+                components: {
+                  RowLabel: "./components/admin/rowLabels/BadgeRowLabel#BadgeRowLabel",
+                },
+              },
               fields: [
                 {
                   name: "value",

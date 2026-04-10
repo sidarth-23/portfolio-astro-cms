@@ -6,14 +6,12 @@ import SideBarFooter from "./SideBarFooter.astro";
 import SideBarMenu from "./SideBarMenu.astro";
 
 type Props = {
-  sideBarActiveItemID?: string;
   footerItems?: SiteFooterItem[];
   profileImage?: string;
   resumeDownloadUrl?: string;
 };
 
 const {
-  sideBarActiveItemID,
   footerItems = [],
   profileImage,
   resumeDownloadUrl,
@@ -69,7 +67,7 @@ const {
       </button>
     </div>
 
-    <SideBarMenu sideBarActiveItemID={sideBarActiveItemID} />
+    <SideBarMenu />
 
     <div class="mt-auto flex flex-col gap-4 mb-6">
       {resumeDownloadUrl && (
