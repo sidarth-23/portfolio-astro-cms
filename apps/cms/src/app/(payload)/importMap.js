@@ -28,11 +28,11 @@ import { MetaTitleComponent as MetaTitleComponent_a8a977ebc872c5d5ea7ee689724c08
 import { MetaDescriptionComponent as MetaDescriptionComponent_a8a977ebc872c5d5ea7ee689724c0860 } from '@payloadcms/plugin-seo/client'
 import { MetaImageComponent as MetaImageComponent_a8a977ebc872c5d5ea7ee689724c0860 } from '@payloadcms/plugin-seo/client'
 import { PreviewComponent as PreviewComponent_a8a977ebc872c5d5ea7ee689724c0860 } from '@payloadcms/plugin-seo/client'
+import { BadgeRowLabel as BadgeRowLabel_24238ecca7db753c46604b9d7cf93856 } from '../../../../../packages/cms-config/src/components/admin/rowLabels/BadgeRowLabel'
 import { FooterItemRowLabel as FooterItemRowLabel_94060bfb0e71da24477c37e57be338af } from '../../../../../packages/cms-config/src/components/admin/rowLabels/FooterItemRowLabel'
 import { SectionRowLabel as SectionRowLabel_ec40328e4fa7e50be5521512430803ee } from '../../../../../packages/cms-config/src/components/admin/rowLabels/SectionRowLabel'
 import { CtaButtonRowLabel as CtaButtonRowLabel_21f05950458c091161a962787a64c946 } from '../../../../../packages/cms-config/src/components/admin/rowLabels/CtaButtonRowLabel'
 import { ItemRowLabel as ItemRowLabel_ef785df577c0f700616de08d4de99213 } from '../../../../../packages/cms-config/src/components/admin/rowLabels/ItemRowLabel'
-import { BadgeRowLabel as BadgeRowLabel_24238ecca7db753c46604b9d7cf93856 } from '../../../../../packages/cms-config/src/components/admin/rowLabels/BadgeRowLabel'
 import { S3ClientUploadHandler as S3ClientUploadHandler_f97aa6c64367fa259c5bc0567239ef24 } from '@payloadcms/storage-s3/client'
 import { DashboardView as DashboardView_f0f8d4a7080efd2cd25bb6be37c094c0 } from '../../../../../packages/cms-config/src/components/admin/Dashboard'
 import { CollectionCards as CollectionCards_f9c02e79a4aed9a3924487c0cd4cafb1 } from '@payloadcms/next/rsc'
@@ -68,11 +68,11 @@ export const importMap = {
   "@payloadcms/plugin-seo/client#MetaDescriptionComponent": MetaDescriptionComponent_a8a977ebc872c5d5ea7ee689724c0860,
   "@payloadcms/plugin-seo/client#MetaImageComponent": MetaImageComponent_a8a977ebc872c5d5ea7ee689724c0860,
   "@payloadcms/plugin-seo/client#PreviewComponent": PreviewComponent_a8a977ebc872c5d5ea7ee689724c0860,
+  "./components/admin/rowLabels/BadgeRowLabel#BadgeRowLabel": BadgeRowLabel_24238ecca7db753c46604b9d7cf93856,
   "./components/admin/rowLabels/FooterItemRowLabel#FooterItemRowLabel": FooterItemRowLabel_94060bfb0e71da24477c37e57be338af,
   "./components/admin/rowLabels/SectionRowLabel#SectionRowLabel": SectionRowLabel_ec40328e4fa7e50be5521512430803ee,
   "./components/admin/rowLabels/CtaButtonRowLabel#CtaButtonRowLabel": CtaButtonRowLabel_21f05950458c091161a962787a64c946,
   "./components/admin/rowLabels/ItemRowLabel#ItemRowLabel": ItemRowLabel_ef785df577c0f700616de08d4de99213,
-  "./components/admin/rowLabels/BadgeRowLabel#BadgeRowLabel": BadgeRowLabel_24238ecca7db753c46604b9d7cf93856,
   "@payloadcms/storage-s3/client#S3ClientUploadHandler": S3ClientUploadHandler_f97aa6c64367fa259c5bc0567239ef24,
   "./components/admin/Dashboard#DashboardView": DashboardView_f0f8d4a7080efd2cd25bb6be37c094c0,
   "@payloadcms/next/rsc#CollectionCards": CollectionCards_f9c02e79a4aed9a3924487c0cd4cafb1

@@ -863,7 +863,14 @@ export interface SiteSetting {
           | 'gitlab'
           | 'stackoverflow'
           | 'devto';
-        url: string;
+        /**
+         * Enter a full URL including https://
+         */
+        url?: string | null;
+        /**
+         * Enter an email address, for example name@example.com
+         */
+        email?: string | null;
         id?: string | null;
       }[]
     | null;
@@ -1127,6 +1134,7 @@ export interface SiteSettingsSelect<T extends boolean = true> {
     | {
         type?: T;
         url?: T;
+        email?: T;
         id?: T;
       };
   updatedAt?: T;
