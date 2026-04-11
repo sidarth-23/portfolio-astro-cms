@@ -23,6 +23,8 @@
 - `S3_SECRET_ACCESS_KEY`
 - `WEB_DEPLOY_WEBHOOK_URL`
 - `WEB_DEPLOY_BRANCH`
+- `MEDIA_CLEANUP_DAYS` (optional, default `7`)
+- `MEDIA_CLEANUP_DRY_RUN` (optional, default `false`)
 
 ### astro-web (Web app)
 - `ASTRO_SITE_URL`
@@ -62,3 +64,13 @@ If CMS logs include database errors like `column site_settings.profile_image_id 
 
 - `www.sidshub.in` -> `astro-web`
 - `cms.sidshub.in` -> `payload-cms`
+
+## Scheduled Media Cleanup
+
+- Recommended scheduler command:
+  `bun run --filter @sidshub/cms cleanup:media`
+- Recommended schedule:
+  `0 3 * * *`
+- Prefer a Dokploy scheduled job or host cron over embedding cron logic in the CMS runtime.
+- For the first run, use:
+  `MEDIA_CLEANUP_DRY_RUN=true bun run --filter @sidshub/cms cleanup:media`

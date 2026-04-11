@@ -8,6 +8,7 @@ bun run build:cms
 bun run payload:types
 bun run --filter @sidshub/cms migrate:create
 bun run --filter @sidshub/cms migrate
+bun run --filter @sidshub/cms cleanup:media
 ```
 
 ## Environment
@@ -66,6 +67,24 @@ If you see S3 errors like `NoSuchBucket` for media files:
 
 - Cause: local MinIO bucket has not been created yet.
 - Resolution: set `S3_AUTO_CREATE_BUCKET=true` (default in `.env.cms.example`) and restart CMS dev.
+
+## Media Uploads
+
+- Media uploads use Payload's default upload UI.
+- `Paste URL` is configured to fetch server-side only for approved domains via `upload.pasteURL.allowList` in the shared `Media` collection config.
+- Imported files are stored in your own media collection and S3 bucket. Remote source URLs are not used for rendering.
+
+## Media Cleanup
+
+- Orphaned media cleanup runs via the `cleanup:media` script.
+- Recommended scheduler command:
+  `bun run --filter @sidshub/cms cleanup:media`
+- Recommended schedule: daily at `0 3 * * *`.
+- Optional environment variables:
+  - `MEDIA_CLEANUP_DAYS` (default: `7`)
+  - `MEDIA_CLEANUP_DRY_RUN` (`true` or `false`)
+- Recommended first run:
+  `MEDIA_CLEANUP_DRY_RUN=true bun run --filter @sidshub/cms cleanup:media`
 
 If you see `column site_settings.profile_image_id does not exist`:
 
