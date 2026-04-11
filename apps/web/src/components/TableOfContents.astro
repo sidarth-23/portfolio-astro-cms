@@ -19,7 +19,7 @@ const { className = "", items }: Props = Astro.props;
   <ul class="flex flex-col">
     {items.map((item) => {
       const indentClass = 
-        item.depth === 1 || item.depth === 2 ? "pl-3" : 
+        item.depth === 2 ? "pl-3" : 
         item.depth === 3 ? "pl-8" : 
         "pl-12";
         
