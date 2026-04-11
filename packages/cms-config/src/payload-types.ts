@@ -985,8 +985,14 @@ export interface CvPage {
     itemsVariant?: ('timeline' | 'list' | 'columns') | null;
     items?:
       | {
+          itemType: 'generic' | 'organizationRole' | 'linked';
           title: string;
           subtitle?: string | null;
+          startMonth?: string | null;
+          endMonth?: string | null;
+          organization?: string | null;
+          location?: string | null;
+          url?: string | null;
           content?: {
             root: {
               type: string;
@@ -1199,8 +1205,14 @@ export interface CvPageSelect<T extends boolean = true> {
         items?:
           | T
           | {
+              itemType?: T;
               title?: T;
               subtitle?: T;
+              startMonth?: T;
+              endMonth?: T;
+              organization?: T;
+              location?: T;
+              url?: T;
               content?: T;
               id?: T;
             };

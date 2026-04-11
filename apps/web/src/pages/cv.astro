@@ -4,6 +4,7 @@ import TimeLineElement from "@/components/cv/TimeLine.astro";
 import BaseLayout from "@/layouts/BaseLayout.astro";
 import { ASTRO_CMS_API_URL, ASTRO_CMS_READ_TOKEN } from "astro:env/server";
 import { createCmsRestClient } from "@sidshub/cms-config/rest-client";
+import { PhLink } from "phosphor-icons-astro";
 
 const cmsClient = createCmsRestClient({ apiUrl: ASTRO_CMS_API_URL, token: ASTRO_CMS_READ_TOKEN });
 const cvPage = await cmsClient.getCvPage();
@@ -13,6 +14,34 @@ const cvSeoDescription = cvPage.meta?.description?.trim();
 if (!cvSeoTitle || !cvSeoDescription) {
   throw new Error("CV page requires SEO `meta.title` and `meta.description`.");
 }
+
+const formatMonth = (dateStr: string) => {
+  if (!dateStr) return null;
+  const date = new Date(dateStr);
+  if (Number.isNaN(date.getTime())) return dateStr;
+  return new Intl.DateTimeFormat("en-US", { month: "short", year: "numeric" }).format(date);
+};
+
+const getSubtitle = (item: any) => {
+  if (item.itemType === "organizationRole") {
+    const start = formatMonth(item.startMonth);
+    const end = formatMonth(item.endMonth) || "Present";
+    const generated = [
+      [start, end].filter(Boolean).join(" - "),
+      item.organization,
+      item.location,
+    ]
+      .filter(Boolean)
+      .join(" | ");
+      
+    // If a manual subtitle is provided in the CMS, append the generated string to it, or just return it if generated is empty
+    if (item.subtitle) {
+      return generated ? `${item.subtitle} • ${generated}` : item.subtitle;
+    }
+    return generated;
+  }
+  return item.subtitle || "";
+};
 ---
 
 <BaseLayout
@@ -39,7 +68,8 @@ if (!cvSeoTitle || !cvSeoDescription) {
             {(section.items || []).map((item) => (
               <TimeLineElement
                 title={item.title}
-                subtitle={item.subtitle || ""}
+                subtitle={getSubtitle(item)}
+                url={item.url}
               >
                 {item.content && (
                   <div class="prose max-w-none">
@@ -55,9 +85,16 @@ if (!cvSeoTitle || !cvSeoDescription) {
           <ul class="list-disc mx-6 grid gap-2">
             {(section.items || []).map((item) => (
               <li>
-                <div class="font-medium">{item.title}</div>
-                {item.subtitle && (
-                  <div class="text-sm opacity-80">{item.subtitle}</div>
+                <div class="font-medium flex items-center gap-2">
+                  {item.title}
+                  {item.url && (
+                    <a href={item.url} target="_blank" rel="noopener noreferrer" class="opacity-50 hover:opacity-100 transition-opacity">
+                      <PhLink size={18} />
+                    </a>
+                  )}
+                </div>
+                {getSubtitle(item) && (
+                  <div class="text-sm opacity-80">{getSubtitle(item)}</div>
                 )}
                 {item.content && (
                   <div class="prose max-w-none">
@@ -73,9 +110,16 @@ if (!cvSeoTitle || !cvSeoDescription) {
           <ul class="list-disc mx-6 grid gap-4 md:columns-3 columns-1">
             {(section.items || []).map((item) => (
               <li>
-                <div class="font-medium">{item.title}</div>
-                {item.subtitle && (
-                  <div class="text-sm opacity-80">{item.subtitle}</div>
+                <div class="font-medium flex items-center gap-2">
+                  {item.title}
+                  {item.url && (
+                    <a href={item.url} target="_blank" rel="noopener noreferrer" class="opacity-50 hover:opacity-100 transition-opacity">
+                      <PhLink size={18} />
+                    </a>
+                  )}
+                </div>
+                {getSubtitle(item) && (
+                  <div class="text-sm opacity-80">{getSubtitle(item)}</div>
                 )}
                 {item.content && (
                   <div class="prose max-w-none">

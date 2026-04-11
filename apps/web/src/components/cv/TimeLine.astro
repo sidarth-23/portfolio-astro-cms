@@ -1,5 +1,7 @@
 ---
-const { title, subtitle } = Astro.props;
+import { PhLink } from "phosphor-icons-astro";
+
+const { title, subtitle, url } = Astro.props;
 ---
 
 <div class="flex">
@@ -8,10 +10,18 @@ const { title, subtitle } = Astro.props;
     <span class="education__line bg-primary block h-full w-[2px] translate-x-[7px]"></span>
   </div>
   <div class="experience__data bd-grid px-5">
-    <h3 class="font-semibold mb-1">{title}</h3>
+    <div class="flex items-center gap-2 mb-1">
+      <h3 class="font-semibold">{title}</h3>
+      {url && (
+        <a href={url} target="_blank" rel="noopener noreferrer" class="opacity-50 hover:opacity-100 transition-opacity">
+          <PhLink size={18} />
+        </a>
+      )}
+    </div>
     <span class="font-light text-sm">{subtitle}</span>
     <p class="my-2 text-justify">
       <slot />
     </p>
   </div>
 </div>
+

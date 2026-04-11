@@ -4,6 +4,20 @@ import { readAccess } from "../access/readAccess";
 
 const sectionItemFields: Field[] = [
   {
+    name: "itemType",
+    type: "select",
+    required: true,
+    defaultValue: "generic",
+    options: [
+      { label: "Generic", value: "generic" },
+      {
+        label: "Organization Role (e.g. Experience)",
+        value: "organizationRole",
+      },
+      { label: "Linked (e.g. Certificate)", value: "linked" },
+    ],
+  },
+  {
     name: "title",
     type: "text",
     required: true,
@@ -11,6 +25,53 @@ const sectionItemFields: Field[] = [
   {
     name: "subtitle",
     type: "text",
+  },
+  {
+    name: "startMonth",
+    type: "date",
+    admin: {
+      condition: (_, siblingData) =>
+        siblingData?.itemType === "organizationRole",
+      date: {
+        pickerAppearance: "monthOnly",
+        displayFormat: "MMM yyyy",
+      },
+    },
+  },
+  {
+    name: "endMonth",
+    type: "date",
+    admin: {
+      condition: (_, siblingData) =>
+        siblingData?.itemType === "organizationRole",
+      date: {
+        pickerAppearance: "monthOnly",
+        displayFormat: "MMM yyyy",
+      },
+    },
+  },
+  {
+    name: "organization",
+    type: "text",
+    admin: {
+      condition: (_, siblingData) =>
+        siblingData?.itemType === "organizationRole",
+    },
+  },
+  {
+    name: "location",
+    type: "text",
+    admin: {
+      condition: (_, siblingData) =>
+        siblingData?.itemType === "organizationRole",
+    },
+  },
+  {
+    name: "url",
+    type: "text",
+    admin: {
+      condition: (_, siblingData) => siblingData?.itemType === "linked",
+    },
   },
   {
     name: "content",
@@ -41,7 +102,8 @@ export const CvPage: GlobalConfig = {
               minRows: 1,
               admin: {
                 components: {
-                  RowLabel: "./components/admin/rowLabels/SectionRowLabel#SectionRowLabel",
+                  RowLabel:
+                    "./components/admin/rowLabels/SectionRowLabel#SectionRowLabel",
                 },
               },
               fields: [
@@ -93,7 +155,8 @@ export const CvPage: GlobalConfig = {
                     condition: (_, siblingData) =>
                       siblingData?.type === "items",
                     components: {
-                      RowLabel: "./components/admin/rowLabels/ItemRowLabel#ItemRowLabel",
+                      RowLabel:
+                        "./components/admin/rowLabels/ItemRowLabel#ItemRowLabel",
                     },
                   },
                 },
@@ -112,7 +175,8 @@ export const CvPage: GlobalConfig = {
                     condition: (_, siblingData) =>
                       siblingData?.type === "badges",
                     components: {
-                      RowLabel: "./components/admin/rowLabels/BadgeRowLabel#BadgeRowLabel",
+                      RowLabel:
+                        "./components/admin/rowLabels/BadgeRowLabel#BadgeRowLabel",
                     },
                   },
                 },
