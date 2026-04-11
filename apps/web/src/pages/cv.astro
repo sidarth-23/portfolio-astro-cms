@@ -5,6 +5,7 @@ import BaseLayout from "@/layouts/BaseLayout.astro";
 import { ASTRO_CMS_API_URL, ASTRO_CMS_READ_TOKEN } from "astro:env/server";
 import { createCmsRestClient } from "@sidshub/cms-config/rest-client";
 import { PhLink } from "phosphor-icons-astro";
+import * as simpleIcons from "simple-icons";
 
 const cmsClient = createCmsRestClient({ apiUrl: ASTRO_CMS_API_URL, token: ASTRO_CMS_READ_TOKEN });
 const cvPage = await cmsClient.getCvPage();
@@ -41,6 +42,49 @@ const getSubtitle = (item: any) => {
     return generated;
   }
   return item.subtitle || "";
+};
+
+type SimpleIcon = {
+  slug: string;
+  path: string;
+  title: string;
+};
+
+type CvBadge = {
+  value: string;
+  iconSlug?: string | null;
+};
+
+type CvBadgeGroup = {
+  title: string;
+  badges?: CvBadge[];
+};
+
+const SIMPLE_ICONS = Object.values(simpleIcons).filter((icon) => {
+  return typeof icon === "object" && icon !== null && "slug" in icon && "path" in icon && "title" in icon;
+}) as SimpleIcon[];
+
+const SIMPLE_ICONS_BY_SLUG = new Map(SIMPLE_ICONS.map((icon) => [icon.slug, icon]));
+
+const getSimpleIcon = (slug?: string | null) => {
+  if (!slug) return null;
+
+  const normalizedSlug = slug.trim();
+  const icon = SIMPLE_ICONS_BY_SLUG.get(normalizedSlug);
+
+  if (!icon) {
+    throw new Error(`Unknown Simple Icon slug in CV badges: ${normalizedSlug}`);
+  }
+
+  return icon;
+};
+
+const getBadgeGroups = (section: unknown): CvBadgeGroup[] => {
+  if (!section || typeof section !== "object" || !("badgeGroups" in section)) {
+    return [];
+  }
+
+  return (section.badgeGroups as CvBadgeGroup[] | null | undefined) || [];
 };
 ---
 
@@ -132,9 +176,28 @@ const getSubtitle = (item: any) => {
         )}
 
         {section.type === "badges" && (
-          <div class="flex flex-wrap gap-2">
-            {(section.badges || []).map((badge) => (
-              <span class="badge badge-outline">{badge.value}</span>
+          <div class="grid gap-5">
+            {getBadgeGroups(section).map((group) => (
+              <div class="grid gap-3">
+                <h3 class="text-sm font-semibold tracking-wide text-base-content/70">{group.title}</h3>
+                <div class="flex flex-wrap gap-2">
+                  {(group.badges || []).map((badge) => {
+                    const icon = getSimpleIcon(badge.iconSlug);
+
+                    return (
+                      <span class="badge badge-outline gap-1.5 text-base-content">
+                        {icon && (
+                          <svg class="h-[0.75em] w-[0.75em] shrink-0 fill-current" viewBox="0 0 24 24" aria-hidden="true">
+                            <title>{icon.title}</title>
+                            <path d={icon.path}></path>
+                          </svg>
+                        )}
+                        <span>{badge.value}</span>
+                      </span>
+                    );
+                  })}
+                </div>
+              </div>
             ))}
           </div>
         )}

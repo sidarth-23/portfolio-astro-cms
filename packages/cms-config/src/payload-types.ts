@@ -1011,9 +1011,16 @@ export interface CvPage {
           id?: string | null;
         }[]
       | null;
-    badges?:
+    badgeGroups?:
       | {
-          value: string;
+          title: string;
+          badges?:
+            | {
+                value: string;
+                iconSlug?: string | null;
+                id?: string | null;
+              }[]
+            | null;
           id?: string | null;
         }[]
       | null;
@@ -1216,10 +1223,17 @@ export interface CvPageSelect<T extends boolean = true> {
               content?: T;
               id?: T;
             };
-        badges?:
+        badgeGroups?:
           | T
           | {
-              value?: T;
+              title?: T;
+              badges?:
+                | T
+                | {
+                    value?: T;
+                    iconSlug?: T;
+                    id?: T;
+                  };
               id?: T;
             };
         id?: T;

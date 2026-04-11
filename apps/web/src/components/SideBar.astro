@@ -18,7 +18,7 @@ const {
 }: Props = Astro.props;
 ---
 
-<div class="drawer-side z-40 lg:overflow-visible">
+<div transition:persist transition:name="sidebar" class="drawer-side z-40 lg:overflow-visible">
   <label for="my-drawer" class="drawer-overlay"></label>
   <aside
     id="sidebar"

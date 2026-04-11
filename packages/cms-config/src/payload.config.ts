@@ -72,15 +72,7 @@ const shouldAutoCreateBucket = (): boolean => {
 };
 
 const shouldPushDbSchema = (): boolean => {
-  const explicitValue = process.env.PAYLOAD_DB_PUSH;
-  if (explicitValue === "true") {
-    return true;
-  }
-  if (explicitValue === "false") {
-    return false;
-  }
-
-  return process.env.NODE_ENV !== "production";
+  return process.env.PAYLOAD_DB_PUSH === "true";
 };
 
 const isNoSuchBucketError = (error: unknown): boolean => {

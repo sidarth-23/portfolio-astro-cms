@@ -29,10 +29,8 @@ Required for auth email delivery via Resend:
 - Uses PostgreSQL as primary DB.
 - Uses MinIO (S3-compatible) for media storage.
 - Auto-creates the configured S3 bucket in local dev (or when `S3_AUTO_CREATE_BUCKET=true`).
-- DB schema push behavior is controlled by `PAYLOAD_DB_PUSH` (`true` or `false`).
-- If `PAYLOAD_DB_PUSH` is not set, default is `NODE_ENV !== "production"`:
-  - local/dev: schema push enabled
-  - production: schema push disabled
+- DB schema push is disabled by default in every environment.
+- Set `PAYLOAD_DB_PUSH=true` only for an explicit local escape hatch. Normal development should stay migration-only.
 - Uses `@payloadcms/plugin-seo` for SEO metadata.
 - Uses Lexical editor for long-form content.
 - Uses `@payloadcms/email-resend` for auth emails.
@@ -42,7 +40,11 @@ Required for auth email delivery via Resend:
 
 - Development:
   - `bun run dev:cms` does not run `payload migrate`.
-  - Schema changes are pushed automatically by default.
+  - `bun run dev:cms` runs a strict migration preflight before the server starts.
+  - If migrations are pending, or the local DB contains Payload's `dev` push marker, startup fails with an explicit error.
+  - Normal workflow is: change schema -> `bun run --filter @sidshub/cms migrate:create` -> `bun run --filter @sidshub/cms migrate` -> restart CMS.
+  - `bun run --filter @sidshub/cms db:check` runs the same preflight without starting dev.
+  - `bun run --filter @sidshub/cms dev:push` is available as an unsafe local-only escape hatch and intentionally bypasses the strict flow.
 - Production:
   - Create migrations from schema changes: `bun run --filter @sidshub/cms migrate:create`
   - Apply migrations in CI/CD before starting CMS: `bun run --filter @sidshub/cms migrate`
@@ -94,3 +96,11 @@ If you see `column site_settings.profile_image_id does not exist`:
   - Verify with SQL:
     `SELECT column_name FROM information_schema.columns WHERE table_name='site_settings' AND column_name='profile_image_id';`
   - Confirm `/api/globals/site-settings?depth=2` returns `200`
+
+If `bun run dev:cms` fails with a `payload_migrations` / `dev` marker error:
+
+- Cause: the local database was previously changed via Payload schema push.
+- Resolution:
+  - reset the local DB
+  - run `bun run --filter @sidshub/cms migrate`
+  - restart `bun run dev:cms`

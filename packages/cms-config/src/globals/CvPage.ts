@@ -1,6 +1,7 @@
 import type { Field, GlobalConfig } from "payload";
 
 import { readAccess } from "../access/readAccess";
+import { isSimpleIconSlug } from "../lib/simpleIconsCatalog";
 
 const sectionItemFields: Field[] = [
   {
@@ -76,6 +77,31 @@ const sectionItemFields: Field[] = [
   {
     name: "content",
     type: "richText",
+  },
+];
+
+const badgeFields: Field[] = [
+  {
+    name: "value",
+    type: "text",
+    required: true,
+  },
+  {
+    name: "iconSlug",
+    label: "Icon",
+    type: "text",
+    validate: (value: unknown) => {
+      if (!value) {
+        return true;
+      }
+
+      return isSimpleIconSlug(value) || "Choose a valid Simple Icons slug.";
+    },
+    admin: {
+      components: {
+        Field: "./components/admin/SimpleIconSlugField#SimpleIconSlugField",
+      },
+    },
   },
 ];
 
@@ -161,14 +187,26 @@ export const CvPage: GlobalConfig = {
                   },
                 },
                 {
-                  name: "badges",
+                  name: "badgeGroups",
                   type: "array",
                   minRows: 1,
                   fields: [
                     {
-                      name: "value",
+                      name: "title",
                       type: "text",
                       required: true,
+                    },
+                    {
+                      name: "badges",
+                      type: "array",
+                      minRows: 1,
+                      fields: badgeFields,
+                      admin: {
+                        components: {
+                          RowLabel:
+                            "./components/admin/rowLabels/BadgeRowLabel#BadgeRowLabel",
+                        },
+                      },
                     },
                   ],
                   admin: {
@@ -176,7 +214,7 @@ export const CvPage: GlobalConfig = {
                       siblingData?.type === "badges",
                     components: {
                       RowLabel:
-                        "./components/admin/rowLabels/BadgeRowLabel#BadgeRowLabel",
+                        "./components/admin/rowLabels/BadgeGroupRowLabel#BadgeGroupRowLabel",
                     },
                   },
                 },
