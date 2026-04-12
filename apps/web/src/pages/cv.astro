@@ -1,13 +1,16 @@
 ---
 import RichTextRenderer from "@/components/RichTextRenderer.astro";
-import TimeLineElement from "@/components/cv/TimeLine.astro";
+import TimeLineElement from "@/components/TimeLine.astro";
 import BaseLayout from "@/layouts/BaseLayout.astro";
 import { ASTRO_CMS_API_URL, ASTRO_CMS_READ_TOKEN } from "astro:env/server";
 import { createCmsRestClient } from "@sidshub/cms-config/rest-client";
 import { PhLink } from "phosphor-icons-astro";
 import * as simpleIcons from "simple-icons";
 
-const cmsClient = createCmsRestClient({ apiUrl: ASTRO_CMS_API_URL, token: ASTRO_CMS_READ_TOKEN });
+const cmsClient = createCmsRestClient({
+  apiUrl: ASTRO_CMS_API_URL,
+  token: ASTRO_CMS_READ_TOKEN,
+});
 const cvPage = await cmsClient.getCvPage();
 const cvSeoTitle = cvPage.meta?.title;
 const cvSeoDescription = cvPage.meta?.description;
@@ -20,7 +23,10 @@ const formatMonth = (dateStr: string) => {
   if (!dateStr) return null;
   const date = new Date(dateStr);
   if (Number.isNaN(date.getTime())) return dateStr;
-  return new Intl.DateTimeFormat("en-US", { month: "short", year: "numeric" }).format(date);
+  return new Intl.DateTimeFormat("en-US", {
+    month: "short",
+    year: "numeric",
+  }).format(date);
 };
 
 const getSubtitle = (item: any) => {
@@ -34,7 +40,7 @@ const getSubtitle = (item: any) => {
     ]
       .filter(Boolean)
       .join(" | ");
-      
+
     // If a manual subtitle is provided in the CMS, append the generated string to it, or just return it if generated is empty
     if (item.subtitle) {
       return generated ? `${item.subtitle} • ${generated}` : item.subtitle;
@@ -61,10 +67,18 @@ type CvBadgeGroup = {
 };
 
 const SIMPLE_ICONS = Object.values(simpleIcons).filter((icon) => {
-  return typeof icon === "object" && icon !== null && "slug" in icon && "path" in icon && "title" in icon;
+  return (
+    typeof icon === "object" &&
+    icon !== null &&
+    "slug" in icon &&
+    "path" in icon &&
+    "title" in icon
+  );
 }) as SimpleIcon[];
 
-const SIMPLE_ICONS_BY_SLUG = new Map(SIMPLE_ICONS.map((icon) => [icon.slug, icon]));
+const SIMPLE_ICONS_BY_SLUG = new Map(
+  SIMPLE_ICONS.map((icon) => [icon.slug, icon]),
+);
 
 const getSimpleIcon = (slug?: string | null) => {
   if (!slug) return null;
@@ -131,7 +145,12 @@ const getBadgeGroups = (section: unknown): CvBadgeGroup[] => {
                 <div class="font-medium flex items-center gap-2">
                   {item.title}
                   {item.url && (
-                    <a href={item.url} target="_blank" rel="noopener noreferrer" class="opacity-50 hover:opacity-100 transition-opacity">
+                    <a
+                      href={item.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      class="opacity-50 hover:opacity-100 transition-opacity"
+                    >
                       <PhLink size={18} />
                     </a>
                   )}
@@ -156,7 +175,12 @@ const getBadgeGroups = (section: unknown): CvBadgeGroup[] => {
                 <div class="font-medium flex items-center gap-2">
                   {item.title}
                   {item.url && (
-                    <a href={item.url} target="_blank" rel="noopener noreferrer" class="opacity-50 hover:opacity-100 transition-opacity">
+                    <a
+                      href={item.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      class="opacity-50 hover:opacity-100 transition-opacity"
+                    >
                       <PhLink size={18} />
                     </a>
                   )}
@@ -178,7 +202,9 @@ const getBadgeGroups = (section: unknown): CvBadgeGroup[] => {
           <div class="grid gap-4">
             {getBadgeGroups(section).map((group) => (
               <div class="grid gap-2">
-                <h3 class="text-sm font-semibold tracking-wide text-base-content/70">{group.title}</h3>
+                <h3 class="text-sm font-semibold tracking-wide text-base-content/70">
+                  {group.title}
+                </h3>
                 <div class="flex flex-wrap gap-2">
                   {(group.badges || []).map((badge) => {
                     const icon = getSimpleIcon(badge.iconSlug);
@@ -186,9 +212,13 @@ const getBadgeGroups = (section: unknown): CvBadgeGroup[] => {
                     return (
                       <span class="badge badge-outline gap-1.5 text-base-content">
                         {icon && (
-                          <svg class="h-[0.75em] w-[0.75em] shrink-0 fill-current" viewBox="0 0 24 24" aria-hidden="true">
+                          <svg
+                            class="h-[0.75em] w-[0.75em] shrink-0 fill-current"
+                            viewBox="0 0 24 24"
+                            aria-hidden="true"
+                          >
                             <title>{icon.title}</title>
-                            <path d={icon.path}></path>
+                            <path d={icon.path} />
                           </svg>
                         )}
                         <span>{badge.value}</span>
