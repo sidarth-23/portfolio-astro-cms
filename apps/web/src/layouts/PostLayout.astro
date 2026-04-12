@@ -216,20 +216,32 @@ const jsonLd = {
   </div>
 
   <script>
-    import { initCodeBlocks } from "@sidshub/lexical/web/client";
+    import { initCodeBlocks, initImageGallery } from "@sidshub/lexical/web/client";
 
     let cleanupCodeBlocks = () => {};
+    let cleanupImageGallery = () => {};
 
     const initializeCodeBlocks = () => {
       cleanupCodeBlocks();
       cleanupCodeBlocks = initCodeBlocks();
     };
 
+    const initializeImageGallery = () => {
+      cleanupImageGallery();
+      cleanupImageGallery = initImageGallery();
+    };
+
     initializeCodeBlocks();
+    initializeImageGallery();
 
     if (!document.documentElement.dataset.codeBlockPageLoadBound) {
       document.addEventListener("astro:page-load", initializeCodeBlocks);
       document.documentElement.dataset.codeBlockPageLoadBound = "true";
+    }
+
+    if (!document.documentElement.dataset.imageGalleryPageLoadBound) {
+      document.addEventListener("astro:page-load", initializeImageGallery);
+      document.documentElement.dataset.imageGalleryPageLoadBound = "true";
     }
   </script>
 

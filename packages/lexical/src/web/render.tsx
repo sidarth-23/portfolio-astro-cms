@@ -10,6 +10,7 @@ import { renderToStaticMarkup } from "preact-render-to-string";
 import { Callout } from "./blocks/Callout";
 import { Code } from "./blocks/Code";
 import { Upload } from "./blocks/Upload";
+import { ImageGallery } from "./blocks/ImageGallery";
 import { highlightCode } from "./blocks/shiki";
 import { createHeadingConverters } from "./headings";
 import { createInternalDocHrefResolver, type InternalDocHrefRouteMap } from "./linkResolver";
@@ -74,6 +75,34 @@ export const renderRichTextToHTML = async (
         );
         return renderToStaticMarkup(
           <Callout variant={variant} title={title} contentHtml={contentHtml} wrapperClass="my-6" />,
+        );
+      },
+      imageGallery: async ({ node }: { node: SerializedBlockNode<Record<string, unknown>> }) => {
+        const fields = node.fields ?? {};
+        const caption = (fields.caption as string | null | undefined) ?? null;
+        const rawImages = (fields.images as Array<{ image: any }> | null | undefined) ?? [];
+
+        const images = await Promise.all(
+          rawImages
+            .filter((entry) => entry.image && typeof entry.image === "object" && entry.image.url)
+            .map(async (entry) => {
+              const doc = entry.image;
+              const alt = (doc.alt as string) ?? "";
+              const mediaCaption = doc.caption as RichTextValue | null | undefined;
+              const captionHtml = mediaCaption
+                ? await renderRichTextToHTML(
+                    { data: mediaCaption, enableContainer: false },
+                    config,
+                  )
+                : null;
+              return { doc, alt, captionHtml };
+            }),
+        );
+
+        if (images.length === 0) return "";
+
+        return renderToStaticMarkup(
+          <ImageGallery images={images} caption={caption} mediaBaseUrl={config?.mediaBaseUrl} />,
         );
       },
       Code: async ({ node }: { node: SerializedBlockNode<Record<string, unknown>> }) => {

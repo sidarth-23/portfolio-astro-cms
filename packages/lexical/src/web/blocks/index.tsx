@@ -3,8 +3,10 @@ import { renderToStaticMarkup } from "preact-render-to-string";
 import { Callout } from "./Callout";
 import { Code } from "./Code";
 import { ContentSection } from "./ContentSection";
+import { ImageGallery } from "./ImageGallery";
 import { highlightCode } from "./shiki";
 import { renderRichTextToHTML, type RichTextRenderConfig } from "../render";
+import type { RichTextValue } from "../types";
 
 export type BlockRenderConfig = RichTextRenderConfig;
 
@@ -57,6 +59,34 @@ export async function renderBlock(block: Record<string, unknown>, config?: Block
       );
       return renderToStaticMarkup(
         <Code mode="single" language={language} highlightedHtml={highlightedHtml} caption={caption} />,
+      );
+    }
+
+    case "imageGallery": {
+      const caption = (block.caption as string | null | undefined) ?? null;
+      const rawImages = (block.images as Array<{ image: any }> | null | undefined) ?? [];
+
+      const images = await Promise.all(
+        rawImages
+          .filter((entry) => entry.image && typeof entry.image === "object" && entry.image.url)
+          .map(async (entry) => {
+            const doc = entry.image;
+            const alt = (doc.alt as string) ?? "";
+            const mediaCaption = doc.caption as RichTextValue | null | undefined;
+            const captionHtml = mediaCaption
+              ? await renderRichTextToHTML(
+                  { data: mediaCaption, enableContainer: false },
+                  config,
+                )
+              : null;
+            return { doc, alt, captionHtml };
+          }),
+      );
+
+      if (images.length === 0) return "";
+
+      return renderToStaticMarkup(
+        <ImageGallery images={images} caption={caption} mediaBaseUrl={config?.mediaBaseUrl} />,
       );
     }
 

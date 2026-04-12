@@ -62,6 +62,7 @@ export type LexicalEditorOptions = {
   enableCodeBlock?: boolean;
   enableCallout?: boolean;
   calloutVariantProfile?: CalloutVariantProfile;
+  enableImageGallery?: boolean;
   link?: LinkSettings;
   relationship?: RelationshipSettings;
   upload?: UploadSettings;
@@ -89,6 +90,7 @@ const DEFAULT_VARIANT_OPTIONS: Record<LexicalEditorVariant, VariantDefaults> = {
     enableCodeBlock: false,
     enableCallout: false,
     calloutVariantProfile: "generic",
+    enableImageGallery: false,
     enabledHeadingSizes: [],
   },
   basic: {
@@ -106,6 +108,7 @@ const DEFAULT_VARIANT_OPTIONS: Record<LexicalEditorVariant, VariantDefaults> = {
     enableCodeBlock: true,
     enableCallout: false,
     calloutVariantProfile: "generic",
+    enableImageGallery: false,
     enabledHeadingSizes: [],
   },
   document: {
@@ -123,6 +126,7 @@ const DEFAULT_VARIANT_OPTIONS: Record<LexicalEditorVariant, VariantDefaults> = {
     enableCodeBlock: true,
     enableCallout: false,
     calloutVariantProfile: "generic",
+    enableImageGallery: true,
     enabledHeadingSizes: ["h2", "h3", "h4"],
   },
 };
@@ -281,6 +285,35 @@ const createCodeBlock = (): any => ({
   ],
 });
 
+const createImageGalleryBlock = (): any => ({
+  slug: "imageGallery",
+  interfaceName: "LexicalImageGalleryBlock",
+  labels: { singular: "Image Gallery", plural: "Image Galleries" },
+  fields: [
+    {
+      name: "images",
+      type: "array",
+      label: "Images",
+      minRows: 2,
+      required: true,
+      fields: [
+        {
+          name: "image",
+          type: "upload",
+          relationTo: "media",
+          required: true,
+        },
+      ],
+    },
+    {
+      name: "caption",
+      type: "text",
+      required: false,
+      label: "Gallery Caption (optional)",
+    },
+  ],
+});
+
 const createCalloutBlock = (profile: CalloutVariantProfile): any => {
   return {
     slug: "callout",
@@ -383,6 +416,10 @@ export const createLexicalEditor = ({ variant, ...overrides }: LexicalEditorOpti
 
       if (options.enableCallout) {
         lexicalBlocks.push(createCalloutBlock(options.calloutVariantProfile ?? "generic"));
+      }
+
+      if (options.enableImageGallery) {
+        lexicalBlocks.push(createImageGalleryBlock());
       }
 
       if (lexicalBlocks.length > 0) {

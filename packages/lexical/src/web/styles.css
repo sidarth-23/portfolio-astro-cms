@@ -77,13 +77,18 @@
   text-align: center;
 }
 
-.image-figure figcaption {
+.image-figure figcaption,
+.image-gallery-figure figcaption {
   margin-top: 0.625rem;
   font-size: 0.75rem;
   line-height: 1.4;
   opacity: 1;
   font-style: normal;
   color: inherit;
+}
+
+.image-gallery-figure {
+  counter-increment: figure var(--gallery-count, 1);
 }
 
 .image-figure figcaption::before {
@@ -95,20 +100,39 @@
   content: "Fig " counter(figure) " - ";
 }
 
+.image-gallery-figure figcaption::before {
+  content: attr(data-fig-label);
+  font-weight: 600;
+}
+
+.image-gallery-figure figcaption.has-caption::before {
+  content: attr(data-fig-label) " - ";
+}
+
 /* Keep media caption rich text inline with the figure label (Fig n - ...). */
-.image-figure figcaption > :where(p) {
+.image-figure figcaption > :where(p),
+.image-gallery-figure figcaption > :where(p) {
   display: inline;
   margin: 0;
 }
 
-.image-figure figcaption > :where(p + p)::before {
+.image-figure figcaption > :where(p + p)::before,
+.image-gallery-figure figcaption > :where(p + p)::before {
   content: " ";
 }
 
-.image-figure figcaption :where(strong, b) {
+.image-figure figcaption :where(strong, b),
+.image-gallery-figure figcaption :where(strong, b) {
   font-weight: 600;
 }
 
-.image-figure figcaption :where(em, i) {
+.image-figure figcaption :where(em, i),
+.image-gallery-figure figcaption :where(em, i) {
   font-style: italic;
+}
+
+/* Image gallery figures in rich text content */
+.image-gallery-figure {
+  margin-block: 2rem;
+  text-align: center;
 }

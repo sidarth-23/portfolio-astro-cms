@@ -46,6 +46,7 @@ export const Posts: CollectionConfig = {
               editor: createDocumentRichTextEditor({
                 enabledHeadingSizes: ["h2", "h3", "h4"],
                 enableCallout: true,
+                enableImageGallery: true,
                 calloutVariantProfile: "blog",
               }),
             },

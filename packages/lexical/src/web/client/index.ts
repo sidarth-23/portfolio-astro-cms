@@ -1,4 +1,5 @@
 /** @jsxImportSource preact */
+import EmblaCarousel, { type EmblaCarouselType } from "embla-carousel";
 
 const DEFAULT_TOC_ACTIVE_CLASSES = ["border-primary", "text-base-content", "opacity-100", "font-medium"] as const;
 
@@ -255,6 +256,137 @@ export const initCodeBlocks = (root: ParentNode = document): (() => void) => {
       button.removeEventListener("click", onClick);
       delete button.dataset.copyBound;
     });
+  });
+
+  return () => {
+    cleanups.forEach((cleanup) => cleanup());
+  };
+};
+
+export const initImageGallery = (root: ParentNode = document): (() => void) => {
+  const cleanups: Array<() => void> = [];
+
+  const countGalleryImages = (galleryFigure: Element): number => {
+    return Math.max(galleryFigure.querySelectorAll(".image-gallery-slide").length, 1);
+  };
+
+  const getGalleryBaseIndex = (galleryFigure: Element): number => {
+    const figureRoot =
+      galleryFigure.closest("[data-rich-text-content], .rich-text-content, article") ?? document;
+    const figureEntities = figureRoot.querySelectorAll(".image-figure, .image-gallery-figure");
+    let countBefore = 0;
+
+    for (const entity of figureEntities) {
+      if (entity === galleryFigure) break;
+      if (entity.classList.contains("image-gallery-figure")) {
+        countBefore += countGalleryImages(entity);
+      } else {
+        countBefore += 1;
+      }
+    }
+
+    return countBefore;
+  };
+
+  root.querySelectorAll("[data-image-gallery]").forEach((container) => {
+    if (!(container instanceof HTMLElement)) return;
+    if (container.dataset.galleryInitialized || container.dataset.galleryInitializing) return;
+    container.dataset.galleryInitializing = "true";
+
+    const viewport = container.querySelector("[data-gallery-viewport]");
+    if (!(viewport instanceof HTMLElement)) {
+      delete container.dataset.galleryInitializing;
+      return;
+    }
+
+    const prevBtn = container.querySelector("[data-gallery-prev]");
+    const nextBtn = container.querySelector("[data-gallery-next]");
+    const indicator = container.querySelector("[data-gallery-indicator]");
+    const figure = container.closest("figure");
+    const caption = figure?.querySelector("[data-gallery-caption]");
+
+    let embla: EmblaCarouselType | null = null;
+    let onPrev: (() => void) | null = null;
+    let onNext: (() => void) | null = null;
+    let isDestroyed = false;
+
+    const cleanup = () => {
+      if (isDestroyed) return;
+      isDestroyed = true;
+
+      if (prevBtn && onPrev) {
+        prevBtn.removeEventListener("click", onPrev);
+      }
+      if (nextBtn && onNext) {
+        nextBtn.removeEventListener("click", onNext);
+      }
+      embla?.destroy();
+      embla = null;
+
+      delete container.dataset.galleryInitialized;
+      delete container.dataset.galleryInitializing;
+    };
+
+    cleanups.push(cleanup);
+
+    if (isDestroyed) return;
+
+    embla = EmblaCarousel(viewport, { loop: false, align: "start" });
+    container.dataset.galleryInitialized = "true";
+    delete container.dataset.galleryInitializing;
+
+    const total = embla.slideNodes().length;
+    const galleryBaseIndex = figure ? getGalleryBaseIndex(figure) : 0;
+    const setCaption = (index: number) => {
+      if (!(caption instanceof HTMLElement)) return;
+      const activeSlide = embla?.slideNodes()[index];
+      const slideCaption = activeSlide?.querySelector("[data-gallery-slide-caption]");
+      const html = slideCaption?.innerHTML?.trim() ?? "";
+      const hasCaption = html.length > 0;
+      const figureNumber = galleryBaseIndex + index + 1;
+
+      caption.dataset.figLabel = `Fig ${figureNumber}`;
+      caption.classList.toggle("has-caption", hasCaption);
+      caption.classList.toggle("no-caption", !hasCaption);
+      caption.innerHTML = hasCaption ? html : "";
+    };
+
+    const updateControls = () => {
+      const canPrev = embla?.canScrollPrev() ?? false;
+      const canNext = embla?.canScrollNext() ?? false;
+      const selectedIndex = embla?.selectedScrollSnap() ?? 0;
+
+      if (prevBtn instanceof HTMLButtonElement) {
+        prevBtn.disabled = !canPrev;
+        prevBtn.classList.toggle("opacity-40", !canPrev);
+        prevBtn.classList.toggle("cursor-not-allowed", !canPrev);
+        prevBtn.setAttribute("aria-disabled", String(!canPrev));
+      }
+      if (nextBtn instanceof HTMLButtonElement) {
+        nextBtn.disabled = !canNext;
+        nextBtn.classList.toggle("opacity-40", !canNext);
+        nextBtn.classList.toggle("cursor-not-allowed", !canNext);
+        nextBtn.setAttribute("aria-disabled", String(!canNext));
+      }
+      if (indicator) {
+        indicator.textContent = `${selectedIndex + 1} / ${total}`;
+      }
+
+      setCaption(selectedIndex);
+    };
+
+    embla.on("select", updateControls);
+    embla.on("reInit", updateControls);
+    updateControls();
+    requestAnimationFrame(() => {
+      embla?.reInit();
+      updateControls();
+    });
+
+    onPrev = () => embla?.scrollPrev();
+    onNext = () => embla?.scrollNext();
+    prevBtn?.addEventListener("click", onPrev);
+    nextBtn?.addEventListener("click", onNext);
   });
 
   return () => {

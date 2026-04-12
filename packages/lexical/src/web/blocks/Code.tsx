@@ -191,11 +191,13 @@ export function Code(props: Props) {
         </div>
 
         <figcaption
-          class={`code-block-caption border-t border-base-content/10 bg-base-content/5 px-4 py-2 text-xs ${
+          class={`code-block-caption border-t border-base-content/10 bg-base-content/5 px-2 h-8 flex items-center text-xs ${
             hasCaption ? "has-caption" : "no-caption"
           }`}
         >
-          {hasCaption && <span class="code-block-caption-text">{captionText}</span>}
+          {hasCaption && (
+            <span class="code-block-caption-text">{captionText}</span>
+          )}
         </figcaption>
       </figure>
     );
@@ -238,11 +240,13 @@ export function Code(props: Props) {
       </div>
 
       <figcaption
-        class={`code-block-caption border-t border-base-content/10 bg-base-content/5 px-4 py-2 text-xs ${
+        class={`code-block-caption border-t border-base-content/10 bg-base-content/5 px-2 h-8 flex items-center text-xs ${
           hasCaption ? "has-caption" : "no-caption"
         }`}
       >
-        {hasCaption && <span class="code-block-caption-text">{captionText}</span>}
+        {hasCaption && (
+          <span class="code-block-caption-text">{captionText}</span>
+        )}
       </figcaption>
     </figure>
   );

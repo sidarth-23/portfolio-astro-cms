@@ -1433,6 +1433,20 @@ export interface LexicalCalloutBlock {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "LexicalImageGalleryBlock".
+ */
+export interface LexicalImageGalleryBlock {
+  images: {
+    image: number | Media;
+    id?: string | null;
+  }[];
+  caption?: string | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'imageGallery';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "auth".
  */
 export interface Auth {
