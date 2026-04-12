@@ -8,14 +8,13 @@ import { createCmsRestClient } from "@sidshub/cms-config/rest-client";
 
 const cmsClient = createCmsRestClient({ apiUrl: ASTRO_CMS_API_URL, token: ASTRO_CMS_READ_TOKEN });
 const projectsPage = await cmsClient.getProjectsPage();
-const projectsSeoTitle = projectsPage.meta?.title;
-const projectsSeoDescription = projectsPage.meta?.description;
+const { meta, sections: projectSections } = projectsPage;
 
-if (!projectsSeoTitle || !projectsSeoDescription) {
+if (!meta.title || !meta.description) {
   throw new Error("Projects page requires SEO `meta.title` and `meta.description`.");
 }
 
-const sections = projectsPage.sections.map((section) => ({
+const sections = projectSections.map((section) => ({
   ...section,
   projects: asProjectArray(section.projects),
 }));
@@ -24,9 +23,9 @@ const sections = projectsPage.sections.map((section) => ({
 
 <BaseLayout
   title="Projects"
-  seoTitle={projectsSeoTitle}
-  description={projectsSeoDescription}
-  image={cmsClient.mediaToUrl(projectsPage.meta?.image)}
+  seoTitle={meta.title}
+  description={meta.description}
+  image={cmsClient.mediaToUrl(meta?.image)}
 >
   {
     sections.map((section) => (

@@ -4,17 +4,16 @@ import { ASTRO_CMS_API_URL, ASTRO_CMS_READ_TOKEN } from "astro:env/server";
 import { createCmsRestClient } from "@sidshub/cms-config/rest-client";
 
 const cmsClient = createCmsRestClient({ apiUrl: ASTRO_CMS_API_URL, token: ASTRO_CMS_READ_TOKEN });
-const notFoundPage = await cmsClient.getNotFoundPage();
+const {
+  title: pageTitle,
+  description: pageDescription,
+  meta,
+  ctaLabel,
+  ctaHref,
+  emoji,
+} = await cmsClient.getNotFoundPage();
 
-const pageTitle = notFoundPage.title;
-const pageDescription = notFoundPage.description;
-const seoTitle = notFoundPage.meta?.title;
-const seoDescription = notFoundPage.meta?.description;
-const ctaLabel = notFoundPage.ctaLabel;
-const ctaHref = notFoundPage.ctaHref;
-const emoji = notFoundPage.emoji;
-
-if (!pageTitle || !pageDescription || !seoTitle || !seoDescription) {
+if (!pageTitle || !pageDescription || !meta.title || !meta.description) {
   throw new Error(
     "404 page requires `title`, `description`, and SEO `meta.title` + `meta.description`.",
   );
@@ -22,9 +21,9 @@ if (!pageTitle || !pageDescription || !seoTitle || !seoDescription) {
 ---
 
 <ErrorLayout
-  title={seoTitle}
-  description={seoDescription}
-  image={cmsClient.mediaToUrl(notFoundPage.meta?.image)}
+  title={meta.title}
+  description={meta.description}
+  image={cmsClient.mediaToUrl(meta?.image)}
 >
   <div class="text-center">
     <h1 class="text-9xl font-bold mb-4">{emoji}</h1>

@@ -50,11 +50,9 @@ const [paginatedPosts, allCategories, allTags, allSeries, blogPage]: [
   cmsClient.getBlogPage(),
 ]);
 
-const blogSeoTitle = blogPage.meta?.title;
-const blogSeoDescription = blogPage.meta?.description;
-const blogTitle = blogPage.title;
+const { meta, title: blogTitle, intro: blogIntro } = blogPage;
 
-if (!blogSeoTitle || !blogSeoDescription) {
+if (!meta.title || !meta.description) {
   throw new Error("Blog page requires SEO `meta.title` and `meta.description`.");
 }
 
@@ -124,9 +122,9 @@ const activeSeries = seriesFilter
 
 <BaseLayout
   title={blogTitle}
-  seoTitle={blogSeoTitle}
-  description={blogSeoDescription}
-  image={cmsClient.mediaToUrl(blogPage.meta?.image)}
+  seoTitle={meta.title}
+  description={meta.description}
+  image={cmsClient.mediaToUrl(meta?.image)}
 >
   <div
     class="mb-5 flex flex-col md:flex-row items-center justify-between gap-4"
@@ -153,8 +151,8 @@ const activeSeries = seriesFilter
   </div>
 
   {
-    blogPage.intro && (
-      <p class="mb-6 text-base-content/80 leading-relaxed">{blogPage.intro}</p>
+    blogIntro && (
+      <p class="mb-6 text-base-content/80 leading-relaxed">{blogIntro}</p>
     )
   }
 

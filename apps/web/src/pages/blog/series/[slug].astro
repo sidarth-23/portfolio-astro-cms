@@ -43,26 +43,24 @@ export async function getStaticPaths() {
 }
 
 const { series, posts } = Astro.props as SeriesPageProps;
-const seriesPage = await cmsClient.getSeriesPage();
+const {
+  meta: seriesPageMeta,
+  backToSeriesLabel = "Back to Series",
+} = await cmsClient.getSeriesPage();
 
-const seriesPageSeoTitle = seriesPage.meta?.title;
-const seriesPageSeoDescription = seriesPage.meta?.description;
-
-if (!seriesPageSeoTitle || !seriesPageSeoDescription) {
+if (!seriesPageMeta.title || !seriesPageMeta.description) {
   throw new Error("Series page requires SEO `meta.title` and `meta.description`.");
 }
 
-const seriesSeoTitle = series.meta?.title || seriesPageSeoTitle;
-const seriesSeoDescription =
-  series.meta?.description || seriesPageSeoDescription;
-const backToSeriesLabel = seriesPage.backToSeriesLabel || "Back to Series";
+const seriesSeoTitle = series.meta?.title || seriesPageMeta.title;
+const seriesSeoDescription = series.meta?.description || seriesPageMeta.description;
 ---
 
 <BaseLayout
   title={`${series.name} - Series`}
   seoTitle={seriesSeoTitle}
   description={seriesSeoDescription}
-  image={cmsClient.mediaToUrl(series.meta?.image) ?? cmsClient.mediaToUrl(seriesPage.meta?.image)}
+  image={cmsClient.mediaToUrl(series.meta?.image) ?? cmsClient.mediaToUrl(seriesPageMeta?.image)}
 >
   <div class="mb-6">
     <a
