@@ -3,6 +3,13 @@ import { MigrateDownArgs, MigrateUpArgs, sql } from '@payloadcms/db-postgres'
 export async function up({ db }: MigrateUpArgs): Promise<void> {
   await db.execute(sql`
     DO $$ BEGIN
+      IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = '_posts_v_version_populated_authors_links') THEN
+        ALTER TABLE "_posts_v_version_populated_authors_links"
+          ADD COLUMN IF NOT EXISTS "_uuid" varchar;
+      END IF;
+    END $$;
+
+    DO $$ BEGIN
       IF EXISTS (SELECT 1 FROM pg_type WHERE typname = 'enum_projects_links_page') THEN
         ALTER TYPE "public"."enum_projects_links_page" ADD VALUE IF NOT EXISTS 'rss';
       END IF;
@@ -100,6 +107,13 @@ export async function up({ db }: MigrateUpArgs): Promise<void> {
 
 export async function down({ db }: MigrateDownArgs): Promise<void> {
   await db.execute(sql`
+    DO $$ BEGIN
+      IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = '_posts_v_version_populated_authors_links') THEN
+        ALTER TABLE "_posts_v_version_populated_authors_links"
+          DROP COLUMN IF EXISTS "_uuid";
+      END IF;
+    END $$;
+
     DO $$ BEGIN
       IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'users_links') THEN
         UPDATE "users_links"

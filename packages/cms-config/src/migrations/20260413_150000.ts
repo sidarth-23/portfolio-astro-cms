@@ -428,6 +428,7 @@ export async function up({ db }: MigrateUpArgs): Promise<void> {
       "id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
       "_order" integer NOT NULL,
       "_parent_id" integer NOT NULL REFERENCES "_posts_v_version_populated_authors"("id") ON DELETE CASCADE,
+      "_uuid" varchar,
       "icon" varchar,
       "type" varchar DEFAULT 'custom',
       "url" varchar,

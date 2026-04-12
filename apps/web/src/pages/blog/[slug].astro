@@ -28,6 +28,21 @@ type SeriesNavProps = {
   };
 };
 
+type AuthorLink = {
+  icon?: string | null;
+  url?: string | null;
+  newTab?: boolean | null;
+};
+
+const getAuthorLinks = (author: unknown): AuthorLink[] => {
+  if (!author || typeof author !== "object") {
+    return [];
+  }
+
+  const links = (author as { links?: unknown }).links;
+  return Array.isArray(links) ? (links as AuthorLink[]) : [];
+};
+
 export async function getStaticPaths() {
   const staticPathsCmsClient = createCmsRestClient({
     apiUrl: ASTRO_CMS_API_URL,
@@ -107,7 +122,7 @@ const visibleAuthors = authors.filter((author) => {
   const hasName = Boolean(author.name?.trim());
   const hasBio = Boolean(author.bio);
   const hasAvatar = Boolean(cmsClient.mediaToUrl(author.avatar));
-  const hasLinks = Array.isArray((author as any).links) && (author as any).links.length > 0;
+  const hasLinks = getAuthorLinks(author).length > 0;
 
   return hasName || hasBio || hasAvatar || hasLinks;
 });
@@ -211,10 +226,9 @@ if (!meta?.title || !meta?.description) {
                       <RichTextRenderer data={author.bio} />
                     </div>
                   )}
-                  {Array.isArray((author as any).links) &&
-                    (author as any).links.length > 0 && (
+                  {getAuthorLinks(author).length > 0 && (
                       <div class="mt-5 flex gap-4 items-center">
-                        {((author as any).links as Array<{ icon?: string | null; url?: string | null; newTab?: boolean | null }>).map((link) => {
+                        {getAuthorLinks(author).map((link) => {
                           if (!link.icon || !link.url) return null;
                           const iconData = resolveIcon(link.icon);
                           if (!iconData) return null;
