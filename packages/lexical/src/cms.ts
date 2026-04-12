@@ -175,17 +175,6 @@ const createRelationshipFeature = ({ enabledCollections }: RelationshipSettings 
 const createUploadFeature = ({ enabledCollections }: UploadSettings = {}) => {
   return UploadFeature({
     enabledCollections: enabledCollections ?? DEFAULT_UPLOAD_COLLECTIONS,
-    collections: {
-      media: {
-        fields: [
-          {
-            name: "caption",
-            type: "text",
-            required: false,
-          },
-        ],
-      },
-    },
   });
 };
 

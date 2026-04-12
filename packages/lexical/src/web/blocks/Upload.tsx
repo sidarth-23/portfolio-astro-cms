@@ -31,26 +31,20 @@ function isUsableSize(s: ImageSize | null): s is Required<ImageSize> {
 type Props = {
   doc: UploadDoc;
   alt: string;
+  captionHtml?: string | null;
   mediaBaseUrl?: string;
 };
 
-export function Upload({ doc, alt, mediaBaseUrl }: Props) {
-  if (!doc.url) return null;
+// Shared inline style for the absolutely-positioned image — fills the
+// 16:9 container while preserving the full image via object-contain.
+const IMG_STYLE = "position:absolute;inset:0;width:100%;height:100%;object-fit:contain;display:block;";
 
-  const url = resolveUrl(doc.url, mediaBaseUrl);
-
-  if (!doc.mimeType?.startsWith("image")) {
-    return (
-      <a href={url} rel="noopener noreferrer">
-        {doc.filename ?? url}
-      </a>
-    );
-  }
-
+function ImagePicture({ doc, alt, mediaBaseUrl }: { doc: UploadDoc; alt: string; mediaBaseUrl?: string }) {
+  const url = resolveUrl(doc.url!, mediaBaseUrl);
   const usableSizes = Object.values(doc.sizes ?? {}).filter(isUsableSize);
 
   if (usableSizes.length === 0) {
-    return <img alt={alt} height={doc.height ?? undefined} src={url} width={doc.width ?? undefined} />;
+    return <img alt={alt} src={url} style={IMG_STYLE} />;
   }
 
   return (
@@ -63,7 +57,31 @@ export function Upload({ doc, alt, mediaBaseUrl }: Props) {
           type={s.mimeType ?? undefined}
         />
       ))}
-      <img alt={alt} height={doc.height ?? undefined} src={url} width={doc.width ?? undefined} />
+      <img alt={alt} src={url} style={IMG_STYLE} />
     </picture>
+  );
+}
+
+export function Upload({ doc, alt, captionHtml, mediaBaseUrl }: Props) {
+  if (!doc.url) return null;
+
+  const url = resolveUrl(doc.url, mediaBaseUrl);
+
+  if (!doc.mimeType?.startsWith("image")) {
+    return (
+      <a href={url} rel="noopener noreferrer">
+        {doc.filename ?? url}
+      </a>
+    );
+  }
+
+  return (
+    <figure class="image-figure">
+      {/* position:relative + aspect-ratio creates the 16:9 letterbox frame */}
+      <div style="position:relative;width:100%;aspect-ratio:16/9;background-color:var(--fallback-b2,oklch(var(--b2)));overflow:hidden;border-radius:0.5rem;">
+        <ImagePicture doc={doc} alt={alt} mediaBaseUrl={mediaBaseUrl} />
+      </div>
+      {captionHtml && <figcaption dangerouslySetInnerHTML={{ __html: captionHtml }} />}
+    </figure>
   );
 }

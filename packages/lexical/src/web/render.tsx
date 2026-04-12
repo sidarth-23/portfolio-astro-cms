@@ -46,17 +46,20 @@ export const renderRichTextToHTML = async (
 
   const htmlConverters: HTMLConvertersFunctionAsync<NodeTypes> = ({ defaultConverters }) => ({
     ...defaultConverters,
-    ...(config?.mediaBaseUrl
-      ? {
-          upload: ({ node }: { node: SerializedUploadNode }) => {
-            if (typeof node.value !== "object" || !node.value) return "";
-            const alt = (node as any).fields?.alt ?? (node.value as any).alt ?? "";
-            return renderToStaticMarkup(
-              <Upload doc={node.value as any} alt={alt} mediaBaseUrl={config.mediaBaseUrl} />,
-            );
-          },
-        }
-      : {}),
+    upload: async ({ node }: { node: SerializedUploadNode }) => {
+      if (typeof node.value !== "object" || !node.value) return "";
+      const alt = (node as any).fields?.alt ?? (node.value as any).alt ?? "";
+      const mediaCaption = (node.value as any).caption as RichTextValue | null | undefined;
+      const captionHtml = mediaCaption
+        ? await renderRichTextToHTML(
+            { data: mediaCaption, enableContainer: false },
+            config,
+          )
+        : null;
+      return renderToStaticMarkup(
+        <Upload doc={node.value as any} alt={alt} captionHtml={captionHtml} mediaBaseUrl={config?.mediaBaseUrl} />,
+      );
+    },
     ...LinkHTMLConverterAsync({ internalDocToHref }),
     ...createHeadingConverters(),
     blocks: {
