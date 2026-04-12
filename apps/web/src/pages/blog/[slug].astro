@@ -8,7 +8,10 @@ import { createCmsRestClient } from "@sidshub/cms-config/client/rest";
 import type { Post } from "@sidshub/cms-config/payload-types";
 import { PhGithubLogo, PhLinkedinLogo } from "phosphor-icons-astro";
 
-const cmsClient = createCmsRestClient({ apiUrl: ASTRO_CMS_API_URL, token: ASTRO_CMS_READ_TOKEN });
+const cmsClient = createCmsRestClient({
+  apiUrl: ASTRO_CMS_API_URL,
+  token: ASTRO_CMS_READ_TOKEN,
+});
 
 type SeriesNavProps = {
   seriesName: string;
@@ -61,16 +64,24 @@ export async function getStaticPaths() {
       const currentIndex = seriesPosts.findIndex((p) => p.slug === post.slug);
 
       if (currentIndex !== -1) {
-        const prevPost = currentIndex > 0 ? seriesPosts[currentIndex - 1] : undefined;
-        const nextPost = currentIndex < seriesPosts.length - 1 ? seriesPosts[currentIndex + 1] : undefined;
+        const prevPost =
+          currentIndex > 0 ? seriesPosts[currentIndex - 1] : undefined;
+        const nextPost =
+          currentIndex < seriesPosts.length - 1
+            ? seriesPosts[currentIndex + 1]
+            : undefined;
 
         seriesNav = {
           seriesName: series.name,
           seriesSlug: series.slug,
           currentPart: currentIndex + 1,
           totalParts: seriesPosts.length,
-          prevPost: prevPost ? { slug: prevPost.slug, title: prevPost.title } : undefined,
-          nextPost: nextPost ? { slug: nextPost.slug, title: nextPost.title } : undefined,
+          prevPost: prevPost
+            ? { slug: prevPost.slug, title: prevPost.title }
+            : undefined,
+          nextPost: nextPost
+            ? { slug: nextPost.slug, title: nextPost.title }
+            : undefined,
         };
       }
     }
@@ -106,7 +117,9 @@ const pubDate = post.publishedAt || post.createdAt || new Date().toISOString();
 const { meta } = post;
 
 if (!meta?.title || !meta?.description) {
-  throw new Error(`Post "${post.slug}" requires SEO \`meta.title\` and \`meta.description\`.`);
+  throw new Error(
+    `Post "${post.slug}" requires SEO \`meta.title\` and \`meta.description\`.`,
+  );
 }
 ---
 
@@ -123,31 +136,35 @@ if (!meta?.title || !meta?.description) {
   authors={visibleAuthors}
   toc={toc}
 >
-  {seriesNav && (
-    <SeriesNav
-      position="top"
-      seriesName={seriesNav.seriesName}
-      seriesSlug={seriesNav.seriesSlug}
-      currentPart={seriesNav.currentPart}
-      totalParts={seriesNav.totalParts}
-      prevPost={seriesNav.prevPost}
-      nextPost={seriesNav.nextPost}
-    />
-  )}
+  {
+    seriesNav && (
+      <SeriesNav
+        position="top"
+        seriesName={seriesNav.seriesName}
+        seriesSlug={seriesNav.seriesSlug}
+        currentPart={seriesNav.currentPart}
+        totalParts={seriesNav.totalParts}
+        prevPost={seriesNav.prevPost}
+        nextPost={seriesNav.nextPost}
+      />
+    )
+  }
 
   <RichTextRenderer data={post.content} calloutVariantProfile="blog" />
 
-  {seriesNav && (
-    <SeriesNav
-      position="bottom"
-      seriesName={seriesNav.seriesName}
-      seriesSlug={seriesNav.seriesSlug}
-      currentPart={seriesNav.currentPart}
-      totalParts={seriesNav.totalParts}
-      prevPost={seriesNav.prevPost}
-      nextPost={seriesNav.nextPost}
-    />
-  )}
+  {
+    seriesNav && (
+      <SeriesNav
+        position="bottom"
+        seriesName={seriesNav.seriesName}
+        seriesSlug={seriesNav.seriesSlug}
+        currentPart={seriesNav.currentPart}
+        totalParts={seriesNav.totalParts}
+        prevPost={seriesNav.prevPost}
+        nextPost={seriesNav.nextPost}
+      />
+    )
+  }
 
   {
     visibleAuthors.length > 0 && (
@@ -160,7 +177,7 @@ if (!meta?.title || !meta?.description) {
             const avatarUrl = cmsClient.mediaToUrl(author.avatar);
 
             return (
-              <article class="flex flex-col sm:flex-row gap-6 items-start bg-base-200/30 p-6 sm:p-8 rounded-2xl">
+              <article class="flex flex-col sm:flex-row gap-6 items-start bg-base-200/30 p-6 sm:p-8 rounded-2xl border border-base-content/20">
                 {avatarUrl ? (
                   <img
                     src={avatarUrl}
@@ -170,25 +187,53 @@ if (!meta?.title || !meta?.description) {
                   />
                 ) : (
                   <div class="w-16 h-16 sm:w-20 sm:h-20 rounded-full shrink-0 bg-base-300/50 flex items-center justify-center text-base-content/40 ring-1 ring-base-content/10">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="24"
+                      height="24"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    >
+                      <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" />
+                      <circle cx="12" cy="7" r="4" />
+                    </svg>
                   </div>
                 )}
                 <div class="flex-1">
-                  <h3 class="text-lg font-semibold">{author.name || "Unknown Author"}</h3>
+                  <h3 class="text-lg font-semibold">
+                    {author.name || "Unknown Author"}
+                  </h3>
                   {author.bio && (
                     <div class="mt-3 text-sm sm:text-base leading-relaxed text-base-content/70 prose prose-sm max-w-none prose-p:last:mb-0">
                       <RichTextRenderer data={author.bio} />
                     </div>
                   )}
-                  {((author as any).linkedInUrl || (author as any).githubUrl) && (
+                  {((author as any).linkedInUrl ||
+                    (author as any).githubUrl) && (
                     <div class="mt-5 flex gap-4 items-center">
                       {(author as any).githubUrl && (
-                        <a href={(author as any).githubUrl} target="_blank" rel="noopener noreferrer" class="text-base-content/50 hover:text-base-content transition-colors" aria-label="GitHub">
+                        <a
+                          href={(author as any).githubUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          class="text-base-content/50 hover:text-base-content transition-colors"
+                          aria-label="GitHub"
+                        >
                           <PhGithubLogo size={20} />
                         </a>
                       )}
                       {(author as any).linkedInUrl && (
-                        <a href={(author as any).linkedInUrl} target="_blank" rel="noopener noreferrer" class="text-base-content/50 hover:text-base-content transition-colors" aria-label="LinkedIn">
+                        <a
+                          href={(author as any).linkedInUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          class="text-base-content/50 hover:text-base-content transition-colors"
+                          aria-label="LinkedIn"
+                        >
                           <PhLinkedinLogo size={20} />
                         </a>
                       )}

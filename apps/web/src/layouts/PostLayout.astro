@@ -55,7 +55,7 @@ const pubDateOnly = new Date(pubDate).toDateString();
 const updatedDateOnly = updatedDate
   ? new Date(updatedDate).toDateString()
   : null;
-const showUpdatedDate = updatedDateOnly && updatedDateOnly !== pubDateOnly;
+const showUpdatedDate = Boolean(updatedDateOnly && updatedDateOnly !== pubDateOnly);
 const formattedUpdatedDate = updatedDate
   ? new Intl.DateTimeFormat("en-US", {
       year: "numeric",
@@ -96,7 +96,7 @@ const jsonLd = {
             <article class="prose prose-lg min-w-0 max-w-none prose-img:mx-auto" data-toc-content>
               {
                 (category || series) && (
-                  <div class="flex flex-wrap gap-2 mb-4">
+                  <div class="not-prose mb-4 flex flex-wrap gap-2">
                     {category && (
                       <a
                         href={generateFilterUrl(currentUrl, "category", category.slug)}
@@ -129,37 +129,40 @@ const jsonLd = {
               <h1 class="title my-2 text-4xl font-bold">{title}</h1>
               {
                 authorNames.length > 0 && (
-                  <div class="text-sm mt-1">By {authorNames.join(", ")}</div>
+                  <div class="mt-1 text-sm font-medium text-base-content/80">By {authorNames.join(", ")}</div>
                 )
               }
-              <div class="flex flex-wrap items-center justify-between gap-2">
-                <div class="text-sm opacity-70">
-                  <time>{displayDate}</time>
-                  {
-                    showUpdatedDate && (
-                      <span>
-                        {" "}
-                        (updated <time>{formattedUpdatedDate}</time>)
-                      </span>
-                    )
-                  }
-                </div>
+              <div class="mt-1 flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-base-content/60">
+                <span>
+                  Published <time datetime={pubDate}>{displayDate}</time>
+                </span>
                 {
-                  tags.length > 0 && (
-                    <div class="flex flex-wrap gap-1">
-                      {tags.map((tag) => (
-                        <a
-                          href={generateFilterUrl(currentUrl, "tag", tag.slug)}
-                          class="badge badge-outline badge-sm no-underline opacity-70"
-                        >
-                          {tag.name}
-                        </a>
-                      ))}
-                    </div>
+                  showUpdatedDate && (
+                    <>
+                      <span aria-hidden="true" class="text-base-content/35">•</span>
+                      <span>
+                        Updated <time datetime={updatedDate}>{formattedUpdatedDate}</time>
+                      </span>
+                    </>
                   )
                 }
               </div>
-              <div class="divider my-2"></div>
+              {
+                tags.length > 0 && (
+                  <div class="mt-2 flex flex-wrap items-center gap-2 not-prose">
+                    {tags.map((tag) => (
+                      <a
+                        href={generateFilterUrl(currentUrl, "tag", tag.slug)}
+                        class="group inline-flex items-center gap-1 rounded-full border border-base-content/12 bg-base-200/40 px-3 py-1 text-xs font-medium text-base-content/75 no-underline transition-all hover:border-primary/40 hover:bg-primary/10 hover:text-primary"
+                      >
+                        <span class="text-base-content/30 transition-colors group-hover:text-primary/50">#</span>
+                        {tag.name}
+                      </a>
+                    ))}
+                  </div>
+                )
+              }
+              <div class="divider my-3"></div>
               <slot />
             </article>
 

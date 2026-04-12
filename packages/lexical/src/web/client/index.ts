@@ -1,8 +1,4 @@
 /** @jsxImportSource preact */
-import checkIconSrc from "@phosphor-icons/core/bold/check-bold.svg";
-import copyIconSrc from "@phosphor-icons/core/regular/copy.svg";
-import { h } from "preact";
-import { renderToString } from "preact-render-to-string";
 
 const DEFAULT_TOC_ACTIVE_CLASSES = ["border-primary", "text-base-content", "opacity-100", "font-medium"] as const;
 
@@ -18,12 +14,36 @@ export type InitTableOfContentsOptions = {
   onLinkClick?: (params: { link: Element }) => void;
 };
 
-const COPY_ICON_HTML = renderToString(
-  h("img", { src: copyIconSrc, alt: "", width: 16, height: 16, "aria-hidden": "true" }),
-);
-const COPIED_ICON_HTML = renderToString(
-  h("img", { src: checkIconSrc, alt: "", width: 16, height: 16, class: "text-success", "aria-hidden": "true" }),
-);
+const COPY_ICON_HTML =
+  '<svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="shrink-0"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>';
+const COPIED_ICON_HTML =
+  '<svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" class="shrink-0 text-success"><path d="M20 6 9 17l-5-5"></path></svg>';
+
+const writeClipboard = async (text: string): Promise<boolean> => {
+  if (navigator.clipboard?.writeText) {
+    try {
+      await navigator.clipboard.writeText(text);
+      return true;
+    } catch {
+      // Fallback below.
+    }
+  }
+
+  try {
+    const textarea = document.createElement("textarea");
+    textarea.value = text;
+    textarea.setAttribute("readonly", "");
+    textarea.style.position = "absolute";
+    textarea.style.left = "-9999px";
+    document.body.appendChild(textarea);
+    textarea.select();
+    const succeeded = document.execCommand("copy");
+    document.body.removeChild(textarea);
+    return succeeded;
+  } catch {
+    return false;
+  }
+};
 
 const markCopied = (button: HTMLElement) => {
   const label = button.querySelector(".copy-label");
@@ -94,7 +114,7 @@ export const initCodeBlocks = (root: ParentNode = document): (() => void) => {
         tab.classList.toggle("font-medium", isActive);
         tab.classList.toggle("font-normal", !isActive);
         tab.classList.toggle("text-base-content", isActive);
-        tab.classList.toggle("text-base-content/50", !isActive);
+        tab.classList.toggle("text-base-content/60", !isActive);
         tab.classList.toggle("border-base-content", isActive);
         tab.classList.toggle("border-transparent", !isActive);
       });
@@ -222,8 +242,10 @@ export const initCodeBlocks = (root: ParentNode = document): (() => void) => {
       if (!activePanel) return;
 
       const code = activePanel.textContent ?? "";
-      navigator.clipboard.writeText(code).then(() => {
-        markCopied(button);
+      writeClipboard(code).then((copied) => {
+        if (copied) {
+          markCopied(button);
+        }
       });
     };
 

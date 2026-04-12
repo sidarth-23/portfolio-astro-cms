@@ -1,5 +1,4 @@
 /** @jsxImportSource preact */
-import copyIconSrc from "@phosphor-icons/core/regular/copy.svg";
 import {
   siTypescript,
   siJavascript,
@@ -65,6 +64,25 @@ const LanguageIcon = ({ language }: { language: string }) => {
   );
 };
 
+const CopyIcon = () => (
+  <svg
+    aria-hidden="true"
+    xmlns="http://www.w3.org/2000/svg"
+    width="15"
+    height="15"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    stroke-width="2"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+    class="shrink-0"
+  >
+    <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+    <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+  </svg>
+);
+
 export function Code(props: Props) {
   if (props.mode === "multiple") {
     const { entries, caption } = props;
@@ -84,10 +102,10 @@ export function Code(props: Props) {
                   data-tab-index={String(i)}
                   type="button"
                   role="tab"
-                  class={`whitespace-nowrap px-4 py-2 text-xs normal-case transition-colors ${
+                  class={`btn btn-ghost btn-sm min-h-0 h-8 rounded-none border-x-0 border-t-0 border-b-2 -mb-px px-3 text-sm normal-case shadow-none hover:bg-transparent ${
                     i === 0
-                      ? "font-medium text-base-content border-b-2 border-base-content -mb-px"
-                      : "font-normal text-base-content/50 hover:text-base-content/80 border-b-2 border-transparent -mb-px"
+                      ? "font-medium text-base-content border-base-content"
+                      : "font-normal text-base-content/60 border-transparent hover:text-base-content"
                   }`}
                   aria-selected={i === 0 ? "true" : "false"}
                 >
@@ -151,11 +169,11 @@ export function Code(props: Props) {
             <button
               type="button"
               data-code-copy
-              class="btn btn-ghost btn-xs btn-square bg-base-content/10 text-base-content/70 hover:bg-base-content/15 hover:text-base-content"
+              class="btn btn-ghost btn-xs btn-square no-animation bg-base-content/10 text-base-content/70 hover:bg-base-content/15 hover:text-base-content"
               aria-label="Copy code"
               title="Copy code"
             >
-              <img src={copyIconSrc} alt="" width="15" height="15" aria-hidden="true" class="shrink-0" />
+              <CopyIcon />
             </button>
           </div>
 
@@ -163,7 +181,7 @@ export function Code(props: Props) {
             <div
               key={i}
               data-tab-panel={String(i)}
-              class="code-panel code-panel-with-actions overflow-x-auto text-sm"
+              class="code-panel code-panel-with-actions overflow-x-auto text-base"
               hidden={i !== 0}
               dangerouslySetInnerHTML={{ __html: entry.highlightedHtml }}
             />
@@ -197,17 +215,17 @@ export function Code(props: Props) {
           <button
             type="button"
             data-code-copy
-            class="btn btn-ghost btn-xs btn-square bg-base-content/10 text-base-content/70 hover:bg-base-content/15 hover:text-base-content"
+            class="btn btn-ghost btn-xs btn-square no-animation bg-base-content/10 text-base-content/70 hover:bg-base-content/15 hover:text-base-content"
             aria-label="Copy code"
             title="Copy code"
           >
-            <img src={copyIconSrc} alt="" width="15" height="15" aria-hidden="true" class="shrink-0" />
+            <CopyIcon />
           </button>
         </div>
 
         {/* Code area */}
         <div
-          class="code-panel code-panel-with-actions overflow-x-auto text-sm"
+          class="code-panel code-panel-with-actions overflow-x-auto text-base"
           data-code-panel
           dangerouslySetInnerHTML={{ __html: highlightedHtml }}
         />
