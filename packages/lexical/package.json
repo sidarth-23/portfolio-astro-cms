@@ -5,7 +5,7 @@
   "type": "module",
   "exports": {
     "./cms": "./src/cms.ts",
-    "./web": "./src/web.ts"
+    "./web": "./src/web/index.ts"
   },
   "dependencies": {
     "@payloadcms/richtext-lexical": "3.76.1"

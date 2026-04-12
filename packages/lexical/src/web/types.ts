@@ -1,0 +1,15 @@
+import type { SerializedEditorState } from "lexical";
+
+export type RichTextValue = SerializedEditorState;
+
+export type RichTextRenderOptions = {
+  className?: string;
+  data?: RichTextValue | null;
+  enableContainer?: boolean;
+};
+
+export type TableOfContentsItem = {
+  depth: 2 | 3;
+  id: string;
+  text: string;
+};
