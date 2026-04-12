@@ -1,0 +1,136 @@
+---
+import { PhCheck, PhDesktop, PhMoon, PhSun } from "phosphor-icons-astro";
+---
+
+<div class="dropdown dropdown-end">
+  <button
+    type="button"
+    class="btn btn-circle btn-ghost"
+    aria-label="Select theme"
+    title="Theme"
+    data-theme-trigger
+  >
+    <span data-theme-icon="light" class="hidden">
+      <PhSun size={18} />
+    </span>
+    <span data-theme-icon="dark" class="hidden">
+      <PhMoon size={18} />
+    </span>
+    <span data-theme-icon="system" class="hidden">
+      <PhDesktop size={18} />
+    </span>
+  </button>
+
+  <ul
+    tabindex="0"
+    class="dropdown-content menu z-[70] mt-2 w-40 rounded-box border border-base-300 bg-base-100 p-2 shadow-lg"
+    data-theme-menu
+  >
+    <li>
+      <button type="button" class="flex items-center justify-between" data-theme-option="light">
+        <span class="flex items-center gap-2">
+          <PhSun size={16} />
+          <span>Light</span>
+        </span>
+        <PhCheck size={14} class="invisible" data-theme-check="light" />
+      </button>
+    </li>
+    <li>
+      <button type="button" class="flex items-center justify-between" data-theme-option="dark">
+        <span class="flex items-center gap-2">
+          <PhMoon size={16} />
+          <span>Dark</span>
+        </span>
+        <PhCheck size={14} class="invisible" data-theme-check="dark" />
+      </button>
+    </li>
+    <li>
+      <button type="button" class="flex items-center justify-between" data-theme-option="system">
+        <span class="flex items-center gap-2">
+          <PhDesktop size={16} />
+          <span>System</span>
+        </span>
+        <PhCheck size={14} class="invisible" data-theme-check="system" />
+      </button>
+    </li>
+  </ul>
+</div>
+
+<script is:inline>
+  const THEME_VALUES = new Set(["light", "dark", "system"]);
+  const getThemeApi = () => window["__theme"] || null;
+  const getPreference = () => {
+    const themeApi = getThemeApi();
+    if (!themeApi) {
+      return "system";
+    }
+    const value = themeApi.getPreference();
+    return THEME_VALUES.has(value) ? value : "system";
+  };
+
+  const syncThemeControls = (root, preference) => {
+    const currentPreference = THEME_VALUES.has(preference) ? preference : "system";
+
+    root.querySelectorAll("[data-theme-icon]").forEach((icon) => {
+      icon.classList.toggle("hidden", icon.getAttribute("data-theme-icon") !== currentPreference);
+    });
+
+    root.querySelectorAll("[data-theme-check]").forEach((check) => {
+      check.classList.toggle("invisible", check.getAttribute("data-theme-check") !== currentPreference);
+    });
+
+    root.querySelectorAll("[data-theme-option]").forEach((option) => {
+      option.classList.toggle("active", option.getAttribute("data-theme-option") === currentPreference);
+    });
+  };
+
+  const bindThemeSwitcher = (root) => {
+    if (root.dataset.themeSwitcherInitialized === "true") {
+      syncThemeControls(root, getPreference());
+      return;
+    }
+    root.dataset.themeSwitcherInitialized = "true";
+
+    const refreshThemeSelection = () => {
+      syncThemeControls(root, getPreference());
+    };
+
+    refreshThemeSelection();
+
+    root.querySelectorAll("[data-theme-option]").forEach((option) => {
+      option.addEventListener("click", () => {
+        const preference = option.getAttribute("data-theme-option");
+        if (!preference || !THEME_VALUES.has(preference)) {
+          return;
+        }
+        const themeApi = getThemeApi();
+        if (!themeApi) {
+          return;
+        }
+        themeApi.setPreference(preference);
+      });
+    });
+  };
+
+  const initializeThemeSwitchers = () => {
+    document.querySelectorAll("[data-theme-menu]").forEach((menu) => {
+      const root = menu.closest(".dropdown");
+      if (!root) {
+        return;
+      }
+      bindThemeSwitcher(root);
+    });
+  };
+
+  initializeThemeSwitchers();
+
+  if (!document.documentElement.dataset.themeSwitcherThemeChangedBound) {
+    document.addEventListener("theme:changed", initializeThemeSwitchers);
+    document.documentElement.dataset.themeSwitcherThemeChangedBound = "true";
+  }
+
+  if (!document.documentElement.dataset.themeSwitcherPageLoadBound) {
+    document.addEventListener("astro:page-load", initializeThemeSwitchers);
+    document.documentElement.dataset.themeSwitcherPageLoadBound = "true";
+  }
+</script>

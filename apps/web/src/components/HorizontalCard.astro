@@ -52,7 +52,7 @@ const contentClass = `hero-content flex-col ${reverse ? "md:flex-row-reverse" : 
 ---
 
 <div
-  class="card bg-base-100 transition-colors duration-300 ease-in-out rounded-xl block hover:bg-base-200/20 group relative"
+  class="card transition-colors duration-300 ease-in-out rounded-xl block hover:bg-base-content/5 group relative"
 >
   <a href={url} target={target} class="absolute inset-0 z-10" aria-label={title}
   ></a>
@@ -64,7 +64,7 @@ const contentClass = `hero-content flex-col ${reverse ? "md:flex-row-reverse" : 
         rel="noopener noreferrer"
         title={`View ${title} on GitHub`}
         aria-label={`View ${title} on GitHub`}
-        class="absolute top-4 right-4 z-20 btn btn-circle btn-sm btn-ghost bg-base-100/40 hover:bg-accent transition-all duration-300"
+        class="absolute top-4 right-4 z-20 btn btn-circle btn-sm btn-ghost transition-all duration-300"
       >
         <PhGithubLogo size={22} />
       </a>
@@ -100,7 +100,9 @@ const contentClass = `hero-content flex-col ${reverse ? "md:flex-row-reverse" : 
           )
         }
       </div>
-      <h1 class="text-xl font-bold decoration-2 underline-offset-4 flex items-center gap-2">
+      <h1
+        class="text-xl font-bold decoration-2 underline-offset-4 flex items-center gap-2"
+      >
         <span class="group-hover:underline">{title}</span>
         {
           badges.map((item) => (

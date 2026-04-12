@@ -2,6 +2,7 @@
 import { ClientRouter } from "astro:transitions";
 
 import BaseHead from "@/components/BaseHead.astro";
+import ThemePreloadScript from "@/components/ThemePreloadScript.astro";
 import { TRANSITION_API } from "@/consts";
 
 type Props = {
@@ -22,8 +23,9 @@ const {
 ---
 
 <!doctype html>
-<html lang="en" data-theme="abyss">
+<html lang="en" data-theme="emerald">
   <head>
+    <ThemePreloadScript />
     <BaseHead
       title={title}
       description={description}

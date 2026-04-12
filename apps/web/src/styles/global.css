@@ -3,7 +3,7 @@
 @source "../../../../node_modules/@sidshub/lexical";
 @plugin "@tailwindcss/typography";
 @plugin "daisyui"{
-	themes: light --default, dark --prefersdark, abyss;
+	themes: emerald --default, night --prefersdark;
 	logs: false;
 }
 
@@ -34,6 +34,11 @@ article {
   padding: 1rem 1.125rem;
   background: transparent !important;
   overflow-x: auto;
+}
+
+[data-theme="night"] .code-panel .shiki,
+[data-theme="night"] .code-panel .shiki span {
+  color: var(--shiki-dark) !important;
 }
 
 .code-panel-header {

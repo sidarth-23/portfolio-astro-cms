@@ -1,5 +1,6 @@
 ---
 import { PhList } from "phosphor-icons-astro";
+import ThemeSwitcher from "@/components/ThemeSwitcher.astro";
 
 type Props = { name: string };
 const { name } = Astro.props;
@@ -17,6 +18,8 @@ const { name } = Astro.props;
     <div class="navbar-center">
       <a class="btn btn-ghost normal-case text-xl" href="/">{name}</a>
     </div>
-    <div class="navbar-end"></div>
+    <div class="navbar-end">
+      <ThemeSwitcher />
+    </div>
   </div>
 </div>
