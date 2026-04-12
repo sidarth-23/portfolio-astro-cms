@@ -29,6 +29,10 @@ const sectionItemFields: Field[] = [
   {
     name: "subtitle",
     type: "text",
+    admin: {
+      condition: (_, siblingData) =>
+        siblingData?.itemType === "generic" || !siblingData?.itemType,
+    },
   },
   {
     name: "startMonth",
@@ -119,7 +123,11 @@ export const CvPage: GlobalConfig = {
     group: "Pages",
   },
   hooks: {
-    beforeValidate: [createPayloadDataSchemaHook(cvPageSchema, { errorPrefix: "CV page validation failed:" })],
+    beforeValidate: [
+      createPayloadDataSchemaHook(cvPageSchema, {
+        errorPrefix: "CV page validation failed:",
+      }),
+    ],
   },
   fields: [
     {

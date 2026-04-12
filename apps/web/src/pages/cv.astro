@@ -39,13 +39,14 @@ const getSubtitle = (item: any) => {
       .filter(Boolean)
       .join(" | ");
 
-    // If a manual subtitle is provided in the CMS, append the generated string to it, or just return it if generated is empty
-    if (item.subtitle) {
-      return generated ? `${item.subtitle} • ${generated}` : item.subtitle;
-    }
     return generated;
   }
-  return item.subtitle || "";
+  
+  if (item.itemType === "generic" || !item.itemType) {
+    return item.subtitle || "";
+  }
+
+  return "";
 };
 
 type SimpleIcon = {
