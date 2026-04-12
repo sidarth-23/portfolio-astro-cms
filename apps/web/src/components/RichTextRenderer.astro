@@ -1,14 +1,30 @@
 ---
-import { renderRichTextToHTML, type RichTextValue } from "@sidshub/lexical/web";
+import {
+  renderRichTextToHTML,
+  type CalloutVariantProfile,
+  type RichTextCssEngine,
+  type RichTextValue,
+} from "@sidshub/lexical/web";
 
 type Props = {
   className?: string;
   data?: RichTextValue | null;
   enableContainer?: boolean;
+  cssEngine?: RichTextCssEngine;
+  calloutVariantProfile?: CalloutVariantProfile;
+  mediaBaseUrl?: string;
 };
 
-const { className, data, enableContainer = false }: Props = Astro.props;
-const html = renderRichTextToHTML({ className, data, enableContainer });
+const { className, data, enableContainer = false, cssEngine = "daisyui", calloutVariantProfile = "generic", mediaBaseUrl }: Props =
+  Astro.props;
+const html = renderRichTextToHTML(
+  { className, data, enableContainer },
+  {
+    cssEngine,
+    calloutVariantProfile,
+    mediaBaseUrl,
+  },
+);
 ---
 
 {html && <Fragment set:html={html} />}

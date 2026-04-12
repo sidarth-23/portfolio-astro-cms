@@ -1,6 +1,8 @@
 import type { SerializedEditorState } from "lexical";
 
 export type RichTextValue = SerializedEditorState;
+export type RichTextCssEngine = "daisyui";
+export type CalloutVariantProfile = "generic" | "blog";
 
 export type RichTextRenderOptions = {
   className?: string;

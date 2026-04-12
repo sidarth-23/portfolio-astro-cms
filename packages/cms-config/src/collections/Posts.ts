@@ -45,6 +45,8 @@ export const Posts: CollectionConfig = {
               required: true,
               editor: createDocumentRichTextEditor({
                 enabledHeadingSizes: ["h2", "h3", "h4"],
+                enableCallout: true,
+                calloutVariantProfile: "blog",
               }),
             },
             {
@@ -157,19 +159,6 @@ export const Posts: CollectionConfig = {
           type: "text",
         },
       ],
-    },
-    {
-      name: "homeSectionsSummary",
-      type: "text",
-      admin: {
-        position: "sidebar",
-        readOnly: true,
-        description: "Managed from Home Page featured sections.",
-      },
-      access: {
-        create: () => false,
-        update: () => false,
-      },
     },
   ],
   versions: {

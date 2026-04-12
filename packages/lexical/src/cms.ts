@@ -1,7 +1,9 @@
 import {
   AlignFeature,
+  BlocksFeature,
   BlockquoteFeature,
   BoldFeature,
+  CodeBlock,
   ChecklistFeature,
   FixedToolbarFeature,
   HeadingFeature,
@@ -42,6 +44,7 @@ type UploadSettings = {
 };
 
 export type LexicalEditorVariant = "minimal" | "basic" | "document";
+export type CalloutVariantProfile = "generic" | "blog";
 
 export type LexicalEditorOptions = {
   variant: LexicalEditorVariant;
@@ -57,6 +60,9 @@ export type LexicalEditorOptions = {
   enableIndent?: boolean;
   enableBlockquote?: boolean;
   enableHorizontalRule?: boolean;
+  enableCodeBlock?: boolean;
+  enableCallout?: boolean;
+  calloutVariantProfile?: CalloutVariantProfile;
   link?: LinkSettings;
   relationship?: RelationshipSettings;
   upload?: UploadSettings;
@@ -81,6 +87,9 @@ const DEFAULT_VARIANT_OPTIONS: Record<LexicalEditorVariant, VariantDefaults> = {
     enableIndent: false,
     enableBlockquote: false,
     enableHorizontalRule: false,
+    enableCodeBlock: false,
+    enableCallout: false,
+    calloutVariantProfile: "generic",
     enabledHeadingSizes: [],
   },
   basic: {
@@ -95,6 +104,9 @@ const DEFAULT_VARIANT_OPTIONS: Record<LexicalEditorVariant, VariantDefaults> = {
     enableIndent: false,
     enableBlockquote: true,
     enableHorizontalRule: false,
+    enableCodeBlock: true,
+    enableCallout: false,
+    calloutVariantProfile: "generic",
     enabledHeadingSizes: [],
   },
   document: {
@@ -109,9 +121,49 @@ const DEFAULT_VARIANT_OPTIONS: Record<LexicalEditorVariant, VariantDefaults> = {
     enableIndent: true,
     enableBlockquote: true,
     enableHorizontalRule: true,
+    enableCodeBlock: true,
+    enableCallout: false,
+    calloutVariantProfile: "generic",
     enabledHeadingSizes: ["h2", "h3", "h4"],
   },
 };
+
+const CALLOUT_VARIANTS_BY_PROFILE: Record<CalloutVariantProfile, Record<string, string>> = {
+  generic: {
+    neutral: "Neutral",
+    info: "Info",
+    success: "Success",
+    warning: "Warning",
+    danger: "Danger",
+  },
+  blog: {
+    note: "Note",
+    tip: "Tip",
+    warning: "Warning",
+    danger: "Danger",
+  },
+};
+
+const defaultCalloutVariantByProfile: Record<CalloutVariantProfile, string> = {
+  generic: "neutral",
+  blog: "note",
+};
+
+const CODE_BLOCK_LANGUAGES = {
+  plaintext: "Plain Text",
+  bash: "Bash",
+  json: "JSON",
+  yaml: "YAML",
+  html: "HTML",
+  css: "CSS",
+  javascript: "JavaScript",
+  typescript: "TypeScript",
+  jsx: "JSX",
+  tsx: "TSX",
+  python: "Python",
+  go: "Go",
+  rust: "Rust",
+} as const;
 
 const createLinkFeature = ({ enabledCollections }: LinkSettings = {}) => {
   return LinkFeature({ enabledCollections: enabledCollections ?? DEFAULT_LINK_COLLECTIONS });
@@ -149,7 +201,37 @@ const createBaseTextFeatures = () => {
   ];
 };
 
-export const createLexicalEditor = ({ variant, ...overrides }: LexicalEditorOptions) => {
+const createCalloutBlock = (profile: CalloutVariantProfile): any => {
+  return {
+    slug: "callout",
+    interfaceName: "LexicalCalloutBlock",
+    fields: [
+      {
+        name: "variant",
+        type: "select",
+        required: true,
+        defaultValue: defaultCalloutVariantByProfile[profile],
+        options: Object.entries(CALLOUT_VARIANTS_BY_PROFILE[profile]).map(([value, label]) => ({
+          label,
+          value,
+        })),
+      },
+      {
+        name: "title",
+        type: "text",
+        required: false,
+      },
+      {
+        name: "content",
+        type: "richText",
+        required: true,
+        editor: createMinimalRichTextEditor(),
+      },
+    ],
+  } as const;
+};
+
+export const createLexicalEditor = ({ variant, ...overrides }: LexicalEditorOptions): any => {
   const variantDefaults = DEFAULT_VARIANT_OPTIONS[variant];
   const options = {
     ...variantDefaults,
@@ -158,7 +240,7 @@ export const createLexicalEditor = ({ variant, ...overrides }: LexicalEditorOpti
   };
 
   return lexicalEditor({
-    features: () => {
+    features: (): any[] => {
       const features: any[] = [...createBaseTextFeatures()];
 
       if (options.enableInlineToolbar) {
@@ -213,6 +295,29 @@ export const createLexicalEditor = ({ variant, ...overrides }: LexicalEditorOpti
         features.push(HorizontalRuleFeature());
       }
 
+      const lexicalBlocks: any[] = [];
+
+      if (options.enableCodeBlock) {
+        lexicalBlocks.push(
+          CodeBlock({
+            defaultLanguage: "typescript",
+            languages: CODE_BLOCK_LANGUAGES,
+          }),
+        );
+      }
+
+      if (options.enableCallout) {
+        lexicalBlocks.push(createCalloutBlock(options.calloutVariantProfile ?? "generic"));
+      }
+
+      if (lexicalBlocks.length > 0) {
+        features.push(
+          BlocksFeature({
+            blocks: lexicalBlocks,
+          }),
+        );
+      }
+
       features.push(SubscriptFeature(), SuperscriptFeature());
 
       return features;
@@ -220,21 +325,21 @@ export const createLexicalEditor = ({ variant, ...overrides }: LexicalEditorOpti
   });
 };
 
-export const createMinimalRichTextEditor = (options: Omit<LexicalEditorOptions, "variant"> = {}) => {
+export const createMinimalRichTextEditor = (options: Omit<LexicalEditorOptions, "variant"> = {}): any => {
   return createLexicalEditor({
     variant: "minimal",
     ...options,
   });
 };
 
-export const createBasicRichTextEditor = (options: Omit<LexicalEditorOptions, "variant"> = {}) => {
+export const createBasicRichTextEditor = (options: Omit<LexicalEditorOptions, "variant"> = {}): any => {
   return createLexicalEditor({
     variant: "basic",
     ...options,
   });
 };
 
-export const createDocumentRichTextEditor = (options: Omit<LexicalEditorOptions, "variant"> = {}) => {
+export const createDocumentRichTextEditor = (options: Omit<LexicalEditorOptions, "variant"> = {}): any => {
   return createLexicalEditor({
     variant: "document",
     ...options,

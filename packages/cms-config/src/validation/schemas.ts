@@ -25,40 +25,18 @@ const withSeoMeta = <T extends z.ZodRawShape>(shape: T) => {
     .passthrough();
 };
 
-const ctaLinkSchema = z
-  .object({
-    type: z.enum(["custom", "reference"]).optional(),
-    url: optionalHttpUrl,
-    reference: z.unknown().optional(),
-    newTab: z.boolean().optional(),
-  })
-  .passthrough();
-
 export const homePageSchema = withSeoMeta({
   greeting: requiredText.optional(),
   name: requiredText.optional(),
   role: requiredText.optional(),
-  featuredSections: z
-    .array(
-      z
-        .object({
-          name: requiredText.optional(),
-          description: z.unknown().optional(),
-          posts: z.unknown().optional(),
-        })
-        .passthrough(),
-    )
-    .optional(),
-  ctaButtons: z
-    .array(
-      z
-        .object({
-          title: requiredText.optional(),
-          variant: z.enum(["default", "primary", "secondary", "accent", "outline", "ghost"]).optional(),
-          link: ctaLinkSchema.optional(),
-        })
-        .passthrough(),
-    )
+  about: z.unknown().optional(),
+  featured: z
+    .object({
+      title: optionalText,
+      description: optionalText,
+      items: z.unknown().optional(),
+    })
+    .passthrough()
     .optional(),
 });
 

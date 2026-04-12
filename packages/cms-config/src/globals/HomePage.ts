@@ -2,8 +2,7 @@ import type { GlobalConfig } from "payload";
 import { createBasicRichTextEditor } from "@sidshub/lexical/cms";
 
 import { readAccess } from "../access/readAccess";
-import { linkField } from "../fields/link";
-import { syncHomeSectionsToPosts } from "../hooks/syncHomeSectionsToPosts";
+import { featuredField } from "../fields/featured";
 import { createPayloadDataSchemaHook } from "../validation/payloadSchema";
 import { homePageSchema } from "../validation/schemas";
 
@@ -18,7 +17,6 @@ export const HomePage: GlobalConfig = {
   },
   hooks: {
     beforeValidate: [createPayloadDataSchemaHook(homePageSchema, { errorPrefix: "Home page validation failed:" })],
-    afterChange: [syncHomeSectionsToPosts],
   },
   fields: [
     {
@@ -48,93 +46,12 @@ export const HomePage: GlobalConfig = {
               required: true,
               editor: createBasicRichTextEditor(),
             },
-            {
-              name: "featuredSections",
-              type: "array",
-              admin: {
-                description: "Create and reorder featured sections for the home page.",
-                components: {
-                  RowLabel: "./components/admin/rowLabels/SectionRowLabel#SectionRowLabel",
-                },
-              },
-              fields: [
-                {
-                  name: "name",
-                  type: "text",
-                  required: true,
-                },
-                {
-                  name: "description",
-                  type: "richText",
-                  required: false,
-                  editor: createBasicRichTextEditor(),
-                },
-                {
-                  name: "posts",
-                  type: "relationship",
-                  relationTo: "posts",
-                  hasMany: true,
-                  required: false,
-                },
-              ],
-            },
+            featuredField({
+              name: "featured",
+              label: "Featured Work",
+            }),
           ],
         },
-      ],
-    },
-    {
-      name: "ctaButtons",
-      type: "array",
-      required: false,
-      maxRows: 3,
-      admin: {
-        position: "sidebar",
-        components: {
-          RowLabel: "./components/admin/rowLabels/CtaButtonRowLabel#CtaButtonRowLabel",
-        },
-      },
-      fields: [
-        {
-          name: "title",
-          type: "text",
-          required: true,
-        },
-        {
-          name: "variant",
-          type: "select",
-          required: true,
-          defaultValue: "default",
-          options: [
-            {
-              label: "Default",
-              value: "default",
-            },
-            {
-              label: "Primary",
-              value: "primary",
-            },
-            {
-              label: "Secondary",
-              value: "secondary",
-            },
-            {
-              label: "Accent",
-              value: "accent",
-            },
-            {
-              label: "Outline",
-              value: "outline",
-            },
-            {
-              label: "Ghost",
-              value: "ghost",
-            },
-          ],
-        },
-        linkField({
-          name: "link",
-          label: "Link",
-        }),
       ],
     },
   ],

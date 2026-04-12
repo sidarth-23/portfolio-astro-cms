@@ -4,4 +4,11 @@ export {
   type InternalDocHrefRouteMap,
 } from "./linkResolver";
 export { renderRichTextToHTML, type RichTextRenderConfig } from "./render";
-export type { RichTextRenderOptions, RichTextValue, TableOfContentsItem } from "./types";
+export { renderBlock, renderBlocks, type BlockRenderConfig } from "./blocks/index";
+export type {
+  CalloutVariantProfile,
+  RichTextCssEngine,
+  RichTextRenderOptions,
+  RichTextValue,
+  TableOfContentsItem,
+} from "./types";

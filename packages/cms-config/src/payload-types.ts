@@ -356,10 +356,6 @@ export interface Post {
         githubUrl?: string | null;
       }[]
     | null;
-  /**
-   * Managed from Home Page featured sections.
-   */
-  homeSectionsSummary?: string | null;
   updatedAt: string;
   createdAt: string;
   _status?: ('draft' | 'published') | null;
@@ -716,7 +712,6 @@ export interface PostsSelect<T extends boolean = true> {
         linkedInUrl?: T;
         githubUrl?: T;
       };
-  homeSectionsSummary?: T;
   updatedAt?: T;
   createdAt?: T;
   _status?: T;
@@ -901,31 +896,22 @@ export interface HomePage {
     };
     [k: string]: unknown;
   };
-  /**
-   * Create and reorder featured sections for the home page.
-   */
-  featuredSections?:
-    | {
-        name: string;
-        description?: {
-          root: {
-            type: string;
-            children: {
-              type: any;
-              version: number;
-              [k: string]: unknown;
-            }[];
-            direction: ('ltr' | 'rtl') | null;
-            format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
-            indent: number;
-            version: number;
-          };
-          [k: string]: unknown;
-        } | null;
-        posts?: (number | Post)[] | null;
-        id?: string | null;
-      }[]
-    | null;
+  featured?: {
+    title?: string | null;
+    description?: string | null;
+    items?:
+      | (
+          | {
+              relationTo: 'posts';
+              value: number | Post;
+            }
+          | {
+              relationTo: 'projects';
+              value: number | Project;
+            }
+        )[]
+      | null;
+  };
   meta: {
     title: string;
     description: string;
@@ -934,27 +920,6 @@ export interface HomePage {
      */
     image?: (number | null) | Media;
   };
-  ctaButtons?:
-    | {
-        title: string;
-        variant: 'default' | 'primary' | 'secondary' | 'accent' | 'outline' | 'ghost';
-        link?: {
-          type?: ('custom' | 'reference') | null;
-          newTab?: boolean | null;
-          url?: string | null;
-          reference?:
-            | ({
-                relationTo: 'posts';
-                value: number | Post;
-              } | null)
-            | ({
-                relationTo: 'projects';
-                value: number | Project;
-              } | null);
-        };
-        id?: string | null;
-      }[]
-    | null;
   updatedAt?: string | null;
   createdAt?: string | null;
 }
@@ -1163,13 +1128,12 @@ export interface HomePageSelect<T extends boolean = true> {
   name?: T;
   role?: T;
   about?: T;
-  featuredSections?:
+  featured?:
     | T
     | {
-        name?: T;
+        title?: T;
         description?: T;
-        posts?: T;
-        id?: T;
+        items?: T;
       };
   meta?:
     | T
@@ -1177,21 +1141,6 @@ export interface HomePageSelect<T extends boolean = true> {
         title?: T;
         description?: T;
         image?: T;
-      };
-  ctaButtons?:
-    | T
-    | {
-        title?: T;
-        variant?: T;
-        link?:
-          | T
-          | {
-              type?: T;
-              newTab?: T;
-              url?: T;
-              reference?: T;
-            };
-        id?: T;
       };
   updatedAt?: T;
   createdAt?: T;
@@ -1350,6 +1299,32 @@ export interface TaskSchedulePublish {
     user?: (number | null) | User;
   };
   output?: unknown;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "LexicalCalloutBlock".
+ */
+export interface LexicalCalloutBlock {
+  variant: 'note' | 'tip' | 'warning' | 'danger';
+  title?: string | null;
+  content: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  };
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'callout';
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
