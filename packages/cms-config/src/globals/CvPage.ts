@@ -2,12 +2,13 @@ import type { Field, GlobalConfig } from "payload";
 import { createBasicRichTextEditor } from "@sidshub/lexical/cms";
 
 import { readAccess } from "../access/readAccess";
-import { isSimpleIconSlug } from "../lib/simpleIconsCatalog";
+import { iconPickerField } from "../fields/iconPicker";
 import {
   CV_ITEMS_VARIANT_OPTIONS,
   CV_SECTION_ITEM_TYPE_OPTIONS,
   CV_SECTION_TYPE_OPTIONS,
 } from "../lib/options/cv";
+import { sanitizeCvPageBeforeValidate } from "../lib/validation/cvPageSanitizer";
 import { createPayloadDataSchemaHook } from "../lib/validation/payloadSchema";
 import { cvPageSchema } from "../lib/validation/schemas";
 
@@ -92,23 +93,7 @@ const badgeFields: Field[] = [
     type: "text",
     required: true,
   },
-  {
-    name: "iconSlug",
-    label: "Icon",
-    type: "text",
-    validate: (value: unknown) => {
-      if (!value) {
-        return true;
-      }
-
-      return isSimpleIconSlug(value) || "Choose a valid Simple Icons slug.";
-    },
-    admin: {
-      components: {
-        Field: "./components/admin/SimpleIconSlugField#SimpleIconSlugField",
-      },
-    },
-  },
+  iconPickerField(),
 ];
 
 export const CvPage: GlobalConfig = {
@@ -122,6 +107,7 @@ export const CvPage: GlobalConfig = {
   },
   hooks: {
     beforeValidate: [
+      sanitizeCvPageBeforeValidate,
       createPayloadDataSchemaHook(cvPageSchema, {
         errorPrefix: "CV page validation failed:",
       }),

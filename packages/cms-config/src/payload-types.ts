@@ -392,6 +392,7 @@ export interface Project {
   badges?:
     | {
         value: string;
+        icon?: string | null;
         id?: string | null;
       }[]
     | null;
@@ -735,6 +736,7 @@ export interface ProjectsSelect<T extends boolean = true> {
     | T
     | {
         value?: T;
+        icon?: T;
         id?: T;
       };
   tags?:
@@ -1019,7 +1021,7 @@ export interface CvPage {
           badges?:
             | {
                 value: string;
-                iconSlug?: string | null;
+                icon?: string | null;
                 id?: string | null;
               }[]
             | null;
@@ -1235,7 +1237,7 @@ export interface CvPageSelect<T extends boolean = true> {
                 | T
                 | {
                     value?: T;
-                    iconSlug?: T;
+                    icon?: T;
                     id?: T;
                   };
               id?: T;

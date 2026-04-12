@@ -3,6 +3,7 @@ import { createBasicRichTextEditor } from "@sidshub/lexical/cms";
 
 import { readAccess } from "../access/readAccess";
 
+import { iconPickerField } from "../fields/iconPicker";
 import { slugField } from "../fields/slug";
 import { createPayloadDataSchemaHook } from "../lib/validation/payloadSchema";
 import { projectsSchema } from "../lib/validation/schemas";
@@ -72,6 +73,7 @@ export const Projects: CollectionConfig = {
                   type: "text",
                   required: true,
                 },
+                iconPickerField(),
               ],
             },
             {

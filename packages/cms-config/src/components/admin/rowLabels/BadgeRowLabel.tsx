@@ -3,18 +3,33 @@
 import { useRowLabel } from "@payloadcms/ui";
 
 import { formatRowLabel, getTrimmedString } from "./utils";
+import { parseIconValueStrict } from "../../../lib/iconValue";
 import { getSimpleIconCdnUrl } from "../../../lib/simpleIconsCatalog";
+import { getPhosphorIconSvgUrl } from "../../../lib/phosphorIconsCatalog";
 
 type BadgeRowData = {
   value?: unknown;
-  iconSlug?: unknown;
+  icon?: unknown;
 };
 
 export function BadgeRowLabel() {
   const { data, rowNumber } = useRowLabel<BadgeRowData>();
   const value = getTrimmedString(data?.value);
-  const iconSlug = getTrimmedString(data?.iconSlug);
-  const label = iconSlug ? `${value ?? "Badge"} (${iconSlug})` : value;
+  const iconValue = parseIconValueStrict(getTrimmedString(data?.icon));
+  let previewUrl: string | null = null;
+  let iconLabel: string | null = null;
+  let previewStyle: { filter: string; flexShrink: 0 } | undefined;
+
+  if (iconValue?.source === "simple-icons") {
+    previewUrl = getSimpleIconCdnUrl(iconValue.slug, { color: "ffffff", size: 16 });
+    iconLabel = iconValue.slug;
+  } else if (iconValue?.source === "phosphor") {
+    previewUrl = getPhosphorIconSvgUrl(iconValue.name);
+    iconLabel = iconValue.name;
+    previewStyle = { filter: "brightness(0) invert(1)", flexShrink: 0 };
+  }
+
+  const label = iconLabel ? `${value ?? "Badge"} (${iconLabel})` : value;
 
   const text = formatRowLabel({
     label,
@@ -33,12 +48,12 @@ export function BadgeRowLabel() {
       }}
     >
       <span>{text}</span>
-      {iconSlug && (
+      {previewUrl && (
         <img
-          alt={iconSlug}
+          alt={iconLabel ?? ""}
           height={16}
-          src={getSimpleIconCdnUrl(iconSlug, { color: "white", size: 16 })}
-          style={{ flexShrink: 0 }}
+          src={previewUrl}
+          style={previewStyle ?? { flexShrink: 0 }}
           width={16}
         />
       )}

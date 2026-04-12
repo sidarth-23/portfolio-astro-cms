@@ -3,8 +3,11 @@ import RichTextRenderer from "@/components/RichTextRenderer.astro";
 import TimeLineElement from "@/components/TimeLine.astro";
 import BaseLayout from "@/layouts/BaseLayout.astro";
 import { ASTRO_CMS_API_URL, ASTRO_CMS_READ_TOKEN } from "astro:env/server";
+import { icons as phosphorIconCatalog } from "@phosphor-icons/core";
 import { createCmsRestClient } from "@sidshub/cms-config/client/rest";
+import { parseIconValueStrict } from "@sidshub/cms-config/icon-value";
 import { PhLink } from "phosphor-icons-astro";
+import * as phosphorIcons from "phosphor-icons-astro";
 import * as simpleIcons from "simple-icons";
 
 const cmsClient = createCmsRestClient({
@@ -57,7 +60,7 @@ type SimpleIcon = {
 
 type CvBadge = {
   value: string;
-  iconSlug?: string | null;
+  icon?: string | null;
 };
 
 type CvBadgeGroup = {
@@ -79,16 +82,33 @@ const SIMPLE_ICONS_BY_SLUG = new Map(
   SIMPLE_ICONS.map((icon) => [icon.slug, icon]),
 );
 
-const getSimpleIcon = (slug?: string | null) => {
-  if (!slug) return null;
+type PhosphorIconComponent = typeof phosphorIcons.PhLink;
+const PHOSPHOR_ICON_COMPONENTS = phosphorIcons as Record<string, PhosphorIconComponent>;
+const PHOSPHOR_PASCAL_BY_NAME = new Map<string, string>(
+  phosphorIconCatalog.map((icon) => [icon.name, icon.pascal_name]),
+);
 
-  const icon = SIMPLE_ICONS_BY_SLUG.get(slug);
+type IconData =
+  | { source: "simple-icons"; path: string; title: string }
+  | { source: "phosphor"; component: PhosphorIconComponent; name: string };
 
-  if (!icon) {
-    throw new Error(`Unknown Simple Icon slug in CV badges: ${slug}`);
+const getIconData = (icon?: string | null): IconData | null => {
+  const parsed = parseIconValueStrict(icon);
+  if (!parsed) return null;
+
+  if (parsed.source === "simple-icons") {
+    const simpleIcon = SIMPLE_ICONS_BY_SLUG.get(parsed.slug);
+    if (!simpleIcon) return null;
+    return { source: "simple-icons", path: simpleIcon.path, title: simpleIcon.title };
   }
 
-  return icon;
+  const pascalName = PHOSPHOR_PASCAL_BY_NAME.get(parsed.name);
+  if (!pascalName) return null;
+
+  const component = PHOSPHOR_ICON_COMPONENTS[`Ph${pascalName}`];
+  if (!component) return null;
+
+  return { source: "phosphor", component, name: parsed.name };
 };
 
 const getBadgeGroups = (section: unknown): CvBadgeGroup[] => {
@@ -206,19 +226,31 @@ const getBadgeGroups = (section: unknown): CvBadgeGroup[] => {
                 </h3>
                 <div class="flex flex-wrap gap-2">
                   {(group.badges || []).map((badge) => {
-                    const icon = getSimpleIcon(badge.iconSlug);
+                    const iconData = getIconData(badge.icon);
+                    const PhosphorBadgeIcon =
+                      iconData && iconData.source === "phosphor"
+                        ? iconData.component
+                        : null;
 
                     return (
                       <span class="badge badge-outline gap-1.5 text-base-content">
-                        {icon && (
+                        {iconData && iconData.source === "simple-icons" && (
                           <svg
                             class="h-[0.75em] w-[0.75em] shrink-0 fill-current"
                             viewBox="0 0 24 24"
                             aria-hidden="true"
                           >
-                            <title>{icon.title}</title>
-                            <path d={icon.path} />
+                            <title>{iconData.title}</title>
+                            <path d={iconData.path} />
                           </svg>
+                        )}
+                        {PhosphorBadgeIcon && (
+                          <PhosphorBadgeIcon
+                            class="h-[0.75em] w-[0.75em] shrink-0"
+                            size="0.75em"
+                            weight="regular"
+                            aria-hidden="true"
+                          />
                         )}
                         <span>{badge.value}</span>
                       </span>

@@ -1,15 +1,62 @@
 import { z } from "zod";
 
+import { isPhosphorIconName } from "../phosphorIconsCatalog";
+import { isSimpleIconSlug } from "../simpleIconsCatalog";
 import { CV_SECTION_TYPE_OPTIONS } from "../options/cv";
 import { HOME_CTA_VARIANT_OPTIONS } from "../options/home";
 import {
   optionalHttpUrl,
-  optionalSlugLikeText,
   optionalText,
   optionalTextWithFallback,
   requiredHttpUrl,
   requiredText,
 } from "./primitives";
+
+const strictIconSchema = z.string().superRefine((value, ctx) => {
+  if (value.startsWith("si:")) {
+    const slug = value.slice(3).trim();
+    if (isSimpleIconSlug(slug)) {
+      return;
+    }
+
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: "Unknown Simple Icons slug.",
+    });
+    return;
+  }
+
+  if (value.startsWith("ph:")) {
+    const name = value.slice(3).trim();
+    if (isPhosphorIconName(name)) {
+      return;
+    }
+
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: "Unknown Phosphor icon name.",
+    });
+    return;
+  }
+
+  ctx.addIssue({
+    code: z.ZodIssueCode.custom,
+    message: "Icon must use canonical format (`si:<slug>` or `ph:<name>`).",
+  });
+});
+
+const optionalStrictIcon = z.preprocess((value: unknown) => {
+  if (value === null || value === undefined) {
+    return undefined;
+  }
+
+  if (typeof value !== "string") {
+    return value;
+  }
+
+  const trimmed = value.trim();
+  return trimmed.length > 0 ? trimmed : undefined;
+}, strictIconSchema.optional());
 
 const HOME_CTA_VARIANT_VALUES = HOME_CTA_VARIANT_OPTIONS.map((option) => option.value) as [
   (typeof HOME_CTA_VARIANT_OPTIONS)[number]["value"],
@@ -101,7 +148,7 @@ export const notFoundPageSchema = withSeoMeta({
 const cvBadgeSchema = z
   .object({
     value: requiredText.optional(),
-    iconSlug: optionalSlugLikeText,
+    icon: optionalStrictIcon,
   })
   .passthrough();
 
@@ -145,6 +192,7 @@ export const postsSchema = withSeoMeta({
 const projectLabelSchema = z
   .object({
     value: requiredText.optional(),
+    icon: optionalStrictIcon,
   })
   .passthrough();
 

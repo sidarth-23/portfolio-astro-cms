@@ -30,12 +30,12 @@ import { IndentFeatureClient as IndentFeatureClient_e70f5e05f09f93e00b997edb1ef0
 import { AlignFeatureClient as AlignFeatureClient_e70f5e05f09f93e00b997edb1ef0c864 } from '@payloadcms/richtext-lexical/client'
 import { ChecklistFeatureClient as ChecklistFeatureClient_e70f5e05f09f93e00b997edb1ef0c864 } from '@payloadcms/richtext-lexical/client'
 import { HeadingFeatureClient as HeadingFeatureClient_e70f5e05f09f93e00b997edb1ef0c864 } from '@payloadcms/richtext-lexical/client'
+import { IconPickerField as IconPickerField_fce113047fd43dfbeedb5a0597d6ab52 } from '../../../../../packages/cms-config/src/components/admin/IconPickerField'
 import { BadgeRowLabel as BadgeRowLabel_24238ecca7db753c46604b9d7cf93856 } from '../../../../../packages/cms-config/src/components/admin/rowLabels/BadgeRowLabel'
 import { FooterItemRowLabel as FooterItemRowLabel_94060bfb0e71da24477c37e57be338af } from '../../../../../packages/cms-config/src/components/admin/rowLabels/FooterItemRowLabel'
 import { SectionRowLabel as SectionRowLabel_ec40328e4fa7e50be5521512430803ee } from '../../../../../packages/cms-config/src/components/admin/rowLabels/SectionRowLabel'
 import { CtaButtonRowLabel as CtaButtonRowLabel_21f05950458c091161a962787a64c946 } from '../../../../../packages/cms-config/src/components/admin/rowLabels/CtaButtonRowLabel'
 import { ItemRowLabel as ItemRowLabel_ef785df577c0f700616de08d4de99213 } from '../../../../../packages/cms-config/src/components/admin/rowLabels/ItemRowLabel'
-import { SimpleIconSlugField as SimpleIconSlugField_36d8a6777fff49597e6068f70009cdb5 } from '../../../../../packages/cms-config/src/components/admin/SimpleIconSlugField'
 import { BadgeGroupRowLabel as BadgeGroupRowLabel_e17f3e5c9b47ac47d259a324429e5130 } from '../../../../../packages/cms-config/src/components/admin/rowLabels/BadgeGroupRowLabel'
 import { S3ClientUploadHandler as S3ClientUploadHandler_f97aa6c64367fa259c5bc0567239ef24 } from '@payloadcms/storage-s3/client'
 import { DashboardView as DashboardView_f0f8d4a7080efd2cd25bb6be37c094c0 } from '../../../../../packages/cms-config/src/components/admin/Dashboard'
@@ -74,12 +74,12 @@ export const importMap = {
   "@payloadcms/richtext-lexical/client#AlignFeatureClient": AlignFeatureClient_e70f5e05f09f93e00b997edb1ef0c864,
   "@payloadcms/richtext-lexical/client#ChecklistFeatureClient": ChecklistFeatureClient_e70f5e05f09f93e00b997edb1ef0c864,
   "@payloadcms/richtext-lexical/client#HeadingFeatureClient": HeadingFeatureClient_e70f5e05f09f93e00b997edb1ef0c864,
+  "./components/admin/IconPickerField#IconPickerField": IconPickerField_fce113047fd43dfbeedb5a0597d6ab52,
   "./components/admin/rowLabels/BadgeRowLabel#BadgeRowLabel": BadgeRowLabel_24238ecca7db753c46604b9d7cf93856,
   "./components/admin/rowLabels/FooterItemRowLabel#FooterItemRowLabel": FooterItemRowLabel_94060bfb0e71da24477c37e57be338af,
   "./components/admin/rowLabels/SectionRowLabel#SectionRowLabel": SectionRowLabel_ec40328e4fa7e50be5521512430803ee,
   "./components/admin/rowLabels/CtaButtonRowLabel#CtaButtonRowLabel": CtaButtonRowLabel_21f05950458c091161a962787a64c946,
   "./components/admin/rowLabels/ItemRowLabel#ItemRowLabel": ItemRowLabel_ef785df577c0f700616de08d4de99213,
-  "./components/admin/SimpleIconSlugField#SimpleIconSlugField": SimpleIconSlugField_36d8a6777fff49597e6068f70009cdb5,
   "./components/admin/rowLabels/BadgeGroupRowLabel#BadgeGroupRowLabel": BadgeGroupRowLabel_e17f3e5c9b47ac47d259a324429e5130,
   "@payloadcms/storage-s3/client#S3ClientUploadHandler": S3ClientUploadHandler_f97aa6c64367fa259c5bc0567239ef24,
   "./components/admin/Dashboard#DashboardView": DashboardView_f0f8d4a7080efd2cd25bb6be37c094c0,
