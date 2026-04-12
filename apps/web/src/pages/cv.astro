@@ -176,9 +176,9 @@ const getBadgeGroups = (section: unknown): CvBadgeGroup[] => {
         )}
 
         {section.type === "badges" && (
-          <div class="grid gap-5">
+          <div class="grid gap-4">
             {getBadgeGroups(section).map((group) => (
-              <div class="grid gap-3">
+              <div class="grid gap-2">
                 <h3 class="text-sm font-semibold tracking-wide text-base-content/70">{group.title}</h3>
                 <div class="flex flex-wrap gap-2">
                   {(group.badges || []).map((badge) => {
