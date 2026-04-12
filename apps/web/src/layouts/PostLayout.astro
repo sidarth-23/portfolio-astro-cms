@@ -166,7 +166,7 @@ const jsonLd = {
             {
               showTableOfContents && (
                 <aside class="hidden xl:block">
-                  <div class="sticky top-24 max-h-[calc(100vh-8rem)] overflow-y-auto border-l border-base-200/50 pl-6 2xl:pl-8">
+                  <div class="sticky top-24 max-h-[calc(100vh-8rem)] overflow-y-auto border-l border-base-content/20 pl-6 2xl:pl-8">
                     <TableOfContents items={toc} />
                   </div>
                 </aside>
@@ -181,7 +181,7 @@ const jsonLd = {
           <div class="drawer-side z-50 xl:hidden" data-toc-drawer>
             <label for="post-toc-drawer" aria-label="Close table of contents" class="drawer-overlay"></label>
 
-            <div class="min-h-full w-80 max-w-[85vw] border-l border-base-200/50 bg-base-200/95 p-4 backdrop-blur">
+            <div class="min-h-full w-80 max-w-[85vw] border-l border-base-content/20 bg-base-200/95 p-4 backdrop-blur">
               <div class="mb-4 flex items-center justify-between gap-4">
                 <div class="text-lg font-semibold">Table of contents</div>
 
@@ -190,7 +190,7 @@ const jsonLd = {
                 </label>
               </div>
 
-              <div class="border-l border-base-200/50 pl-5">
+              <div class="border-l border-base-content/20 pl-5">
                 <TableOfContents items={toc} />
               </div>
             </div>

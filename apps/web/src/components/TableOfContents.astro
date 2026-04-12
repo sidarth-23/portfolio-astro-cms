@@ -14,7 +14,7 @@ const { className = "", items }: Props = Astro.props;
   class={`text-sm ${className}`.trim()}
   data-toc-root
 >
-  <div class="mb-4 pb-3 border-b border-base-200/50 text-sm font-semibold opacity-80">On this page</div>
+  <div class="mb-4 pb-3 border-b border-base-content/20 text-sm font-semibold opacity-80">On this page</div>
 
   <ul class="flex flex-col">
     {items.map((item) => {

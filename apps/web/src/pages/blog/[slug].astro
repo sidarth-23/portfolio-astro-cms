@@ -92,6 +92,15 @@ const category = cmsClient.categoryFromPost(post);
 const series = cmsClient.seriesFromPost(post);
 const tags = cmsClient.tagsFromPost(post);
 const authors = cmsClient.authorsFromPost(post);
+const visibleAuthors = authors.filter((author) => {
+  const hasName = Boolean(author.name?.trim());
+  const hasBio = Boolean(author.bio);
+  const hasAvatar = Boolean(cmsClient.mediaToUrl(author.avatar));
+  const hasLinkedIn = Boolean((author as any).linkedInUrl);
+  const hasGithub = Boolean((author as any).githubUrl);
+
+  return hasName || hasBio || hasAvatar || hasLinkedIn || hasGithub;
+});
 const toc = extractTableOfContents(post.content);
 const pubDate = post.publishedAt || post.createdAt || new Date().toISOString();
 const { meta } = post;
@@ -111,7 +120,7 @@ if (!meta?.title || !meta?.description) {
   tags={tags}
   category={category}
   series={series}
-  authors={authors}
+  authors={visibleAuthors}
   toc={toc}
 >
   {seriesNav && (
@@ -141,13 +150,13 @@ if (!meta?.title || !meta?.description) {
   )}
 
   {
-    authors.length > 0 && (
-      <section class="mt-16 sm:mt-24 pt-10 border-t border-base-200/50">
+    visibleAuthors.length > 0 && (
+      <section class="mt-16 sm:mt-24 pt-10 border-t border-base-content/20">
         <h2 class="text-base font-bold uppercase tracking-wider text-base-content mb-8">
-          {authors.length > 1 ? "Authors" : "Author"}
+          {visibleAuthors.length > 1 ? "Authors" : "Author"}
         </h2>
         <div class="flex flex-col gap-10">
-          {authors.map((author) => {
+          {visibleAuthors.map((author) => {
             const avatarUrl = cmsClient.mediaToUrl(author.avatar);
 
             return (
