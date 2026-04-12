@@ -1,4 +1,5 @@
 /** @jsxImportSource preact */
+import copyIconSrc from "@phosphor-icons/core/regular/copy.svg";
 import {
   siTypescript,
   siJavascript,
@@ -43,24 +44,6 @@ type MultipleCodeProps = {
 };
 
 type Props = SingleCodeProps | MultipleCodeProps;
-
-const CopyIcon = () => (
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    width="15"
-    height="15"
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    stroke-width="2"
-    stroke-linecap="round"
-    stroke-linejoin="round"
-    aria-hidden="true"
-  >
-    <rect width="14" height="14" x="8" y="8" rx="2" ry="2" />
-    <path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2" />
-  </svg>
-);
 
 const LanguageIcon = ({ language }: { language: string }) => {
   const icon = LANGUAGE_ICONS[language];
@@ -172,7 +155,7 @@ export function Code(props: Props) {
               aria-label="Copy code"
               title="Copy code"
             >
-              <CopyIcon />
+              <img src={copyIconSrc} alt="" width="15" height="15" aria-hidden="true" class="shrink-0" />
             </button>
           </div>
 
@@ -218,7 +201,7 @@ export function Code(props: Props) {
             aria-label="Copy code"
             title="Copy code"
           >
-            <CopyIcon />
+            <img src={copyIconSrc} alt="" width="15" height="15" aria-hidden="true" class="shrink-0" />
           </button>
         </div>
 

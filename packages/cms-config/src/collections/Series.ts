@@ -4,8 +4,8 @@ import { readAccess } from "../access/readAccess";
 import { syncSeriesPostsToPosts } from "../hooks/syncSeriesPostsToPosts";
 
 import { slugField } from "../fields/slug";
-import { createPayloadDataSchemaHook } from "../validation/payloadSchema";
-import { seriesSchema } from "../validation/schemas";
+import { createPayloadDataSchemaHook } from "../lib/validation/payloadSchema";
+import { seriesSchema } from "../lib/validation/schemas";
 
 export const Series: CollectionConfig = {
   slug: "series",

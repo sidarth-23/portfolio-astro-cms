@@ -13,8 +13,8 @@ import type {
   SiteSetting,
   Tag,
   User,
-} from "../payload-types";
-import { createSlug } from "../lib/createSlug";
+} from "../../../payload-types";
+import { createSlug } from "../../createSlug";
 import {
   asCategory,
   asPopulatedAuthors,

@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@import "@sidshub/lexical/web/styles.css";
 @source "../../../../packages/lexical/src";
 @source "../../../../node_modules/@sidshub/lexical";
 @plugin "@tailwindcss/typography";
@@ -7,103 +8,7 @@
 	logs: false;
 }
 
-/* Figure counters for code blocks and inline images */
-article {
-  counter-reset: code-figure figure;
-}
-
-.code-block-figure {
-  counter-increment: code-figure;
-}
-
-.code-block-caption {
-  font-size: 0.75rem;
-  line-height: 1.4;
-  opacity: 1;
-  font-style: normal;
-  color: inherit;
-}
-
-.code-block-caption::before {
-  content: "Code " counter(code-figure) ": ";
-  font-weight: 600;
-}
-
-.code-panel pre {
-  margin: 0;
-  padding: 1rem 1.125rem;
-  background: transparent !important;
-  overflow-x: auto;
-}
-
 [data-theme="night"] .code-panel .shiki,
 [data-theme="night"] .code-panel .shiki span {
   color: var(--shiki-dark) !important;
-}
-
-.code-panel-header {
-  padding: 0;
-}
-
-.code-panel-actions {
-  pointer-events: none;
-}
-
-.code-panel-actions > * {
-  pointer-events: auto;
-}
-
-.prose .code-block-figure {
-  border-color: var(--tw-prose-hr);
-}
-
-.prose .code-panel-header {
-  box-shadow: none;
-}
-
-/* (tabs-lift rules removed — tab bar now uses plain border-b approach) */
-
-.code-panel-with-actions pre {
-  padding-top: 2.25rem;
-  padding-right: 4.5rem;
-}
-
-
-/* Inline image figures in rich text content */
-.image-figure {
-  counter-increment: figure;
-  margin-block: 2rem;
-  text-align: center;
-}
-
-.image-figure figcaption {
-  margin-top: 0.625rem;
-  font-size: 0.75rem;
-  line-height: 1.4;
-  opacity: 1;
-  font-style: normal;
-  color: inherit;
-}
-
-.image-figure figcaption::before {
-  content: "Fig " counter(figure) " — ";
-  font-weight: 600;
-}
-
-/* Keep media caption rich text inline with the figure label (Fig n — ...). */
-.image-figure figcaption > :where(p) {
-  display: inline;
-  margin: 0;
-}
-
-.image-figure figcaption > :where(p + p)::before {
-  content: " ";
-}
-
-.image-figure figcaption :where(strong, b) {
-  font-weight: 600;
-}
-
-.image-figure figcaption :where(em, i) {
-  font-style: italic;
 }

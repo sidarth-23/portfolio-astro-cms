@@ -1,5 +1,7 @@
 import { z } from "zod";
 
+import { CV_SECTION_TYPE_OPTIONS } from "../options/cv";
+import { HOME_CTA_VARIANT_OPTIONS } from "../options/home";
 import {
   optionalHttpUrl,
   optionalSlugLikeText,
@@ -8,6 +10,15 @@ import {
   requiredHttpUrl,
   requiredText,
 } from "./primitives";
+
+const HOME_CTA_VARIANT_VALUES = HOME_CTA_VARIANT_OPTIONS.map((option) => option.value) as [
+  (typeof HOME_CTA_VARIANT_OPTIONS)[number]["value"],
+  ...(typeof HOME_CTA_VARIANT_OPTIONS)[number]["value"][],
+];
+const CV_SECTION_TYPE_VALUES = CV_SECTION_TYPE_OPTIONS.map((option) => option.value) as [
+  (typeof CV_SECTION_TYPE_OPTIONS)[number]["value"],
+  ...(typeof CV_SECTION_TYPE_OPTIONS)[number]["value"][],
+];
 
 const seoMetaSchema = z
   .object({
@@ -48,7 +59,7 @@ export const homePageSchema = withSeoMeta({
       z
         .object({
           title: requiredText.optional(),
-          variant: z.enum(["default", "primary", "secondary", "accent", "outline", "ghost"]).optional(),
+          variant: z.enum(HOME_CTA_VARIANT_VALUES).optional(),
           link: z.unknown().optional(),
         })
         .passthrough(),
@@ -117,7 +128,7 @@ export const cvPageSchema = withSeoMeta({
       z
         .object({
           title: requiredText.optional(),
-          type: z.enum(["description", "items", "badges"]).optional(),
+          type: z.enum(CV_SECTION_TYPE_VALUES).optional(),
           items: z.array(cvItemSchema).optional(),
           badgeGroups: z.array(cvBadgeGroupSchema).optional(),
         })

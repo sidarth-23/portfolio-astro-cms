@@ -11,7 +11,7 @@ export {
   asUserArray,
   isObjectRelation,
 } from "./guards";
-export { getFooterLinkRule, normalizeFooterItemType } from "./footerLinks";
+export { getFooterLinkRule, normalizeFooterItemType } from "./siteSettings/footerLinks";
 export type {
   PaginatedPosts,
   Params,

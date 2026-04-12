@@ -1,4 +1,4 @@
-import type { Post, SiteSetting, Media, User } from "../payload-types";
+import type { Post, SiteSetting, Media, User } from "../../../payload-types";
 
 export type Params = Record<string, string | number | boolean | undefined>;
 

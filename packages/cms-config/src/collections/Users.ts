@@ -4,9 +4,9 @@ import { createBasicRichTextEditor } from "@sidshub/lexical/cms";
 import {
   generateForgotPasswordEmailHTML,
   generateForgotPasswordEmailSubject,
-} from "../emails/authEmailTemplates";
-import { createPayloadDataSchemaHook } from "../validation/payloadSchema";
-import { usersSchema } from "../validation/schemas";
+} from "../lib/email/authEmailTemplates";
+import { createPayloadDataSchemaHook } from "../lib/validation/payloadSchema";
+import { usersSchema } from "../lib/validation/schemas";
 
 const showProfileFieldsAfterLogin: Condition = (
   _data,

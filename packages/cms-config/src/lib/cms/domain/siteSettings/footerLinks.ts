@@ -4,8 +4,8 @@ import {
   FOOTER_ITEM_KIND,
   FOOTER_ITEM_KIND_CONFIG,
   SITE_FOOTER_ITEM_TYPES,
-} from "../site-settings/footerItems";
-import type { SiteFooterItemType } from "./types";
+} from "../../../options/footerItems";
+import type { SiteFooterItemType } from "../types";
 
 type FooterLinkRule = {
   openInNewTab: boolean;

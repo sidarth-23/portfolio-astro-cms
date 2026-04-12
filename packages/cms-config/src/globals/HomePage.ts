@@ -5,8 +5,9 @@ import { readAccess } from "../access/readAccess";
 import { featuredSectionFields } from "../fields/featured";
 import { linkField } from "../fields/link";
 import { syncHomeSectionsToPosts } from "../hooks/syncHomeSectionsToPosts";
-import { createPayloadDataSchemaHook } from "../validation/payloadSchema";
-import { homePageSchema } from "../validation/schemas";
+import { HOME_CTA_VARIANT_OPTIONS } from "../lib/options/home";
+import { createPayloadDataSchemaHook } from "../lib/validation/payloadSchema";
+import { homePageSchema } from "../lib/validation/schemas";
 
 export const HomePage: GlobalConfig = {
   slug: "home-page",
@@ -89,14 +90,7 @@ export const HomePage: GlobalConfig = {
           type: "select",
           required: true,
           defaultValue: "default",
-          options: [
-            { label: "Default", value: "default" },
-            { label: "Primary", value: "primary" },
-            { label: "Secondary", value: "secondary" },
-            { label: "Accent", value: "accent" },
-            { label: "Outline", value: "outline" },
-            { label: "Ghost", value: "ghost" },
-          ],
+          options: HOME_CTA_VARIANT_OPTIONS,
         },
         linkField({
           name: "link",

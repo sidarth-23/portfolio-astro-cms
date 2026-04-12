@@ -5,8 +5,8 @@ import { readAccess } from "../access/readAccess";
 
 import { populateAuthors } from "../hooks/populateAuthors";
 import { slugField } from "../fields/slug";
-import { createPayloadDataSchemaHook } from "../validation/payloadSchema";
-import { postsSchema } from "../validation/schemas";
+import { createPayloadDataSchemaHook } from "../lib/validation/payloadSchema";
+import { postsSchema } from "../lib/validation/schemas";
 
 export const Posts: CollectionConfig = {
   slug: "posts",

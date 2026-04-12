@@ -8,9 +8,9 @@ import type {
   SiteSetting,
   Tag,
   User,
-} from "../payload-types";
+} from "../../../payload-types";
 import type { PopulatedAuthor, RelationValue, SiteFooterItem } from "./types";
-import { getFooterLinkRule, isFooterItemType } from "./footerLinks";
+import { getFooterLinkRule, isFooterItemType } from "./siteSettings/footerLinks";
 
 export const isObjectRelation = <T extends object>(value: RelationValue<T>): value is T => {
   return typeof value === "object" && value !== null;

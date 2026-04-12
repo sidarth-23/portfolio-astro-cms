@@ -1,34 +1,11 @@
 import type { Block } from "payload";
 
 import { createBasicRichTextEditor } from "@sidshub/lexical/cms";
-
-export type CalloutVariantProfile = "generic" | "blog";
-
-type CalloutVariantOption = {
-  label: string;
-  value: string;
-};
-
-const CALLOUT_VARIANTS_BY_PROFILE: Record<CalloutVariantProfile, CalloutVariantOption[]> = {
-  generic: [
-    { label: "Neutral", value: "neutral" },
-    { label: "Info", value: "info" },
-    { label: "Success", value: "success" },
-    { label: "Warning", value: "warning" },
-    { label: "Danger", value: "danger" },
-  ],
-  blog: [
-    { label: "Note", value: "note" },
-    { label: "Tip", value: "tip" },
-    { label: "Warning", value: "warning" },
-    { label: "Danger", value: "danger" },
-  ],
-};
-
-const defaultVariantByProfile: Record<CalloutVariantProfile, string> = {
-  generic: "neutral",
-  blog: "note",
-};
+import {
+  CALLOUT_DEFAULT_VARIANT_BY_PROFILE,
+  CALLOUT_VARIANTS_BY_PROFILE,
+  type CalloutVariantProfile,
+} from "../lib/options/callout";
 
 export const createCalloutBlock = (profile: CalloutVariantProfile = "generic"): Block => {
   return {
@@ -39,7 +16,7 @@ export const createCalloutBlock = (profile: CalloutVariantProfile = "generic"): 
         name: "variant",
         type: "select",
         required: true,
-        defaultValue: defaultVariantByProfile[profile],
+        defaultValue: CALLOUT_DEFAULT_VARIANT_BY_PROFILE[profile],
         options: CALLOUT_VARIANTS_BY_PROFILE[profile],
       },
       {

@@ -3,7 +3,7 @@
 import { useRowLabel } from "@payloadcms/ui";
 
 import { formatRowLabel, getTrimmedString } from "./utils";
-import { SITE_FOOTER_TYPE_LABELS } from "../../../site-settings/footerItems";
+import { SITE_FOOTER_TYPE_LABELS } from "../../../lib/options/footerItems";
 
 type FooterItemRowData = {
   type?: unknown;

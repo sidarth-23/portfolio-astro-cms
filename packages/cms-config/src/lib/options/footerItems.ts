@@ -1,4 +1,6 @@
-export const SITE_FOOTER_ITEM_OPTIONS = [
+import { defineOptions } from "./utils";
+
+export const SITE_FOOTER_ITEM_OPTIONS = defineOptions([
   { label: "GitHub", value: "github" },
   { label: "LinkedIn", value: "linkedin" },
   { label: "Email", value: "email" },
@@ -21,7 +23,7 @@ export const SITE_FOOTER_ITEM_OPTIONS = [
   { label: "GitLab", value: "gitlab" },
   { label: "Stack Overflow", value: "stackoverflow" },
   { label: "dev.to", value: "devto" },
-] as const;
+]);
 
 export type SiteFooterItemOption = (typeof SITE_FOOTER_ITEM_OPTIONS)[number];
 export type SiteFooterItemValue = SiteFooterItemOption["value"];

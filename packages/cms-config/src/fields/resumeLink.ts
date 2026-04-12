@@ -1,5 +1,6 @@
 import type { Field } from "payload";
 
+import { RESUME_URL_TYPE_OPTIONS } from "../lib/options/resume";
 import { resolveResumeUrl } from "../lib/resolveResumeUrl";
 
 export const resumeLinkFields: Field[] = [
@@ -7,10 +8,7 @@ export const resumeLinkFields: Field[] = [
     name: "resumeUrlType",
     type: "select",
     required: false,
-    options: [
-      { label: "Google Drive", value: "google" },
-      { label: "Custom Link", value: "custom" },
-    ],
+    options: RESUME_URL_TYPE_OPTIONS,
     admin: {
       description: "Select Google Drive to auto-convert a sharing URL into a download link. Select Custom Link for any direct download URL.",
     },

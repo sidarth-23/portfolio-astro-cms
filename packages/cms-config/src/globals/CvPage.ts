@@ -3,8 +3,13 @@ import { createBasicRichTextEditor } from "@sidshub/lexical/cms";
 
 import { readAccess } from "../access/readAccess";
 import { isSimpleIconSlug } from "../lib/simpleIconsCatalog";
-import { createPayloadDataSchemaHook } from "../validation/payloadSchema";
-import { cvPageSchema } from "../validation/schemas";
+import {
+  CV_ITEMS_VARIANT_OPTIONS,
+  CV_SECTION_ITEM_TYPE_OPTIONS,
+  CV_SECTION_TYPE_OPTIONS,
+} from "../lib/options/cv";
+import { createPayloadDataSchemaHook } from "../lib/validation/payloadSchema";
+import { cvPageSchema } from "../lib/validation/schemas";
 
 const sectionItemFields: Field[] = [
   {
@@ -12,14 +17,7 @@ const sectionItemFields: Field[] = [
     type: "select",
     required: true,
     defaultValue: "generic",
-    options: [
-      { label: "Generic", value: "generic" },
-      {
-        label: "Organization Role (e.g. Experience)",
-        value: "organizationRole",
-      },
-      { label: "Linked (e.g. Certificate)", value: "linked" },
-    ],
+    options: CV_SECTION_ITEM_TYPE_OPTIONS,
   },
   {
     name: "title",
@@ -158,11 +156,7 @@ export const CvPage: GlobalConfig = {
                   type: "select",
                   required: true,
                   defaultValue: "description",
-                  options: [
-                    { label: "Description", value: "description" },
-                    { label: "Items", value: "items" },
-                    { label: "Badges", value: "badges" },
-                  ],
+                  options: CV_SECTION_TYPE_OPTIONS,
                 },
                 {
                   name: "description",
@@ -178,11 +172,7 @@ export const CvPage: GlobalConfig = {
                   type: "select",
                   required: true,
                   defaultValue: "list",
-                  options: [
-                    { label: "Timeline", value: "timeline" },
-                    { label: "List", value: "list" },
-                    { label: "Columns", value: "columns" },
-                  ],
+                  options: CV_ITEMS_VARIANT_OPTIONS,
                   admin: {
                     condition: (_, siblingData) =>
                       siblingData?.type === "items",

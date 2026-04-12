@@ -1,5 +1,5 @@
-import { createCmsClient } from "../client-core";
-import type { Params } from "../client-core";
+import { createCmsClient } from "../domain";
+import type { Params } from "../domain";
 
 type RestClientOptions = {
   apiUrl: string;

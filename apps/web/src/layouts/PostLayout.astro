@@ -212,166 +212,14 @@ const jsonLd = {
     }
   </div>
 
-  <script is:inline>
+  <script>
+    import { initCodeBlocks } from "@sidshub/lexical/web/client";
+
+    let cleanupCodeBlocks = () => {};
+
     const initializeCodeBlocks = () => {
-      // Tab switching for multi-tab code blocks
-      document.querySelectorAll("[data-code-tabs]").forEach((container) => {
-        if (container.dataset.tabsInitialized) return;
-        container.dataset.tabsInitialized = "true";
-
-        const tabs = Array.from(container.querySelectorAll("[data-tab-index]"));
-        const panels = Array.from(container.querySelectorAll("[data-tab-panel]"));
-
-        const tabsContainer = container.querySelector("[data-tabs-container]");
-        const dropdown = container.querySelector("[data-tabs-dropdown]");
-        const dropdownList = container.querySelector("[data-tabs-dropdown-list]");
-
-        if (dropdownList) {
-          dropdownList.innerHTML = "";
-          tabs.forEach(tab => {
-            const index = tab.dataset.tabIndex;
-            const li = document.createElement("li");
-            const a = document.createElement("a");
-            a.textContent = tab.textContent;
-            a.dataset.dropdownIndex = index;
-            if (tab.getAttribute("aria-selected") === "true") {
-              a.classList.add("active");
-            }
-            li.appendChild(a);
-            dropdownList.appendChild(li);
-          });
-        }
-
-        const activateTab = (index) => {
-          tabs.forEach((t) => {
-            const isActive = t.dataset.tabIndex === String(index);
-            t.setAttribute("aria-selected", isActive ? "true" : "false");
-            t.classList.toggle("font-medium", isActive);
-            t.classList.toggle("font-normal", !isActive);
-            t.classList.toggle("text-base-content", isActive);
-            t.classList.toggle("text-base-content/50", !isActive);
-            t.classList.toggle("border-base-content", isActive);
-            t.classList.toggle("border-transparent", !isActive);
-          });
-          panels.forEach((p) => {
-            p.hidden = p.dataset.tabPanel !== String(index);
-          });
-          
-          const icons = Array.from(container.querySelectorAll("[data-tab-icon]"));
-          icons.forEach((icon) => {
-            icon.hidden = icon.dataset.tabIcon !== String(index);
-          });
-
-          if (dropdownList) {
-            Array.from(dropdownList.querySelectorAll("a")).forEach(a => {
-              if (a.dataset.dropdownIndex === String(index)) {
-                a.classList.add("active");
-              } else {
-                a.classList.remove("active");
-              }
-            });
-          }
-        };
-
-        tabs.forEach((tab) => {
-          tab.addEventListener("click", () => {
-            activateTab(Number(tab.dataset.tabIndex));
-          });
-        });
-
-        if (dropdownList) {
-          dropdownList.addEventListener("click", (e) => {
-            const a = e.target.closest("[data-dropdown-index]");
-            if (a) {
-              activateTab(Number(a.dataset.dropdownIndex));
-              document.activeElement?.blur();
-            }
-          });
-        }
-
-        let tabWidths = [];
-        const updateOverflow = () => {
-          if (!tabsContainer || !dropdown) return;
-          
-          if (tabWidths.length === 0) {
-            tabs.forEach(t => {
-              t.style.display = "block";
-              tabWidths.push(t.offsetWidth);
-            });
-          }
-          
-          const availableWidth = tabsContainer.clientWidth;
-          let currentWidth = 0;
-          let hasOverflow = false;
-          
-          tabs.forEach((tab, index) => {
-            const width = tabWidths[index];
-            const dropdownItem = dropdownList?.querySelector(`[data-dropdown-index="${index}"]`)?.parentElement;
-            if (!dropdownItem) return;
-
-            if (hasOverflow || currentWidth + width > availableWidth) {
-              hasOverflow = true;
-              tab.style.display = "none";
-              dropdownItem.style.display = "block";
-            } else {
-              currentWidth += width;
-              tab.style.display = "block";
-              dropdownItem.style.display = "none";
-            }
-          });
-          
-          if (hasOverflow) {
-            dropdown.classList.remove("hidden");
-          } else {
-            dropdown.classList.add("hidden");
-          }
-        };
-
-        if (tabsContainer) {
-          const resizeObserver = new ResizeObserver(() => {
-            requestAnimationFrame(updateOverflow);
-          });
-          resizeObserver.observe(tabsContainer);
-        }
-      });
-
-      // Copy to clipboard for all code blocks (single and tabbed)
-      document.querySelectorAll("[data-code-copy]").forEach((btn) => {
-        // Skip if already wired up
-        if (btn.dataset.copyBound) return;
-        btn.dataset.copyBound = "true";
-
-        btn.addEventListener("click", () => {
-          const figure = btn.closest(".code-block-figure");
-          if (!figure) return;
-
-          const activePanel =
-            figure.querySelector("[data-tab-panel]:not([hidden])") ||
-            figure.querySelector("[data-code-panel]");
-          if (!activePanel) return;
-
-          const code = activePanel.textContent ?? "";
-          navigator.clipboard.writeText(code).then(() => {
-            const label = btn.querySelector(".copy-label");
-            if (label) {
-              label.textContent = "Copied!";
-              setTimeout(() => {
-                label.textContent = "Copy";
-              }, 2000);
-            } else {
-              const originalHTML = btn.innerHTML;
-              btn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-success"><polyline points="20 6 9 17 4 12"></polyline></svg>`;
-              btn.setAttribute("aria-label", "Copied!");
-              btn.setAttribute("title", "Copied!");
-              setTimeout(() => {
-                btn.innerHTML = originalHTML;
-                btn.setAttribute("aria-label", "Copy code");
-                btn.setAttribute("title", "Copy code");
-              }, 2000);
-            }
-          });
-        });
-      });
+      cleanupCodeBlocks();
+      cleanupCodeBlocks = initCodeBlocks();
     };
 
     initializeCodeBlocks();
@@ -382,140 +230,24 @@ const jsonLd = {
     }
   </script>
 
-  <style is:global>
-    /* Remove default prose spacing overrides on code blocks */
-    .prose .code-block-figure {
-      margin-top: 1.5rem;
-      margin-bottom: 1.5rem;
-    }
-  </style>
-
   {
     showTableOfContents && (
-      <script is:inline>
+      <script>
+        import { initTableOfContents } from "@sidshub/lexical/web/client";
+
         const POST_TOC_DRAWER_ID = "post-toc-drawer";
-        const TOC_ACTIVE_CLASSES = ["border-primary", "text-base-content", "opacity-100", "font-medium"];
+        let cleanupPostTableOfContents = () => {};
 
         const initializePostTableOfContents = () => {
-          const existingCleanup = window.__postTocCleanup;
-          if (typeof existingCleanup === "function") {
-            existingCleanup();
-          }
-
-          const headings = Array.from(
-            document.querySelectorAll("[data-toc-content] :is(h2[id], h3[id])"),
-          );
-          const links = Array.from(document.querySelectorAll("[data-toc-link]"));
-          const drawer = document.getElementById(POST_TOC_DRAWER_ID);
-
-          if (!headings.length || !links.length) {
-            return;
-          }
-
-          let currentActiveId = "";
-
-          const getHashId = () => window.location.hash.replace(/^#/, "");
-
-          const getHeadingById = (id) => {
-            return headings.find((heading) => heading.id === id);
-          };
-
-          const setActiveId = (id) => {
-            currentActiveId = id;
-
-            links.forEach((link) => {
-              const isActive = link.dataset.tocId === id;
-
-              if (isActive) {
-                link.setAttribute("aria-current", "true");
-              } else {
-                link.removeAttribute("aria-current");
-              }
-
-              TOC_ACTIVE_CLASSES.forEach((className) => {
-                link.classList.toggle(className, isActive);
-              });
-            });
-          };
-
-          const syncHash = (id) => {
-            if (!id || getHashId() === id) {
-              return;
-            }
-
-            const nextUrl = `${window.location.pathname}${window.location.search}#${id}`;
-            window.history.replaceState(window.history.state, "", nextUrl);
-          };
-
-          const applyHashState = () => {
-            const hashId = getHashId();
-
-            if (!hashId) {
-              return false;
-            }
-
-            if (!getHeadingById(hashId)) {
-              return false;
-            }
-
-            setActiveId(hashId);
-            return true;
-          };
-
-          const updateActiveId = () => {
-            const topOffset = window.innerWidth >= 1280 ? 112 : 96;
-            let activeHeading = headings[0];
-
-            headings.forEach((heading) => {
-              if (heading.getBoundingClientRect().top - topOffset <= 0) {
-                activeHeading = heading;
-              }
-            });
-
-            if (activeHeading && activeHeading.id) {
-              if (activeHeading.id === currentActiveId) {
-                return;
-              }
-
-              setActiveId(activeHeading.id);
-              syncHash(activeHeading.id);
-            }
-          };
-
-          const handleHashChange = () => {
-            if (!applyHashState()) {
-              updateActiveId();
-            }
-          };
-
-          const observer = new IntersectionObserver(updateActiveId, {
-            rootMargin: "-96px 0px -55% 0px",
-            threshold: [0, 1],
-          });
-
-          headings.forEach((heading) => observer.observe(heading));
-          window.addEventListener("scroll", updateActiveId, { passive: true });
-          window.addEventListener("resize", updateActiveId);
-          window.addEventListener("hashchange", handleHashChange);
-
-          links.forEach((link) => {
-            link.addEventListener("click", () => {
+          cleanupPostTableOfContents();
+          cleanupPostTableOfContents = initTableOfContents({
+            onLinkClick: () => {
+              const drawer = document.getElementById(POST_TOC_DRAWER_ID);
               if (drawer instanceof HTMLInputElement) {
                 drawer.checked = false;
               }
-            });
+            },
           });
-
-          if (!applyHashState()) {
-            updateActiveId();
-          }
-
-          window.__postTocCleanup = () => {
-            observer.disconnect();
-            window.removeEventListener("scroll", updateActiveId);
-            window.removeEventListener("resize", updateActiveId);
-            window.removeEventListener("hashchange", handleHashChange);
-          };
         };
 
         initializePostTableOfContents();

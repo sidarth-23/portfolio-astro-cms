@@ -2,8 +2,8 @@ import type { GlobalConfig } from "payload";
 
 import { resumeLinkFields } from "../fields/resumeLink";
 import { readAccess } from "../access/readAccess";
-import { normalizeFooterItemType, validateAndSanitizeFooterItem } from "../client-core/footerLinks";
-import { FOOTER_ITEM_KIND, FOOTER_ITEM_KIND_CONFIG, SITE_FOOTER_ITEM_OPTIONS } from "../site-settings/footerItems";
+import { normalizeFooterItemType, validateAndSanitizeFooterItem } from "../lib/cms/domain/siteSettings/footerLinks";
+import { FOOTER_ITEM_KIND, FOOTER_ITEM_KIND_CONFIG, SITE_FOOTER_ITEM_OPTIONS } from "../lib/options/footerItems";
 
 const normalizeSidebarFooterItems = (value: unknown): unknown => {
   if (!Array.isArray(value)) {

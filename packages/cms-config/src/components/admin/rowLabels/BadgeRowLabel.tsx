@@ -3,6 +3,7 @@
 import { useRowLabel } from "@payloadcms/ui";
 
 import { formatRowLabel, getTrimmedString } from "./utils";
+import { getSimpleIconCdnUrl } from "../../../lib/simpleIconsCatalog";
 
 type BadgeRowData = {
   value?: unknown;
@@ -36,7 +37,7 @@ export function BadgeRowLabel() {
         <img
           alt={iconSlug}
           height={16}
-          src={`https://cdn.simpleicons.org/${iconSlug}/white?viewbox=auto&size=16`}
+          src={getSimpleIconCdnUrl(iconSlug, { color: "white", size: 16 })}
           style={{ flexShrink: 0 }}
           width={16}
         />

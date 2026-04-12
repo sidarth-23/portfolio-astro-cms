@@ -1,4 +1,5 @@
 import type { Field } from "payload";
+import { LINK_TYPE_OPTIONS } from "../lib/options/link";
 
 type LinkFieldArgs = {
   name?: string;
@@ -18,16 +19,7 @@ export const linkField = ({ name = "link", label = "Link" }: LinkFieldArgs = {})
             name: "type",
             type: "radio",
             defaultValue: "custom",
-            options: [
-              {
-                label: "Custom URL",
-                value: "custom",
-              },
-              {
-                label: "Reference",
-                value: "reference",
-              },
-            ],
+            options: LINK_TYPE_OPTIONS,
             admin: {
               width: "50%",
               layout: "horizontal",

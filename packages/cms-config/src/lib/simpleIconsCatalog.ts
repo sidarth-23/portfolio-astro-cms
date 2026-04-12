@@ -60,8 +60,15 @@ export const findSimpleIconOptions = (query: string, limit = 12): SimpleIconOpti
   return [...startsWithMatches, ...remainingMatches].slice(0, limit);
 };
 
-export const getSimpleIconCdnUrl = (slug: string): string => {
-  return `https://cdn.simpleicons.org/${slug}?viewbox=auto&size=18`;
+type SimpleIconCdnUrlOptions = {
+  color?: string;
+  size?: number;
+};
+
+export const getSimpleIconCdnUrl = (slug: string, options: SimpleIconCdnUrlOptions = {}): string => {
+  const size = options.size ?? 18;
+  const colorPath = options.color ? `/${options.color}` : "";
+  return `https://cdn.simpleicons.org/${slug}${colorPath}?viewbox=auto&size=${size}`;
 };
 
 export const isSimpleIconSlug = (value: unknown): boolean => {

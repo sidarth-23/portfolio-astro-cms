@@ -4,7 +4,7 @@ import SeriesNav from "@/components/SeriesNav.astro";
 import PostLayout from "@/layouts/PostLayout.astro";
 import { ASTRO_CMS_API_URL, ASTRO_CMS_READ_TOKEN } from "astro:env/server";
 import { extractTableOfContents } from "@sidshub/lexical/web";
-import { createCmsRestClient } from "@sidshub/cms-config/rest-client";
+import { createCmsRestClient } from "@sidshub/cms-config/client/rest";
 import type { Post } from "@sidshub/cms-config/payload-types";
 import { PhGithubLogo, PhLinkedinLogo } from "phosphor-icons-astro";
 

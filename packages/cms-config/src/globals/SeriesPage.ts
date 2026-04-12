@@ -1,8 +1,8 @@
 import type { GlobalConfig } from "payload";
 
 import { readAccess } from "../access/readAccess";
-import { createPayloadDataSchemaHook } from "../validation/payloadSchema";
-import { seriesPageSchema } from "../validation/schemas";
+import { createPayloadDataSchemaHook } from "../lib/validation/payloadSchema";
+import { seriesPageSchema } from "../lib/validation/schemas";
 
 export const SeriesPage: GlobalConfig = {
   slug: "series-page",

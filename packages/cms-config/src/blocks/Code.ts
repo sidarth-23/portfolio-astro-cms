@@ -1,20 +1,5 @@
 import type { Block } from "payload";
-
-const CODE_BLOCK_LANGUAGES = [
-  { label: "Plain Text", value: "plaintext" },
-  { label: "Bash", value: "bash" },
-  { label: "JSON", value: "json" },
-  { label: "YAML", value: "yaml" },
-  { label: "HTML", value: "html" },
-  { label: "CSS", value: "css" },
-  { label: "JavaScript", value: "javascript" },
-  { label: "TypeScript", value: "typescript" },
-  { label: "JSX", value: "jsx" },
-  { label: "TSX", value: "tsx" },
-  { label: "Python", value: "python" },
-  { label: "Go", value: "go" },
-  { label: "Rust", value: "rust" },
-];
+import { CODE_BLOCK_LANGUAGE_OPTIONS, CODE_BLOCK_MODE_OPTIONS } from "../lib/options/code";
 
 export const CodeBlock: Block = {
   slug: "code",
@@ -25,17 +10,14 @@ export const CodeBlock: Block = {
       type: "select",
       required: true,
       defaultValue: "single",
-      options: [
-        { label: "Single", value: "single" },
-        { label: "Multiple (Tabs)", value: "multiple" },
-      ],
+      options: CODE_BLOCK_MODE_OPTIONS,
     },
     {
       name: "language",
       type: "select",
       required: true,
       defaultValue: "plaintext",
-      options: CODE_BLOCK_LANGUAGES,
+      options: CODE_BLOCK_LANGUAGE_OPTIONS,
       admin: {
         condition: (_: unknown, siblingData: Record<string, unknown>) =>
           siblingData?.mode !== "multiple",
@@ -71,7 +53,7 @@ export const CodeBlock: Block = {
           type: "select",
           required: true,
           defaultValue: "plaintext",
-          options: CODE_BLOCK_LANGUAGES,
+          options: CODE_BLOCK_LANGUAGE_OPTIONS,
         },
         {
           name: "code",
