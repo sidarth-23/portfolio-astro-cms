@@ -86,6 +86,8 @@ const CopyIcon = () => (
 export function Code(props: Props) {
   if (props.mode === "multiple") {
     const { entries, caption } = props;
+    const captionText = caption?.trim() ?? "";
+    const hasCaption = captionText.length > 0;
     return (
       <figure
         class="code-block-figure overflow-hidden rounded-xl border border-base-content/10 bg-base-300 shadow-lg"
@@ -188,17 +190,21 @@ export function Code(props: Props) {
           ))}
         </div>
 
-        {caption && (
-          <figcaption class="code-block-caption border-t border-base-content/10 bg-base-content/5 px-4 py-2 text-xs text-base-content/55">
-            {caption}
-          </figcaption>
-        )}
+        <figcaption
+          class={`code-block-caption border-t border-base-content/10 bg-base-content/5 px-4 py-2 text-xs ${
+            hasCaption ? "has-caption" : "no-caption"
+          }`}
+        >
+          {hasCaption && <span class="code-block-caption-text">{captionText}</span>}
+        </figcaption>
       </figure>
     );
   }
 
   // Single mode
   const { language, highlightedHtml, caption } = props;
+  const captionText = caption?.trim() ?? "";
+  const hasCaption = captionText.length > 0;
 
   return (
     <figure class="code-block-figure overflow-hidden rounded-xl border border-base-content/10 bg-base-300 shadow-lg">
@@ -231,11 +237,13 @@ export function Code(props: Props) {
         />
       </div>
 
-      {caption && (
-        <figcaption class="code-block-caption border-t border-base-content/10 bg-base-content/5 px-4 py-2 text-xs text-base-content/55">
-          {caption}
-        </figcaption>
-      )}
+      <figcaption
+        class={`code-block-caption border-t border-base-content/10 bg-base-content/5 px-4 py-2 text-xs ${
+          hasCaption ? "has-caption" : "no-caption"
+        }`}
+      >
+        {hasCaption && <span class="code-block-caption-text">{captionText}</span>}
+      </figcaption>
     </figure>
   );
 }

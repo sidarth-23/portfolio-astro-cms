@@ -157,7 +157,7 @@ const activeSeries = seriesFilter
   }
 
   {/* Search and Filter Bar */}
-  <div class="flex flex-col md:flex-row gap-4 mb-6">
+  <div class="flex flex-col md:flex-row gap-4 mb-6 relative z-30">
     <form method="GET" action="/blog" class="flex-1 join">
       <input
         type="search"
@@ -185,17 +185,13 @@ const activeSeries = seriesFilter
       </button>
     </form>
 
-    <div class="dropdown dropdown-end">
-      <div
-        tabindex="0"
-        role="button"
-        class={`btn ${hasActiveFilters ? "btn-primary" : "btn-outline"} gap-2`}
-      >
+    <div class="dropdown dropdown-end relative z-40">
+      <div tabindex="0" role="button" class="btn btn-outline gap-2">
         <PhFunnel class="h-5 w-5" />
         Filter
         {
           hasActiveFilters && (
-            <div class="badge badge-sm badge-circle badge-ghost">
+            <div class="badge badge-sm badge-circle">
               {(categoryFilter ? 1 : 0) +
                 (tagFilter ? 1 : 0) +
                 (seriesFilter ? 1 : 0)}
@@ -205,74 +201,66 @@ const activeSeries = seriesFilter
       </div>
       <div
         tabindex="0"
-        class="dropdown-content z-[1] card card-compact w-72 sm:w-80 md:w-96 p-2 shadow-xl bg-base-200/90 backdrop-blur-md border border-base-200 max-h-[60vh] overflow-y-auto"
+        class="dropdown-content z-50 w-72 rounded-box bg-base-100 p-4 shadow pointer-events-auto"
       >
-        <div class="card-body">
-          <div class="flex justify-between items-center">
-            <h3 class="card-title text-sm uppercase tracking-wider opacity-70">
-              Categories
-            </h3>
-            {
-              categoryFilter && (
-                <a
-                  href={buildBlogUrl({ category: null, page: 1 })}
-                  class="btn btn-ghost btn-xs text-error"
-                >
-                  Clear
-                </a>
-              )
-            }
-          </div>
-          <div class="flex flex-wrap gap-2">
-            {
-              allCategories.map((category) => (
-                <a
-                  href={buildBlogUrl({
-                    category:
-                      category.slug === categoryFilter ? null : category.slug,
-                    page: 1,
-                  })}
-                  class={`btn btn-sm ${category.slug === categoryFilter ? "btn-primary" : "btn-ghost bg-base-200 hover:bg-base-300 font-normal"}`}
-                >
-                  {category.name}
-                </a>
-              ))
-            }
-          </div>
+        <div class="flex justify-between items-center mb-2">
+          <h3 class="text-sm font-semibold">Categories</h3>
+          {
+            categoryFilter && (
+              <a
+                href={buildBlogUrl({ category: null, page: 1 })}
+                class="link link-error text-xs"
+              >
+                Clear
+              </a>
+            )
+          }
+        </div>
+        <div class="flex flex-wrap gap-2 mb-4">
+          {
+            allCategories.map((category) => (
+              <a
+                href={buildBlogUrl({
+                  category:
+                    category.slug === categoryFilter ? null : category.slug,
+                  page: 1,
+                })}
+                class={`badge badge-soft badge-sm no-underline ${category.slug === categoryFilter ? "badge-accent" : "badge-info"}`}
+              >
+                {category.name}
+              </a>
+            ))
+          }
+        </div>
 
-          <div class="divider my-1"></div>
-
-          <div class="flex justify-between items-center">
-            <h3 class="card-title text-sm uppercase tracking-wider opacity-70">
-              Tags
-            </h3>
-            {
-              tagFilter && (
-                <a
-                  href={buildBlogUrl({ tag: null, page: 1 })}
-                  class="btn btn-ghost btn-xs text-error"
-                >
-                  Clear
-                </a>
-              )
-            }
-          </div>
-          <div class="flex flex-wrap gap-2">
-            {
-              allTags.map((tag) => (
-                <a
-                  href={buildBlogUrl({
-                    tag: tag.slug === tagFilter ? null : tag.slug,
-                    page: 1,
-                  })}
-                  class={`btn btn-sm ${tag.slug === tagFilter ? "btn-accent text-accent-content" : "btn-ghost bg-base-200 hover:bg-base-300 font-normal"}`}
-                >
-                  <span class="opacity-70">#</span>
-                  {tag.name}
-                </a>
-              ))
-            }
-          </div>
+        <div class="flex justify-between items-center mb-2">
+          <h3 class="text-sm font-semibold">Tags</h3>
+          {
+            tagFilter && (
+              <a
+                href={buildBlogUrl({ tag: null, page: 1 })}
+                class="link link-error text-xs"
+              >
+                Clear
+              </a>
+            )
+          }
+        </div>
+        <div class="flex flex-wrap gap-2">
+          {
+            allTags.map((tag) => (
+              <a
+                href={buildBlogUrl({
+                  tag: tag.slug === tagFilter ? null : tag.slug,
+                  page: 1,
+                })}
+                class={`badge badge-soft badge-sm no-underline ${tag.slug === tagFilter ? "badge-accent" : "badge-info"}`}
+              >
+                <span class="opacity-70">#</span>
+                {tag.name}
+              </a>
+            ))
+          }
         </div>
       </div>
     </div>
@@ -297,7 +285,7 @@ const activeSeries = seriesFilter
         {activeCategory && (
           <a
             href={buildBlogUrl({ category: null, page: 1 })}
-            class="badge badge-primary badge-sm gap-2 hover:badge-error"
+            class="badge badge-soft badge-accent badge-sm gap-2 hover:badge-error"
           >
             {activeCategory.name}
             <PhX class="h-4 w-4" />
@@ -307,7 +295,7 @@ const activeSeries = seriesFilter
         {activeTag && (
           <a
             href={buildBlogUrl({ tag: null, page: 1 })}
-            class="badge badge-accent badge-sm gap-2 hover:badge-error"
+            class="badge badge-soft badge-accent badge-sm gap-2 hover:badge-error"
           >
             {activeTag.name}
             <PhX class="h-4 w-4" />

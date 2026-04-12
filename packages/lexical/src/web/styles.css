@@ -16,8 +16,24 @@
 }
 
 .code-block-caption::before {
-  content: "Code " counter(code-figure) ": ";
-  font-weight: 600;
+  content: "Code " counter(code-figure);
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  color: color-mix(in srgb, currentColor 82%, transparent);
+}
+
+.code-block-caption.has-caption::before {
+  content: "Code " counter(code-figure) ":";
+  margin-right: 0.45rem;
+}
+
+.code-block-caption.no-caption {
+  color: color-mix(in srgb, currentColor 70%, transparent);
+}
+
+.code-block-caption-text {
+  font-weight: 400;
+  color: color-mix(in srgb, currentColor 72%, transparent);
 }
 
 .code-panel pre {
@@ -71,8 +87,12 @@
 }
 
 .image-figure figcaption::before {
-  content: "Fig " counter(figure) " - ";
+  content: "Fig " counter(figure);
   font-weight: 600;
+}
+
+.image-figure figcaption.has-caption::before {
+  content: "Fig " counter(figure) " - ";
 }
 
 /* Keep media caption rich text inline with the figure label (Fig n - ...). */
