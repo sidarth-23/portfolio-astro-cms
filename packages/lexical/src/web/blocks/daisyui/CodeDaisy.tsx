@@ -13,6 +13,7 @@ import {
   siReact,
   type SimpleIcon,
 } from "simple-icons";
+import type { CodeProps } from "../types";
 
 const LANGUAGE_ICONS: Record<string, SimpleIcon> = {
   javascript: siJavascript,
@@ -28,21 +29,6 @@ const LANGUAGE_ICONS: Record<string, SimpleIcon> = {
   json: siJson,
   yaml: siYaml,
 };
-
-type SingleCodeProps = {
-  mode: "single";
-  language: string;
-  highlightedHtml: string;
-  caption?: string | null;
-};
-
-type MultipleCodeProps = {
-  mode: "multiple";
-  entries: Array<{ name: string; language: string; highlightedHtml: string }>;
-  caption?: string | null;
-};
-
-type Props = SingleCodeProps | MultipleCodeProps;
 
 const LanguageIcon = ({ language }: { language: string }) => {
   const icon = LANGUAGE_ICONS[language];
@@ -83,7 +69,7 @@ const CopyIcon = () => (
   </svg>
 );
 
-export function Code(props: Props) {
+export function CodeDaisy(props: CodeProps) {
   if (props.mode === "multiple") {
     const { entries, caption } = props;
     const captionText = caption?.trim() ?? "";

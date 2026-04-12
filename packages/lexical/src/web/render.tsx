@@ -7,10 +7,7 @@ import {
 import type { DefaultNodeTypes, SerializedBlockNode, SerializedUploadNode } from "@payloadcms/richtext-lexical";
 import { renderToStaticMarkup } from "preact-render-to-string";
 
-import { Callout } from "./blocks/Callout";
-import { Code } from "./blocks/Code";
-import { Upload } from "./blocks/Upload";
-import { ImageGallery } from "./blocks/ImageGallery";
+import { resolveBlockComponents } from "./blocks/resolve";
 import { highlightCode } from "./blocks/shiki";
 import { createHeadingConverters } from "./headings";
 import { createInternalDocHrefResolver, type InternalDocHrefRouteMap } from "./linkResolver";
@@ -41,6 +38,7 @@ export const renderRichTextToHTML = async (
 ): Promise<string> => {
   if (!data) return "";
 
+  const { Callout, Code, Upload, ImageGallery } = resolveBlockComponents(config?.cssEngine);
   const internalDocToHref = createInternalDocHrefResolver(config?.internalDocHrefRouteMap);
   const profile = config?.calloutVariantProfile ?? "generic";
   const fallbackVariant = fallbackVariantByProfile[profile];

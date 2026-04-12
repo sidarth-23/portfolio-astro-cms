@@ -1,22 +1,11 @@
 /** @jsxImportSource preact */
-import { ImagePicture, type UploadDoc } from "./image-utils";
+import { ImagePicture } from "../image-utils";
+import type { ImageGalleryProps } from "../types";
 
 const CHEVRON_LEFT_SVG = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 256 256" aria-hidden="true"><path fill="currentColor" d="M165.66 202.34a8 8 0 0 1-11.32 11.32l-80-80a8 8 0 0 1 0-11.32l80-80a8 8 0 0 1 11.32 11.32L91.31 128Z"/></svg>`;
 const CHEVRON_RIGHT_SVG = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 256 256" aria-hidden="true"><path fill="currentColor" d="M181.66 133.66l-80 80a8 8 0 0 1-11.32-11.32L164.69 128L90.34 53.66a8 8 0 0 1 11.32-11.32l80 80a8 8 0 0 1 0 11.32Z"/></svg>`;
 
-type GalleryImage = {
-  doc: UploadDoc;
-  alt: string;
-  captionHtml?: string | null;
-};
-
-type Props = {
-  images: GalleryImage[];
-  caption?: string | null;
-  mediaBaseUrl?: string;
-};
-
-export function ImageGallery({ images, mediaBaseUrl }: Props) {
+export function ImageGalleryDaisy({ images, mediaBaseUrl }: ImageGalleryProps) {
   const total = images.length;
   const initialCaptionHtml = images[0]?.captionHtml?.trim() ?? "";
   const initialHasCaption = initialCaptionHtml.length > 0;

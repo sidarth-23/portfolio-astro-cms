@@ -1,14 +1,8 @@
 /** @jsxImportSource preact */
-import { resolveUrl, ImagePicture, type UploadDoc } from "./image-utils";
+import { resolveUrl, ImagePicture } from "../image-utils";
+import type { UploadProps } from "../types";
 
-type Props = {
-  doc: UploadDoc;
-  alt: string;
-  captionHtml?: string | null;
-  mediaBaseUrl?: string;
-};
-
-export function Upload({ doc, alt, captionHtml, mediaBaseUrl }: Props) {
+export function UploadDaisy({ doc, alt, captionHtml, mediaBaseUrl }: UploadProps) {
   if (!doc.url) return null;
 
   const url = resolveUrl(doc.url, mediaBaseUrl);

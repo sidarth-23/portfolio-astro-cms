@@ -1,12 +1,5 @@
 /** @jsxImportSource preact */
-
-type Props = {
-  variant: string;
-  title?: string | null;
-  contentHtml: string;
-  /** Additional wrapper classes (e.g. `my-6` for inline lexical blocks) */
-  wrapperClass?: string;
-};
+import type { CalloutProps } from "../types";
 
 const variantToAlertClass: Record<string, string> = {
   neutral: "alert",
@@ -19,7 +12,7 @@ const variantToAlertClass: Record<string, string> = {
   tip: "alert alert-success",
 };
 
-export function Callout({ variant, title, contentHtml, wrapperClass }: Props) {
+export function CalloutDaisy({ variant, title, contentHtml, wrapperClass }: CalloutProps) {
   const alertClass = variantToAlertClass[variant] ?? "alert alert-info";
   const outerClass = wrapperClass ? `${wrapperClass} ${alertClass}` : alertClass;
 

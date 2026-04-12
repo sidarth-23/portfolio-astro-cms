@@ -1,16 +1,15 @@
 /** @jsxImportSource preact */
 import { renderToStaticMarkup } from "preact-render-to-string";
-import { Callout } from "./Callout";
-import { Code } from "./Code";
 import { ContentSection } from "./ContentSection";
-import { ImageGallery } from "./ImageGallery";
 import { highlightCode } from "./shiki";
+import { resolveBlockComponents } from "./resolve";
 import { renderRichTextToHTML, type RichTextRenderConfig } from "../render";
 import type { RichTextValue } from "../types";
 
 export type BlockRenderConfig = RichTextRenderConfig;
 
 export async function renderBlock(block: Record<string, unknown>, config?: BlockRenderConfig): Promise<string> {
+  const { Callout, Code, ImageGallery } = resolveBlockComponents(config?.cssEngine);
   switch (block.blockType) {
     case "contentSection": {
       const contentHtml = await renderRichTextToHTML({ data: block.content as any, enableContainer: false }, config);
