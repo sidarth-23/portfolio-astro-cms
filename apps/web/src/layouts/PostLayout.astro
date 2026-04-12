@@ -216,6 +216,9 @@ const jsonLd = {
     const initializeCodeBlocks = () => {
       // Tab switching for multi-tab code blocks
       document.querySelectorAll("[data-code-tabs]").forEach((container) => {
+        if (container.dataset.tabsInitialized) return;
+        container.dataset.tabsInitialized = "true";
+
         const tabs = Array.from(container.querySelectorAll("[data-tab-index]"));
         const panels = Array.from(container.querySelectorAll("[data-tab-panel]"));
 
@@ -224,6 +227,7 @@ const jsonLd = {
         const dropdownList = container.querySelector("[data-tabs-dropdown-list]");
 
         if (dropdownList) {
+          dropdownList.innerHTML = "";
           tabs.forEach(tab => {
             const index = tab.dataset.tabIndex;
             const li = document.createElement("li");
@@ -242,9 +246,12 @@ const jsonLd = {
           tabs.forEach((t) => {
             const isActive = t.dataset.tabIndex === String(index);
             t.setAttribute("aria-selected", isActive ? "true" : "false");
-            t.classList.toggle("tab-active", isActive);
             t.classList.toggle("font-medium", isActive);
             t.classList.toggle("font-normal", !isActive);
+            t.classList.toggle("text-base-content", isActive);
+            t.classList.toggle("text-base-content/50", !isActive);
+            t.classList.toggle("border-base-content", isActive);
+            t.classList.toggle("border-transparent", !isActive);
           });
           panels.forEach((p) => {
             p.hidden = p.dataset.tabPanel !== String(index);

@@ -87,26 +87,24 @@ export function Code(props: Props) {
     const { entries, caption } = props;
     return (
       <figure
-        class="code-block-figure overflow-hidden rounded-xl border border-base-content/15 bg-base-300 shadow-lg"
+        class="code-block-figure overflow-hidden rounded-xl border border-base-content/10 bg-base-300 shadow-lg"
         data-code-tabs
       >
-        {/* Tab bar */}
-        <div
-          class="flex items-center gap-2 border-b border-base-content/15 bg-base-200 p-2"
-        >
+        {/* Tab bar — full-width bottom border separates header from code */}
+        <div class="code-panel-header flex items-center border-b border-base-content/10">
           {/* Scrollable tab list */}
-          <div class="flex min-w-0 flex-1 overflow-hidden" data-tabs-container>
-            <div class="tabs tabs-border tabs-sm" role="tablist" data-tabs-list>
+          <div class="flex min-w-0 flex-1" data-tabs-container>
+            <div class="flex" role="tablist" data-tabs-list>
               {entries.map((entry, i) => (
                 <button
                   key={i}
                   data-tab-index={String(i)}
                   type="button"
                   role="tab"
-                  class={`tab whitespace-nowrap px-3 text-xs normal-case ${
+                  class={`whitespace-nowrap px-4 py-2 text-xs normal-case transition-colors ${
                     i === 0
-                      ? "tab-active font-medium"
-                      : "text-base-content/65 hover:text-base-content font-normal"
+                      ? "font-medium text-base-content border-b-2 border-base-content -mb-px"
+                      : "font-normal text-base-content/50 hover:text-base-content/80 border-b-2 border-transparent -mb-px"
                   }`}
                   aria-selected={i === 0 ? "true" : "false"}
                 >
@@ -118,7 +116,7 @@ export function Code(props: Props) {
 
           {/* Overflow dropdown */}
           <div
-            class="dropdown dropdown-end hidden self-center"
+            class="dropdown dropdown-end hidden self-center pr-1"
             data-tabs-dropdown
           >
             <button
@@ -150,15 +148,17 @@ export function Code(props: Props) {
               {/* Populated by JS */}
             </ul>
           </div>
+        </div>
 
-          {/* Right: active language icon + copy */}
-          <div class="flex items-center gap-1 rounded-md border border-base-content/20 bg-base-content/5 p-1">
+        {/* Code panels */}
+        <div class="code-panel-surface relative">
+          <div class="code-panel-actions absolute right-3 top-4 z-10 flex items-center gap-1">
             {entries.map((entry, i) => (
               <div
                 key={i}
                 data-tab-icon={String(i)}
                 hidden={i !== 0}
-                class="flex items-center px-1 text-base-content/70"
+                class="flex items-center p-1 text-base-content/70"
                 aria-label={`Language ${entry.language}`}
                 title={entry.language}
               >
@@ -168,25 +168,24 @@ export function Code(props: Props) {
             <button
               type="button"
               data-code-copy
-              class="btn btn-ghost btn-xs btn-square text-base-content/70 hover:text-base-content"
+              class="btn btn-ghost btn-xs btn-square bg-base-content/10 text-base-content/70 hover:bg-base-content/15 hover:text-base-content"
               aria-label="Copy code"
               title="Copy code"
             >
               <CopyIcon />
             </button>
           </div>
-        </div>
 
-        {/* Code panels */}
-        {entries.map((entry, i) => (
-          <div
-            key={i}
-            data-tab-panel={String(i)}
-            class="code-panel overflow-x-auto text-sm"
-            hidden={i !== 0}
-            dangerouslySetInnerHTML={{ __html: entry.highlightedHtml }}
-          />
-        ))}
+          {entries.map((entry, i) => (
+            <div
+              key={i}
+              data-tab-panel={String(i)}
+              class="code-panel code-panel-with-actions overflow-x-auto text-sm"
+              hidden={i !== 0}
+              dangerouslySetInnerHTML={{ __html: entry.highlightedHtml }}
+            />
+          ))}
+        </div>
 
         {caption && (
           <figcaption class="code-block-caption border-t border-base-content/10 bg-base-content/5 px-4 py-2 text-xs text-base-content/55">
@@ -197,37 +196,39 @@ export function Code(props: Props) {
     );
   }
 
-  // Single mode — no header, just code with absolute overlay
+  // Single mode
   const { language, highlightedHtml, caption } = props;
 
   return (
-    <figure class="code-block-figure relative overflow-hidden rounded-xl border border-base-content/15 bg-base-300 shadow-lg">
-      {/* Always-visible actions */}
-      <div class="absolute right-3 top-3 z-10 flex items-center gap-1 rounded-md border border-base-content/20 bg-base-content/10 p-1 backdrop-blur-sm">
-        <span
-          class="flex items-center px-1 text-base-content/70"
-          aria-label={`Language ${language}`}
-          title={language}
-        >
-          <LanguageIcon language={language} />
-        </span>
-        <button
-          type="button"
-          data-code-copy
-          class="btn btn-ghost btn-xs btn-square text-base-content/70 hover:text-base-content"
-          aria-label="Copy code"
-          title="Copy code"
-        >
-          <CopyIcon />
-        </button>
-      </div>
+    <figure class="code-block-figure overflow-hidden rounded-xl border border-base-content/10 bg-base-300 shadow-lg">
+      <div class="code-panel-surface relative">
+        {/* Always-visible actions */}
+        <div class="code-panel-actions absolute right-3 top-4 z-10 flex items-center gap-1">
+          <span
+            class="flex items-center p-1 text-base-content/70"
+            aria-label={`Language ${language}`}
+            title={language}
+          >
+            <LanguageIcon language={language} />
+          </span>
+          <button
+            type="button"
+            data-code-copy
+            class="btn btn-ghost btn-xs btn-square bg-base-content/10 text-base-content/70 hover:bg-base-content/15 hover:text-base-content"
+            aria-label="Copy code"
+            title="Copy code"
+          >
+            <CopyIcon />
+          </button>
+        </div>
 
-      {/* Code area */}
-      <div
-        class="code-panel overflow-x-auto text-sm"
-        data-code-panel
-        dangerouslySetInnerHTML={{ __html: highlightedHtml }}
-      />
+        {/* Code area */}
+        <div
+          class="code-panel code-panel-with-actions overflow-x-auto text-sm"
+          data-code-panel
+          dangerouslySetInnerHTML={{ __html: highlightedHtml }}
+        />
+      </div>
 
       {caption && (
         <figcaption class="code-block-caption border-t border-base-content/10 bg-base-content/5 px-4 py-2 text-xs text-base-content/55">

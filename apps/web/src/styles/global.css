@@ -1,4 +1,6 @@
 @import "tailwindcss";
+@source "../../../../packages/lexical/src";
+@source "../../../../node_modules/@sidshub/lexical";
 @plugin "@tailwindcss/typography";
 @plugin "daisyui"{
 	themes: light --default, dark --prefersdark, abyss;
@@ -14,6 +16,14 @@ article {
   counter-increment: code-figure;
 }
 
+.code-block-caption {
+  font-size: 0.75rem;
+  line-height: 1.4;
+  opacity: 1;
+  font-style: normal;
+  color: inherit;
+}
+
 .code-block-caption::before {
   content: "Code " counter(code-figure) ": ";
   font-weight: 600;
@@ -25,6 +35,34 @@ article {
   background: transparent !important;
   overflow-x: auto;
 }
+
+.code-panel-header {
+  padding: 0;
+}
+
+.code-panel-actions {
+  pointer-events: none;
+}
+
+.code-panel-actions > * {
+  pointer-events: auto;
+}
+
+.prose .code-block-figure {
+  border-color: var(--tw-prose-hr);
+}
+
+.prose .code-panel-header {
+  box-shadow: none;
+}
+
+/* (tabs-lift rules removed — tab bar now uses plain border-b approach) */
+
+.code-panel-with-actions pre {
+  padding-top: 2.25rem;
+  padding-right: 4.5rem;
+}
+
 
 /* Inline image figures in rich text content */
 .image-figure {
