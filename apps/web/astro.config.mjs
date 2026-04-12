@@ -3,6 +3,7 @@ import { fileURLToPath } from "node:url";
 import node from "@astrojs/node";
 import sitemap from "@astrojs/sitemap";
 import tailwindcss from "@tailwindcss/vite";
+import { devRefresh } from "./src/integrations/dev-refresh";
 
 const siteUrl = process.env.ASTRO_SITE_URL ?? "http://localhost:4321";
 
@@ -10,7 +11,7 @@ export default defineConfig({
   site: siteUrl,
   output: "static",
   adapter: node({ mode: "standalone" }),
-  integrations: [sitemap()],
+  integrations: [sitemap(), devRefresh()],
   env: {
     schema: {
       ASTRO_CMS_API_URL: envField.string({

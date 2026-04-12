@@ -1,6 +1,7 @@
 import type { CollectionAfterChangeHook } from "payload";
 
 import { triggerDeployment } from "./triggerDeployment";
+import { triggerDevRefresh } from "./triggerDevRefresh";
 
 const SHOULD_TRIGGER = new Set(["posts", "projects"]);
 
@@ -23,11 +24,14 @@ export const triggerCollectionRedeploy: CollectionAfterChangeHook = async ({
     return doc;
   }
 
-  await triggerDeployment(req.payload.logger, {
+  const meta = {
     collection: collection.slug,
     id: doc?.id,
     _status: currentStatus,
-  });
+  };
+
+  await triggerDeployment(req.payload.logger, meta);
+  await triggerDevRefresh(req.payload.logger, meta);
 
   return doc;
 };

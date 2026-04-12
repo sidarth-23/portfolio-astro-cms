@@ -1,6 +1,7 @@
 import type { GlobalAfterChangeHook } from "payload";
 
 import { triggerDeployment } from "./triggerDeployment";
+import { triggerDevRefresh } from "./triggerDevRefresh";
 
 const SHOULD_TRIGGER = new Set(["home-page", "projects-page", "site-settings", "cv-page", "blog-page"]);
 
@@ -9,9 +10,10 @@ export const triggerGlobalRedeploy: GlobalAfterChangeHook = async ({ doc, global
     return doc;
   }
 
-  await triggerDeployment(req.payload.logger, {
-    global: global.slug,
-  });
+  const meta = { global: global.slug };
+
+  await triggerDeployment(req.payload.logger, meta);
+  await triggerDevRefresh(req.payload.logger, meta);
 
   return doc;
 };
