@@ -3,6 +3,8 @@ import type { GlobalConfig } from "payload";
 import { readAccess } from "../access/readAccess";
 import { linkField } from "../fields/link";
 import { syncHomeSectionsToPosts } from "../hooks/syncHomeSectionsToPosts";
+import { createPayloadDataSchemaHook } from "../validation/payloadSchema";
+import { homePageSchema } from "../validation/schemas";
 
 export const HomePage: GlobalConfig = {
   slug: "home-page",
@@ -14,6 +16,7 @@ export const HomePage: GlobalConfig = {
     group: "Pages",
   },
   hooks: {
+    beforeValidate: [createPayloadDataSchemaHook(homePageSchema, { errorPrefix: "Home page validation failed:" })],
     afterChange: [syncHomeSectionsToPosts],
   },
   fields: [

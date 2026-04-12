@@ -1,6 +1,8 @@
 import type { GlobalConfig } from "payload";
 
 import { readAccess } from "../access/readAccess";
+import { createPayloadDataSchemaHook } from "../validation/payloadSchema";
+import { blogPageSchema } from "../validation/schemas";
 
 export const BlogPage: GlobalConfig = {
   slug: "blog-page",
@@ -10,6 +12,9 @@ export const BlogPage: GlobalConfig = {
   },
   admin: {
     group: "Pages",
+  },
+  hooks: {
+    beforeValidate: [createPayloadDataSchemaHook(blogPageSchema, { errorPrefix: "Blog page validation failed:" })],
   },
   fields: [
     {

@@ -4,6 +4,8 @@ import { readAccess } from "../access/readAccess";
 import { syncSeriesPostsToPosts } from "../hooks/syncSeriesPostsToPosts";
 
 import { slugField } from "../fields/slug";
+import { createPayloadDataSchemaHook } from "../validation/payloadSchema";
+import { seriesSchema } from "../validation/schemas";
 
 export const Series: CollectionConfig = {
   slug: "series",
@@ -16,6 +18,7 @@ export const Series: CollectionConfig = {
     group: "Taxonomy",
   },
   hooks: {
+    beforeValidate: [createPayloadDataSchemaHook(seriesSchema, { errorPrefix: "Series validation failed:" })],
     afterChange: [syncSeriesPostsToPosts],
   },
   fields: [

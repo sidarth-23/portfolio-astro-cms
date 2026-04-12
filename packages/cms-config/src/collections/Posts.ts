@@ -4,6 +4,8 @@ import { readAccess } from "../access/readAccess";
 
 import { populateAuthors } from "../hooks/populateAuthors";
 import { slugField } from "../fields/slug";
+import { createPayloadDataSchemaHook } from "../validation/payloadSchema";
+import { postsSchema } from "../validation/schemas";
 
 export const Posts: CollectionConfig = {
   slug: "posts",
@@ -16,6 +18,7 @@ export const Posts: CollectionConfig = {
     group: "Content",
   },
   hooks: {
+    beforeValidate: [createPayloadDataSchemaHook(postsSchema, { errorPrefix: "Posts validation failed:" })],
     afterRead: [populateAuthors],
   },
   fields: [

@@ -7,8 +7,8 @@ export async function GET(context) {
 
   /** @type {[import("@sidshub/cms-config/payload-types").Post[], import("@sidshub/cms-config/payload-types").SiteSetting]} */
   const [posts, siteSettings] = await Promise.all([cmsClient.getAllPublishedPosts(), cmsClient.getSiteSettings()]);
-  const title = siteSettings.meta?.title?.trim() || "Sid's Hub";
-  const description = siteSettings.meta?.description?.trim() || "Personal website and blog.";
+  const title = siteSettings.meta?.title || "Sid's Hub";
+  const description = siteSettings.meta?.description || "Personal website and blog.";
 
   return rss({
     title,

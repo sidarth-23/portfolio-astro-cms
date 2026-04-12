@@ -3,6 +3,8 @@ import type { CollectionConfig } from "payload";
 import { readAccess } from "../access/readAccess";
 
 import { slugField } from "../fields/slug";
+import { createPayloadDataSchemaHook } from "../validation/payloadSchema";
+import { tagsSchema } from "../validation/schemas";
 
 export const Tags: CollectionConfig = {
   slug: "tags",
@@ -13,6 +15,13 @@ export const Tags: CollectionConfig = {
     useAsTitle: "name",
     defaultColumns: ["name", "slug", "updatedAt"],
     group: "Taxonomy",
+  },
+  hooks: {
+    beforeValidate: [
+      createPayloadDataSchemaHook(tagsSchema, {
+        errorPrefix: "Tags validation failed:",
+      }),
+    ],
   },
   fields: [
     {

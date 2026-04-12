@@ -4,6 +4,8 @@ import {
   generateForgotPasswordEmailHTML,
   generateForgotPasswordEmailSubject,
 } from "../emails/authEmailTemplates";
+import { createPayloadDataSchemaHook } from "../validation/payloadSchema";
+import { usersSchema } from "../validation/schemas";
 
 const showProfileFieldsAfterLogin: Condition = (
   _data,
@@ -53,6 +55,9 @@ export const Users: CollectionConfig = {
   slug: "users",
   access: {
     create: ({ req }) => Boolean(req.user),
+  },
+  hooks: {
+    beforeValidate: [createPayloadDataSchemaHook(usersSchema, { errorPrefix: "Users validation failed:" })],
   },
   auth: {
     forgotPassword: {

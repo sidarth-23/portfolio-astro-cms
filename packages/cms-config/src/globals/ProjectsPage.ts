@@ -1,6 +1,8 @@
 import type { GlobalConfig } from "payload";
 
 import { readAccess } from "../access/readAccess";
+import { createPayloadDataSchemaHook } from "../validation/payloadSchema";
+import { projectsPageSchema } from "../validation/schemas";
 
 type ProjectRelationValue = number | string | { id?: number | string | null } | null | undefined;
 
@@ -77,6 +79,13 @@ export const ProjectsPage: GlobalConfig = {
   },
   admin: {
     group: "Pages",
+  },
+  hooks: {
+    beforeValidate: [
+      createPayloadDataSchemaHook(projectsPageSchema, {
+        errorPrefix: "Projects page validation failed:",
+      }),
+    ],
   },
   fields: [
     {

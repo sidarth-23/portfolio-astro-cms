@@ -9,6 +9,16 @@ import type { HomePage, SiteSetting } from "@sidshub/cms-config/payload-types";
 
 import { TRANSITION_API } from "../consts";
 
+type Props = {
+  image?: string;
+  title: string;
+  seoTitle: string;
+  description: string;
+  includeSidebar?: boolean;
+  ogType?: string;
+  jsonLd?: unknown;
+};
+
 const cmsClient = createCmsRestClient({ apiUrl: ASTRO_CMS_API_URL, token: ASTRO_CMS_READ_TOKEN });
 
 const {
@@ -19,20 +29,18 @@ const {
   includeSidebar = true,
   ogType,
   jsonLd,
-} = Astro.props;
+}: Props = Astro.props;
 
 const [homePage, siteSettings]: [HomePage, SiteSetting] = await Promise.all([
   cmsClient.getHomePage(),
   cmsClient.getSiteSettings(),
 ]);
 
-const fallbackTitle = typeof title === "string" ? title.trim() : "";
-const seoPageTitle = typeof seoTitle === "string" ? seoTitle.trim() : "";
-const pageTitle = seoPageTitle || fallbackTitle;
-const pageDescription = typeof description === "string" ? description.trim() : "";
+const pageTitle = seoTitle;
+const pageDescription = description;
 
 if (!pageTitle) {
-  throw new Error("BaseLayout requires a non-empty SEO title via `seoTitle` or `title`.");
+  throw new Error(`BaseLayout requires a non-empty SEO title via \`seoTitle\` (page title: "${title}").`);
 }
 
 if (!pageDescription) {
@@ -41,7 +49,7 @@ if (!pageDescription) {
 
 const profileImage = cmsClient.mediaToUrl(siteSettings.profileImage);
 const footerItems = cmsClient.footerItemsFromSiteSettings(siteSettings);
-const resumeDownloadUrl = siteSettings.resumeDownloadUrl?.trim() || undefined;
+const resumeDownloadUrl = siteSettings.resumeDownloadUrl || undefined;
 ---
 
 <!doctype html>

@@ -94,8 +94,8 @@ const tags = cmsClient.tagsFromPost(post);
 const authors = cmsClient.authorsFromPost(post);
 const toc = extractTableOfContents(post.content);
 const pubDate = post.publishedAt || post.createdAt || new Date().toISOString();
-const postSeoTitle = post.meta?.title?.trim();
-const postSeoDescription = post.meta?.description?.trim();
+const postSeoTitle = post.meta?.title;
+const postSeoDescription = post.meta?.description;
 
 if (!postSeoTitle || !postSeoDescription) {
   throw new Error(`Post "${post.slug}" requires SEO \`meta.title\` and \`meta.description\`.`);

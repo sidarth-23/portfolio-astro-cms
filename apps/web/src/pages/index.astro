@@ -2,77 +2,28 @@
 import RichTextRenderer from "@/components/RichTextRenderer.astro";
 import { ASTRO_CMS_API_URL, ASTRO_CMS_READ_TOKEN } from "astro:env/server";
 import { createCmsRestClient } from "@sidshub/cms-config/rest-client";
-import type { HomePage, Post, Project } from "@sidshub/cms-config/payload-types";
 import BaseLayout from "@/layouts/BaseLayout.astro";
 import HorizontalCard from "@/components/HorizontalCard.astro";
 
 const cmsClient = createCmsRestClient({ apiUrl: ASTRO_CMS_API_URL, token: ASTRO_CMS_READ_TOKEN });
 
-const homePage: HomePage = await cmsClient.getHomePage();
-const homeSeoTitle = homePage.meta?.title?.trim();
-const homeSeoDescription = homePage.meta?.description?.trim();
+const homePage = await cmsClient.getHomePage();
+const homeSeoTitle = homePage.meta?.title;
+const homeSeoDescription = homePage.meta?.description;
 
 if (!homeSeoTitle || !homeSeoDescription) {
   throw new Error("Home page requires SEO `meta.title` and `meta.description`.");
 }
 
-const isPost = (value: number | Post): value is Post =>
-  typeof value === "object" && value !== null && value._status !== "draft";
-const isProject = (value: number | Project | null | undefined): value is Project =>
-  typeof value === "object" && value !== null && value._status !== "draft";
-type CtaButton = NonNullable<HomePage["ctaButtons"]>[number];
-type ButtonVariant = NonNullable<CtaButton["variant"]>;
-const variantToButtonClass: Record<ButtonVariant, string> = {
+const variantToButtonClass = {
   default: "",
   primary: "btn-primary",
   secondary: "btn-secondary",
   accent: "btn-accent",
   outline: "btn-outline",
   ghost: "btn-ghost",
-};
-const resolveCtaHref = (button: CtaButton): string | undefined => {
-  const link = button.link;
-  if (!link) {
-    return undefined;
-  }
-
-  if (link.type === "custom") {
-    return link.url ?? undefined;
-  }
-
-  const reference = link.reference;
-  if (!reference || typeof reference === "number") {
-    return undefined;
-  }
-
-  if (reference.relationTo === "posts" && isPost(reference.value) && reference.value.slug) {
-    return `/blog/${reference.value.slug}`;
-  }
-
-  if (reference.relationTo === "projects" && isProject(reference.value) && reference.value.slug) {
-    return `/projects#${reference.value.slug}`;
-  }
-
-  return undefined;
-};
-const ctaButtons =
-  homePage.ctaButtons?.flatMap((button) => {
-    const title = button.title?.trim();
-    const href = resolveCtaHref(button);
-
-    if (!title || !href) {
-      return [];
-    }
-
-    return [
-      {
-        title,
-        href,
-        variant: button.variant ?? "default",
-        newTab: button.link?.newTab === true,
-      },
-    ];
-  }) ?? [];
+} as const;
+const ctaButtons = cmsClient.homeCtaButtons(homePage);
 const featuredSections = homePage.featuredSections ?? [];
 ---
 
@@ -97,7 +48,7 @@ const featuredSections = homePage.featuredSections ?? [];
       <div class="mt-6 flex gap-4 flex-wrap">
         {ctaButtons.map((button) => (
           <a
-            class={`btn md:btn-lg ${variantToButtonClass[button.variant]}`}
+            class={`btn md:btn-lg ${variantToButtonClass[button.variant as keyof typeof variantToButtonClass]}`}
             href={button.href}
             target={button.newTab ? "_blank" : undefined}
             rel={button.newTab ? "noopener noreferrer" : undefined}
@@ -122,9 +73,7 @@ const featuredSections = homePage.featuredSections ?? [];
             )}
           </div>
 
-          {section.posts
-            ?.filter(isPost)
-            .map((post) => (
+          {cmsClient.featuredPostsFromHomeSection(section).map((post) => (
               <>
                 <HorizontalCard
                   title={post.title}

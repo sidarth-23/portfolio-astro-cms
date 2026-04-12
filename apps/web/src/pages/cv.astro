@@ -9,8 +9,8 @@ import * as simpleIcons from "simple-icons";
 
 const cmsClient = createCmsRestClient({ apiUrl: ASTRO_CMS_API_URL, token: ASTRO_CMS_READ_TOKEN });
 const cvPage = await cmsClient.getCvPage();
-const cvSeoTitle = cvPage.meta?.title?.trim();
-const cvSeoDescription = cvPage.meta?.description?.trim();
+const cvSeoTitle = cvPage.meta?.title;
+const cvSeoDescription = cvPage.meta?.description;
 
 if (!cvSeoTitle || !cvSeoDescription) {
   throw new Error("CV page requires SEO `meta.title` and `meta.description`.");
@@ -69,11 +69,10 @@ const SIMPLE_ICONS_BY_SLUG = new Map(SIMPLE_ICONS.map((icon) => [icon.slug, icon
 const getSimpleIcon = (slug?: string | null) => {
   if (!slug) return null;
 
-  const normalizedSlug = slug.trim();
-  const icon = SIMPLE_ICONS_BY_SLUG.get(normalizedSlug);
+  const icon = SIMPLE_ICONS_BY_SLUG.get(slug);
 
   if (!icon) {
-    throw new Error(`Unknown Simple Icon slug in CV badges: ${normalizedSlug}`);
+    throw new Error(`Unknown Simple Icon slug in CV badges: ${slug}`);
   }
 
   return icon;

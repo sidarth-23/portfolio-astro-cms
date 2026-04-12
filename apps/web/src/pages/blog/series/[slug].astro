@@ -45,17 +45,17 @@ export async function getStaticPaths() {
 const { series, posts } = Astro.props as SeriesPageProps;
 const seriesPage = await cmsClient.getSeriesPage();
 
-const seriesPageSeoTitle = seriesPage.meta?.title?.trim();
-const seriesPageSeoDescription = seriesPage.meta?.description?.trim();
+const seriesPageSeoTitle = seriesPage.meta?.title;
+const seriesPageSeoDescription = seriesPage.meta?.description;
 
 if (!seriesPageSeoTitle || !seriesPageSeoDescription) {
   throw new Error("Series page requires SEO `meta.title` and `meta.description`.");
 }
 
-const seriesSeoTitle = series.meta?.title?.trim() || seriesPageSeoTitle;
+const seriesSeoTitle = series.meta?.title || seriesPageSeoTitle;
 const seriesSeoDescription =
-  series.meta?.description?.trim() || seriesPageSeoDescription;
-const backToSeriesLabel = seriesPage.backToSeriesLabel?.trim() || "Back to Series";
+  series.meta?.description || seriesPageSeoDescription;
+const backToSeriesLabel = seriesPage.backToSeriesLabel || "Back to Series";
 ---
 
 <BaseLayout

@@ -50,9 +50,9 @@ const [paginatedPosts, allCategories, allTags, allSeries, blogPage]: [
   cmsClient.getBlogPage(),
 ]);
 
-const blogSeoTitle = blogPage.meta?.title?.trim();
-const blogSeoDescription = blogPage.meta?.description?.trim();
-const blogTitle = blogPage.title?.trim();
+const blogSeoTitle = blogPage.meta?.title;
+const blogSeoDescription = blogPage.meta?.description;
+const blogTitle = blogPage.title;
 
 if (!blogSeoTitle || !blogSeoDescription) {
   throw new Error("Blog page requires SEO `meta.title` and `meta.description`.");

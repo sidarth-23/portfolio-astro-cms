@@ -2,43 +2,30 @@ import type { GlobalConfig } from "payload";
 
 import { resumeLinkFields } from "../fields/resumeLink";
 import { readAccess } from "../access/readAccess";
-import { getFooterLinkRule, normalizeFooterItemType, resolveFooterLink } from "../client-core/footerLinks";
+import { normalizeFooterItemType, validateAndSanitizeFooterItem } from "../client-core/footerLinks";
+import { FOOTER_ITEM_KIND, FOOTER_ITEM_KIND_CONFIG, SITE_FOOTER_ITEM_OPTIONS } from "../site-settings/footerItems";
 
 const normalizeSidebarFooterItems = (value: unknown): unknown => {
   if (!Array.isArray(value)) {
     return value;
   }
 
-  return value.map((item) => {
-    if (!item || typeof item !== "object") {
-      return item;
-    }
-
-    const typedItem = item as { type?: unknown; url?: unknown };
-    const type = normalizeFooterItemType(typedItem.type);
-    if (!type) {
-      return item;
-    }
-
-    const rawValue =
-      type === "email"
-        ? typeof (typedItem as { email?: unknown }).email === "string"
-          ? String((typedItem as { email?: unknown }).email)
-          : ""
-        : typeof typedItem.url === "string"
-          ? typedItem.url
-          : "";
-    const resolved = resolveFooterLink(type, rawValue);
-    if (!resolved) {
-      return item;
+  return value.map((item, index) => {
+    const result = validateAndSanitizeFooterItem(item);
+    if (!result.success) {
+      throw new Error(`sidebarFooterItems row ${index + 1}: ${result.error}`);
     }
 
     return {
-      ...item,
-      type,
-      url: resolved.url,
+      ...result.data,
+      email: result.data.type === "email" ? result.data.email : undefined,
     };
   });
+};
+
+const footerItemKind = (value: unknown) => {
+  const type = normalizeFooterItemType(value);
+  return type ? FOOTER_ITEM_KIND[type] : undefined;
 };
 
 export const SiteSettings: GlobalConfig = {
@@ -100,30 +87,7 @@ export const SiteSettings: GlobalConfig = {
           name: "type",
           type: "select",
           required: true,
-          options: [
-            { label: "GitHub", value: "github" },
-            { label: "LinkedIn", value: "linkedin" },
-            { label: "Email", value: "email" },
-            { label: "RSS", value: "rss" },
-            { label: "Facebook", value: "facebook" },
-            { label: "Twitter", value: "twitter" },
-            { label: "Dribbble", value: "dribbble" },
-            { label: "Instagram", value: "instagram" },
-            { label: "YouTube", value: "youtube" },
-            { label: "Twitch", value: "twitch" },
-            { label: "TikTok", value: "tiktok" },
-            { label: "Medium", value: "medium" },
-            { label: "WhatsApp", value: "whatsapp" },
-            { label: "Telegram", value: "telegram" },
-            { label: "Discord", value: "discord" },
-            { label: "Reddit", value: "reddit" },
-            { label: "Pinterest", value: "pinterest" },
-            { label: "Behance", value: "behance" },
-            { label: "CodePen", value: "codepen" },
-            { label: "GitLab", value: "gitlab" },
-            { label: "Stack Overflow", value: "stackoverflow" },
-            { label: "dev.to", value: "devto" },
-          ],
+          options: SITE_FOOTER_ITEM_OPTIONS.map((option) => ({ ...option })),
         },
         {
           name: "url",
@@ -132,52 +96,57 @@ export const SiteSettings: GlobalConfig = {
           label: "URL",
           admin: {
             condition: (_, siblingData) => {
-              const type = normalizeFooterItemType(siblingData?.type);
-              return Boolean(type && type !== "rss" && type !== "email");
+              return footerItemKind(siblingData?.type) === "url";
             },
-            description: getFooterLinkRule("github").inputDescription,
+            description: FOOTER_ITEM_KIND_CONFIG.url.inputDescription,
           },
           validate: (value: unknown, { siblingData }: { siblingData?: { type?: unknown } }) => {
             const type = normalizeFooterItemType(siblingData?.type);
             if (!type) {
-              return "Select a link type first.";
+              return "Select a valid link type.";
             }
 
-            if (type === "rss" || type === "email") {
+            if (FOOTER_ITEM_KIND[type] !== "url") {
               return true;
             }
 
-            const rawValue = typeof value === "string" ? value : "";
-            const resolved = resolveFooterLink(type, rawValue);
-            if (resolved) {
+            const result = validateAndSanitizeFooterItem({
+              type,
+              url: value,
+              email: (siblingData as { email?: unknown } | undefined)?.email,
+            });
+            if (result.success) {
               return true;
             }
 
-            return "Enter a valid URL that starts with https:// or http://.";
+            return result.error;
           },
         },
         {
           name: "email",
           type: "text",
           required: false,
-          label: getFooterLinkRule("email").inputLabel,
+          label: FOOTER_ITEM_KIND_CONFIG.email.inputLabel,
           admin: {
-            condition: (_, siblingData) => normalizeFooterItemType(siblingData?.type) === "email",
-            description: getFooterLinkRule("email").inputDescription,
+            condition: (_, siblingData) => footerItemKind(siblingData?.type) === "email",
+            description: FOOTER_ITEM_KIND_CONFIG.email.inputDescription,
           },
           validate: (value: unknown, { siblingData }: { siblingData?: { type?: unknown } }) => {
             const type = normalizeFooterItemType(siblingData?.type);
-            if (type !== "email") {
+            if (!type || FOOTER_ITEM_KIND[type] !== "email") {
               return true;
             }
 
-            const rawValue = typeof value === "string" ? value : "";
-            const resolved = resolveFooterLink("email", rawValue);
-            if (resolved) {
+            const result = validateAndSanitizeFooterItem({
+              type,
+              email: value,
+              url: (siblingData as { url?: unknown } | undefined)?.url,
+            });
+            if (result.success) {
               return true;
             }
 
-            return "Enter a valid email address, for example name@example.com.";
+            return result.error;
           },
         },
       ],

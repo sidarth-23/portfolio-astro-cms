@@ -12,7 +12,7 @@ type Author = { id?: number | null; name?: string | null };
 
 type Props = {
   title: string;
-  seoTitle?: string;
+  seoTitle: string;
   description: string;
   pubDate: string;
   updatedDate?: string;
@@ -37,7 +37,7 @@ const {
   series,
   authors = [],
   toc = [],
-} = Astro.props;
+}: Props = Astro.props;
 
 const currentUrl = Astro.url;
 const showTableOfContents = toc.length > 1;

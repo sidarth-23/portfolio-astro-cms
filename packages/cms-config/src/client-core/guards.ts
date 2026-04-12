@@ -10,7 +10,7 @@ import type {
   User,
 } from "../payload-types";
 import type { PopulatedAuthor, RelationValue, SiteFooterItem } from "./types";
-import { normalizeFooterItemType, resolveFooterLink } from "./footerLinks";
+import { getFooterLinkRule, isFooterItemType } from "./footerLinks";
 
 export const isObjectRelation = <T extends object>(value: RelationValue<T>): value is T => {
   return typeof value === "object" && value !== null;
@@ -70,17 +70,16 @@ export const asSiteFooterItems = (value: SiteSetting["sidebarFooterItems"]): Sit
   }
 
   return value.flatMap((item) => {
-    const type = normalizeFooterItemType(item?.type);
-    if (!type) {
+    const type = item?.type;
+    if (!isFooterItemType(type)) {
       return [];
     }
 
-    const rawValue = typeof item?.url === "string" ? item.url : "";
-    const resolved = resolveFooterLink(type, rawValue);
-    if (!resolved) {
+    const url = typeof item?.url === "string" ? item.url.trim() : "";
+    if (!url) {
       return [];
     }
 
-    return [{ type, ...resolved }];
+    return [{ type, url, openInNewTab: getFooterLinkRule(type).openInNewTab }];
   });
 };

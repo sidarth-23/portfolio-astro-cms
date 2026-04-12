@@ -8,8 +8,8 @@ import { createCmsRestClient } from "@sidshub/cms-config/rest-client";
 
 const cmsClient = createCmsRestClient({ apiUrl: ASTRO_CMS_API_URL, token: ASTRO_CMS_READ_TOKEN });
 const projectsPage = await cmsClient.getProjectsPage();
-const projectsSeoTitle = projectsPage.meta?.title?.trim();
-const projectsSeoDescription = projectsPage.meta?.description?.trim();
+const projectsSeoTitle = projectsPage.meta?.title;
+const projectsSeoDescription = projectsPage.meta?.description;
 
 if (!projectsSeoTitle || !projectsSeoDescription) {
   throw new Error("Projects page requires SEO `meta.title` and `meta.description`.");
@@ -20,16 +20,6 @@ const sections = projectsPage.sections.map((section) => ({
   projects: asProjectArray(section.projects),
 }));
 
-const toTags = (tags?: Array<{ value: string }> | null) => {
-  return (tags || []).map((tag) => ({
-    name: tag.value,
-    slug: tag.value.toLowerCase().replace(/\s+/g, "-"),
-  }));
-};
-
-const toBadges = (badges?: Array<{ value: string }> | null) => {
-  return (badges || []).map((badge) => badge.value);
-};
 ---
 
 <BaseLayout
@@ -57,8 +47,8 @@ const toBadges = (badges?: Array<{ value: string }> | null) => {
                 title={project.title}
                 img={cmsClient.mediaToUrl(project.image)}
                 descRich={project.description}
-              badges={toBadges(project.badges)}
-              tags={toTags(project.tags)}
+              badges={cmsClient.badgesFromProject(project)}
+              tags={cmsClient.tagsFromProject(project)}
               url={project.externalUrl}
               githubUrl={project.githubUrl ?? undefined}
               reverse={index % 2 === 1}

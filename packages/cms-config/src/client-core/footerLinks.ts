@@ -1,32 +1,11 @@
+import { z } from "zod";
+
+import {
+  FOOTER_ITEM_KIND,
+  FOOTER_ITEM_KIND_CONFIG,
+  SITE_FOOTER_ITEM_TYPES,
+} from "../site-settings/footerItems";
 import type { SiteFooterItemType } from "./types";
-
-const ABSOLUTE_URL_PATTERN = /^https?:\/\//i;
-const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
-const SITE_FOOTER_ITEM_TYPES: SiteFooterItemType[] = [
-  "github",
-  "linkedin",
-  "email",
-  "rss",
-  "facebook",
-  "twitter",
-  "dribbble",
-  "instagram",
-  "youtube",
-  "twitch",
-  "tiktok",
-  "medium",
-  "whatsapp",
-  "telegram",
-  "discord",
-  "reddit",
-  "pinterest",
-  "behance",
-  "codepen",
-  "gitlab",
-  "stackoverflow",
-  "devto",
-];
 
 type FooterLinkRule = {
   openInNewTab: boolean;
@@ -36,210 +15,184 @@ type FooterLinkRule = {
   hideInput: boolean;
 };
 
+const FOOTER_TYPE_SET = new Set<string>(SITE_FOOTER_ITEM_TYPES);
+
+const TYPE_ALIASES: Record<string, SiteFooterItemType> = {
+  "stack overflow": "stackoverflow",
+  "dev.to": "devto",
+};
+
+const emailValueSchema = z.string().trim().toLowerCase().min(1, "Enter an email address.").email(
+  "Enter a valid email address, for example name@example.com.",
+);
+
+const absoluteHttpUrlSchema = z
+  .string()
+  .trim()
+  .min(1, "Enter a URL.")
+  .url("Enter a valid URL that starts with https:// or http://.")
+  .refine((value) => {
+    const protocol = new URL(value).protocol;
+    return protocol === "http:" || protocol === "https:";
+  }, "Enter a valid URL that starts with https:// or http://.");
+
 const normalizeEmail = (value: string): string | undefined => {
-  const trimmed = value.trim().toLowerCase();
-  if (!trimmed || !EMAIL_PATTERN.test(trimmed)) {
+  const parsed = emailValueSchema.safeParse(value);
+  if (!parsed.success) {
     return undefined;
   }
 
-  return `mailto:${trimmed}`;
+  return `mailto:${parsed.data}`;
 };
 
 const normalizeAbsoluteUrl = (value: string): string | undefined => {
-  const trimmed = value.trim();
-  if (!trimmed || !ABSOLUTE_URL_PATTERN.test(trimmed)) {
+  const parsed = absoluteHttpUrlSchema.safeParse(value);
+  if (!parsed.success) {
     return undefined;
   }
 
-  return trimmed;
+  return parsed.data;
 };
 
-const FOOTER_LINK_RULES: Record<SiteFooterItemType, FooterLinkRule> = {
-  github: {
-    openInNewTab: true,
+const RULE_BY_KIND: Record<"url" | "email" | "rss", FooterLinkRule> = {
+  url: {
+    ...FOOTER_ITEM_KIND_CONFIG.url,
     normalize: normalizeAbsoluteUrl,
-    inputLabel: "URL",
-    inputDescription: "Enter a full URL including https://",
-    hideInput: false,
-  },
-  linkedin: {
-    openInNewTab: true,
-    normalize: normalizeAbsoluteUrl,
-    inputLabel: "URL",
-    inputDescription: "Enter a full URL including https://",
-    hideInput: false,
   },
   email: {
-    openInNewTab: false,
+    ...FOOTER_ITEM_KIND_CONFIG.email,
     normalize: normalizeEmail,
-    inputLabel: "Email",
-    inputDescription: "Enter an email address, for example name@example.com",
-    hideInput: false,
   },
   rss: {
-    openInNewTab: false,
+    ...FOOTER_ITEM_KIND_CONFIG.rss,
     normalize: () => "/rss.xml",
-    inputLabel: "RSS URL",
-    inputDescription: "RSS is fixed to /rss.xml",
-    hideInput: true,
-  },
-  facebook: {
-    openInNewTab: true,
-    normalize: normalizeAbsoluteUrl,
-    inputLabel: "URL",
-    inputDescription: "Enter a full URL including https://",
-    hideInput: false,
-  },
-  twitter: {
-    openInNewTab: true,
-    normalize: normalizeAbsoluteUrl,
-    inputLabel: "URL",
-    inputDescription: "Enter a full URL including https://",
-    hideInput: false,
-  },
-  dribbble: {
-    openInNewTab: true,
-    normalize: normalizeAbsoluteUrl,
-    inputLabel: "URL",
-    inputDescription: "Enter a full URL including https://",
-    hideInput: false,
-  },
-  instagram: {
-    openInNewTab: true,
-    normalize: normalizeAbsoluteUrl,
-    inputLabel: "URL",
-    inputDescription: "Enter a full URL including https://",
-    hideInput: false,
-  },
-  youtube: {
-    openInNewTab: true,
-    normalize: normalizeAbsoluteUrl,
-    inputLabel: "URL",
-    inputDescription: "Enter a full URL including https://",
-    hideInput: false,
-  },
-  twitch: {
-    openInNewTab: true,
-    normalize: normalizeAbsoluteUrl,
-    inputLabel: "URL",
-    inputDescription: "Enter a full URL including https://",
-    hideInput: false,
-  },
-  tiktok: {
-    openInNewTab: true,
-    normalize: normalizeAbsoluteUrl,
-    inputLabel: "URL",
-    inputDescription: "Enter a full URL including https://",
-    hideInput: false,
-  },
-  medium: {
-    openInNewTab: true,
-    normalize: normalizeAbsoluteUrl,
-    inputLabel: "URL",
-    inputDescription: "Enter a full URL including https://",
-    hideInput: false,
-  },
-  whatsapp: {
-    openInNewTab: true,
-    normalize: normalizeAbsoluteUrl,
-    inputLabel: "URL",
-    inputDescription: "Enter a full URL including https://",
-    hideInput: false,
-  },
-  telegram: {
-    openInNewTab: true,
-    normalize: normalizeAbsoluteUrl,
-    inputLabel: "URL",
-    inputDescription: "Enter a full URL including https://",
-    hideInput: false,
-  },
-  discord: {
-    openInNewTab: true,
-    normalize: normalizeAbsoluteUrl,
-    inputLabel: "URL",
-    inputDescription: "Enter a full URL including https://",
-    hideInput: false,
-  },
-  reddit: {
-    openInNewTab: true,
-    normalize: normalizeAbsoluteUrl,
-    inputLabel: "URL",
-    inputDescription: "Enter a full URL including https://",
-    hideInput: false,
-  },
-  pinterest: {
-    openInNewTab: true,
-    normalize: normalizeAbsoluteUrl,
-    inputLabel: "URL",
-    inputDescription: "Enter a full URL including https://",
-    hideInput: false,
-  },
-  behance: {
-    openInNewTab: true,
-    normalize: normalizeAbsoluteUrl,
-    inputLabel: "URL",
-    inputDescription: "Enter a full URL including https://",
-    hideInput: false,
-  },
-  codepen: {
-    openInNewTab: true,
-    normalize: normalizeAbsoluteUrl,
-    inputLabel: "URL",
-    inputDescription: "Enter a full URL including https://",
-    hideInput: false,
-  },
-  gitlab: {
-    openInNewTab: true,
-    normalize: normalizeAbsoluteUrl,
-    inputLabel: "URL",
-    inputDescription: "Enter a full URL including https://",
-    hideInput: false,
-  },
-  stackoverflow: {
-    openInNewTab: true,
-    normalize: normalizeAbsoluteUrl,
-    inputLabel: "URL",
-    inputDescription: "Enter a full URL including https://",
-    hideInput: false,
-  },
-  devto: {
-    openInNewTab: true,
-    normalize: normalizeAbsoluteUrl,
-    inputLabel: "URL",
-    inputDescription: "Enter a full URL including https://",
-    hideInput: false,
   },
 };
+
+const FOOTER_LINK_RULES: Record<SiteFooterItemType, FooterLinkRule> = Object.fromEntries(
+  SITE_FOOTER_ITEM_TYPES.map((type) => [type, RULE_BY_KIND[FOOTER_ITEM_KIND[type] ?? "url"]]),
+) as Record<SiteFooterItemType, FooterLinkRule>;
 
 export const normalizeFooterItemType = (value: unknown): SiteFooterItemType | undefined => {
   if (typeof value !== "string") {
     return undefined;
   }
 
-  const normalized = value.trim().toLowerCase().replace(/[\s.]+/g, "");
-  if (!normalized) {
+  const trimmed = value.trim();
+  if (!trimmed) {
     return undefined;
   }
 
-  return SITE_FOOTER_ITEM_TYPES.find((type) => type === normalized);
+  const lower = trimmed.toLowerCase();
+  const aliased = TYPE_ALIASES[lower];
+  if (aliased) {
+    return aliased;
+  }
+
+  return FOOTER_TYPE_SET.has(lower) ? (lower as SiteFooterItemType) : undefined;
+};
+
+export const isFooterItemType = (value: unknown): value is SiteFooterItemType => {
+  return typeof value === "string" && FOOTER_TYPE_SET.has(value);
 };
 
 export const getFooterLinkRule = (type: SiteFooterItemType): FooterLinkRule => {
   return FOOTER_LINK_RULES[type];
 };
 
-export const resolveFooterLink = (
-  type: SiteFooterItemType,
-  rawValue: string,
-): { url: string; openInNewTab: boolean } | undefined => {
-  const rule = getFooterLinkRule(type);
-  const url = rule.normalize(rawValue);
-  if (!url) {
-    return undefined;
+type FooterItemCandidate = {
+  type?: unknown;
+  url?: unknown;
+  email?: unknown;
+  id?: string | null;
+};
+
+export type SanitizedFooterItem = {
+  type: SiteFooterItemType;
+  url: string;
+  email?: string;
+  id?: string | null;
+};
+
+const footerItemCandidateSchema = z.object({
+  type: z.unknown(),
+  url: z.unknown().optional(),
+  email: z.unknown().optional(),
+  id: z.union([z.string(), z.null()]).optional(),
+});
+
+const toFooterItemCandidate = (value: unknown): FooterItemCandidate => {
+  const parsed = footerItemCandidateSchema.safeParse(value);
+  return parsed.success ? parsed.data : {};
+};
+
+export const validateAndSanitizeFooterItem = (
+  value: unknown,
+):
+  | {
+      success: true;
+      data: SanitizedFooterItem;
+    }
+  | {
+      success: false;
+      error: string;
+    } => {
+  const candidate = toFooterItemCandidate(value);
+  const type = normalizeFooterItemType(candidate.type);
+  if (!type) {
+    return {
+      success: false,
+      error: "Select a valid link type.",
+    };
+  }
+
+  const kind = FOOTER_ITEM_KIND[type] ?? "url";
+
+  if (kind === "rss") {
+    return {
+      success: true,
+      data: {
+        type,
+        url: "/rss.xml",
+        id: candidate.id,
+      },
+    };
+  }
+
+  if (kind === "email") {
+    const parsedEmail = emailValueSchema.safeParse(typeof candidate.email === "string" ? candidate.email : "");
+    if (!parsedEmail.success) {
+      return {
+        success: false,
+        error: parsedEmail.error.issues[0]?.message || "Enter a valid email address, for example name@example.com.",
+      };
+    }
+
+    return {
+      success: true,
+      data: {
+        type,
+        email: parsedEmail.data,
+        url: `mailto:${parsedEmail.data}`,
+        id: candidate.id,
+      },
+    };
+  }
+
+  const parsedUrl = absoluteHttpUrlSchema.safeParse(typeof candidate.url === "string" ? candidate.url : "");
+  if (!parsedUrl.success) {
+    return {
+      success: false,
+      error: parsedUrl.error.issues[0]?.message || "Enter a valid URL that starts with https:// or http://.",
+    };
   }
 
   return {
-    url,
-    openInNewTab: rule.openInNewTab,
+    success: true,
+    data: {
+      type,
+      url: parsedUrl.data,
+      id: candidate.id,
+    },
   };
 };

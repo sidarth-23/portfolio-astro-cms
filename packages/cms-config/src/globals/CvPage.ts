@@ -2,6 +2,8 @@ import type { Field, GlobalConfig } from "payload";
 
 import { readAccess } from "../access/readAccess";
 import { isSimpleIconSlug } from "../lib/simpleIconsCatalog";
+import { createPayloadDataSchemaHook } from "../validation/payloadSchema";
+import { cvPageSchema } from "../validation/schemas";
 
 const sectionItemFields: Field[] = [
   {
@@ -113,6 +115,9 @@ export const CvPage: GlobalConfig = {
   },
   admin: {
     group: "Pages",
+  },
+  hooks: {
+    beforeValidate: [createPayloadDataSchemaHook(cvPageSchema, { errorPrefix: "CV page validation failed:" })],
   },
   fields: [
     {

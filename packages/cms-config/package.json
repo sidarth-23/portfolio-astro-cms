@@ -21,6 +21,7 @@
     "@react-email/render": "^1.4.0",
     "lexical": "^0.35.0",
     "payload": "3.76.1",
-    "simple-icons": "^16.15.0"
+    "simple-icons": "^16.15.0",
+    "zod": "^3.24.1"
   }
 }

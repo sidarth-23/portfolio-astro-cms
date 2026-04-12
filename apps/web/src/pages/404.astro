@@ -6,13 +6,13 @@ import { createCmsRestClient } from "@sidshub/cms-config/rest-client";
 const cmsClient = createCmsRestClient({ apiUrl: ASTRO_CMS_API_URL, token: ASTRO_CMS_READ_TOKEN });
 const notFoundPage = await cmsClient.getNotFoundPage();
 
-const pageTitle = notFoundPage.title?.trim();
-const pageDescription = notFoundPage.description?.trim();
-const seoTitle = notFoundPage.meta?.title?.trim();
-const seoDescription = notFoundPage.meta?.description?.trim();
-const ctaLabel = notFoundPage.ctaLabel?.trim() || "Home";
-const ctaHref = notFoundPage.ctaHref?.trim() || "/";
-const emoji = notFoundPage.emoji?.trim() || "🏝";
+const pageTitle = notFoundPage.title;
+const pageDescription = notFoundPage.description;
+const seoTitle = notFoundPage.meta?.title;
+const seoDescription = notFoundPage.meta?.description;
+const ctaLabel = notFoundPage.ctaLabel;
+const ctaHref = notFoundPage.ctaHref;
+const emoji = notFoundPage.emoji;
 
 if (!pageTitle || !pageDescription || !seoTitle || !seoDescription) {
   throw new Error(
