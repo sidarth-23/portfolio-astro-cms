@@ -2,56 +2,118 @@
 import { PhCheck, PhDesktop, PhMoon, PhSun } from "phosphor-icons-astro";
 ---
 
-<div class="dropdown dropdown-end">
-  <button
-    type="button"
-    class="btn btn-circle btn-ghost"
-    aria-label="Select theme"
-    title="Theme"
-    data-theme-trigger
-  >
-    <span data-theme-icon="light" class="hidden">
-      <PhSun size={18} />
-    </span>
-    <span data-theme-icon="dark" class="hidden">
-      <PhMoon size={18} />
-    </span>
-    <span data-theme-icon="system" class="hidden">
-      <PhDesktop size={18} />
-    </span>
-  </button>
+<theme-switcher>
+  <div class="dropdown dropdown-end">
+    <button
+      type="button"
+      class="btn btn-circle btn-ghost"
+      aria-label="Select theme"
+      title="Theme"
+    >
+      <span data-icon="light" class="hidden">
+        <PhSun size={18} />
+      </span>
+      <span data-icon="dark" class="hidden">
+        <PhMoon size={18} />
+      </span>
+      <span data-icon="system" class="hidden">
+        <PhDesktop size={18} />
+      </span>
+    </button>
 
-  <ul
-    tabindex="0"
-    class="dropdown-content menu z-[70] mt-2 w-40 rounded-box border border-base-300 bg-base-100 p-2 shadow-lg"
-    data-theme-menu
-  >
-    <li>
-      <button type="button" class="flex items-center justify-between" data-theme-option="light">
-        <span class="flex items-center gap-2">
-          <PhSun size={16} />
-          <span>Light</span>
-        </span>
-        <PhCheck size={14} class="invisible" data-theme-check="light" />
-      </button>
-    </li>
-    <li>
-      <button type="button" class="flex items-center justify-between" data-theme-option="dark">
-        <span class="flex items-center gap-2">
-          <PhMoon size={16} />
-          <span>Dark</span>
-        </span>
-        <PhCheck size={14} class="invisible" data-theme-check="dark" />
-      </button>
-    </li>
-    <li>
-      <button type="button" class="flex items-center justify-between" data-theme-option="system">
-        <span class="flex items-center gap-2">
-          <PhDesktop size={16} />
-          <span>System</span>
-        </span>
-        <PhCheck size={14} class="invisible" data-theme-check="system" />
-      </button>
-    </li>
-  </ul>
-</div>
+    <ul
+      tabindex="0"
+      class="dropdown-content menu z-[70] mt-2 w-40 rounded-box border border-base-300 bg-base-100 p-2 shadow-lg"
+    >
+      <li>
+        <button
+          type="button"
+          class="flex items-center justify-between"
+          data-set-theme="light"
+        >
+          <span class="flex items-center gap-2">
+            <PhSun size={16} />
+            <span>Light</span>
+          </span>
+          <PhCheck size={14} class="invisible" data-check="light" />
+        </button>
+      </li>
+      <li>
+        <button
+          type="button"
+          class="flex items-center justify-between"
+          data-set-theme="dark"
+        >
+          <span class="flex items-center gap-2">
+            <PhMoon size={16} />
+            <span>Dark</span>
+          </span>
+          <PhCheck size={14} class="invisible" data-check="dark" />
+        </button>
+      </li>
+      <li>
+        <button
+          type="button"
+          class="flex items-center justify-between"
+          data-set-theme="system"
+        >
+          <span class="flex items-center gap-2">
+            <PhDesktop size={16} />
+            <span>System</span>
+          </span>
+          <PhCheck size={14} class="invisible" data-check="system" />
+        </button>
+      </li>
+    </ul>
+  </div>
+</theme-switcher>
+
+<script>
+  import type { ThemePreference } from "@/lib/types";
+
+  class ThemeSwitcherElement extends HTMLElement {
+    #onClick: (e: Event) => void;
+    #onThemeChanged: () => void;
+
+    constructor() {
+      super();
+      this.#onClick = (e: Event) => {
+        const btn = (e.target as Element).closest<HTMLElement>(
+          "[data-set-theme]",
+        );
+        if (!btn) return;
+        window.theme?.setPreference(btn.dataset.setTheme ?? "system");
+      };
+      this.#onThemeChanged = () => this.#sync();
+    }
+
+    connectedCallback() {
+      this.#sync();
+      this.addEventListener("click", this.#onClick);
+      document.addEventListener("theme:changed", this.#onThemeChanged);
+    }
+
+    disconnectedCallback() {
+      this.removeEventListener("click", this.#onClick);
+      document.removeEventListener("theme:changed", this.#onThemeChanged);
+    }
+
+    #sync() {
+      const pref: ThemePreference = window.theme?.getPreference() ?? "system";
+
+      this.querySelectorAll<HTMLElement>("[data-icon]").forEach((el) => {
+        el.classList.toggle("hidden", el.dataset.icon !== pref);
+      });
+
+      this.querySelectorAll<HTMLElement>("[data-check]").forEach((el) => {
+        el.classList.toggle("invisible", el.dataset.check !== pref);
+      });
+
+      this.querySelectorAll<HTMLElement>("[data-set-theme]").forEach((el) => {
+        el.classList.toggle("active", el.dataset.setTheme === pref);
+      });
+    }
+  }
+
+  customElements.define("theme-switcher", ThemeSwitcherElement);
+</script>

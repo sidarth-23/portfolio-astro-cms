@@ -1,30 +1,62 @@
 <script is:inline>
-  (() => {
+  window.theme ??= (() => {
     const STORAGE_KEY = "theme-preference";
-    const LIGHT_THEME = "emerald";
-    const DARK_THEME = "night";
-    const THEME_VALUES = new Set(["light", "dark", "system"]);
-    const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
+    const LIGHT = "emerald";
+    const DARK = "night";
+    const VALID = new Set(["light", "dark", "system"]);
+    const mq = window.matchMedia("(prefers-color-scheme: dark)");
 
-    const toPreference = (value) => (THEME_VALUES.has(value) ? value : "system");
-    const getPreference = () => {
+    function parse(v) {
+      return VALID.has(v) ? v : "system";
+    }
+
+    function getPreference() {
       try {
-        return toPreference(localStorage.getItem(STORAGE_KEY));
+        return parse(localStorage.getItem(STORAGE_KEY));
       } catch {
         return "system";
       }
-    };
-    const getResolvedMode = (preference) =>
-      preference === "system" ? (mediaQuery.matches ? "dark" : "light") : preference;
+    }
 
-    const applyToDocument = (targetDocument, preference) => {
-      const mode = getResolvedMode(preference);
-      const themeName = mode === "dark" ? DARK_THEME : LIGHT_THEME;
+    function resolve(pref) {
+      return pref === "system" ? (mq.matches ? "dark" : "light") : pref;
+    }
 
-      targetDocument.documentElement.dataset.theme = themeName;
-      targetDocument.documentElement.style.colorScheme = mode;
-    };
+    function applyTo(doc, pref) {
+      const mode = resolve(pref ?? getPreference());
+      doc.documentElement.dataset.theme = mode === "dark" ? DARK : LIGHT;
+      doc.documentElement.style.colorScheme = mode;
+    }
 
-    applyToDocument(document, getPreference());
+    function apply() {
+      applyTo(document, getPreference());
+    }
+
+    function setPreference(value) {
+      const pref = parse(value);
+      try {
+        localStorage.setItem(STORAGE_KEY, pref);
+      } catch {}
+      apply();
+      document.dispatchEvent(new CustomEvent("theme:changed"));
+    }
+
+    // Registered once inside ??= — no guard flag needed
+    mq.addEventListener("change", () => {
+      if (getPreference() === "system") {
+        apply();
+        document.dispatchEvent(new CustomEvent("theme:changed"));
+      }
+    });
+
+    // Apply theme to incoming document before ViewTransition swap
+    document.addEventListener("astro:before-swap", (e) => {
+      if (e.newDocument) applyTo(e.newDocument, getPreference());
+    });
+
+    return { getPreference, setPreference, apply };
   })();
+
+  // Runs on every navigation — ??= skips the IIFE but apply() re-runs
+  window.theme.apply();
 </script>
