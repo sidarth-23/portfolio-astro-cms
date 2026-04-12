@@ -152,12 +152,15 @@ export const Posts: CollectionConfig = {
           required: false,
         },
         {
-          name: "linkedInUrl",
-          type: "text",
-        },
-        {
-          name: "githubUrl",
-          type: "text",
+          // Minimal projection of the User links shape (icon, url, newTab only — fields populateAuthors writes).
+          // Full definition in Users.ts; reference/page link types are not captured here since the hook resolves URLs.
+          name: "links",
+          type: "array",
+          fields: [
+            { name: "icon", type: "text" },
+            { name: "url", type: "text" },
+            { name: "newTab", type: "checkbox" },
+          ],
         },
       ],
     },

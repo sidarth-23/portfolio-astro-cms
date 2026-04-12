@@ -7,8 +7,7 @@ type PopulatedAuthor = {
   name?: string | null;
   bio?: User["bio"];
   avatar?: User["avatar"];
-  linkedInUrl?: string | null;
-  githubUrl?: string | null;
+  links?: Array<{ icon?: string | null; url?: string | null; newTab?: boolean | null }>;
 };
 
 export const populateAuthors: CollectionAfterReadHook = async ({ doc, req: { payload } }) => {
@@ -36,13 +35,16 @@ export const populateAuthors: CollectionAfterReadHook = async ({ doc, req: { pay
         continue;
       }
 
+      // `links` is not yet in payload-types.ts (pending migration); cast via unknown
+      const authorLinks = (authorDoc as unknown as { links?: unknown }).links;
       populatedAuthors.push({
         id: authorDoc.id,
         name: authorDoc.name,
         bio: authorDoc.bio,
         avatar: authorDoc.avatar,
-        linkedInUrl: authorDoc.linkedInUrl,
-        githubUrl: authorDoc.githubUrl,
+        links: Array.isArray(authorLinks)
+          ? (authorLinks as Array<{ icon?: string | null; url?: string | null; newTab?: boolean | null }>)
+          : undefined,
       });
     } catch {
       // no-op: skip inaccessible/missing users

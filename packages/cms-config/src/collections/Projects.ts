@@ -4,6 +4,7 @@ import { createBasicRichTextEditor } from "@sidshub/lexical/cms";
 import { readAccess } from "../access/readAccess";
 
 import { iconPickerField } from "../fields/iconPicker";
+import { linkFields } from "../fields/link";
 import { slugField } from "../fields/slug";
 import { createPayloadDataSchemaHook } from "../lib/validation/payloadSchema";
 import { projectsSchema } from "../lib/validation/schemas";
@@ -50,16 +51,6 @@ export const Projects: CollectionConfig = {
               required: false,
             },
             {
-              name: "externalUrl",
-              type: "text",
-              required: true,
-            },
-            {
-              name: "githubUrl",
-              type: "text",
-              required: false,
-            },
-            {
               name: "badges",
               type: "array",
               admin: {
@@ -95,6 +86,18 @@ export const Projects: CollectionConfig = {
           ],
         },
       ],
+    },
+    {
+      name: "links",
+      type: "array",
+      required: false,
+      admin: {
+        position: "sidebar",
+        components: {
+          RowLabel: "./components/admin/rowLabels/LinkRowLabel#LinkRowLabel",
+        },
+      },
+      fields: linkFields({ variant: "icon-only" }),
     },
     slugField({ fieldToUse: "title" }),
   ],

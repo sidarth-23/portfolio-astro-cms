@@ -48,8 +48,8 @@ const sections = projectSections.map((section) => ({
                 descRich={project.description}
               badges={cmsClient.badgesFromProject(project)}
               tags={cmsClient.tagsFromProject(project)}
-              url={project.externalUrl}
-              githubUrl={project.githubUrl ?? undefined}
+              url={"/projects/" + project.slug}
+              links={cmsClient.linksFromProject(project)}
               reverse={index % 2 === 1}
             />
             <div class="divider my-0" />

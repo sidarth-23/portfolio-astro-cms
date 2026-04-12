@@ -1,6 +1,6 @@
 ---
 import RichTextRenderer from "@/components/RichTextRenderer.astro";
-import { PhGithubLogo } from "phosphor-icons-astro";
+import { resolveIcon } from "@/lib/resolveIcon";
 import { type RichTextValue } from "@sidshub/lexical/web";
 
 type Tag = {
@@ -31,7 +31,7 @@ type Props = {
   series?: Series;
   target?: string;
   reverse?: boolean;
-  githubUrl?: string;
+  links?: Array<{ icon: string; url: string; newTab: boolean }>;
 };
 
 const {
@@ -44,9 +44,9 @@ const {
   tags = [],
   category,
   series,
-  target = "_blank",
+  target = "_self",
   reverse = false,
-  githubUrl,
+  links = [],
 } = Astro.props;
 const contentClass = `hero-content flex-col ${reverse ? "md:flex-row-reverse" : "md:flex-row"} md:gap-8 lg:gap-10`;
 ---
@@ -56,20 +56,33 @@ const contentClass = `hero-content flex-col ${reverse ? "md:flex-row-reverse" : 
 >
   <a href={url} target={target} class="absolute inset-0 z-10" aria-label={title}
   ></a>
-  {
-    githubUrl && (
-      <a
-        href={githubUrl}
-        target="_blank"
-        rel="noopener noreferrer"
-        title={`View ${title} on GitHub`}
-        aria-label={`View ${title} on GitHub`}
-        class="absolute top-4 right-4 z-20 btn btn-circle btn-sm btn-ghost transition-all duration-300"
-      >
-        <PhGithubLogo size={22} />
-      </a>
-    )
-  }
+  {links && links.length > 0 && (
+    <div class="absolute top-4 right-4 z-20 flex flex-col gap-1">
+      {links.map((link) => {
+        const iconData = resolveIcon(link.icon);
+        if (!iconData) return null;
+        const label = iconData.source === "simple-icons" ? iconData.title : iconData.name;
+        return (
+          <a
+            href={link.url}
+            target={link.newTab ? "_blank" : undefined}
+            rel={link.newTab ? "noopener noreferrer" : undefined}
+            title={label}
+            aria-label={label}
+            class="btn btn-circle btn-sm btn-ghost transition-all duration-300"
+          >
+            {iconData.source === "simple-icons" ? (
+              <svg width={20} height={20} viewBox="0 0 24 24" aria-hidden="true" fill="currentColor">
+                <path d={iconData.path} />
+              </svg>
+            ) : (
+              <iconData.component size={20} weight="regular" />
+            )}
+          </a>
+        );
+      })}
+    </div>
+  )}
   <div class={contentClass}>
     {
       img && (

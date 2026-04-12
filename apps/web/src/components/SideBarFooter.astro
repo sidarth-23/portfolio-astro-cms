@@ -1,6 +1,6 @@
 ---
 import type { SiteFooterItem } from "@sidshub/cms-config/client";
-import { getIconForType } from "@/lib/social-icons";
+import { resolveIcon } from "@/lib/resolveIcon";
 
 type Props = {
   items?: SiteFooterItem[];
@@ -9,7 +9,7 @@ type Props = {
 const { items = [] }: Props = Astro.props;
 
 const cleanItems = items
-  .filter((item): item is SiteFooterItem => Boolean(item?.type))
+  .filter((item): item is SiteFooterItem => Boolean(item?.icon))
   .slice(0, 4)
   .filter((item) => item.url.length > 0);
 ---
@@ -23,18 +23,34 @@ const cleanItems = items
   cleanItems.length > 0 && (
     <div class="social-icons px-4 pb-5 pt-1 flex flex-wrap gap-4 self-center justify-center sticky bottom-0 bg-base-200 group-[.collapsed]:px-1">
       {cleanItems.map((item) => {
-        const Icon = getIconForType(item.type);
+        const iconData = resolveIcon(item.icon);
+        if (!iconData) return null;
+
+        const PhosphorIcon =
+          iconData.source === "phosphor" ? iconData.component : null;
 
         return (
           <a
             href={item.url}
-            target={item.openInNewTab ? "_blank" : undefined}
-            rel={item.openInNewTab ? "noreferrer noopener" : undefined}
+            target={item.newTab ? "_blank" : undefined}
+            rel={item.newTab ? "noreferrer noopener" : undefined}
             class="mx-3 group-[.collapsed]:mx-1"
-            aria-label={item.type}
-            title={item.type}
+            aria-label={iconData.source === "simple-icons" ? iconData.title : iconData.name}
+            title={iconData.source === "simple-icons" ? iconData.title : iconData.name}
           >
-            <Icon size={24} weight="regular" />
+            {iconData.source === "simple-icons" && (
+              <svg
+                width={24}
+                height={24}
+                viewBox="0 0 24 24"
+                aria-hidden="true"
+                fill="currentColor"
+              >
+                <title>{iconData.title}</title>
+                <path d={iconData.path} />
+              </svg>
+            )}
+            {PhosphorIcon && <PhosphorIcon size={24} weight="regular" />}
           </a>
         );
       })}

@@ -6,7 +6,7 @@ import { ASTRO_CMS_API_URL, ASTRO_CMS_READ_TOKEN } from "astro:env/server";
 import { extractTableOfContents } from "@sidshub/lexical/web";
 import { createCmsRestClient } from "@sidshub/cms-config/client/rest";
 import type { Post } from "@sidshub/cms-config/payload-types";
-import { PhGithubLogo, PhLinkedinLogo } from "phosphor-icons-astro";
+import { resolveIcon } from "@/lib/resolveIcon";
 
 const cmsClient = createCmsRestClient({
   apiUrl: ASTRO_CMS_API_URL,
@@ -107,10 +107,9 @@ const visibleAuthors = authors.filter((author) => {
   const hasName = Boolean(author.name?.trim());
   const hasBio = Boolean(author.bio);
   const hasAvatar = Boolean(cmsClient.mediaToUrl(author.avatar));
-  const hasLinkedIn = Boolean((author as any).linkedInUrl);
-  const hasGithub = Boolean((author as any).githubUrl);
+  const hasLinks = Array.isArray((author as any).links) && (author as any).links.length > 0;
 
-  return hasName || hasBio || hasAvatar || hasLinkedIn || hasGithub;
+  return hasName || hasBio || hasAvatar || hasLinks;
 });
 const toc = extractTableOfContents(post.content);
 const pubDate = post.publishedAt || post.createdAt || new Date().toISOString();
@@ -212,33 +211,49 @@ if (!meta?.title || !meta?.description) {
                       <RichTextRenderer data={author.bio} />
                     </div>
                   )}
-                  {((author as any).linkedInUrl ||
-                    (author as any).githubUrl) && (
-                    <div class="mt-5 flex gap-4 items-center">
-                      {(author as any).githubUrl && (
-                        <a
-                          href={(author as any).githubUrl}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          class="text-base-content/50 hover:text-base-content transition-colors"
-                          aria-label="GitHub"
-                        >
-                          <PhGithubLogo size={20} />
-                        </a>
-                      )}
-                      {(author as any).linkedInUrl && (
-                        <a
-                          href={(author as any).linkedInUrl}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          class="text-base-content/50 hover:text-base-content transition-colors"
-                          aria-label="LinkedIn"
-                        >
-                          <PhLinkedinLogo size={20} />
-                        </a>
-                      )}
-                    </div>
-                  )}
+                  {Array.isArray((author as any).links) &&
+                    (author as any).links.length > 0 && (
+                      <div class="mt-5 flex gap-4 items-center">
+                        {((author as any).links as Array<{ icon?: string | null; url?: string | null; newTab?: boolean | null }>).map((link) => {
+                          if (!link.icon || !link.url) return null;
+                          const iconData = resolveIcon(link.icon);
+                          if (!iconData) return null;
+
+                          const PhosphorIcon =
+                            iconData.source === "phosphor"
+                              ? iconData.component
+                              : null;
+                          const label =
+                            iconData.source === "simple-icons"
+                              ? iconData.title
+                              : iconData.name;
+
+                          return (
+                            <a
+                              href={link.url}
+                              target={link.newTab ? "_blank" : undefined}
+                              rel={link.newTab ? "noopener noreferrer" : undefined}
+                              class="text-base-content/50 hover:text-base-content transition-colors"
+                              aria-label={label}
+                              title={label}
+                            >
+                              {iconData.source === "simple-icons" && (
+                                <svg
+                                  width={20}
+                                  height={20}
+                                  viewBox="0 0 24 24"
+                                  aria-hidden="true"
+                                  fill="currentColor"
+                                >
+                                  <path d={iconData.path} />
+                                </svg>
+                              )}
+                              {PhosphorIcon && <PhosphorIcon size={20} />}
+                            </a>
+                          );
+                        })}
+                      </div>
+                    )}
                 </div>
               </article>
             );

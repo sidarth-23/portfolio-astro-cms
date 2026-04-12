@@ -83,6 +83,17 @@ const withSeoMeta = <T extends z.ZodRawShape>(shape: T) => {
     .passthrough();
 };
 
+export const siteSettingsSchema = z.object({
+  sidebarFooterItems: z.array(
+    z.object({
+      icon: optionalStrictIcon,
+      url: optionalHttpUrl,
+      newTab: z.boolean().optional(),
+      type: z.enum(["custom", "reference", "page"]).optional(),
+    }).passthrough()
+  ).optional(),
+}).passthrough();
+
 export const homePageSchema = withSeoMeta({
   greeting: requiredText.optional(),
   name: requiredText.optional(),
@@ -198,8 +209,18 @@ const projectLabelSchema = z
 
 export const projectsSchema = withSeoMeta({
   title: requiredText.optional(),
-  externalUrl: requiredHttpUrl.optional(),
-  githubUrl: optionalHttpUrl,
+  links: z
+    .array(
+      z
+        .object({
+          icon: optionalStrictIcon,
+          url: optionalHttpUrl,
+          newTab: z.boolean().optional(),
+          type: z.enum(["custom", "reference", "page"]).optional(),
+        })
+        .passthrough(),
+    )
+    .optional(),
   badges: z.array(projectLabelSchema).optional(),
   tags: z.array(projectLabelSchema).optional(),
 });
@@ -226,7 +247,13 @@ export const categoriesSchema = z
 export const usersSchema = z
   .object({
     name: requiredText.optional(),
-    linkedInUrl: optionalHttpUrl,
-    githubUrl: optionalHttpUrl,
+    links: z.array(
+      z.object({
+        icon: optionalStrictIcon,
+        url: optionalHttpUrl,
+        newTab: z.boolean().optional(),
+        type: z.enum(["custom", "reference", "page"]).optional(),
+      }).passthrough()
+    ).optional(),
   })
   .passthrough();

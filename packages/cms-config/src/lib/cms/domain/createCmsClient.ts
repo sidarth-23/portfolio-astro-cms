@@ -29,9 +29,17 @@ import type {
   PayloadListResponse,
   PopulatedAuthor,
   PostFilterOptions,
+  ProjectLink,
   PublishedPostsQueryOptions,
   SiteFooterItem,
 } from "./types";
+
+const PAGE_ROUTES: Record<string, string> = {
+  home: "/",
+  blog: "/blog",
+  projects: "/projects",
+  cv: "/cv",
+};
 
 type TaxonomyDoc = {
   slug?: string | null;
@@ -251,6 +259,12 @@ export const createCmsClient = ({ fetch, mediaBaseUrl }: CmsTransport) => {
         return typeof value === "object" && value !== null && value._status !== "draft";
       };
 
+      // No _status check here: the Series collection does not have draft/publish
+      // versioning, so the _status field does not exist on the Series type.
+      const isSeries = (value: number | Series): value is Series => {
+        return typeof value === "object" && value !== null;
+      };
+
       const resolveHref = (button: NonNullable<HomePage["ctaButtons"]>[number]): string | undefined => {
         if (!button.link) {
           return undefined;
@@ -258,6 +272,11 @@ export const createCmsClient = ({ fetch, mediaBaseUrl }: CmsTransport) => {
 
         if (button.link.type === "custom") {
           return toTrimmedString(button.link.url);
+        }
+
+        if (button.link.type === "page") {
+          const route = button.link.page ? PAGE_ROUTES[button.link.page] : undefined;
+          return route;
         }
 
         const reference = button.link.reference;
@@ -270,7 +289,11 @@ export const createCmsClient = ({ fetch, mediaBaseUrl }: CmsTransport) => {
         }
 
         if (reference.relationTo === "projects" && isProject(reference.value) && reference.value.slug) {
-          return `/projects#${reference.value.slug}`;
+          return `/projects/${reference.value.slug}`;
+        }
+
+        if (reference.relationTo === "series" && isSeries(reference.value) && reference.value.slug) {
+          return `/blog/series/${reference.value.slug}`;
         }
 
         return undefined;
@@ -611,6 +634,79 @@ export const createCmsClient = ({ fetch, mediaBaseUrl }: CmsTransport) => {
         }
 
         return [{ name: value, slug: createSlug(value) }];
+      });
+    },
+
+    linksFromProject: (project: Project): ProjectLink[] => {
+      if (!Array.isArray(project.links)) {
+        return [];
+      }
+
+      const isPost = (value: number | Post): value is Post => {
+        return typeof value === "object" && value !== null && value._status !== "draft";
+      };
+
+      const isProject = (value: number | Project | null | undefined): value is Project => {
+        return typeof value === "object" && value !== null && (value as Project)._status !== "draft";
+      };
+
+      // No _status check here: the Series collection does not have draft/publish
+      // versioning, so the _status field does not exist on the Series type.
+      const isSeries = (value: number | Series | null | undefined): value is Series => {
+        return typeof value === "object" && value !== null;
+      };
+
+      const resolveUrl = (link: NonNullable<Project["links"]>[number]): string | undefined => {
+        const type = link.type ?? "custom";
+
+        if (type === "custom") {
+          return toTrimmedString(link.url as string | undefined);
+        }
+
+        if (type === "page") {
+          const page = link.page as string | undefined;
+          if (!page) return undefined;
+          return PAGE_ROUTES[page];
+        }
+
+        if (type === "reference") {
+          const reference = link.reference as
+            | { relationTo: string; value: number | Post | Project | Series | null | undefined }
+            | number
+            | null
+            | undefined;
+
+          if (!reference || typeof reference === "number") {
+            return undefined;
+          }
+
+          if (reference.relationTo === "posts" && isPost(reference.value as number | Post) && (reference.value as Post).slug) {
+            return `/blog/${(reference.value as Post).slug}`;
+          }
+
+          if (reference.relationTo === "projects" && isProject(reference.value as number | Project) && (reference.value as Project).slug) {
+            // Links to the project detail page (not the /projects#slug anchor used by homeCtaButtons).
+            return `/projects/${(reference.value as Project).slug}`;
+          }
+
+          if (reference.relationTo === "series" && isSeries(reference.value as number | Series) && (reference.value as Series).slug) {
+            return `/blog/series/${(reference.value as Series).slug}`;
+          }
+
+          return undefined;
+        }
+
+        return undefined;
+      };
+
+      return project.links.flatMap((link) => {
+        const icon = toTrimmedString(link.icon as string | undefined);
+        if (!icon) return [];
+
+        const url = resolveUrl(link);
+        if (!url) return [];
+
+        return [{ icon, url, newTab: link.newTab === true }];
       });
     },
 

@@ -7,6 +7,7 @@ import {
 } from "../lib/email/authEmailTemplates";
 import { createPayloadDataSchemaHook } from "../lib/validation/payloadSchema";
 import { usersSchema } from "../lib/validation/schemas";
+import { linkFields } from "../fields/link";
 
 const showProfileFieldsAfterLogin: Condition = (
   _data,
@@ -117,22 +118,18 @@ export const Users: CollectionConfig = {
       },
     },
     {
-      name: "linkedInUrl",
-      type: "text",
+      name: "links",
+      type: "array",
       required: false,
+      maxRows: 5,
       admin: {
         condition: showProfileFieldsAfterLogin,
         position: "sidebar",
+        components: {
+          RowLabel: "./components/admin/rowLabels/LinkRowLabel#LinkRowLabel",
+        },
       },
-    },
-    {
-      name: "githubUrl",
-      type: "text",
-      required: false,
-      admin: {
-        condition: showProfileFieldsAfterLogin,
-        position: "sidebar",
-      },
+      fields: linkFields({ variant: "icon-only" }),
     },
   ],
 };

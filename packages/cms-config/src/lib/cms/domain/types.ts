@@ -1,4 +1,4 @@
-import type { Post, SiteSetting, Media, User } from "../../../payload-types";
+import type { Post, Media, User } from "../../../payload-types";
 
 export type Params = Record<string, string | number | boolean | undefined>;
 
@@ -50,14 +50,17 @@ export type PopulatedAuthor = {
   name?: string | null;
   bio?: User["bio"];
   avatar?: RelationValue<Media>;
-  linkedInUrl?: string | null;
-  githubUrl?: string | null;
+  links?: Array<{ icon?: string | null; url?: string | null; newTab?: boolean | null }>;
 };
 
-export type RawSiteFooterItem = NonNullable<SiteSetting["sidebarFooterItems"]>[number];
-export type SiteFooterItemType = RawSiteFooterItem["type"];
-export type SiteFooterItem = {
-  type: SiteFooterItemType;
+export type ProjectLink = {
+  icon: string;
   url: string;
-  openInNewTab: boolean;
+  newTab: boolean;
+};
+
+export type SiteFooterItem = {
+  icon: string;
+  url: string;
+  newTab: boolean;
 };

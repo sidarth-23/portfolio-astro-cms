@@ -171,8 +171,29 @@ export interface User {
     [k: string]: unknown;
   } | null;
   avatar?: (number | null) | Media;
-  linkedInUrl?: string | null;
-  githubUrl?: string | null;
+  links?:
+    | {
+        icon?: string | null;
+        type?: ('custom' | 'reference' | 'page') | null;
+        url?: string | null;
+        reference?:
+          | ({
+              relationTo: 'posts';
+              value: number | Post;
+            } | null)
+          | ({
+              relationTo: 'projects';
+              value: number | Project;
+            } | null)
+          | ({
+              relationTo: 'series';
+              value: number | Series;
+            } | null);
+        page?: ('home' | 'blog' | 'projects' | 'cv') | null;
+        newTab?: boolean | null;
+        id?: string | null;
+      }[]
+    | null;
   updatedAt: string;
   createdAt: string;
   email: string;
@@ -229,64 +250,6 @@ export interface Media {
   height?: number | null;
   focalX?: number | null;
   focalY?: number | null;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "categories".
- */
-export interface Category {
-  id: number;
-  name: string;
-  description?: string | null;
-  parentCategory?: (number | null) | Category;
-  /**
-   * Auto-generated from title, but can be edited.
-   */
-  slug: string;
-  updatedAt: string;
-  createdAt: string;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "tags".
- */
-export interface Tag {
-  id: number;
-  name: string;
-  description?: string | null;
-  /**
-   * Auto-generated from title, but can be edited.
-   */
-  slug: string;
-  updatedAt: string;
-  createdAt: string;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "series".
- */
-export interface Series {
-  id: number;
-  name: string;
-  description?: string | null;
-  /**
-   * Select and reorder posts in this series.
-   */
-  posts?: (number | Post)[] | null;
-  /**
-   * Auto-generated from title, but can be edited.
-   */
-  slug: string;
-  meta: {
-    title: string;
-    description: string;
-    /**
-     * Maximum upload file size: 12MB. Recommended file size for images is <500KB.
-     */
-    image?: (number | null) | Media;
-  };
-  updatedAt: string;
-  createdAt: string;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -352,8 +315,14 @@ export interface Post {
           [k: string]: unknown;
         } | null;
         avatar?: (number | null) | Media;
-        linkedInUrl?: string | null;
-        githubUrl?: string | null;
+        links?:
+          | {
+              icon?: string | null;
+              url?: string | null;
+              newTab?: boolean | null;
+              id?: string | null;
+            }[]
+          | null;
       }[]
     | null;
   /**
@@ -363,6 +332,64 @@ export interface Post {
   updatedAt: string;
   createdAt: string;
   _status?: ('draft' | 'published') | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "categories".
+ */
+export interface Category {
+  id: number;
+  name: string;
+  description?: string | null;
+  parentCategory?: (number | null) | Category;
+  /**
+   * Auto-generated from title, but can be edited.
+   */
+  slug: string;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "tags".
+ */
+export interface Tag {
+  id: number;
+  name: string;
+  description?: string | null;
+  /**
+   * Auto-generated from title, but can be edited.
+   */
+  slug: string;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "series".
+ */
+export interface Series {
+  id: number;
+  name: string;
+  description?: string | null;
+  /**
+   * Select and reorder posts in this series.
+   */
+  posts?: (number | Post)[] | null;
+  /**
+   * Auto-generated from title, but can be edited.
+   */
+  slug: string;
+  meta: {
+    title: string;
+    description: string;
+    /**
+     * Maximum upload file size: 12MB. Recommended file size for images is <500KB.
+     */
+    image?: (number | null) | Media;
+  };
+  updatedAt: string;
+  createdAt: string;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -387,8 +414,6 @@ export interface Project {
     [k: string]: unknown;
   };
   image?: (number | null) | Media;
-  externalUrl: string;
-  githubUrl?: string | null;
   badges?:
     | {
         value: string;
@@ -399,6 +424,29 @@ export interface Project {
   tags?:
     | {
         value: string;
+        id?: string | null;
+      }[]
+    | null;
+  links?:
+    | {
+        icon?: string | null;
+        type?: ('custom' | 'reference' | 'page') | null;
+        url?: string | null;
+        reference?:
+          | ({
+              relationTo: 'posts';
+              value: number | Post;
+            } | null)
+          | ({
+              relationTo: 'projects';
+              value: number | Project;
+            } | null)
+          | ({
+              relationTo: 'series';
+              value: number | Series;
+            } | null);
+        page?: ('home' | 'blog' | 'projects' | 'cv') | null;
+        newTab?: boolean | null;
         id?: string | null;
       }[]
     | null;
@@ -604,8 +652,17 @@ export interface UsersSelect<T extends boolean = true> {
   name?: T;
   bio?: T;
   avatar?: T;
-  linkedInUrl?: T;
-  githubUrl?: T;
+  links?:
+    | T
+    | {
+        icon?: T;
+        type?: T;
+        url?: T;
+        reference?: T;
+        page?: T;
+        newTab?: T;
+        id?: T;
+      };
   updatedAt?: T;
   createdAt?: T;
   email?: T;
@@ -714,8 +771,14 @@ export interface PostsSelect<T extends boolean = true> {
         name?: T;
         bio?: T;
         avatar?: T;
-        linkedInUrl?: T;
-        githubUrl?: T;
+        links?:
+          | T
+          | {
+              icon?: T;
+              url?: T;
+              newTab?: T;
+              id?: T;
+            };
       };
   homeSectionsSummary?: T;
   updatedAt?: T;
@@ -730,8 +793,6 @@ export interface ProjectsSelect<T extends boolean = true> {
   title?: T;
   description?: T;
   image?: T;
-  externalUrl?: T;
-  githubUrl?: T;
   badges?:
     | T
     | {
@@ -743,6 +804,17 @@ export interface ProjectsSelect<T extends boolean = true> {
     | T
     | {
         value?: T;
+        id?: T;
+      };
+  links?:
+    | T
+    | {
+        icon?: T;
+        type?: T;
+        url?: T;
+        reference?: T;
+        page?: T;
+        newTab?: T;
         id?: T;
       };
   slug?: T;
@@ -842,37 +914,24 @@ export interface SiteSetting {
   resumeDownloadUrl?: string | null;
   sidebarFooterItems?:
     | {
-        type:
-          | 'github'
-          | 'linkedin'
-          | 'email'
-          | 'rss'
-          | 'facebook'
-          | 'twitter'
-          | 'dribbble'
-          | 'instagram'
-          | 'youtube'
-          | 'twitch'
-          | 'tiktok'
-          | 'medium'
-          | 'whatsapp'
-          | 'telegram'
-          | 'discord'
-          | 'reddit'
-          | 'pinterest'
-          | 'behance'
-          | 'codepen'
-          | 'gitlab'
-          | 'stackoverflow'
-          | 'devto';
-        /**
-         * Enter a full URL including https://
-         */
+        icon?: string | null;
+        type?: ('custom' | 'reference' | 'page') | null;
         url?: string | null;
-        /**
-         * Enter an email address, for example name@example.com
-         */
-        email?: string | null;
+        reference?:
+          | ({
+              relationTo: 'posts';
+              value: number | Post;
+            } | null)
+          | ({
+              relationTo: 'projects';
+              value: number | Project;
+            } | null)
+          | ({
+              relationTo: 'series';
+              value: number | Series;
+            } | null);
+        page?: ('home' | 'blog' | 'projects' | 'cv') | null;
+        newTab?: boolean | null;
         id?: string | null;
       }[]
     | null;
@@ -943,8 +1002,7 @@ export interface HomePage {
         title: string;
         variant: 'default' | 'primary' | 'secondary' | 'accent' | 'outline' | 'ghost';
         link?: {
-          type?: ('custom' | 'reference') | null;
-          newTab?: boolean | null;
+          type?: ('custom' | 'reference' | 'page') | null;
           url?: string | null;
           reference?:
             | ({
@@ -954,7 +1012,13 @@ export interface HomePage {
             | ({
                 relationTo: 'projects';
                 value: number | Project;
+              } | null)
+            | ({
+                relationTo: 'series';
+                value: number | Series;
               } | null);
+          page?: ('home' | 'blog' | 'projects' | 'cv') | null;
+          newTab?: boolean | null;
         };
         id?: string | null;
       }[]
@@ -1149,9 +1213,12 @@ export interface SiteSettingsSelect<T extends boolean = true> {
   sidebarFooterItems?:
     | T
     | {
+        icon?: T;
         type?: T;
         url?: T;
-        email?: T;
+        reference?: T;
+        page?: T;
+        newTab?: T;
         id?: T;
       };
   updatedAt?: T;
@@ -1193,9 +1260,10 @@ export interface HomePageSelect<T extends boolean = true> {
           | T
           | {
               type?: T;
-              newTab?: T;
               url?: T;
               reference?: T;
+              page?: T;
+              newTab?: T;
             };
         id?: T;
       };
