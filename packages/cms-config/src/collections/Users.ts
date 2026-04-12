@@ -1,4 +1,5 @@
 import type { CollectionConfig, Condition, PayloadRequest } from "payload";
+import { createBasicRichTextEditor } from "@sidshub/lexical/cms";
 
 import {
   generateForgotPasswordEmailHTML,
@@ -101,6 +102,7 @@ export const Users: CollectionConfig = {
       name: "bio",
       type: "richText",
       required: false,
+      editor: createBasicRichTextEditor(),
       admin: {
         condition: showProfileFieldsAfterLogin,
       },

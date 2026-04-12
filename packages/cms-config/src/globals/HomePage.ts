@@ -1,4 +1,5 @@
 import type { GlobalConfig } from "payload";
+import { createBasicRichTextEditor } from "@sidshub/lexical/cms";
 
 import { readAccess } from "../access/readAccess";
 import { linkField } from "../fields/link";
@@ -45,6 +46,7 @@ export const HomePage: GlobalConfig = {
               name: "about",
               type: "richText",
               required: true,
+              editor: createBasicRichTextEditor(),
             },
             {
               name: "featuredSections",
@@ -65,6 +67,7 @@ export const HomePage: GlobalConfig = {
                   name: "description",
                   type: "richText",
                   required: false,
+                  editor: createBasicRichTextEditor(),
                 },
                 {
                   name: "posts",

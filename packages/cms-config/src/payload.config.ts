@@ -2,7 +2,7 @@ import path from "path";
 import { fileURLToPath } from "url";
 
 import { CreateBucketCommand, HeadBucketCommand, S3Client } from "@aws-sdk/client-s3";
-import { defaultLexicalEditor } from "@sidshub/lexical/cms";
+import { createBasicRichTextEditor } from "@sidshub/lexical/cms";
 import { postgresAdapter } from "@payloadcms/db-postgres";
 import { resendAdapter } from "@payloadcms/email-resend";
 import { seoPlugin } from "@payloadcms/plugin-seo";
@@ -155,7 +155,7 @@ const withRequiredSeoFields = ({ defaultFields }: { defaultFields: Field[] }): F
 };
 
 export default buildConfig({
-  editor: defaultLexicalEditor,
+  editor: createBasicRichTextEditor(),
   serverURL: payloadPublicServerURL,
   email: resendAdapter({
     apiKey: resendApiKey,

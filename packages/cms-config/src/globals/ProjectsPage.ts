@@ -1,4 +1,5 @@
 import type { GlobalConfig } from "payload";
+import { createBasicRichTextEditor } from "@sidshub/lexical/cms";
 
 import { readAccess } from "../access/readAccess";
 import { createPayloadDataSchemaHook } from "../validation/payloadSchema";
@@ -113,6 +114,7 @@ export const ProjectsPage: GlobalConfig = {
                 {
                   name: "description",
                   type: "richText",
+                  editor: createBasicRichTextEditor(),
                 },
                 {
                   name: "projects",

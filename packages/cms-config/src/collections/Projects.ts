@@ -1,4 +1,5 @@
 import type { CollectionConfig } from "payload";
+import { createBasicRichTextEditor } from "@sidshub/lexical/cms";
 
 import { readAccess } from "../access/readAccess";
 
@@ -39,6 +40,7 @@ export const Projects: CollectionConfig = {
               name: "description",
               type: "richText",
               required: true,
+              editor: createBasicRichTextEditor(),
             },
             {
               name: "image",

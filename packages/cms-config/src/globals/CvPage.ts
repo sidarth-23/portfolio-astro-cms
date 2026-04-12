@@ -1,4 +1,5 @@
 import type { Field, GlobalConfig } from "payload";
+import { createBasicRichTextEditor } from "@sidshub/lexical/cms";
 
 import { readAccess } from "../access/readAccess";
 import { isSimpleIconSlug } from "../lib/simpleIconsCatalog";
@@ -79,6 +80,7 @@ const sectionItemFields: Field[] = [
   {
     name: "content",
     type: "richText",
+    editor: createBasicRichTextEditor(),
   },
 ];
 
@@ -157,6 +159,7 @@ export const CvPage: GlobalConfig = {
                 {
                   name: "description",
                   type: "richText",
+                  editor: createBasicRichTextEditor(),
                   admin: {
                     condition: (_, siblingData) =>
                       siblingData?.type === "description",

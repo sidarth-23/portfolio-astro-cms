@@ -1,4 +1,5 @@
 import type { AllowList, CollectionConfig } from "payload";
+import { createMinimalRichTextEditor } from "@sidshub/lexical/cms";
 
 const pasteUrlAllowList: AllowList = [
   { hostname: "sidshub.in", protocol: "https" },
@@ -48,6 +49,7 @@ export const Media: CollectionConfig = {
     {
       name: "caption",
       type: "richText",
+      editor: createMinimalRichTextEditor(),
     },
     {
       name: "sourceUrl",

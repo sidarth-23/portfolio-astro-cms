@@ -1,4 +1,5 @@
 import type { CollectionConfig } from "payload";
+import { createBasicRichTextEditor, createDocumentRichTextEditor } from "@sidshub/lexical/cms";
 
 import { readAccess } from "../access/readAccess";
 
@@ -42,6 +43,9 @@ export const Posts: CollectionConfig = {
               name: "content",
               type: "richText",
               required: true,
+              editor: createDocumentRichTextEditor({
+                enabledHeadingSizes: ["h2", "h3", "h4"],
+              }),
             },
             {
               name: "coverImage",
@@ -136,6 +140,7 @@ export const Posts: CollectionConfig = {
         {
           name: "bio",
           type: "richText",
+          editor: createBasicRichTextEditor(),
         },
         {
           name: "avatar",
