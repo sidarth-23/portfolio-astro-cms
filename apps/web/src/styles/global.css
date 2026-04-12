@@ -4,3 +4,24 @@
 	themes: light --default, dark --prefersdark, abyss;
 	logs: false;
 }
+
+/* Code block figure counters */
+article {
+  counter-reset: code-figure;
+}
+
+.code-block-figure {
+  counter-increment: code-figure;
+}
+
+.code-block-caption::before {
+  content: "Code " counter(code-figure) ": ";
+  font-weight: 600;
+}
+
+.code-panel pre {
+  margin: 0;
+  padding: 1rem 1.125rem;
+  background: transparent !important;
+  overflow-x: auto;
+}

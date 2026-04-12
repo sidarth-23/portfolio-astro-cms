@@ -1357,6 +1357,56 @@ export interface TaskSchedulePublish {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "LexicalCodeBlock".
+ */
+export interface LexicalCodeBlock {
+  mode: 'single' | 'multiple';
+  language?:
+    | (
+        | 'plaintext'
+        | 'bash'
+        | 'json'
+        | 'yaml'
+        | 'html'
+        | 'css'
+        | 'javascript'
+        | 'typescript'
+        | 'jsx'
+        | 'tsx'
+        | 'python'
+        | 'go'
+        | 'rust'
+      )
+    | null;
+  code?: string | null;
+  entries?:
+    | {
+        name: string;
+        language:
+          | 'plaintext'
+          | 'bash'
+          | 'json'
+          | 'yaml'
+          | 'html'
+          | 'css'
+          | 'javascript'
+          | 'typescript'
+          | 'jsx'
+          | 'tsx'
+          | 'python'
+          | 'go'
+          | 'rust';
+        code: string;
+        id?: string | null;
+      }[]
+    | null;
+  caption?: string | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'Code';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "LexicalCalloutBlock".
  */
 export interface LexicalCalloutBlock {

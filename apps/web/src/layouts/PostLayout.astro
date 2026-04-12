@@ -212,6 +212,177 @@ const jsonLd = {
     }
   </div>
 
+  <script is:inline>
+    const initializeCodeBlocks = () => {
+      // Tab switching for multi-tab code blocks
+      document.querySelectorAll("[data-code-tabs]").forEach((container) => {
+        const tabs = Array.from(container.querySelectorAll("[data-tab-index]"));
+        const panels = Array.from(container.querySelectorAll("[data-tab-panel]"));
+
+        const tabsContainer = container.querySelector("[data-tabs-container]");
+        const dropdown = container.querySelector("[data-tabs-dropdown]");
+        const dropdownList = container.querySelector("[data-tabs-dropdown-list]");
+
+        if (dropdownList) {
+          tabs.forEach(tab => {
+            const index = tab.dataset.tabIndex;
+            const li = document.createElement("li");
+            const a = document.createElement("a");
+            a.textContent = tab.textContent;
+            a.dataset.dropdownIndex = index;
+            if (tab.getAttribute("aria-selected") === "true") {
+              a.classList.add("active");
+            }
+            li.appendChild(a);
+            dropdownList.appendChild(li);
+          });
+        }
+
+        const activateTab = (index) => {
+          tabs.forEach((t) => {
+            const isActive = t.dataset.tabIndex === String(index);
+            t.setAttribute("aria-selected", isActive ? "true" : "false");
+            t.classList.toggle("tab-active", isActive);
+            t.classList.toggle("font-medium", isActive);
+            t.classList.toggle("font-normal", !isActive);
+          });
+          panels.forEach((p) => {
+            p.hidden = p.dataset.tabPanel !== String(index);
+          });
+          
+          const icons = Array.from(container.querySelectorAll("[data-tab-icon]"));
+          icons.forEach((icon) => {
+            icon.hidden = icon.dataset.tabIcon !== String(index);
+          });
+
+          if (dropdownList) {
+            Array.from(dropdownList.querySelectorAll("a")).forEach(a => {
+              if (a.dataset.dropdownIndex === String(index)) {
+                a.classList.add("active");
+              } else {
+                a.classList.remove("active");
+              }
+            });
+          }
+        };
+
+        tabs.forEach((tab) => {
+          tab.addEventListener("click", () => {
+            activateTab(Number(tab.dataset.tabIndex));
+          });
+        });
+
+        if (dropdownList) {
+          dropdownList.addEventListener("click", (e) => {
+            const a = e.target.closest("[data-dropdown-index]");
+            if (a) {
+              activateTab(Number(a.dataset.dropdownIndex));
+              document.activeElement?.blur();
+            }
+          });
+        }
+
+        let tabWidths = [];
+        const updateOverflow = () => {
+          if (!tabsContainer || !dropdown) return;
+          
+          if (tabWidths.length === 0) {
+            tabs.forEach(t => {
+              t.style.display = "block";
+              tabWidths.push(t.offsetWidth);
+            });
+          }
+          
+          const availableWidth = tabsContainer.clientWidth;
+          let currentWidth = 0;
+          let hasOverflow = false;
+          
+          tabs.forEach((tab, index) => {
+            const width = tabWidths[index];
+            const dropdownItem = dropdownList?.querySelector(`[data-dropdown-index="${index}"]`)?.parentElement;
+            if (!dropdownItem) return;
+
+            if (hasOverflow || currentWidth + width > availableWidth) {
+              hasOverflow = true;
+              tab.style.display = "none";
+              dropdownItem.style.display = "block";
+            } else {
+              currentWidth += width;
+              tab.style.display = "block";
+              dropdownItem.style.display = "none";
+            }
+          });
+          
+          if (hasOverflow) {
+            dropdown.classList.remove("hidden");
+          } else {
+            dropdown.classList.add("hidden");
+          }
+        };
+
+        if (tabsContainer) {
+          const resizeObserver = new ResizeObserver(() => {
+            requestAnimationFrame(updateOverflow);
+          });
+          resizeObserver.observe(tabsContainer);
+        }
+      });
+
+      // Copy to clipboard for all code blocks (single and tabbed)
+      document.querySelectorAll("[data-code-copy]").forEach((btn) => {
+        // Skip if already wired up
+        if (btn.dataset.copyBound) return;
+        btn.dataset.copyBound = "true";
+
+        btn.addEventListener("click", () => {
+          const figure = btn.closest(".code-block-figure");
+          if (!figure) return;
+
+          const activePanel =
+            figure.querySelector("[data-tab-panel]:not([hidden])") ||
+            figure.querySelector("[data-code-panel]");
+          if (!activePanel) return;
+
+          const code = activePanel.textContent ?? "";
+          navigator.clipboard.writeText(code).then(() => {
+            const label = btn.querySelector(".copy-label");
+            if (label) {
+              label.textContent = "Copied!";
+              setTimeout(() => {
+                label.textContent = "Copy";
+              }, 2000);
+            } else {
+              const originalHTML = btn.innerHTML;
+              btn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-success"><polyline points="20 6 9 17 4 12"></polyline></svg>`;
+              btn.setAttribute("aria-label", "Copied!");
+              btn.setAttribute("title", "Copied!");
+              setTimeout(() => {
+                btn.innerHTML = originalHTML;
+                btn.setAttribute("aria-label", "Copy code");
+                btn.setAttribute("title", "Copy code");
+              }, 2000);
+            }
+          });
+        });
+      });
+    };
+
+    initializeCodeBlocks();
+
+    if (!document.documentElement.dataset.codeBlockPageLoadBound) {
+      document.addEventListener("astro:page-load", initializeCodeBlocks);
+      document.documentElement.dataset.codeBlockPageLoadBound = "true";
+    }
+  </script>
+
+  <style is:global>
+    /* Remove default prose spacing overrides on code blocks */
+    .prose .code-block-figure {
+      margin-top: 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+  </style>
+
   {
     showTableOfContents && (
       <script is:inline>

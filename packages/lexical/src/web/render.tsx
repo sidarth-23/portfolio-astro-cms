@@ -75,13 +75,34 @@ export const renderRichTextToHTML = async (
       },
       Code: async ({ node }: { node: SerializedBlockNode<Record<string, unknown>> }) => {
         const fields = node.fields ?? {};
+        const mode = (fields.mode as string) || "single";
+        const caption = (fields.caption as string | null | undefined) ?? null;
+
+        if (mode === "multiple") {
+          type Entry = { name: string; language: string; code: string };
+          const rawEntries = (fields.entries as Entry[] | null | undefined) ?? [];
+          const entries = await Promise.all(
+            rawEntries.map(async (entry) => {
+              const lang = entry.language || "plaintext";
+              const highlightedHtml = await highlightCode(entry.code || "", lang).catch(
+                () => `<pre><code>${entry.code}</code></pre>`,
+              );
+              return { name: entry.name || "", language: lang, highlightedHtml };
+            }),
+          );
+          return renderToStaticMarkup(
+            <Code mode="multiple" entries={entries} caption={caption} />,
+          );
+        }
+
+        // Single mode (default, backward compat)
         const language = (fields.language as string) || "plaintext";
         const code = (fields.code as string) || "";
         const highlightedHtml = await highlightCode(code, language).catch(
           () => `<pre><code>${code}</code></pre>`,
         );
         return renderToStaticMarkup(
-          <Code language={language} highlightedHtml={highlightedHtml} />,
+          <Code mode="single" language={language} highlightedHtml={highlightedHtml} caption={caption} />,
         );
       },
     },

@@ -5,8 +5,7 @@ import { SuperscriptFeatureClient as SuperscriptFeatureClient_e70f5e05f09f93e00b
 import { SubscriptFeatureClient as SubscriptFeatureClient_e70f5e05f09f93e00b997edb1ef0c864 } from '@payloadcms/richtext-lexical/client'
 import { BlocksFeatureClient as BlocksFeatureClient_e70f5e05f09f93e00b997edb1ef0c864 } from '@payloadcms/richtext-lexical/client'
 import { CodeFieldComponent as CodeFieldComponent_d743a3c524d5067985214c80a1f94469 } from '../../../../../packages/cms-config/src/components/admin/CodeFieldComponent'
-import { codeConverterClient as codeConverterClient_e70f5e05f09f93e00b997edb1ef0c864 } from '@payloadcms/richtext-lexical/client'
-import { CodeBlockComponent as CodeBlockComponent_bc9d50525b8d7ccc2a20276065621ba7 } from '../../../../../packages/cms-config/src/components/admin/CodeBlockComponent'
+import { CodeEntryRowLabel as CodeEntryRowLabel_c6ccc9dd7e607819ebe514af07ca8dfc } from '../../../../../packages/cms-config/src/components/admin/rowLabels/CodeEntryRowLabel'
 import { BlockquoteFeatureClient as BlockquoteFeatureClient_e70f5e05f09f93e00b997edb1ef0c864 } from '@payloadcms/richtext-lexical/client'
 import { LinkFeatureClient as LinkFeatureClient_e70f5e05f09f93e00b997edb1ef0c864 } from '@payloadcms/richtext-lexical/client'
 import { OrderedListFeatureClient as OrderedListFeatureClient_e70f5e05f09f93e00b997edb1ef0c864 } from '@payloadcms/richtext-lexical/client'
@@ -50,8 +49,7 @@ export const importMap = {
   "@payloadcms/richtext-lexical/client#SubscriptFeatureClient": SubscriptFeatureClient_e70f5e05f09f93e00b997edb1ef0c864,
   "@payloadcms/richtext-lexical/client#BlocksFeatureClient": BlocksFeatureClient_e70f5e05f09f93e00b997edb1ef0c864,
   "./components/admin/CodeFieldComponent#CodeFieldComponent": CodeFieldComponent_d743a3c524d5067985214c80a1f94469,
-  "@payloadcms/richtext-lexical/client#codeConverterClient": codeConverterClient_e70f5e05f09f93e00b997edb1ef0c864,
-  "./components/admin/CodeBlockComponent#CodeBlockComponent": CodeBlockComponent_bc9d50525b8d7ccc2a20276065621ba7,
+  "./components/admin/rowLabels/CodeEntryRowLabel#CodeEntryRowLabel": CodeEntryRowLabel_c6ccc9dd7e607819ebe514af07ca8dfc,
   "@payloadcms/richtext-lexical/client#BlockquoteFeatureClient": BlockquoteFeatureClient_e70f5e05f09f93e00b997edb1ef0c864,
   "@payloadcms/richtext-lexical/client#LinkFeatureClient": LinkFeatureClient_e70f5e05f09f93e00b997edb1ef0c864,
   "@payloadcms/richtext-lexical/client#OrderedListFeatureClient": OrderedListFeatureClient_e70f5e05f09f93e00b997edb1ef0c864,

@@ -3,7 +3,6 @@ import {
   BlocksFeature,
   BlockquoteFeature,
   BoldFeature,
-  CodeBlock,
   ChecklistFeature,
   FixedToolbarFeature,
   HeadingFeature,
@@ -201,6 +200,98 @@ const createBaseTextFeatures = () => {
   ];
 };
 
+const createCodeBlock = (): any => ({
+  slug: "Code",
+  interfaceName: "LexicalCodeBlock",
+  labels: { singular: "Code", plural: "Code" },
+  fields: [
+    {
+      name: "mode",
+      type: "select",
+      required: true,
+      defaultValue: "single",
+      options: [
+        { label: "Single", value: "single" },
+        { label: "Multiple (Tabs)", value: "multiple" },
+      ],
+    },
+    {
+      name: "language",
+      type: "select",
+      required: true,
+      defaultValue: "typescript",
+      options: Object.entries(CODE_BLOCK_LANGUAGES).map(([key, value]) => ({
+        label: value,
+        value: key,
+      })),
+      admin: {
+        condition: (_: unknown, siblingData: Record<string, unknown>) =>
+          siblingData?.mode !== "multiple",
+      },
+    },
+    {
+      name: "code",
+      type: "code",
+      required: true,
+      label: false,
+      admin: {
+        condition: (_: unknown, siblingData: Record<string, unknown>) =>
+          siblingData?.mode !== "multiple",
+        components: {
+          Field: {
+            clientProps: { languages: CODE_BLOCK_LANGUAGES },
+            path: "./components/admin/CodeFieldComponent#CodeFieldComponent",
+          },
+        },
+      },
+    },
+    {
+      name: "entries",
+      type: "array",
+      minRows: 2,
+      admin: {
+        condition: (_: unknown, siblingData: Record<string, unknown>) =>
+          siblingData?.mode === "multiple",
+        components: {
+          RowLabel: {
+            path: "./components/admin/rowLabels/CodeEntryRowLabel#CodeEntryRowLabel",
+          },
+        },
+      },
+      fields: [
+        {
+          name: "name",
+          type: "text",
+          required: true,
+          label: "Tab Name",
+        },
+        {
+          name: "language",
+          type: "select",
+          required: true,
+          defaultValue: "typescript",
+          options: Object.entries(CODE_BLOCK_LANGUAGES).map(([key, value]) => ({
+            label: value,
+            value: key,
+          })),
+        },
+        {
+          name: "code",
+          type: "code",
+          required: true,
+          label: false,
+        },
+      ],
+    },
+    {
+      name: "caption",
+      type: "text",
+      required: false,
+      label: "Caption (optional)",
+    },
+  ],
+});
+
 const createCalloutBlock = (profile: CalloutVariantProfile): any => {
   return {
     slug: "callout",
@@ -298,52 +389,7 @@ export const createLexicalEditor = ({ variant, ...overrides }: LexicalEditorOpti
       const lexicalBlocks: any[] = [];
 
       if (options.enableCodeBlock) {
-        lexicalBlocks.push(
-          CodeBlock({
-            defaultLanguage: "typescript",
-            languages: CODE_BLOCK_LANGUAGES,
-            fieldOverrides: {
-              // Override Block component to remove the useless collapse icon
-              admin: {
-                components: {
-                  Block: {
-                    clientProps: { languages: CODE_BLOCK_LANGUAGES },
-                    path: "./components/admin/CodeBlockComponent#CodeBlockComponent",
-                  },
-                },
-                // Preserve Payload's markdown import/export client converter
-                jsx: "@payloadcms/richtext-lexical/client#codeConverterClient",
-              },
-              // Override fields to fix TypeScript language detection in Monaco
-              // (Payload bug: CodeComponent checks language === 'ts' but value is 'typescript')
-              fields: [
-                {
-                  name: "language",
-                  type: "select",
-                  admin: { hidden: true },
-                  defaultValue: "typescript",
-                  options: Object.entries(CODE_BLOCK_LANGUAGES).map(([key, value]) => ({
-                    label: value,
-                    value: key,
-                  })),
-                },
-                {
-                  name: "code",
-                  type: "code",
-                  admin: {
-                    components: {
-                      Field: {
-                        clientProps: { languages: CODE_BLOCK_LANGUAGES },
-                        path: "./components/admin/CodeFieldComponent#CodeFieldComponent",
-                      },
-                    },
-                  },
-                  label: "",
-                },
-              ],
-            },
-          }),
-        );
+        lexicalBlocks.push(createCodeBlock());
       }
 
       if (options.enableCallout) {

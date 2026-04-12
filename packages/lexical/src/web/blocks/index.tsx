@@ -29,18 +29,34 @@ export async function renderBlock(block: Record<string, unknown>, config?: Block
     }
 
     case "code": {
+      const mode = (block.mode as string) || "single";
+      const caption = (block.caption as string | null | undefined) ?? null;
+
+      if (mode === "multiple") {
+        type Entry = { name: string; language: string; code: string };
+        const rawEntries = (block.entries as Entry[] | null | undefined) ?? [];
+        const entries = await Promise.all(
+          rawEntries.map(async (entry) => {
+            const lang = entry.language || "plaintext";
+            const highlightedHtml = await highlightCode(entry.code || "", lang).catch(
+              () => `<pre><code>${entry.code}</code></pre>`,
+            );
+            return { name: entry.name || "", language: lang, highlightedHtml };
+          }),
+        );
+        return renderToStaticMarkup(
+          <Code mode="multiple" entries={entries} caption={caption} />,
+        );
+      }
+
+      // Single mode (default, backward compat with old filename-based blocks)
       const language = (block.language as string) || "plaintext";
       const code = (block.code as string) || "";
       const highlightedHtml = await highlightCode(code, language).catch(
         () => `<pre><code>${code}</code></pre>`,
       );
       return renderToStaticMarkup(
-        <Code
-          language={language}
-          highlightedHtml={highlightedHtml}
-          filename={block.filename as string | null}
-          caption={block.caption as string | null}
-        />,
+        <Code mode="single" language={language} highlightedHtml={highlightedHtml} caption={caption} />,
       );
     }
 
