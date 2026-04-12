@@ -64,10 +64,19 @@ export const Posts: CollectionConfig = {
             },
             {
               name: "tags",
-              type: "relationship",
-              relationTo: "tags",
-              hasMany: true,
-              required: false,
+              type: "array",
+              admin: {
+                components: {
+                  RowLabel: "./components/admin/rowLabels/BadgeRowLabel#BadgeRowLabel",
+                },
+              },
+              fields: [
+                {
+                  name: "value",
+                  type: "text",
+                  required: true,
+                },
+              ],
             },
             {
               name: "series",

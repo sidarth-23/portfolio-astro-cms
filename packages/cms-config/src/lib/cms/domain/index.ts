@@ -7,7 +7,6 @@ export {
   asProjectArray,
   asSeries,
   asSiteFooterItems,
-  asTagArray,
   asUserArray,
   isObjectRelation,
 } from "./guards";

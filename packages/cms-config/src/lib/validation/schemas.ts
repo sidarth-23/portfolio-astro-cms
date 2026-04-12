@@ -6,6 +6,7 @@ import { CV_SECTION_TYPE_OPTIONS } from "../options/cv";
 import { HOME_CTA_VARIANT_OPTIONS } from "../options/home";
 import {
   optionalHttpUrl,
+  optionalLinkUrl,
   optionalText,
   optionalTextWithFallback,
   requiredHttpUrl,
@@ -87,7 +88,7 @@ export const siteSettingsSchema = z.object({
   sidebarFooterItems: z.array(
     z.object({
       icon: optionalStrictIcon,
-      url: optionalHttpUrl,
+      url: optionalLinkUrl,
       newTab: z.boolean().optional(),
       type: z.enum(["custom", "reference", "page"]).optional(),
     }).passthrough()
@@ -198,6 +199,7 @@ export const cvPageSchema = withSeoMeta({
 export const postsSchema = withSeoMeta({
   title: requiredText.optional(),
   excerpt: requiredText.optional(),
+  tags: z.array(z.object({ value: requiredText.optional() }).passthrough()).optional(),
 });
 
 const projectLabelSchema = z
@@ -214,7 +216,7 @@ export const projectsSchema = withSeoMeta({
       z
         .object({
           icon: optionalStrictIcon,
-          url: optionalHttpUrl,
+          url: optionalLinkUrl,
           newTab: z.boolean().optional(),
           type: z.enum(["custom", "reference", "page"]).optional(),
         })
@@ -230,13 +232,6 @@ export const seriesSchema = withSeoMeta({
   description: optionalText,
 });
 
-export const tagsSchema = z
-  .object({
-    name: requiredText.optional(),
-    description: optionalText,
-  })
-  .passthrough();
-
 export const categoriesSchema = z
   .object({
     name: requiredText.optional(),
@@ -250,7 +245,7 @@ export const usersSchema = z
     links: z.array(
       z.object({
         icon: optionalStrictIcon,
-        url: optionalHttpUrl,
+        url: optionalLinkUrl,
         newTab: z.boolean().optional(),
         type: z.enum(["custom", "reference", "page"]).optional(),
       }).passthrough()

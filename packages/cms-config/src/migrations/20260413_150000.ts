@@ -14,7 +14,7 @@ export async function up({ db }: MigrateUpArgs): Promise<void> {
 
     DO $$ BEGIN
       IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'enum_projects_links_page') THEN
-        CREATE TYPE "public"."enum_projects_links_page" AS ENUM('home', 'blog', 'projects', 'cv');
+        CREATE TYPE "public"."enum_projects_links_page" AS ENUM('home', 'blog', 'projects', 'cv', 'rss');
       END IF;
     END $$;
 
@@ -26,7 +26,7 @@ export async function up({ db }: MigrateUpArgs): Promise<void> {
 
     DO $$ BEGIN
       IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'enum__projects_v_version_links_page') THEN
-        CREATE TYPE "public"."enum__projects_v_version_links_page" AS ENUM('home', 'blog', 'projects', 'cv');
+        CREATE TYPE "public"."enum__projects_v_version_links_page" AS ENUM('home', 'blog', 'projects', 'cv', 'rss');
       END IF;
     END $$;
 
@@ -38,7 +38,7 @@ export async function up({ db }: MigrateUpArgs): Promise<void> {
 
     DO $$ BEGIN
       IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'enum_users_links_page') THEN
-        CREATE TYPE "public"."enum_users_links_page" AS ENUM('home', 'blog', 'projects', 'cv');
+        CREATE TYPE "public"."enum_users_links_page" AS ENUM('home', 'blog', 'projects', 'cv', 'rss');
       END IF;
     END $$;
 
@@ -50,7 +50,7 @@ export async function up({ db }: MigrateUpArgs): Promise<void> {
 
     DO $$ BEGIN
       IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'enum_site_settings_sidebar_footer_items_page') THEN
-        CREATE TYPE "public"."enum_site_settings_sidebar_footer_items_page" AS ENUM('home', 'blog', 'projects', 'cv');
+        CREATE TYPE "public"."enum_site_settings_sidebar_footer_items_page" AS ENUM('home', 'blog', 'projects', 'cv', 'rss');
       END IF;
     END $$;
 
@@ -320,7 +320,7 @@ export async function up({ db }: MigrateUpArgs): Promise<void> {
     -- Migrate users.linked_in_url → users_links (_order = 0)
     INSERT INTO "users_links" ("icon", "url", "new_tab", "_order", "_parent_id", "id")
     SELECT
-      'si:linkedin',
+      'ph:linkedin-logo',
       "linked_in_url",
       true,
       0,
@@ -355,7 +355,7 @@ export async function up({ db }: MigrateUpArgs): Promise<void> {
     UPDATE "site_settings_sidebar_footer_items"
     SET "icon" = CASE "type"::text
       WHEN 'github'        THEN 'si:github'
-      WHEN 'linkedin'      THEN 'si:linkedin'
+      WHEN 'linkedin'      THEN 'ph:linkedin-logo'
       WHEN 'email'         THEN 'ph:envelope'
       WHEN 'rss'           THEN 'ph:rss'
       WHEN 'facebook'      THEN 'si:facebook'
@@ -447,7 +447,7 @@ export async function up({ db }: MigrateUpArgs): Promise<void> {
 
     -- Migrate linkedin from posts_populated_authors
     INSERT INTO "posts_populated_authors_links" ("_order", "_parent_id", "icon", "type", "url", "new_tab")
-    SELECT 0, id, 'si:linkedin', 'custom', "linked_in_url", true
+    SELECT 0, id, 'ph:linkedin-logo', 'custom', "linked_in_url", true
     FROM "posts_populated_authors"
     WHERE "linked_in_url" IS NOT NULL AND btrim("linked_in_url") != '';
 
@@ -461,7 +461,7 @@ export async function up({ db }: MigrateUpArgs): Promise<void> {
 
     -- Migrate linkedin from _posts_v_version_populated_authors
     INSERT INTO "_posts_v_version_populated_authors_links" ("_order", "_parent_id", "icon", "type", "url", "new_tab")
-    SELECT 0, id, 'si:linkedin', 'custom', "linked_in_url", true
+    SELECT 0, id, 'ph:linkedin-logo', 'custom', "linked_in_url", true
     FROM "_posts_v_version_populated_authors"
     WHERE "linked_in_url" IS NOT NULL AND btrim("linked_in_url") != '';
 
@@ -531,7 +531,7 @@ export async function down({ db }: MigrateDownArgs): Promise<void> {
     SET "linked_in_url" = pl."url"
     FROM "posts_populated_authors_links" pl
     WHERE pl."_parent_id" = pa."id"
-      AND pl."icon" = 'si:linkedin'
+      AND pl."icon" = 'ph:linkedin-logo'
       AND pl."_order" = 0;
 
     UPDATE "posts_populated_authors" pa
@@ -545,7 +545,7 @@ export async function down({ db }: MigrateDownArgs): Promise<void> {
     SET "linked_in_url" = pl."url"
     FROM "_posts_v_version_populated_authors_links" pl
     WHERE pl."_parent_id" = pva."id"
-      AND pl."icon" = 'si:linkedin'
+      AND pl."icon" = 'ph:linkedin-logo'
       AND pl."_order" = 0;
 
     UPDATE "_posts_v_version_populated_authors" pva
@@ -573,7 +573,7 @@ export async function down({ db }: MigrateDownArgs): Promise<void> {
     SET "linked_in_url" = ul."url"
     FROM "users_links" ul
     WHERE ul."_parent_id" = u."id"
-      AND ul."icon" = 'si:linkedin'
+      AND ul."icon" = 'ph:linkedin-logo'
       AND ul."_order" = 0;
 
     UPDATE "users" u
@@ -605,7 +605,7 @@ export async function down({ db }: MigrateDownArgs): Promise<void> {
     UPDATE "site_settings_sidebar_footer_items"
     SET "type" = CASE "icon"
       WHEN 'si:github'        THEN 'github'
-      WHEN 'si:linkedin'      THEN 'linkedin'
+      WHEN 'ph:linkedin-logo' THEN 'linkedin'
       WHEN 'ph:envelope'      THEN 'email'
       WHEN 'ph:rss'           THEN 'rss'
       WHEN 'si:facebook'      THEN 'facebook'

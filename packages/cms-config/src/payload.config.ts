@@ -15,7 +15,6 @@ import { Media } from "./collections/Media";
 import { Posts } from "./collections/Posts";
 import { Projects } from "./collections/Projects";
 import { Series } from "./collections/Series";
-import { Tags } from "./collections/Tags";
 import { Users } from "./collections/Users";
 import { CvPage } from "./globals/CvPage";
 import { HomePage } from "./globals/HomePage";
@@ -134,7 +133,7 @@ const withGlobalAfterChangeHook = (globalConfig: GlobalConfig): GlobalConfig => 
   };
 };
 
-const collections: CollectionConfig[] = [Users, Media, Categories, Tags, Series, Posts, Projects].map(
+const collections: CollectionConfig[] = [Users, Media, Categories, Series, Posts, Projects].map(
   withCollectionAfterChangeHook,
 );
 const globals: GlobalConfig[] = [SiteSettings, HomePage, CvPage, BlogPage, SeriesPage, ProjectsPage, NotFoundPage].map(

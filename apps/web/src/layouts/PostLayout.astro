@@ -151,13 +151,10 @@ const jsonLd = {
                 tags.length > 0 && (
                   <div class="mt-2 flex flex-wrap items-center gap-2 not-prose">
                     {tags.map((tag) => (
-                      <a
-                        href={generateFilterUrl(currentUrl, "tag", tag.slug)}
-                        class="group inline-flex items-center gap-1 rounded-full border border-base-content/12 bg-base-200/40 px-3 py-1 text-xs font-medium text-base-content/75 no-underline transition-all hover:border-primary/40 hover:bg-primary/10 hover:text-primary"
-                      >
-                        <span class="text-base-content/30 transition-colors group-hover:text-primary/50">#</span>
+                      <span class="inline-flex items-center gap-1 rounded-full border border-base-content/12 bg-base-200/40 px-3 py-1 text-xs font-medium text-base-content/75">
+                        <span class="text-base-content/30">#</span>
                         {tag.name}
-                      </a>
+                      </span>
                     ))}
                   </div>
                 )

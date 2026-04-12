@@ -5,7 +5,6 @@ import type {
   Project,
   ProjectsPage,
   Series,
-  Tag,
   User,
 } from "../../../payload-types";
 import type { PopulatedAuthor, RelationValue, SiteFooterItem } from "./types";
@@ -24,14 +23,6 @@ export const asCategory = (value: RelationValue<Category>): Category | undefined
 
 export const asSeries = (value: RelationValue<Series>): Series | undefined => {
   return isObjectRelation<Series>(value) ? value : undefined;
-};
-
-export const asTagArray = (value: Post["tags"]): Tag[] => {
-  if (!Array.isArray(value)) {
-    return [];
-  }
-
-  return value.filter((tag): tag is Tag => isObjectRelation<Tag>(tag));
 };
 
 export const asUserArray = (value: Post["authors"]): User[] => {

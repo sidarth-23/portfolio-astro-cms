@@ -37,13 +37,29 @@ export type IconData =
   | { source: "simple-icons"; path: string; title: string }
   | { source: "phosphor"; component: PhosphorIconComponent; name: string };
 
+const resolvePhosphorIcon = (name: string): IconData | null => {
+  const pascalName = PHOSPHOR_PASCAL_BY_NAME.get(name);
+  if (!pascalName) return null;
+
+  const component = PHOSPHOR_ICON_COMPONENTS[`Ph${pascalName}`];
+  if (!component) return null;
+
+  return { source: "phosphor", component, name };
+};
+
 export const resolveIcon = (icon?: string | null): IconData | null => {
+  if (typeof icon !== "string" || icon.trim().length === 0) {
+    return null;
+  }
+
   const parsed = parseIconValueStrict(icon);
-  if (!parsed) return null;
+  if (!parsed) {
+    throw new Error(`Invalid icon value "${icon}". Expected "si:<slug>" or "ph:<name>".`);
+  }
 
   if (parsed.source === "simple-icons") {
     const simpleIcon = SIMPLE_ICONS_BY_SLUG.get(parsed.slug);
-    if (!simpleIcon) return null;
+    if (!simpleIcon) throw new Error(`Unknown Simple Icons slug "${parsed.slug}" for icon "${icon}".`);
     return {
       source: "simple-icons",
       path: simpleIcon.path,
@@ -51,11 +67,8 @@ export const resolveIcon = (icon?: string | null): IconData | null => {
     };
   }
 
-  const pascalName = PHOSPHOR_PASCAL_BY_NAME.get(parsed.name);
-  if (!pascalName) return null;
+  const phosphorIcon = resolvePhosphorIcon(parsed.name);
+  if (!phosphorIcon) throw new Error(`Unknown Phosphor icon "${parsed.name}" for icon "${icon}".`);
 
-  const component = PHOSPHOR_ICON_COMPONENTS[`Ph${pascalName}`];
-  if (!component) return null;
-
-  return { source: "phosphor", component, name: parsed.name };
+  return phosphorIcon;
 };

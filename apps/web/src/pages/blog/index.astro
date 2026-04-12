@@ -14,7 +14,6 @@ export const prerender = false;
 // Parse query params
 const searchQuery = Astro.url.searchParams.get("q") || undefined;
 const categoryFilter = Astro.url.searchParams.get("category") || undefined;
-const tagFilter = Astro.url.searchParams.get("tag") || undefined;
 const seriesFilter = Astro.url.searchParams.get("series") || undefined;
 const view = Astro.url.searchParams.get("view") || "posts";
 const pageParam = Astro.url.searchParams.get("page");
@@ -24,15 +23,13 @@ const pageSize = 10;
 
 type PaginatedPostsData = Awaited<ReturnType<typeof cmsClient.getPaginatedPublishedPosts>>;
 type CategoriesData = Awaited<ReturnType<typeof cmsClient.getAllCategories>>;
-type TagsData = Awaited<ReturnType<typeof cmsClient.getAllTags>>;
 type SeriesData = Awaited<ReturnType<typeof cmsClient.getAllSeriesWithPosts>>;
 type BlogPageData = Awaited<ReturnType<typeof cmsClient.getBlogPage>>;
 
 // Fetch data
-const [paginatedPosts, allCategories, allTags, allSeries, blogPage]: [
+const [paginatedPosts, allCategories, allSeries, blogPage]: [
   PaginatedPostsData,
   CategoriesData,
-  TagsData,
   SeriesData,
   BlogPageData,
 ] = await Promise.all([
@@ -41,11 +38,9 @@ const [paginatedPosts, allCategories, allTags, allSeries, blogPage]: [
     pageSize,
     search: searchQuery,
     categorySlug: categoryFilter,
-    tagSlug: tagFilter,
     seriesSlug: seriesFilter,
   }),
   cmsClient.getAllCategories(),
-  cmsClient.getAllTags(),
   cmsClient.getAllSeriesWithPosts(),
   cmsClient.getBlogPage(),
 ]);
@@ -64,7 +59,6 @@ if (!blogTitle) {
 const buildBlogUrl = (overrides: {
   q?: string | null;
   category?: string | null;
-  tag?: string | null;
   series?: string | null;
   view?: string | null;
   page?: number | null;
@@ -77,8 +71,6 @@ const buildBlogUrl = (overrides: {
     overrides.category === null
       ? undefined
       : (overrides.category ?? categoryFilter);
-  const finalTag =
-    overrides.tag === null ? undefined : (overrides.tag ?? tagFilter);
   const finalSeries =
     overrides.series === null ? undefined : (overrides.series ?? seriesFilter);
   const finalView =
@@ -88,7 +80,6 @@ const buildBlogUrl = (overrides: {
 
   if (finalQuery) params.set("q", finalQuery);
   if (finalCategory) params.set("category", finalCategory);
-  if (finalTag) params.set("tag", finalTag);
   if (finalSeries) params.set("series", finalSeries);
   if (finalView && finalView !== "posts") params.set("view", finalView);
   if (finalPage && finalPage > 1) params.set("page", String(finalPage));
@@ -104,16 +95,12 @@ const buildPageUrl = (page: number): string =>
 const hasActiveFilters = !!(
   searchQuery ||
   categoryFilter ||
-  tagFilter ||
   seriesFilter
 );
 
-// Find active category/tag/series objects for display
+// Find active category/series objects for display
 const activeCategory = categoryFilter
   ? allCategories.find((c) => c.slug === categoryFilter)
-  : undefined;
-const activeTag = tagFilter
-  ? allTags.find((t) => t.slug === tagFilter)
   : undefined;
 const activeSeries = seriesFilter
   ? allSeries.find((s) => s.slug === seriesFilter)
@@ -172,7 +159,6 @@ const activeSeries = seriesFilter
           <input type="hidden" name="category" value={categoryFilter} />
         )
       }
-      {tagFilter && <input type="hidden" name="tag" value={tagFilter} />}
       {
         seriesFilter && (
           <input type="hidden" name="series" value={seriesFilter} />
@@ -193,7 +179,6 @@ const activeSeries = seriesFilter
           hasActiveFilters && (
             <div class="badge badge-sm badge-circle">
               {(categoryFilter ? 1 : 0) +
-                (tagFilter ? 1 : 0) +
                 (seriesFilter ? 1 : 0)}
             </div>
           )
@@ -233,35 +218,6 @@ const activeSeries = seriesFilter
           }
         </div>
 
-        <div class="flex justify-between items-center mb-2">
-          <h3 class="text-sm font-semibold">Tags</h3>
-          {
-            tagFilter && (
-              <a
-                href={buildBlogUrl({ tag: null, page: 1 })}
-                class="link link-error text-xs"
-              >
-                Clear
-              </a>
-            )
-          }
-        </div>
-        <div class="flex flex-wrap gap-2">
-          {
-            allTags.map((tag) => (
-              <a
-                href={buildBlogUrl({
-                  tag: tag.slug === tagFilter ? null : tag.slug,
-                  page: 1,
-                })}
-                class={`badge badge-soft badge-sm no-underline ${tag.slug === tagFilter ? "badge-accent" : "badge-info"}`}
-              >
-                <span class="opacity-70">#</span>
-                {tag.name}
-              </a>
-            ))
-          }
-        </div>
       </div>
     </div>
   </div>
@@ -292,16 +248,6 @@ const activeSeries = seriesFilter
           </a>
         )}
 
-        {activeTag && (
-          <a
-            href={buildBlogUrl({ tag: null, page: 1 })}
-            class="badge badge-soft badge-accent badge-sm gap-2 hover:badge-error"
-          >
-            {activeTag.name}
-            <PhX class="h-4 w-4" />
-          </a>
-        )}
-
         {activeSeries && (
           <a
             href={buildBlogUrl({ series: null, page: 1 })}
@@ -316,7 +262,6 @@ const activeSeries = seriesFilter
           href={buildBlogUrl({
             q: null,
             category: null,
-            tag: null,
             series: null,
             page: 1,
           })}

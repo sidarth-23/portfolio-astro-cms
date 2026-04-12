@@ -11,7 +11,6 @@ import type {
   Series,
   SeriesPage,
   SiteSetting,
-  Tag,
   User,
 } from "../../../payload-types";
 import { createSlug } from "../../createSlug";
@@ -20,7 +19,6 @@ import {
   asPopulatedAuthors,
   asSeries,
   asSiteFooterItems,
-  asTagArray,
   asUserArray,
 } from "./guards";
 import type {
@@ -39,6 +37,7 @@ const PAGE_ROUTES: Record<string, string> = {
   blog: "/blog",
   projects: "/projects",
   cv: "/cv",
+  rss: "/rss.xml",
 };
 
 type TaxonomyDoc = {
@@ -76,11 +75,6 @@ const buildPublishedWhereParams = (options: PostFilterOptions = {}): Params => {
       andIndex++;
     }
 
-    if (options.tagSlug) {
-      params[`where[and][${andIndex}][tags.slug][equals]`] = options.tagSlug;
-      andIndex++;
-    }
-
     if (options.categorySlug) {
       params[`where[and][${andIndex}][primaryCategory.slug][equals]`] = options.categorySlug;
       andIndex++;
@@ -95,10 +89,6 @@ const buildPublishedWhereParams = (options: PostFilterOptions = {}): Params => {
 
     if (options.slug) {
       params["where[slug][equals]"] = options.slug;
-    }
-
-    if (options.tagSlug) {
-      params["where[tags.slug][equals]"] = options.tagSlug;
     }
 
     if (options.categorySlug) {
@@ -163,7 +153,7 @@ export const createCmsClient = ({ fetch, mediaBaseUrl }: CmsTransport) => {
     return fetch<PayloadListResponse<Post>>("/posts", buildPublishedPostsQueryParams(options));
   };
 
-  const fetchAllTaxonomySlugs = async (path: "/tags" | "/categories" | "/series"): Promise<string[]> => {
+  const fetchAllTaxonomySlugs = async (path: "/categories" | "/series"): Promise<string[]> => {
     const limit = 200;
     const firstPage = await fetch<PayloadListResponse<TaxonomyDoc>>(path, {
       page: 1,
@@ -190,7 +180,7 @@ export const createCmsClient = ({ fetch, mediaBaseUrl }: CmsTransport) => {
   };
 
   const hasPublishedPosts = async (
-    filters: Pick<PostFilterOptions, "tagSlug" | "categorySlug" | "seriesSlug">,
+    filters: Pick<PostFilterOptions, "categorySlug" | "seriesSlug">,
   ): Promise<boolean> => {
     const result = await fetchPublishedPostsPage({
       ...filters,
@@ -364,14 +354,12 @@ export const createCmsClient = ({ fetch, mediaBaseUrl }: CmsTransport) => {
     getPaginatedPublishedPosts: async ({
       page,
       pageSize,
-      tagSlug,
       categorySlug,
       seriesSlug,
       search,
     }: {
       page: number;
       pageSize: number;
-      tagSlug?: string;
       categorySlug?: string;
       seriesSlug?: string;
       search?: string;
@@ -379,7 +367,6 @@ export const createCmsClient = ({ fetch, mediaBaseUrl }: CmsTransport) => {
       const response = await fetchPublishedPostsPage({
         page,
         pageSize,
-        tagSlug,
         categorySlug,
         seriesSlug,
         search,
@@ -410,23 +397,6 @@ export const createCmsClient = ({ fetch, mediaBaseUrl }: CmsTransport) => {
       }
 
       return rawPost;
-    },
-
-    getTagSlugs: async (): Promise<string[]> => {
-      const allTagSlugs = await fetchAllTaxonomySlugs("/tags");
-      const hasPostsByTag = await Promise.all(
-        allTagSlugs.map(async (tagSlug) => {
-          return {
-            tagSlug,
-            hasPosts: await hasPublishedPosts({ tagSlug }),
-          };
-        }),
-      );
-
-      return hasPostsByTag
-        .filter((item) => item.hasPosts)
-        .map((item) => item.tagSlug)
-        .sort((a, b) => a.localeCompare(b));
     },
 
     getCategorySlugs: async (): Promise<string[]> => {
@@ -512,30 +482,6 @@ export const createCmsClient = ({ fetch, mediaBaseUrl }: CmsTransport) => {
       return docs;
     },
 
-    getAllTags: async (): Promise<Tag[]> => {
-      const limit = 200;
-      const firstPage = await fetch<PayloadListResponse<Tag>>("/tags", {
-        page: 1,
-        limit,
-        sort: "name",
-        depth: 0,
-      });
-
-      const docs = [...firstPage.docs];
-
-      for (let page = 2; page <= firstPage.totalPages; page += 1) {
-        const nextPage = await fetch<PayloadListResponse<Tag>>("/tags", {
-          page,
-          limit,
-          sort: "name",
-          depth: 0,
-        });
-        docs.push(...nextPage.docs);
-      }
-
-      return docs;
-    },
-
     getAllSeriesWithPosts: async (): Promise<
       Array<{
         id: number;
@@ -596,10 +542,18 @@ export const createCmsClient = ({ fetch, mediaBaseUrl }: CmsTransport) => {
     },
 
     tagsFromPost: (post: Post): Array<{ name: string; slug: string }> => {
-      return asTagArray(post.tags).map((tag) => ({
-        name: tag.name,
-        slug: tag.slug,
-      }));
+      if (!Array.isArray(post.tags)) {
+        return [];
+      }
+
+      return post.tags.flatMap((tag) => {
+        const value = toTrimmedString(tag?.value);
+        if (!value) {
+          return [];
+        }
+
+        return [{ name: value, slug: createSlug(value) }];
+      });
     },
 
     seriesFromPost: (post: Post): { name: string; slug: string } | undefined => {

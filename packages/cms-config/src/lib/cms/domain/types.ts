@@ -4,7 +4,6 @@ export type Params = Record<string, string | number | boolean | undefined>;
 
 export type PostFilterOptions = {
   slug?: string;
-  tagSlug?: string;
   categorySlug?: string;
   seriesSlug?: string;
   search?: string;

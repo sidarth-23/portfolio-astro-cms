@@ -70,7 +70,6 @@ export interface Config {
     users: User;
     media: Media;
     categories: Category;
-    tags: Tag;
     series: Series;
     posts: Post;
     projects: Project;
@@ -85,7 +84,6 @@ export interface Config {
     users: UsersSelect<false> | UsersSelect<true>;
     media: MediaSelect<false> | MediaSelect<true>;
     categories: CategoriesSelect<false> | CategoriesSelect<true>;
-    tags: TagsSelect<false> | TagsSelect<true>;
     series: SeriesSelect<false> | SeriesSelect<true>;
     posts: PostsSelect<false> | PostsSelect<true>;
     projects: ProjectsSelect<false> | ProjectsSelect<true>;
@@ -189,7 +187,7 @@ export interface User {
               relationTo: 'series';
               value: number | Series;
             } | null);
-        page?: ('home' | 'blog' | 'projects' | 'cv') | null;
+        page?: ('home' | 'blog' | 'projects' | 'cv' | 'rss') | null;
         newTab?: boolean | null;
         id?: string | null;
       }[]
@@ -276,7 +274,12 @@ export interface Post {
   };
   coverImage?: (number | null) | Media;
   primaryCategory: number | Category;
-  tags?: (number | Tag)[] | null;
+  tags?:
+    | {
+        value: string;
+        id?: string | null;
+      }[]
+    | null;
   /**
    * Managed from the Series collection.
    */
@@ -342,21 +345,6 @@ export interface Category {
   name: string;
   description?: string | null;
   parentCategory?: (number | null) | Category;
-  /**
-   * Auto-generated from title, but can be edited.
-   */
-  slug: string;
-  updatedAt: string;
-  createdAt: string;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "tags".
- */
-export interface Tag {
-  id: number;
-  name: string;
-  description?: string | null;
   /**
    * Auto-generated from title, but can be edited.
    */
@@ -445,7 +433,7 @@ export interface Project {
               relationTo: 'series';
               value: number | Series;
             } | null);
-        page?: ('home' | 'blog' | 'projects' | 'cv') | null;
+        page?: ('home' | 'blog' | 'projects' | 'cv' | 'rss') | null;
         newTab?: boolean | null;
         id?: string | null;
       }[]
@@ -587,10 +575,6 @@ export interface PayloadLockedDocument {
         value: number | Category;
       } | null)
     | ({
-        relationTo: 'tags';
-        value: number | Tag;
-      } | null)
-    | ({
         relationTo: 'series';
         value: number | Series;
       } | null)
@@ -714,17 +698,6 @@ export interface CategoriesSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "tags_select".
- */
-export interface TagsSelect<T extends boolean = true> {
-  name?: T;
-  description?: T;
-  slug?: T;
-  updatedAt?: T;
-  createdAt?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "series_select".
  */
 export interface SeriesSelect<T extends boolean = true> {
@@ -752,7 +725,12 @@ export interface PostsSelect<T extends boolean = true> {
   content?: T;
   coverImage?: T;
   primaryCategory?: T;
-  tags?: T;
+  tags?:
+    | T
+    | {
+        value?: T;
+        id?: T;
+      };
   series?: T;
   meta?:
     | T
@@ -930,7 +908,7 @@ export interface SiteSetting {
               relationTo: 'series';
               value: number | Series;
             } | null);
-        page?: ('home' | 'blog' | 'projects' | 'cv') | null;
+        page?: ('home' | 'blog' | 'projects' | 'cv' | 'rss') | null;
         newTab?: boolean | null;
         id?: string | null;
       }[]
@@ -1017,7 +995,7 @@ export interface HomePage {
                 relationTo: 'series';
                 value: number | Series;
               } | null);
-          page?: ('home' | 'blog' | 'projects' | 'cv') | null;
+          page?: ('home' | 'blog' | 'projects' | 'cv' | 'rss') | null;
           newTab?: boolean | null;
         };
         id?: string | null;
