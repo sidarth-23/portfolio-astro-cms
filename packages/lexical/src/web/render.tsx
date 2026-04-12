@@ -1,14 +1,16 @@
 /** @jsxImportSource preact */
 import {
-  convertLexicalToHTML,
-  type HTMLConvertersFunction,
-  LinkHTMLConverter,
-} from "@payloadcms/richtext-lexical/html";
+  convertLexicalToHTMLAsync,
+  type HTMLConvertersFunctionAsync,
+  LinkHTMLConverterAsync,
+} from "@payloadcms/richtext-lexical/html-async";
 import type { DefaultNodeTypes, SerializedBlockNode, SerializedUploadNode } from "@payloadcms/richtext-lexical";
 import { renderToStaticMarkup } from "preact-render-to-string";
 
 import { Callout } from "./blocks/Callout";
+import { Code } from "./blocks/Code";
 import { Upload } from "./blocks/Upload";
+import { highlightCode } from "./blocks/shiki";
 import { createHeadingConverters } from "./headings";
 import { createInternalDocHrefResolver, type InternalDocHrefRouteMap } from "./linkResolver";
 import type {
@@ -32,17 +34,17 @@ const fallbackVariantByProfile: Record<CalloutVariantProfile, string> = {
   blog: "note",
 };
 
-export const renderRichTextToHTML = (
+export const renderRichTextToHTML = async (
   { className, data, enableContainer = false }: RichTextRenderOptions,
   config?: RichTextRenderConfig,
-): string => {
+): Promise<string> => {
   if (!data) return "";
 
   const internalDocToHref = createInternalDocHrefResolver(config?.internalDocHrefRouteMap);
   const profile = config?.calloutVariantProfile ?? "generic";
   const fallbackVariant = fallbackVariantByProfile[profile];
 
-  const htmlConverters: HTMLConvertersFunction<NodeTypes> = ({ defaultConverters }) => ({
+  const htmlConverters: HTMLConvertersFunctionAsync<NodeTypes> = ({ defaultConverters }) => ({
     ...defaultConverters,
     ...(config?.mediaBaseUrl
       ? {
@@ -55,15 +57,15 @@ export const renderRichTextToHTML = (
           },
         }
       : {}),
-    ...LinkHTMLConverter({ internalDocToHref }),
+    ...LinkHTMLConverterAsync({ internalDocToHref }),
     ...createHeadingConverters(),
     blocks: {
       ...(defaultConverters.blocks ?? {}),
-      callout: ({ node }: { node: SerializedBlockNode<Record<string, unknown>> }) => {
+      callout: async ({ node }: { node: SerializedBlockNode<Record<string, unknown>> }) => {
         const fields = node.fields ?? {};
         const variant = (fields.variant as string) || fallbackVariant;
         const title = fields.title as string | undefined;
-        const contentHtml = renderRichTextToHTML(
+        const contentHtml = await renderRichTextToHTML(
           { data: fields.content as RichTextValue, enableContainer: false },
           config,
         );
@@ -71,10 +73,21 @@ export const renderRichTextToHTML = (
           <Callout variant={variant} title={title} contentHtml={contentHtml} wrapperClass="my-6" />,
         );
       },
+      Code: async ({ node }: { node: SerializedBlockNode<Record<string, unknown>> }) => {
+        const fields = node.fields ?? {};
+        const language = (fields.language as string) || "plaintext";
+        const code = (fields.code as string) || "";
+        const highlightedHtml = await highlightCode(code, language).catch(
+          () => `<pre><code>${code}</code></pre>`,
+        );
+        return renderToStaticMarkup(
+          <Code language={language} highlightedHtml={highlightedHtml} />,
+        );
+      },
     },
   });
 
-  return convertLexicalToHTML({
+  return convertLexicalToHTMLAsync({
     className,
     converters: htmlConverters,
     data,

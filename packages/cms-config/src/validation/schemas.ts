@@ -30,13 +30,29 @@ export const homePageSchema = withSeoMeta({
   name: requiredText.optional(),
   role: requiredText.optional(),
   about: z.unknown().optional(),
-  featured: z
-    .object({
-      title: optionalText,
-      description: optionalText,
-      items: z.unknown().optional(),
-    })
-    .passthrough()
+  featuredSections: z
+    .array(
+      z
+        .object({
+          name: requiredText.optional(),
+          description: z.unknown().optional(),
+          collection: z.enum(["posts", "projects"]).optional(),
+          posts: z.unknown().optional(),
+          projects: z.unknown().optional(),
+        })
+        .passthrough(),
+    )
+    .optional(),
+  ctaButtons: z
+    .array(
+      z
+        .object({
+          title: requiredText.optional(),
+          variant: z.enum(["default", "primary", "secondary", "accent", "outline", "ghost"]).optional(),
+          link: z.unknown().optional(),
+        })
+        .passthrough(),
+    )
     .optional(),
 });
 

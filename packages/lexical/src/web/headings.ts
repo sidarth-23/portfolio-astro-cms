@@ -1,5 +1,5 @@
 import type { DefaultNodeTypes } from "@payloadcms/richtext-lexical";
-import type { HTMLConverters } from "@payloadcms/richtext-lexical/html";
+import type { HTMLConvertersAsync } from "@payloadcms/richtext-lexical/html-async";
 
 import { slugify } from "./slugify";
 import type { RichTextValue, TableOfContentsItem } from "./types";
@@ -85,14 +85,12 @@ const collectHeadings = (data?: RichTextValue | null): HeadingDescriptor[] => {
   return headings;
 };
 
-export const createHeadingConverters = (): HTMLConverters<DefaultNodeTypes> => {
+export const createHeadingConverters = (): HTMLConvertersAsync<DefaultNodeTypes> => {
   const nextHeadingId = createHeadingIdFactory();
 
   return {
-    heading: ({ node, nodesToHTML, providedStyleTag }) => {
-      const children = nodesToHTML({
-        nodes: node.children,
-      }).join("");
+    heading: async ({ node, nodesToHTML, providedStyleTag }) => {
+      const children = (await nodesToHTML({ nodes: node.children })).join("");
       const text = extractPlainText(node as SerializedNode).replace(/\s+/g, " ").trim();
       const idAttribute = text ? ` id="${nextHeadingId(text)}"` : "";
 

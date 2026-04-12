@@ -42,6 +42,14 @@ type CmsTransport = {
   mediaBaseUrl: string;
 };
 
+type HomeCtaVariant = NonNullable<NonNullable<HomePage["ctaButtons"]>[number]["variant"]>;
+type HomeCtaButton = {
+  title: string;
+  href: string;
+  variant: HomeCtaVariant;
+  newTab: boolean;
+};
+
 const buildPublishedWhereParams = (options: PostFilterOptions = {}): Params => {
   const params: Params = {};
 
@@ -232,6 +240,80 @@ export const createCmsClient = ({ fetch, mediaBaseUrl }: CmsTransport) => {
 
     getBlogPage: async (): Promise<BlogPage> => {
       return fetch<BlogPage>("/globals/blog-page", { depth: 2 });
+    },
+
+    homeCtaButtons: (homePage: HomePage): HomeCtaButton[] => {
+      const isPost = (value: number | Post): value is Post => {
+        return typeof value === "object" && value !== null && value._status !== "draft";
+      };
+
+      const isProject = (value: number | Project | null | undefined): value is Project => {
+        return typeof value === "object" && value !== null && value._status !== "draft";
+      };
+
+      const resolveHref = (button: NonNullable<HomePage["ctaButtons"]>[number]): string | undefined => {
+        if (!button.link) {
+          return undefined;
+        }
+
+        if (button.link.type === "custom") {
+          return toTrimmedString(button.link.url);
+        }
+
+        const reference = button.link.reference;
+        if (!reference || typeof reference === "number") {
+          return undefined;
+        }
+
+        if (reference.relationTo === "posts" && isPost(reference.value) && reference.value.slug) {
+          return `/blog/${reference.value.slug}`;
+        }
+
+        if (reference.relationTo === "projects" && isProject(reference.value) && reference.value.slug) {
+          return `/projects#${reference.value.slug}`;
+        }
+
+        return undefined;
+      };
+
+      return (
+        homePage.ctaButtons?.flatMap((button) => {
+          const title = toTrimmedString(button.title);
+          const href = resolveHref(button);
+
+          if (!title || !href) {
+            return [];
+          }
+
+          return [
+            {
+              title,
+              href,
+              variant: button.variant ?? "default",
+              newTab: button.link?.newTab === true,
+            },
+          ];
+        }) ?? []
+      );
+    },
+
+    featuredPostsFromHomeSection: (section: NonNullable<HomePage["featuredSections"]>[number]): Post[] => {
+      if (!Array.isArray(section.posts)) {
+        return [];
+      }
+
+      return section.posts.filter(isPublishedPostRelation);
+    },
+
+    featuredProjectsFromHomeSection: (section: NonNullable<HomePage["featuredSections"]>[number]): Project[] => {
+      if (!Array.isArray(section.projects)) {
+        return [];
+      }
+
+      return section.projects.filter(
+        (value): value is Project =>
+          typeof value === "object" && value !== null && (value as Project)._status !== "draft",
+      );
     },
 
     getAllPublishedPosts: async (filters: Omit<PostFilterOptions, "slug"> = {}): Promise<Post[]> => {

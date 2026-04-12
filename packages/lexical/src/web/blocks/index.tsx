@@ -11,14 +11,14 @@ export type BlockRenderConfig = RichTextRenderConfig;
 export async function renderBlock(block: Record<string, unknown>, config?: BlockRenderConfig): Promise<string> {
   switch (block.blockType) {
     case "contentSection": {
-      const contentHtml = renderRichTextToHTML({ data: block.content as any, enableContainer: false }, config);
+      const contentHtml = await renderRichTextToHTML({ data: block.content as any, enableContainer: false }, config);
       return renderToStaticMarkup(
         <ContentSection title={block.title as string | null} contentHtml={contentHtml} />,
       );
     }
 
     case "callout": {
-      const contentHtml = renderRichTextToHTML({ data: block.content as any, enableContainer: false }, config);
+      const contentHtml = await renderRichTextToHTML({ data: block.content as any, enableContainer: false }, config);
       return renderToStaticMarkup(
         <Callout
           variant={block.variant as string}

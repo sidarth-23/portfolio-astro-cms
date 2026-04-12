@@ -160,6 +160,19 @@ export const Posts: CollectionConfig = {
         },
       ],
     },
+    {
+      name: "homeSectionsSummary",
+      type: "text",
+      admin: {
+        position: "sidebar",
+        readOnly: true,
+        description: "Managed from Home Page featured sections.",
+      },
+      access: {
+        create: () => false,
+        update: () => false,
+      },
+    },
   ],
   versions: {
     drafts: {

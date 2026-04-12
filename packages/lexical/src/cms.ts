@@ -302,6 +302,46 @@ export const createLexicalEditor = ({ variant, ...overrides }: LexicalEditorOpti
           CodeBlock({
             defaultLanguage: "typescript",
             languages: CODE_BLOCK_LANGUAGES,
+            fieldOverrides: {
+              // Override Block component to remove the useless collapse icon
+              admin: {
+                components: {
+                  Block: {
+                    clientProps: { languages: CODE_BLOCK_LANGUAGES },
+                    path: "./components/admin/CodeBlockComponent#CodeBlockComponent",
+                  },
+                },
+                // Preserve Payload's markdown import/export client converter
+                jsx: "@payloadcms/richtext-lexical/client#codeConverterClient",
+              },
+              // Override fields to fix TypeScript language detection in Monaco
+              // (Payload bug: CodeComponent checks language === 'ts' but value is 'typescript')
+              fields: [
+                {
+                  name: "language",
+                  type: "select",
+                  admin: { hidden: true },
+                  defaultValue: "typescript",
+                  options: Object.entries(CODE_BLOCK_LANGUAGES).map(([key, value]) => ({
+                    label: value,
+                    value: key,
+                  })),
+                },
+                {
+                  name: "code",
+                  type: "code",
+                  admin: {
+                    components: {
+                      Field: {
+                        clientProps: { languages: CODE_BLOCK_LANGUAGES },
+                        path: "./components/admin/CodeFieldComponent#CodeFieldComponent",
+                      },
+                    },
+                  },
+                  label: "",
+                },
+              ],
+            },
           }),
         );
       }
