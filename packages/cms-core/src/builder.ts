@@ -20,6 +20,7 @@ import { ProjectsPage } from "./globals/ProjectsPage";
 import { SeriesPage } from "./globals/SeriesPage";
 import { SiteSettings } from "./globals/SiteSettings";
 import { setReadAccessToken } from "./access/readAccessConfig";
+import { generateOgImagesEndpoint } from "./endpoints/generateOgImages";
 import { createCollectionRedeployHook } from "./hooks/triggerCollectionRedeploy";
 import { createTriggerDeployment } from "./hooks/triggerDeployment";
 import { createTriggerDevRefresh } from "./hooks/triggerDevRefresh";
@@ -87,6 +88,7 @@ export function createCmsConfig(options: CmsConfigOptions) {
     admin: {
       user: Users.slug,
       components: {
+        afterNavLinks: ["./components/admin/nav/DashboardNavLink#DashboardNavLink"],
         views: {
           dashboard: {
             Component: "./components/admin/Dashboard#DashboardView",
@@ -100,6 +102,7 @@ export function createCmsConfig(options: CmsConfigOptions) {
     routes: {
       admin: "/",
     },
+    endpoints: [generateOgImagesEndpoint],
     collections,
     globals,
     onInit: async () => {
