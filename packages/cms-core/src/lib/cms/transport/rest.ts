@@ -12,13 +12,30 @@ export const createCmsRestClient = ({ apiUrl, token, fetchImpl = fetch }: RestCl
   const apiBase = apiUrl.replace(/\/$/, "");
   const mediaBaseUrl = apiBase.replace(/\/api$/, "");
 
-  const authedFetch: typeof fetch = (input, init = {}) => {
+  const authedFetch: typeof fetch = async (input, init = {}) => {
     const headers = new Headers(init instanceof Request ? init.headers : (init as RequestInit).headers);
     headers.set("Authorization", `Bearer ${token}`);
-    if (init instanceof Request) {
-      return fetchImpl(new Request(input, { ...init, headers }));
+    try {
+      if (init instanceof Request) {
+        return await fetchImpl(new Request(input, { ...init, headers }));
+      }
+      return await fetchImpl(input, { ...(init as RequestInit), headers });
+    } catch (err) {
+      if (err instanceof TypeError) {
+        const msg = err.message ?? "";
+        if (
+          msg.includes("fetch failed") ||
+          msg.includes("ECONNREFUSED") ||
+          msg.includes("ENOTFOUND") ||
+          msg.includes("ECONNRESET")
+        ) {
+          throw new Error(
+            `CMS is unavailable at ${apiBase}. Ensure the CMS server is running and reachable.\n  Cause: ${msg}`,
+          );
+        }
+      }
+      throw err;
     }
-    return fetchImpl(input, { ...(init as RequestInit), headers });
   };
 
   const sdk = new PayloadSDK<Config>({ baseURL: apiBase, fetch: authedFetch });

@@ -5,9 +5,8 @@ import SideBar from "../components/SideBar.astro";
 import ThemePreloadScript from "../components/ThemePreloadScript.astro";
 import ThemeSwitcher from "../components/ThemeSwitcher.astro";
 import { ClientRouter } from "astro:transitions";
-import { ASTRO_CMS_API_URL, ASTRO_CMS_READ_TOKEN } from "astro:env/server";
-import { createCmsRestClient } from "@sidshub/cms-core/client/rest";
 import type { HomePage, SiteSetting } from "@sidshub/cms-core/payload-types";
+import { cmsClient } from "../lib/cms";
 
 import { TRANSITION_API } from "../consts";
 
@@ -20,11 +19,6 @@ type Props = {
   ogType?: string;
   jsonLd?: unknown;
 };
-
-const cmsClient = createCmsRestClient({
-  apiUrl: ASTRO_CMS_API_URL,
-  token: ASTRO_CMS_READ_TOKEN,
-});
 
 const {
   image,

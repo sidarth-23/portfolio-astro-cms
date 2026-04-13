@@ -24,13 +24,6 @@ export default defineConfig({
         context: "server",
         access: "secret",
       }),
-      ASTRO_CMS_HEALTH_TIMEOUT_MS: envField.number({
-        context: "server",
-        access: "public",
-        int: true,
-        min: 1,
-        default: 5000,
-      }),
     },
   },
   vite: {

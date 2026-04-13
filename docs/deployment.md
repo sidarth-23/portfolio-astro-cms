@@ -30,7 +30,6 @@
 - `ASTRO_SITE_URL`
 - `ASTRO_CMS_API_URL`
 - `ASTRO_CMS_READ_TOKEN`
-- `ASTRO_CMS_HEALTH_TIMEOUT_MS` (optional)
 
 ## Publish Flow
 

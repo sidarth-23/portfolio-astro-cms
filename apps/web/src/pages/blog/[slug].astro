@@ -2,16 +2,10 @@
 import RichTextRenderer from "@/components/RichTextRenderer.astro";
 import SeriesNav from "@/components/SeriesNav.astro";
 import PostLayout from "@/layouts/PostLayout.astro";
-import { ASTRO_CMS_API_URL, ASTRO_CMS_READ_TOKEN } from "astro:env/server";
 import { extractTableOfContents } from "@sidshub/cms-editor/web";
-import { createCmsRestClient } from "@sidshub/cms-core/client/rest";
 import type { Post } from "@sidshub/cms-core/payload-types";
 import { resolveIcon } from "@/lib/resolveIcon";
-
-const cmsClient = createCmsRestClient({
-  apiUrl: ASTRO_CMS_API_URL,
-  token: ASTRO_CMS_READ_TOKEN,
-});
+import { cmsClient } from "@/lib/cms";
 
 type SeriesNavProps = {
   seriesName: string;
@@ -44,16 +38,11 @@ const getAuthorLinks = (author: unknown): AuthorLink[] => {
 };
 
 export async function getStaticPaths() {
-  const staticPathsCmsClient = createCmsRestClient({
-    apiUrl: ASTRO_CMS_API_URL,
-    token: ASTRO_CMS_READ_TOKEN,
-  });
-
-  const posts = await staticPathsCmsClient.getAllPublishedPosts();
+  const posts = await cmsClient.getAllPublishedPosts();
   const seriesSlugs = Array.from(
     new Set(
       posts
-        .map((post) => staticPathsCmsClient.seriesFromPost(post)?.slug)
+        .map((post) => cmsClient.seriesFromPost(post)?.slug)
         .filter((slug): slug is string => Boolean(slug)),
     ),
   );
@@ -63,7 +52,7 @@ export async function getStaticPaths() {
   const orderedSeriesPosts = await Promise.all(
     seriesSlugs.map(async (slug) => ({
       slug,
-      posts: await staticPathsCmsClient.getPostsBySeries(slug),
+      posts: await cmsClient.getPostsBySeries(slug),
     })),
   );
   orderedSeriesPosts.forEach((item) => {
@@ -73,7 +62,7 @@ export async function getStaticPaths() {
   return posts.map((post) => {
     let seriesNav: SeriesNavProps | undefined;
 
-    const series = staticPathsCmsClient.seriesFromPost(post);
+    const series = cmsClient.seriesFromPost(post);
     if (series?.slug) {
       const seriesPosts = seriesMap.get(series.slug) || [];
       const currentIndex = seriesPosts.findIndex((p) => p.slug === post.slug);

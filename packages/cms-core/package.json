@@ -12,11 +12,13 @@
     "./builder": "./src/builder.ts",
     "./client": "./src/lib/cms/domain/index.ts",
     "./client/rest": "./src/lib/cms/transport/rest.ts",
+    "./client/mock": "./src/lib/cms/transport/mock/index.ts",
     "./icon-value": "./src/lib/iconValue.ts",
     "./migrations-dir": "./src/migrations/dir.ts",
     "./payload-types": "./src/payload-types.ts"
   },
   "devDependencies": {
+    "@faker-js/faker": "^9.8.0",
     "@sidshub/eslint-config": "workspace:*",
     "eslint": "^9.24.0"
   },
