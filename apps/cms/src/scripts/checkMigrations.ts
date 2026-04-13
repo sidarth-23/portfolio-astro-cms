@@ -22,7 +22,7 @@ const getExpectedMigrationNames = async (): Promise<string[]> => {
   const entries = await readdir(migrationsDir, { withFileTypes: true });
 
   return entries
-    .filter((entry) => entry.isFile() && entry.name.endsWith(".ts") && entry.name !== "index.ts")
+    .filter((entry) => entry.isFile() && /^\d{8}_\d{6}\.ts$/.test(entry.name))
     .map((entry) => entry.name.replace(/\.ts$/, ""))
     .sort();
 };

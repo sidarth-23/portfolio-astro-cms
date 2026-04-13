@@ -14,7 +14,7 @@
     "./client/rest": "./src/lib/cms/transport/rest.ts",
     "./client/mock": "./src/lib/cms/transport/mock/index.ts",
     "./icon-value": "./src/lib/iconValue.ts",
-    "./migrations-dir": "./src/migrations/dir.ts",
+    "./migrations-dir": "./src/migrationsDir.ts",
     "./payload-types": "./src/payload-types.ts"
   },
   "devDependencies": {
