@@ -7,6 +7,10 @@
     "apps/*",
     "packages/*"
   ],
+  "overrides": {
+    "lexical": "0.41.0",
+    "@lexical/*": "0.41.0"
+  },
   "scripts": {
     "dev": "bun run dev:web",
     "dev:web": "bun run --filter @sidshub/web dev",
