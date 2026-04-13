@@ -1,5 +1,7 @@
 import type { Access } from "payload";
 
+import { getReadAccessToken } from "./readAccessConfig";
+
 const extractAuthorizationHeader = (headers: unknown): string | undefined => {
   if (!headers) {
     return undefined;
@@ -43,7 +45,7 @@ export const readAccess: Access = ({ req }) => {
     return true;
   }
 
-  const expectedToken = process.env.CMS_READ_TOKEN;
+  const expectedToken = getReadAccessToken();
   if (!expectedToken || !expectedToken.trim()) {
     return false;
   }

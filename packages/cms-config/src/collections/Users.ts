@@ -45,10 +45,7 @@ const getAdminURL = (
   const resetRoute =
     req?.payload.config.admin?.routes?.reset || "/reset";
   const fullPath = `${joinRoutePaths(adminRoute, resetRoute)}/${token}`;
-  const serverURL =
-    req?.payload.config.serverURL ||
-    process.env.PAYLOAD_PUBLIC_SERVER_URL ||
-    "";
+  const serverURL = req?.payload.config.serverURL || "";
 
   return buildAbsoluteURL(serverURL, fullPath);
 };

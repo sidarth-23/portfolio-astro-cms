@@ -5,19 +5,16 @@
   "type": "module",
   "exports": {
     ".": "./src/payload-types.ts",
+    "./builder": "./src/builder.ts",
     "./client": "./src/lib/cms/domain/index.ts",
     "./client/rest": "./src/lib/cms/transport/rest.ts",
     "./icon-value": "./src/lib/iconValue.ts",
-    "./payload-config": "./src/payload.config.ts",
+    "./migrations-dir": "./src/migrations/dir.ts",
     "./payload-types": "./src/payload-types.ts"
   },
   "dependencies": {
-    "@aws-sdk/client-s3": "^3.888.0",
-    "@payloadcms/db-postgres": "3.82.1",
-    "@payloadcms/email-resend": "3.82.1",
     "@payloadcms/plugin-seo": "3.82.1",
     "@payloadcms/sdk": "3.82.1",
-    "@payloadcms/storage-s3": "3.82.1",
     "@phosphor-icons/core": "^2.1.1",
     "@react-email/components": "^0.5.7",
     "@react-email/render": "^1.4.0",

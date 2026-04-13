@@ -18,19 +18,23 @@
     "generate:importmap": "cross-env NODE_OPTIONS=--no-deprecation payload generate:importmap"
   },
   "dependencies": {
-    "@sidshub/cms-config": "workspace:*",
-    "@sidshub/lexical": "workspace:*",
+    "@aws-sdk/client-s3": "^3.888.0",
     "@payloadcms/db-postgres": "3.82.1",
+    "@payloadcms/email-resend": "3.82.1",
     "@payloadcms/next": "3.82.1",
     "@payloadcms/plugin-seo": "3.82.1",
     "@payloadcms/richtext-lexical": "3.82.1",
     "@payloadcms/storage-s3": "3.82.1",
+    "@sidshub/cms-config": "workspace:*",
+    "@sidshub/lexical": "workspace:*",
+    "@t3-oss/env-core": "^0.13.4",
     "cross-env": "^7.0.3",
     "next": "^15.4.11",
     "payload": "3.82.1",
     "pg": "^8.16.3",
     "react": "^19.1.0",
-    "react-dom": "^19.1.0"
+    "react-dom": "^19.1.0",
+    "zod": "^3.24.1"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.3.1",
