@@ -1,5 +1,5 @@
 import { faker } from "@faker-js/faker";
-import { createCmsClient } from "../../domain/createCmsClient";
+import { createCmsClient } from "../createCmsClient";
 import {
   makeBlogPage,
   makeCategory,

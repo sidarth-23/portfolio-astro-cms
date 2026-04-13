@@ -20,6 +20,22 @@ const baseConfig = [
     },
   },
   {
+    rules: {
+      "no-restricted-imports": [
+        "error",
+        {
+          patterns: [
+            {
+              group: ["@sidshub/cms-core/src/*", "@sidshub/cms-core/lib/*"],
+              message:
+                "Use curated @sidshub/cms-core subpath exports (for example @sidshub/cms-core/client or /icons), not internal package paths.",
+            },
+          ],
+        },
+      ],
+    },
+  },
+  {
     ignores: ["dist/", "node_modules/", "*.generated.*"],
   },
 ];

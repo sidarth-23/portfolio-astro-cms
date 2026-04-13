@@ -11,7 +11,7 @@ import type {
   Series,
   SeriesPage,
   SiteSetting,
-} from "../../../../payload-types";
+} from "../../../payload-types";
 
 let _id = 100;
 const nextId = () => _id++;

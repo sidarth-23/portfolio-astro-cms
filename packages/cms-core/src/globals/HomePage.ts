@@ -5,9 +5,9 @@ import { readAccess } from "../access/readAccess";
 import { featuredSectionFields } from "../fields/featured";
 import { linkField } from "../fields/link";
 import { syncHomeSectionsToPosts } from "../hooks/syncHomeSectionsToPosts";
-import { HOME_CTA_VARIANT_OPTIONS } from "../lib/options/home";
-import { createPayloadDataSchemaHook } from "../lib/validation/payloadSchema";
-import { homePageSchema } from "../lib/validation/schemas";
+import { HOME_CTA_VARIANT_OPTIONS } from "../lib/content";
+import { createPayloadDataSchemaHook } from "../lib/validation";
+import { homePageSchema } from "../lib/validation";
 
 export const HomePage: GlobalConfig = {
   slug: "home-page",

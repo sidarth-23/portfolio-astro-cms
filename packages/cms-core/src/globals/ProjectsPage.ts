@@ -2,8 +2,8 @@ import type { GlobalConfig } from "payload";
 import { createBasicRichTextEditor } from "@sidshub/cms-editor/cms";
 
 import { readAccess } from "../access/readAccess";
-import { createPayloadDataSchemaHook } from "../lib/validation/payloadSchema";
-import { projectsPageSchema } from "../lib/validation/schemas";
+import { createPayloadDataSchemaHook } from "../lib/validation";
+import { projectsPageSchema } from "../lib/validation";
 
 type ProjectRelationValue = number | string | { id?: number | string | null } | null | undefined;
 

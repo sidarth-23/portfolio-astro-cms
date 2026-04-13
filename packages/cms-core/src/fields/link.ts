@@ -1,6 +1,6 @@
 import type { Field } from "payload";
-import { LINK_TYPE_OPTIONS } from "../lib/options/link";
-import { PAGE_ROUTE_OPTIONS } from "../lib/options/page";
+import { LINK_TYPE_OPTIONS } from "../lib/content";
+import { PAGE_ROUTE_OPTIONS } from "../lib/content";
 import { iconPickerField } from "./iconPicker";
 
 export type LinkVariant = "link-only" | "icon-only" | "text-only" | "icon-with-text";

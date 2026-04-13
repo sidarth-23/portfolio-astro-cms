@@ -1,8 +1,8 @@
 import type { GlobalConfig } from "payload";
 
 import { readAccess } from "../access/readAccess";
-import { createPayloadDataSchemaHook } from "../lib/validation/payloadSchema";
-import { blogPageSchema } from "../lib/validation/schemas";
+import { createPayloadDataSchemaHook } from "../lib/validation";
+import { blogPageSchema } from "../lib/validation";
 
 export const BlogPage: GlobalConfig = {
   slug: "blog-page",

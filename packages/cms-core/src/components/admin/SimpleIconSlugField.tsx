@@ -16,7 +16,7 @@ import {
   findSimpleIconOptions,
   isSimpleIconSlug,
   SIMPLE_ICON_OPTIONS,
-} from "../../lib/simpleIconsCatalog";
+} from "../../lib/icons";
 
 const RESULT_LIMIT = 50;
 

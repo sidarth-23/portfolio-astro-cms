@@ -6,8 +6,8 @@ import { readAccess } from "../access/readAccess";
 import { iconPickerField } from "../fields/iconPicker";
 import { linkFields } from "../fields/link";
 import { slugField } from "../fields/slug";
-import { createPayloadDataSchemaHook } from "../lib/validation/payloadSchema";
-import { projectsSchema } from "../lib/validation/schemas";
+import { createPayloadDataSchemaHook } from "../lib/validation";
+import { projectsSchema } from "../lib/validation";
 
 export const Projects: CollectionConfig = {
   slug: "projects",

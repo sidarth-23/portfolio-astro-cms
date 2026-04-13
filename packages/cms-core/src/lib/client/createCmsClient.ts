@@ -15,8 +15,8 @@ import type {
   SeriesPage,
   SiteSetting,
   User,
-} from "../../../payload-types";
-import { createSlug } from "../../createSlug";
+} from "../../payload-types";
+import { createSlug } from "../content";
 import {
   asCategory,
   asPopulatedAuthors,

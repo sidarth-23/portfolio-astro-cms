@@ -3,8 +3,8 @@ import type { CollectionConfig } from "payload";
 import { readAccess } from "../access/readAccess";
 
 import { slugField } from "../fields/slug";
-import { createPayloadDataSchemaHook } from "../lib/validation/payloadSchema";
-import { categoriesSchema } from "../lib/validation/schemas";
+import { createPayloadDataSchemaHook } from "../lib/validation";
+import { categoriesSchema } from "../lib/validation";
 
 export const Categories: CollectionConfig = {
   slug: "categories",

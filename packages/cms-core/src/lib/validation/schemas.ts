@@ -1,9 +1,10 @@
 import { z } from "zod";
 
-import { isPhosphorIconName } from "../phosphorIconsCatalog";
-import { isSimpleIconSlug } from "../simpleIconsCatalog";
-import { CV_SECTION_TYPE_OPTIONS } from "../options/cv";
-import { HOME_CTA_VARIANT_OPTIONS } from "../options/home";
+import {
+  CV_SECTION_TYPE_OPTIONS,
+  HOME_CTA_VARIANT_OPTIONS,
+} from "../content";
+import { isPhosphorIconName, isSimpleIconSlug } from "../icons";
 import {
   optionalHttpUrl,
   optionalLinkUrl,

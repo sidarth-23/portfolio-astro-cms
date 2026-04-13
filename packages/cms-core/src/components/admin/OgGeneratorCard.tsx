@@ -45,19 +45,11 @@ export function OgGeneratorCard() {
   };
 
   return (
-    <div
-      style={{
-        background: "var(--theme-elevation-50)",
-        border: "1px solid var(--theme-elevation-150)",
-        borderRadius: "8px",
-        padding: "24px 28px",
-        marginBottom: "24px",
-      }}
-    >
+    <div style={{ marginTop: "24px", marginBottom: "24px" }}>
       <h3
         style={{
           margin: "0 0 6px 0",
-          fontSize: "16px",
+          fontSize: "18px",
           fontWeight: 600,
           color: "var(--theme-text)",
         }}

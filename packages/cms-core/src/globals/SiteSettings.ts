@@ -3,8 +3,8 @@ import type { GlobalConfig } from "payload";
 import { resumeLinkFields } from "../fields/resumeLink";
 import { linkFields } from "../fields/link";
 import { readAccess } from "../access/readAccess";
-import { createPayloadDataSchemaHook } from "../lib/validation/payloadSchema";
-import { siteSettingsSchema } from "../lib/validation/schemas";
+import { createPayloadDataSchemaHook } from "../lib/validation";
+import { siteSettingsSchema } from "../lib/validation";
 
 export const SiteSettings: GlobalConfig = {
   slug: "site-settings",

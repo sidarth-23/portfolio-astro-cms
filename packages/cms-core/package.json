@@ -10,10 +10,12 @@
   "exports": {
     ".": "./src/payload-types.ts",
     "./builder": "./src/builder.ts",
-    "./client": "./src/lib/cms/domain/index.ts",
-    "./client/rest": "./src/lib/cms/transport/rest.ts",
-    "./client/mock": "./src/lib/cms/transport/mock/index.ts",
-    "./icon-value": "./src/lib/iconValue.ts",
+    "./client": "./src/lib/client/index.ts",
+    "./client/rest": "./src/lib/client/rest.ts",
+    "./client/mock": "./src/lib/client/mock/index.ts",
+    "./content": "./src/lib/content/index.ts",
+    "./icons": "./src/lib/icons/index.ts",
+    "./validation": "./src/lib/validation/index.ts",
     "./migrations-dir": "./src/migrationsDir.ts",
     "./payload-types": "./src/payload-types.ts"
   },

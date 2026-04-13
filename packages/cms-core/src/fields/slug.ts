@@ -1,6 +1,6 @@
 import type { Field } from "payload";
 
-import { createSlug } from "../lib/createSlug";
+import { createSlug } from "../lib/content";
 
 type SlugFieldOptions = {
   fieldToUse: string;

@@ -1,7 +1,7 @@
 import type { Field } from "payload";
 
-import { RESUME_URL_TYPE_OPTIONS } from "../lib/options/resume";
-import { resolveResumeUrl } from "../lib/resolveResumeUrl";
+import { RESUME_URL_TYPE_OPTIONS } from "../lib/content";
+import { resolveResumeUrl } from "../lib/content";
 
 export const resumeLinkFields: Field[] = [
   {

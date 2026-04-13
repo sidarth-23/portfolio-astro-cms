@@ -6,7 +6,7 @@ import type {
   ProjectsPage,
   Series,
   User,
-} from "../../../payload-types";
+} from "../../payload-types";
 import type { PopulatedAuthor, RelationValue, SiteFooterItem } from "./types";
 
 export const isObjectRelation = <T extends object>(value: RelationValue<T>): value is T => {

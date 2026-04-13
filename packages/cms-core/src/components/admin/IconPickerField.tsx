@@ -13,17 +13,17 @@ import type { ReactSelectOption as Option } from "@payloadcms/ui";
 import type { TextFieldClientComponent } from "payload";
 import { components as reactSelectComponents } from "react-select";
 
-import { parseIconValueStrict } from "../../lib/iconValue";
-import { getPhosphorIconSvgUrl } from "../../lib/phosphorIconsCatalog";
+import { parseIconValueStrict } from "../../lib/icons";
+import { getPhosphorIconSvgUrl } from "../../lib/icons";
 import {
   findSimpleIconOptions,
   getSimpleIconCdnUrl,
   SIMPLE_ICON_OPTIONS,
-} from "../../lib/simpleIconsCatalog";
+} from "../../lib/icons";
 import {
   findPhosphorIconOptions,
   PHOSPHOR_ICON_OPTIONS,
-} from "../../lib/phosphorIconsCatalog";
+} from "../../lib/icons";
 
 type IconSource = "simple-icons" | "phosphor";
 type IconOption = Option & { previewUrl: string; source: IconSource };

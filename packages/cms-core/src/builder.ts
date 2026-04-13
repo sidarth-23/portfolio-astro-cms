@@ -89,6 +89,7 @@ export function createCmsConfig(options: CmsConfigOptions) {
       user: Users.slug,
       components: {
         afterNavLinks: ["./components/admin/nav/DashboardNavLink#DashboardNavLink"],
+        beforeDashboard: ["./components/admin/OgGeneratorCard#OgGeneratorCard"],
         views: {
           dashboard: {
             Component: "./components/admin/Dashboard#DashboardView",

@@ -7,10 +7,10 @@ import {
   CV_ITEMS_VARIANT_OPTIONS,
   CV_SECTION_ITEM_TYPE_OPTIONS,
   CV_SECTION_TYPE_OPTIONS,
-} from "../lib/options/cv";
-import { sanitizeCvPageBeforeValidate } from "../lib/validation/cvPageSanitizer";
-import { createPayloadDataSchemaHook } from "../lib/validation/payloadSchema";
-import { cvPageSchema } from "../lib/validation/schemas";
+} from "../lib/content";
+import { sanitizeCvPageBeforeValidate } from "../lib/validation";
+import { createPayloadDataSchemaHook } from "../lib/validation";
+import { cvPageSchema } from "../lib/validation";
 
 const sectionItemFields: Field[] = [
   {

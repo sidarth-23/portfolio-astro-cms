@@ -1,6 +1,4 @@
-import { parseIconValueStrict } from "../iconValue";
-import { getSimpleIconCdnUrl } from "../simpleIconsCatalog";
-import { getPhosphorIconSvgUrl } from "../phosphorIconsCatalog";
+import { getPhosphorIconSvgUrl, getSimpleIconCdnUrl, parseIconValueStrict } from "../icons";
 
 export async function fetchIconSvg(iconValue: string): Promise<string | null> {
   const parsed = parseIconValueStrict(iconValue);

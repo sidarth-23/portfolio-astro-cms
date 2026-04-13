@@ -1,5 +1,6 @@
 export { createCmsClient } from "./createCmsClient";
 export type { CmsClient } from "./createCmsClient";
+
 export {
   asCategory,
   asMedia,
@@ -10,6 +11,7 @@ export {
   asUserArray,
   isObjectRelation,
 } from "./guards";
+
 export type {
   PaginatedPosts,
   PopulatedAuthor,
