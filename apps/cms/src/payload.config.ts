@@ -21,6 +21,7 @@ const shouldAutoCreateBucket = (): boolean => {
 export default createCmsConfig({
   secret: env.PAYLOAD_SECRET,
   serverURL: env.PAYLOAD_PUBLIC_SERVER_URL,
+  siteUrl: env.ASTRO_SITE_URL,
   readAccessToken: env.CMS_READ_TOKEN,
   db: postgresAdapter({
     migrationDir,

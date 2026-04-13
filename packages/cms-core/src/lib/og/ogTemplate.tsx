@@ -7,14 +7,23 @@ export type OgTemplateProps = {
   siteUrl?: string;
 };
 
+const toDisplayHost = (siteUrl: string): string => {
+  try {
+    return new URL(siteUrl).host;
+  } catch {
+    return siteUrl;
+  }
+};
+
 export function OgTemplate({
   title,
   profileImageDataUri,
   socialIconDataUris,
-  siteUrl = "sidshub.in",
+  siteUrl = "https://sidshub.in",
 }: OgTemplateProps): ReactElement {
   // Truncate long titles
   const displayTitle = title.length > 60 ? title.slice(0, 57) + "…" : title;
+  const displayHost = toDisplayHost(siteUrl);
 
   return (
     <div
@@ -101,9 +110,8 @@ export function OgTemplate({
               style={{
                 width: 180,
                 height: 180,
-                borderRadius: 90,
+                borderRadius: "9999px",
                 overflow: "hidden",
-                border: "3px solid rgba(99,102,241,0.5)",
                 display: "flex",
                 boxShadow: "0 0 40px rgba(99,102,241,0.25)",
               }}
@@ -112,7 +120,7 @@ export function OgTemplate({
                 src={profileImageDataUri}
                 width={180}
                 height={180}
-                style={{ objectFit: "cover", width: 180, height: 180 }}
+                style={{ objectFit: "cover", width: 180, height: 180, borderRadius: "9999px" }}
               />
             </div>
           </div>
@@ -140,7 +148,7 @@ export function OgTemplate({
             display: "flex",
           }}
         >
-          {siteUrl}
+          {displayHost}
         </div>
 
         {/* Social icons */}

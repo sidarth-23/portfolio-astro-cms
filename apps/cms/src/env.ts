@@ -5,6 +5,7 @@ export const env = createEnv({
   server: {
     PAYLOAD_SECRET: z.string().min(1),
     PAYLOAD_PUBLIC_SERVER_URL: z.string().url(),
+    ASTRO_SITE_URL: z.string().url().default("http://localhost:4321"),
     DATABASE_URI: z.string().min(1),
     RESEND_API_KEY: z.string().min(1),
     EMAIL_FROM_ADDRESS: z.string().email(),

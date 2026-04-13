@@ -18,6 +18,10 @@ export type OgGenerationResult = {
   errors: Array<{ entity: string; error: string }>;
 };
 
+export type GenerateOgImagesOptions = {
+  siteUrl?: string;
+};
+
 // ---------------------------------------------------------------------------
 // Internal types
 // ---------------------------------------------------------------------------
@@ -25,6 +29,7 @@ export type OgGenerationResult = {
 type SharedAssets = {
   profileImageDataUri: string | undefined;
   socialIconDataUris: string[];
+  siteUrl?: string;
 };
 
 type ProcessorResult = {
@@ -63,6 +68,7 @@ async function uploadGeneratedOgImage(
     title,
     profileImageDataUri: assets.profileImageDataUri,
     socialIconDataUris: assets.socialIconDataUris,
+    siteUrl: assets.siteUrl,
   });
 
   const media = await payload.create({
@@ -407,6 +413,7 @@ async function processNotFoundPageOg(payload: Payload, mode: OgGenerationMode, a
 export async function generateOgImages(
   payload: Payload,
   mode: OgGenerationMode,
+  options: GenerateOgImagesOptions = {},
 ): Promise<OgGenerationResult> {
   // Load shared assets once — profile image and social icons from site-settings
   const [profileImageDataUri, iconValues] = await Promise.all([
@@ -419,7 +426,7 @@ export async function generateOgImages(
     iconSvgResults.filter((s): s is string => s !== null).map((s) => svgToDataUri(s)),
   );
 
-  const assets: SharedAssets = { profileImageDataUri, socialIconDataUris };
+  const assets: SharedAssets = { profileImageDataUri, socialIconDataUris, siteUrl: options.siteUrl };
 
   // Add new entity processors here to extend the system
   const processors = [

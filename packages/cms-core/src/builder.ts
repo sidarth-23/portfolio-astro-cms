@@ -32,6 +32,7 @@ const dirname = path.dirname(filename);
 export type CmsConfigOptions = {
   secret: string;
   serverURL: string;
+  siteUrl?: string;
   db: Config["db"];
   email: EmailAdapter;
   storagePlugins?: Plugin[];
@@ -103,7 +104,7 @@ export function createCmsConfig(options: CmsConfigOptions) {
     routes: {
       admin: "/",
     },
-    endpoints: [generateOgImagesEndpoint],
+    endpoints: [generateOgImagesEndpoint(options.siteUrl)],
     collections,
     globals,
     onInit: async () => {
