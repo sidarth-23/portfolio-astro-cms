@@ -10,7 +10,7 @@
     "./web/styles.css": "./src/web/styles.css"
   },
   "dependencies": {
-    "@payloadcms/richtext-lexical": "3.76.1",
+    "@payloadcms/richtext-lexical": "3.82.1",
     "@phosphor-icons/core": "^2.1.1",
     "embla-carousel": "^8.6.0",
     "preact": "^10.29.1",

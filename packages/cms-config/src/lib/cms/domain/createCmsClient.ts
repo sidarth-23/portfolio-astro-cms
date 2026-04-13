@@ -1,6 +1,9 @@
+import type { PayloadSDK } from "@payloadcms/sdk";
+import type { Where } from "payload";
 import type {
   BlogPage,
   Category,
+  Config,
   CvPage,
   HomePage,
   Media,
@@ -23,8 +26,6 @@ import {
 } from "./guards";
 import type {
   PaginatedPosts,
-  Params,
-  PayloadListResponse,
   PopulatedAuthor,
   PostFilterOptions,
   ProjectLink,
@@ -45,7 +46,7 @@ type TaxonomyDoc = {
 };
 
 type CmsTransport = {
-  fetch: <T>(path: string, params?: Params) => Promise<T>;
+  sdk: PayloadSDK<Config>;
   mediaBaseUrl: string;
 };
 
@@ -57,72 +58,14 @@ type HomeCtaButton = {
   newTab: boolean;
 };
 
-const buildPublishedWhereParams = (options: PostFilterOptions = {}): Params => {
-  const params: Params = {};
-
-  if (options.search) {
-    let andIndex = 0;
-
-    params[`where[and][${andIndex}][_status][equals]`] = "published";
-    andIndex++;
-
-    params[`where[and][${andIndex}][or][0][title][like]`] = options.search;
-    params[`where[and][${andIndex}][or][1][excerpt][like]`] = options.search;
-    andIndex++;
-
-    if (options.slug) {
-      params[`where[and][${andIndex}][slug][equals]`] = options.slug;
-      andIndex++;
-    }
-
-    if (options.categorySlug) {
-      params[`where[and][${andIndex}][primaryCategory.slug][equals]`] = options.categorySlug;
-      andIndex++;
-    }
-
-    if (options.seriesSlug) {
-      params[`where[and][${andIndex}][series.slug][equals]`] = options.seriesSlug;
-      andIndex++;
-    }
-  } else {
-    params["where[_status][equals]"] = "published";
-
-    if (options.slug) {
-      params["where[slug][equals]"] = options.slug;
-    }
-
-    if (options.categorySlug) {
-      params["where[primaryCategory.slug][equals]"] = options.categorySlug;
-    }
-
-    if (options.seriesSlug) {
-      params["where[series.slug][equals]"] = options.seriesSlug;
-    }
-  }
-
-  return params;
-};
-
-const buildPublishedPostsQueryParams = (options: PublishedPostsQueryOptions = {}): Params => {
-  const params: Params = {
-    depth: options.depth ?? 3,
-    sort: options.sort ?? "-publishedAt",
-    ...buildPublishedWhereParams(options),
-  };
-
-  if (options.page !== undefined) {
-    params.page = options.page;
-  }
-
-  if (options.pageSize !== undefined) {
-    params.limit = options.pageSize;
-  }
-
-  if (options.limit !== undefined) {
-    params.limit = options.limit;
-  }
-
-  return params;
+const buildPublishedWhere = (options: PostFilterOptions = {}): Where => {
+  const conditions: Where[] = [{ _status: { equals: "published" } }];
+  if (options.slug) conditions.push({ slug: { equals: options.slug } });
+  if (options.categorySlug) conditions.push({ "primaryCategory.slug": { equals: options.categorySlug } });
+  if (options.seriesSlug) conditions.push({ "series.slug": { equals: options.seriesSlug } });
+  if (options.search)
+    conditions.push({ or: [{ title: { like: options.search } }, { excerpt: { like: options.search } }] });
+  return conditions.length === 1 ? conditions[0] : { and: conditions };
 };
 
 const sortPosts = (posts: Post[]): Post[] => {
@@ -146,26 +89,33 @@ const toTrimmedString = (value: unknown): string | undefined => {
   return trimmed.length > 0 ? trimmed : undefined;
 };
 
-export const createCmsClient = ({ fetch, mediaBaseUrl }: CmsTransport) => {
-  const fetchPublishedPostsPage = async (
-    options: PublishedPostsQueryOptions = {},
-  ): Promise<PayloadListResponse<Post>> => {
-    return fetch<PayloadListResponse<Post>>("/posts", buildPublishedPostsQueryParams(options));
+export const createCmsClient = ({ sdk, mediaBaseUrl }: CmsTransport) => {
+  const fetchPublishedPostsPage = async (options: PublishedPostsQueryOptions = {}) => {
+    return sdk.find({
+      collection: "posts",
+      where: buildPublishedWhere(options),
+      depth: options.depth ?? 3,
+      sort: options.sort ?? "-publishedAt",
+      limit: options.limit ?? options.pageSize,
+      page: options.page,
+    });
   };
 
-  const fetchAllTaxonomySlugs = async (path: "/categories" | "/series"): Promise<string[]> => {
+  const fetchAllTaxonomySlugs = async (collection: "categories" | "series"): Promise<string[]> => {
     const limit = 200;
-    const firstPage = await fetch<PayloadListResponse<TaxonomyDoc>>(path, {
+    const firstPage = await sdk.find({
+      collection: collection as "categories",
       page: 1,
       limit,
       sort: "slug",
       depth: 0,
     });
 
-    const docs = [...firstPage.docs];
+    const docs: TaxonomyDoc[] = [...firstPage.docs];
 
     for (let page = 2; page <= firstPage.totalPages; page += 1) {
-      const nextPage = await fetch<PayloadListResponse<TaxonomyDoc>>(path, {
+      const nextPage = await sdk.find({
+        collection: collection as "categories",
         page,
         limit,
         sort: "slug",
@@ -182,10 +132,9 @@ export const createCmsClient = ({ fetch, mediaBaseUrl }: CmsTransport) => {
   const hasPublishedPosts = async (
     filters: Pick<PostFilterOptions, "categorySlug" | "seriesSlug">,
   ): Promise<boolean> => {
-    const result = await fetchPublishedPostsPage({
-      ...filters,
-      limit: 1,
-      depth: 0,
+    const result = await sdk.count({
+      collection: "posts",
+      where: buildPublishedWhere(filters),
     });
 
     return result.totalDocs > 0;
@@ -213,31 +162,31 @@ export const createCmsClient = ({ fetch, mediaBaseUrl }: CmsTransport) => {
 
   return {
     getSiteSettings: async (): Promise<SiteSetting> => {
-      return fetch<SiteSetting>("/globals/site-settings", { depth: 2 });
+      return sdk.findGlobal({ slug: "site-settings", depth: 2 });
     },
 
     getHomePage: async (): Promise<HomePage> => {
-      return fetch<HomePage>("/globals/home-page", { depth: 2 });
+      return sdk.findGlobal({ slug: "home-page", depth: 2 });
     },
 
     getCvPage: async (): Promise<CvPage> => {
-      return fetch<CvPage>("/globals/cv-page", { depth: 2 });
+      return sdk.findGlobal({ slug: "cv-page", depth: 2 });
     },
 
     getProjectsPage: async (): Promise<ProjectsPage> => {
-      return fetch<ProjectsPage>("/globals/projects-page", { depth: 2 });
+      return sdk.findGlobal({ slug: "projects-page", depth: 2 });
     },
 
     getSeriesPage: async (): Promise<SeriesPage> => {
-      return fetch<SeriesPage>("/globals/series-page", { depth: 2 });
+      return sdk.findGlobal({ slug: "series-page", depth: 2 });
     },
 
     getNotFoundPage: async (): Promise<NotFoundPage> => {
-      return fetch<NotFoundPage>("/globals/not-found-page", { depth: 2 });
+      return sdk.findGlobal({ slug: "not-found-page", depth: 2 });
     },
 
     getBlogPage: async (): Promise<BlogPage> => {
-      return fetch<BlogPage>("/globals/blog-page", { depth: 2 });
+      return sdk.findGlobal({ slug: "blog-page", depth: 2 });
     },
 
     homeCtaButtons: (homePage: HomePage): HomeCtaButton[] => {
@@ -246,7 +195,7 @@ export const createCmsClient = ({ fetch, mediaBaseUrl }: CmsTransport) => {
       };
 
       const isProject = (value: number | Project | null | undefined): value is Project => {
-        return typeof value === "object" && value !== null && value._status !== "draft";
+        return typeof value === "object" && value !== null && (value as Project)._status !== "draft";
       };
 
       // No _status check here: the Series collection does not have draft/publish
@@ -374,14 +323,14 @@ export const createCmsClient = ({ fetch, mediaBaseUrl }: CmsTransport) => {
 
       return {
         docs: response.docs,
-        page: response.page,
+        page: response.page ?? 1,
         pageSize: response.limit,
         totalDocs: response.totalDocs,
         totalPages: response.totalPages,
         hasPrevPage: response.hasPrevPage,
         hasNextPage: response.hasNextPage,
-        prevPage: response.prevPage,
-        nextPage: response.nextPage,
+        prevPage: response.prevPage ?? null,
+        nextPage: response.nextPage ?? null,
       };
     },
 
@@ -400,7 +349,7 @@ export const createCmsClient = ({ fetch, mediaBaseUrl }: CmsTransport) => {
     },
 
     getCategorySlugs: async (): Promise<string[]> => {
-      const allCategorySlugs = await fetchAllTaxonomySlugs("/categories");
+      const allCategorySlugs = await fetchAllTaxonomySlugs("categories");
       const hasPostsByCategory = await Promise.all(
         allCategorySlugs.map(async (categorySlug) => {
           return {
@@ -417,7 +366,7 @@ export const createCmsClient = ({ fetch, mediaBaseUrl }: CmsTransport) => {
     },
 
     getSeriesSlugs: async (): Promise<string[]> => {
-      const allSeriesSlugs = await fetchAllTaxonomySlugs("/series");
+      const allSeriesSlugs = await fetchAllTaxonomySlugs("series");
       const hasPostsBySeries = await Promise.all(
         allSeriesSlugs.map(async (seriesSlug) => {
           return {
@@ -434,10 +383,11 @@ export const createCmsClient = ({ fetch, mediaBaseUrl }: CmsTransport) => {
     },
 
     getPostsBySeries: async (seriesSlug: string): Promise<Post[]> => {
-      const response = await fetch<PayloadListResponse<Series>>("/series", {
+      const response = await sdk.find({
+        collection: "series",
+        where: { slug: { equals: seriesSlug } },
         depth: 3,
         limit: 1,
-        "where[slug][equals]": seriesSlug,
       });
 
       const series = response.docs[0];
@@ -449,10 +399,11 @@ export const createCmsClient = ({ fetch, mediaBaseUrl }: CmsTransport) => {
     },
 
     getSeriesBySlug: async (slug: string): Promise<Series | null> => {
-      const response = await fetch<PayloadListResponse<Series>>("/series", {
+      const response = await sdk.find({
+        collection: "series",
+        where: { slug: { equals: slug } },
         depth: 2,
         limit: 1,
-        "where[slug][equals]": slug,
       });
 
       return response.docs[0] ?? null;
@@ -460,7 +411,8 @@ export const createCmsClient = ({ fetch, mediaBaseUrl }: CmsTransport) => {
 
     getAllCategories: async (): Promise<Category[]> => {
       const limit = 200;
-      const firstPage = await fetch<PayloadListResponse<Category>>("/categories", {
+      const firstPage = await sdk.find({
+        collection: "categories",
         page: 1,
         limit,
         sort: "name",
@@ -470,7 +422,8 @@ export const createCmsClient = ({ fetch, mediaBaseUrl }: CmsTransport) => {
       const docs = [...firstPage.docs];
 
       for (let page = 2; page <= firstPage.totalPages; page += 1) {
-        const nextPage = await fetch<PayloadListResponse<Category>>("/categories", {
+        const nextPage = await sdk.find({
+          collection: "categories",
           page,
           limit,
           sort: "name",
@@ -492,7 +445,8 @@ export const createCmsClient = ({ fetch, mediaBaseUrl }: CmsTransport) => {
       }>
     > => {
       const limit = 200;
-      const firstPage = await fetch<PayloadListResponse<Series>>("/series", {
+      const firstPage = await sdk.find({
+        collection: "series",
         page: 1,
         limit,
         sort: "name",
@@ -502,7 +456,8 @@ export const createCmsClient = ({ fetch, mediaBaseUrl }: CmsTransport) => {
       const docs = [...firstPage.docs];
 
       for (let page = 2; page <= firstPage.totalPages; page += 1) {
-        const nextPage = await fetch<PayloadListResponse<Series>>("/series", {
+        const nextPage = await sdk.find({
+          collection: "series",
           page,
           limit,
           sort: "name",

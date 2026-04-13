@@ -12,8 +12,6 @@ export {
 } from "./guards";
 export type {
   PaginatedPosts,
-  Params,
-  PayloadListResponse,
   PopulatedAuthor,
   PostFilterOptions,
   ProjectLink,

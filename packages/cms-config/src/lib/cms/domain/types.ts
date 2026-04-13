@@ -1,7 +1,5 @@
 import type { Post, Media, User } from "../../../payload-types";
 
-export type Params = Record<string, string | number | boolean | undefined>;
-
 export type PostFilterOptions = {
   slug?: string;
   categorySlug?: string;
@@ -23,19 +21,6 @@ export type PaginatedPosts = {
   pageSize: number;
   totalDocs: number;
   totalPages: number;
-  hasPrevPage: boolean;
-  hasNextPage: boolean;
-  prevPage: number | null;
-  nextPage: number | null;
-};
-
-export type PayloadListResponse<T> = {
-  docs: T[];
-  totalDocs: number;
-  limit: number;
-  totalPages: number;
-  page: number;
-  pagingCounter: number;
   hasPrevPage: boolean;
   hasNextPage: boolean;
   prevPage: number | null;
