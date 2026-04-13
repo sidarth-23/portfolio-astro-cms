@@ -14,9 +14,7 @@ export const generateOgImagesEndpoint: Endpoint = {
     let mode: OgGenerationMode = "unset-only";
     try {
       const body = await req.json?.();
-      if (body?.mode === "replace-all") {
-        mode = "replace-all";
-      }
+      if (body?.mode === "replace-all") mode = "replace-all";
     } catch {
       // Body parse failure — use default mode
     }

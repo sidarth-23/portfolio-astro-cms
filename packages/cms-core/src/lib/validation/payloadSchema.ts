@@ -18,13 +18,18 @@ const formatZodError = (error: z.ZodError, prefix?: string): string => {
 
 type HookArgs = {
   data?: unknown;
+  context?: Record<string, unknown>;
 };
 
 export const createPayloadDataSchemaHook = <TSchema extends z.ZodTypeAny>(
   schema: TSchema,
   options?: { errorPrefix?: string },
 ) => {
-  return ({ data }: HookArgs) => {
+  return ({ data, context }: HookArgs) => {
+    if (context?.skipDataValidation) {
+      return data;
+    }
+
     const parsed = schema.safeParse(data ?? {});
     if (!parsed.success) {
       throw new Error(formatZodError(parsed.error, options?.errorPrefix));

@@ -108,6 +108,10 @@ export const makeProject = (overrides: Partial<Project> = {}): Project => {
     slug,
     description: makeRichText(),
     _status: "published",
+    meta: {
+      title,
+      description: faker.lorem.sentence(),
+    },
     updatedAt: faker.date.past().toISOString(),
     createdAt: faker.date.past().toISOString(),
     ...overrides,

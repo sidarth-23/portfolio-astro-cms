@@ -5,6 +5,7 @@ export { loadOgFonts } from "./loadFonts";
 export { OgTemplate } from "./ogTemplate";
 export { renderOgImage } from "./renderOgImage";
 
-export type { OgGenerationMode } from "./generateOgImages";
+export type { OgGenerationMode, OgGenerationResult } from "./generateOgImages";
 export type { OgTemplateProps } from "./ogTemplate";
 export type { RenderOgImageOptions } from "./renderOgImage";
+export type { SatoriFont } from "./loadFonts";

@@ -111,7 +111,7 @@ export function createCmsConfig(options: CmsConfigOptions) {
     },
     plugins: [
       seoPlugin({
-        collections: ["posts", "series"],
+        collections: ["posts", "series", "projects"],
         globals: ["home-page", "cv-page", "blog-page", "series-page", "projects-page", "not-found-page"],
         tabbedUI: true,
         uploadsCollection: "media",
