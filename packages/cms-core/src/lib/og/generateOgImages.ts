@@ -52,12 +52,6 @@ type ProcessorResult = {
   errors: Array<{ entity: string; error: string }>;
 };
 
-type SeoMeta = {
-  title: string;
-  description: string;
-  image?: (number | null) | Media;
-};
-
 // ---------------------------------------------------------------------------
 // Helpers
 // ---------------------------------------------------------------------------
@@ -94,72 +88,6 @@ async function uploadGeneratedOgImage(
   return media.id;
 }
 
-/**
- * Updates a global's meta.image field.
- *
- * NOTE: Payload's `updateGlobal` data type is derived from `RequiredDataFromGlobalSlug`
- * which, for globals with mostly-optional fields, resolves to a near-empty type that
- * does not include plugin-added fields like `meta`. The cast below is the single
- * necessary workaround for this Payload type-system gap — the runtime data shape
- * is correct since all globals in payload-types.ts have a typed `meta` field.
- */
-async function updateGlobalMeta(
-  payload: Payload,
-  slug: keyof (typeof payload)["config"]["globals"] extends never
-    ? string
-    : string,
-  currentMeta: SeoMeta,
-  newImageId: number,
-): Promise<void> {
-  const data: SeoMeta = {
-    title: currentMeta.title,
-    description: currentMeta.description,
-    image: newImageId,
-  };
-
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  await payload.updateGlobal({ slug: slug as any, data: { meta: data } as any, context: { skipDataValidation: true } });
-}
-
-async function updateCollectionPostMeta(
-  payload: Payload,
-  post: Post,
-  newImageId: number,
-): Promise<void> {
-  await payload.update({
-    collection: "posts",
-    id: post.id,
-    data: {
-      meta: {
-        title: post.meta.title,
-        description: post.meta.description,
-        image: newImageId,
-      },
-    },
-    context: { skipDataValidation: true },
-    ...(post._status === "draft" ? { draft: true } : {}),
-  });
-}
-
-async function updateCollectionSeriesMeta(
-  payload: Payload,
-  series: Series,
-  newImageId: number,
-): Promise<void> {
-  await payload.update({
-    collection: "series",
-    id: series.id,
-    data: {
-      meta: {
-        title: series.meta.title,
-        description: series.meta.description,
-        image: newImageId,
-      },
-    },
-    context: { skipDataValidation: true },
-  });
-}
-
 // ---------------------------------------------------------------------------
 // Processors — one per entity type, each fully typed
 // ---------------------------------------------------------------------------
@@ -192,20 +120,15 @@ async function processPostsOg(
 
     try {
       const coverMediaId = resolveMediaId(post.coverImage);
-
-      if (coverMediaId !== null) {
-        await updateCollectionPostMeta(payload, post, coverMediaId);
-      } else {
-        // No cover image — fall back to auto-generate
-        const mediaId = await uploadGeneratedOgImage(
-          payload,
-          post.title,
-          `og-post-${post.slug}.png`,
-          assets,
-        );
-        await updateCollectionPostMeta(payload, post, mediaId);
-      }
-
+      const imageId = coverMediaId
+        ?? await uploadGeneratedOgImage(payload, post.title, `og-post-${post.slug}.png`, assets);
+      await payload.update({
+        collection: "posts",
+        id: post.id,
+        data: { meta: { image: imageId } },
+        context: { skipDataValidation: true },
+        ...(post._status === "draft" ? { draft: true } : {}),
+      });
       result.generated++;
     } catch (error) {
       result.errors.push({ entity: label, error: error instanceof Error ? error.message : String(error) });
@@ -218,10 +141,7 @@ async function processPostsOg(
 /**
  * Projects: copy image → meta.image (no Satori generation).
  * Falls back to Satori auto-generate if a project has no image.
- *
- * NOTE: Project.meta will be typed after running `generate:types` following
- * the addition of "projects" to the seoPlugin collections in builder.ts.
- * Until then, meta is accessed via the SEO plugin's runtime data.
+ * Always sets meta title/description since projects were recently added to the SEO plugin.
  */
 async function processProjectsOg(
   payload: Payload,
@@ -240,45 +160,22 @@ async function processProjectsOg(
   for (const project of projects) {
     const label = `projects/${project.id} (${project.title})`;
 
-    const projectMeta = project.meta;
-    const hasMetaImage = resolveMediaId(projectMeta.image) !== null;
-
-    if (mode === "unset-only" && hasMetaImage) {
+    if (mode === "unset-only" && resolveMediaId(project.meta.image) !== null) {
       result.skipped++;
       continue;
     }
 
     try {
       const imageMediaId = resolveMediaId(project.image);
-      const mergedMeta: SeoMeta = {
-        title: projectMeta.title,
-        description: projectMeta.description,
-        image: imageMediaId ?? undefined,
-      };
-
-      let finalMediaId: number;
-
-      if (imageMediaId !== null) {
-        finalMediaId = imageMediaId;
-      } else {
-        // No project image — fall back to auto-generate
-        finalMediaId = await uploadGeneratedOgImage(
-          payload,
-          project.title,
-          `og-project-${project.slug}.png`,
-          assets,
-        );
-      }
-
+      const imageId = imageMediaId
+        ?? await uploadGeneratedOgImage(payload, project.title, `og-project-${project.slug}.png`, assets);
       await payload.update({
         collection: "projects",
         id: project.id,
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        data: { meta: { ...mergedMeta, image: finalMediaId } } as any,
+        data: { meta: { title: project.title, description: "", image: imageId } },
         context: { skipDataValidation: true },
         ...(project._status === "draft" ? { draft: true } : {}),
       });
-
       result.generated++;
     } catch (error) {
       result.errors.push({ entity: label, error: error instanceof Error ? error.message : String(error) });
@@ -314,13 +211,13 @@ async function processSeriesOg(
     }
 
     try {
-      const mediaId = await uploadGeneratedOgImage(
-        payload,
-        series.meta.title,
-        `og-series-${series.slug}.png`,
-        assets,
-      );
-      await updateCollectionSeriesMeta(payload, series, mediaId);
+      const mediaId = await uploadGeneratedOgImage(payload, series.name, `og-series-${series.slug}.png`, assets);
+      await payload.update({
+        collection: "series",
+        id: series.id,
+        data: { meta: { image: mediaId } },
+        context: { skipDataValidation: true },
+      });
       result.generated++;
     } catch (error) {
       result.errors.push({ entity: label, error: error instanceof Error ? error.message : String(error) });
@@ -336,7 +233,7 @@ async function processHomePageOg(payload: Payload, mode: OgGenerationMode, asset
     const doc: HomePage = await payload.findGlobal({ slug: "home-page", depth: 0 });
     if (mode === "unset-only" && resolveMediaId(doc.meta.image) !== null) return { ...result, skipped: 1 };
     const mediaId = await uploadGeneratedOgImage(payload, doc.meta.title, "og-home-page.png", assets);
-    await updateGlobalMeta(payload, "home-page", doc.meta, mediaId);
+    await payload.updateGlobal({ slug: "home-page", data: { meta: { image: mediaId } }, context: { skipDataValidation: true } });
     return { ...result, generated: 1 };
   } catch (error) {
     return { ...result, errors: [{ entity: "global/home-page", error: error instanceof Error ? error.message : String(error) }] };
@@ -349,7 +246,7 @@ async function processCvPageOg(payload: Payload, mode: OgGenerationMode, assets:
     const doc: CvPage = await payload.findGlobal({ slug: "cv-page", depth: 0 });
     if (mode === "unset-only" && resolveMediaId(doc.meta.image) !== null) return { ...result, skipped: 1 };
     const mediaId = await uploadGeneratedOgImage(payload, doc.meta.title, "og-cv-page.png", assets);
-    await updateGlobalMeta(payload, "cv-page", doc.meta, mediaId);
+    await payload.updateGlobal({ slug: "cv-page", data: { meta: { image: mediaId } }, context: { skipDataValidation: true } });
     return { ...result, generated: 1 };
   } catch (error) {
     return { ...result, errors: [{ entity: "global/cv-page", error: error instanceof Error ? error.message : String(error) }] };
@@ -362,7 +259,7 @@ async function processBlogPageOg(payload: Payload, mode: OgGenerationMode, asset
     const doc: BlogPage = await payload.findGlobal({ slug: "blog-page", depth: 0 });
     if (mode === "unset-only" && resolveMediaId(doc.meta.image) !== null) return { ...result, skipped: 1 };
     const mediaId = await uploadGeneratedOgImage(payload, doc.meta.title, "og-blog-page.png", assets);
-    await updateGlobalMeta(payload, "blog-page", doc.meta, mediaId);
+    await payload.updateGlobal({ slug: "blog-page", data: { meta: { image: mediaId } }, context: { skipDataValidation: true } });
     return { ...result, generated: 1 };
   } catch (error) {
     return { ...result, errors: [{ entity: "global/blog-page", error: error instanceof Error ? error.message : String(error) }] };
@@ -375,7 +272,7 @@ async function processSeriesPageOg(payload: Payload, mode: OgGenerationMode, ass
     const doc: SeriesPage = await payload.findGlobal({ slug: "series-page", depth: 0 });
     if (mode === "unset-only" && resolveMediaId(doc.meta.image) !== null) return { ...result, skipped: 1 };
     const mediaId = await uploadGeneratedOgImage(payload, doc.meta.title, "og-series-page.png", assets);
-    await updateGlobalMeta(payload, "series-page", doc.meta, mediaId);
+    await payload.updateGlobal({ slug: "series-page", data: { meta: { image: mediaId } }, context: { skipDataValidation: true } });
     return { ...result, generated: 1 };
   } catch (error) {
     return { ...result, errors: [{ entity: "global/series-page", error: error instanceof Error ? error.message : String(error) }] };
@@ -388,7 +285,7 @@ async function processProjectsPageOg(payload: Payload, mode: OgGenerationMode, a
     const doc: ProjectsPage = await payload.findGlobal({ slug: "projects-page", depth: 0 });
     if (mode === "unset-only" && resolveMediaId(doc.meta.image) !== null) return { ...result, skipped: 1 };
     const mediaId = await uploadGeneratedOgImage(payload, doc.meta.title, "og-projects-page.png", assets);
-    await updateGlobalMeta(payload, "projects-page", doc.meta, mediaId);
+    await payload.updateGlobal({ slug: "projects-page", data: { meta: { image: mediaId } }, context: { skipDataValidation: true } });
     return { ...result, generated: 1 };
   } catch (error) {
     return { ...result, errors: [{ entity: "global/projects-page", error: error instanceof Error ? error.message : String(error) }] };
@@ -401,7 +298,7 @@ async function processNotFoundPageOg(payload: Payload, mode: OgGenerationMode, a
     const doc: NotFoundPage = await payload.findGlobal({ slug: "not-found-page", depth: 0 });
     if (mode === "unset-only" && resolveMediaId(doc.meta.image) !== null) return { ...result, skipped: 1 };
     const mediaId = await uploadGeneratedOgImage(payload, doc.meta.title, "og-not-found-page.png", assets);
-    await updateGlobalMeta(payload, "not-found-page", doc.meta, mediaId);
+    await payload.updateGlobal({ slug: "not-found-page", data: { meta: { image: mediaId } }, context: { skipDataValidation: true } });
     return { ...result, generated: 1 };
   } catch (error) {
     return { ...result, errors: [{ entity: "global/not-found-page", error: error instanceof Error ? error.message : String(error) }] };
@@ -448,7 +345,6 @@ export async function generateOgImages(
 
   const assets: SharedAssets = { profileImageDataUri, socialIconDataUris, siteUrl: options.siteUrl };
 
-  // Add new entity processors here to extend the system
   const processors = [
     processPostsOg,
     processProjectsOg,
