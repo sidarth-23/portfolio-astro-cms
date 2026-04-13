@@ -1,8 +1,10 @@
 import type { Payload } from "payload";
 
 import type { BlogPage, CvPage, HomePage, Media, NotFoundPage, Post, Project, ProjectsPage, Series, SeriesPage } from "../../payload-types";
+import type { IconFetchFailureReason } from "./fetchIconSvg";
 import { fetchIconSvg, svgToDataUri } from "./fetchIconSvg";
-import { fetchProfileImageDataUri, fetchSidebarIcons } from "./fetchProfileImage";
+import type { SidebarIconDiagnostic } from "./fetchProfileImage";
+import { fetchProfileImageDataUri, fetchSidebarIcons, getSidebarIconDiagnostics } from "./fetchProfileImage";
 import { renderOgImage } from "./renderOgImage";
 
 // ---------------------------------------------------------------------------
@@ -16,6 +18,18 @@ export type OgGenerationResult = {
   generated: number;
   skipped: number;
   errors: Array<{ entity: string; error: string }>;
+  iconDiagnostics: {
+    configured: number;
+    loaded: number;
+    failed: number;
+    invalidConfigured: SidebarIconDiagnostic[];
+    failedToLoad: Array<{
+      index: number;
+      iconValue: string;
+      reason: IconFetchFailureReason;
+      message: string;
+    }>;
+  };
 };
 
 export type GenerateOgImagesOptions = {
@@ -416,15 +430,21 @@ export async function generateOgImages(
   options: GenerateOgImagesOptions = {},
 ): Promise<OgGenerationResult> {
   // Load shared assets once — profile image and social icons from site-settings
-  const [profileImageDataUri, iconValues] = await Promise.all([
+  const [profileImageDataUri, iconEntries] = await Promise.all([
     fetchProfileImageDataUri(payload),
     fetchSidebarIcons(payload),
   ]);
 
-  const iconSvgResults = await Promise.all(iconValues.map((v) => fetchIconSvg(v)));
-  const socialIconDataUris = await Promise.all(
-    iconSvgResults.filter((s): s is string => s !== null).map((s) => svgToDataUri(s)),
+  const invalidConfigured = getSidebarIconDiagnostics(iconEntries);
+  const iconFetchResults = await Promise.all(
+    iconEntries.map(async (entry) => ({
+      entry,
+      result: await fetchIconSvg(entry.iconValue),
+    })),
   );
+
+  const successfulIconSvgs = iconFetchResults.flatMap((item) => (item.result.ok ? [item.result.svg] : []));
+  const socialIconDataUris = await Promise.all(successfulIconSvgs.map((s) => svgToDataUri(s)));
 
   const assets: SharedAssets = { profileImageDataUri, socialIconDataUris, siteUrl: options.siteUrl };
 
@@ -441,7 +461,38 @@ export async function generateOgImages(
     processNotFoundPageOg,
   ];
 
-  const totals: OgGenerationResult = { total: 0, generated: 0, skipped: 0, errors: [] };
+  const failedToLoad = iconFetchResults.flatMap((item) => {
+    if (item.result.ok) return [];
+    return [
+      {
+        index: item.entry.index,
+        iconValue: item.entry.iconValue,
+        reason: item.result.reason,
+        message: item.result.message,
+      },
+    ];
+  });
+
+  const totals: OgGenerationResult = {
+    total: 0,
+    generated: 0,
+    skipped: 0,
+    errors: [],
+    iconDiagnostics: {
+      configured: iconEntries.length,
+      loaded: successfulIconSvgs.length,
+      failed: failedToLoad.length,
+      invalidConfigured,
+      failedToLoad,
+    },
+  };
+
+  for (const failure of failedToLoad) {
+    totals.errors.push({
+      entity: `site-settings/sidebarFooterItems[${failure.index}]`,
+      error: `${failure.message} (stored value: "${failure.iconValue}")`,
+    });
+  }
 
   for (const processor of processors) {
     const r = await processor(payload, mode, assets);

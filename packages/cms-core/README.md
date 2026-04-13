@@ -17,6 +17,12 @@ This package uses a responsibility-based `lib` layout:
 - Avoid cross-module coupling unless there is a clear domain dependency.
 - Keep external consumers on package subpath exports (`@sidshub/cms-core/client`, `@sidshub/cms-core/icons`, etc.).
 
+## Icon value contract
+
+- Canonical icon values must be saved as `si:<slug>` or `ph:<name>`.
+- For Phosphor, `<name>` must be an exact `@phosphor-icons/core` icon name (for example `ph:linkedin-logo`).
+- Avoid manual text edits in icon fields; use the icon picker to guarantee canonical values.
+
 ## How to add a new utility
 
 1. Pick the owning module by responsibility first.

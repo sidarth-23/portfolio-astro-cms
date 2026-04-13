@@ -1,5 +1,18 @@
 import type { Payload } from "payload";
 import type { Media } from "../../payload-types";
+import { isPhosphorIconName, isSimpleIconSlug, parseIconValueStrict } from "../icons";
+
+export type SidebarIconEntry = {
+  index: number;
+  iconValue: string;
+};
+
+export type SidebarIconDiagnostic = {
+  index: number;
+  iconValue: string;
+  reason: "invalid-format" | "unknown-simple-icon" | "unknown-phosphor-icon";
+  message: string;
+};
 
 export async function fetchProfileImageDataUri(payload: Payload): Promise<string | undefined> {
   try {
@@ -28,7 +41,7 @@ export async function fetchProfileImageDataUri(payload: Payload): Promise<string
   }
 }
 
-export async function fetchSidebarIcons(payload: Payload): Promise<string[]> {
+export async function fetchSidebarIcons(payload: Payload): Promise<SidebarIconEntry[]> {
   try {
     const siteSettings = await payload.findGlobal({
       slug: "site-settings",
@@ -36,8 +49,48 @@ export async function fetchSidebarIcons(payload: Payload): Promise<string[]> {
     });
 
     const items = siteSettings.sidebarFooterItems ?? [];
-    return items.map((item) => item.icon ?? "").filter(Boolean);
+    return items
+      .map((item, index) => ({ index, iconValue: item.icon ?? "" }))
+      .filter((item) => item.iconValue.length > 0);
   } catch {
     return [];
   }
 }
+
+export const getSidebarIconDiagnostics = (entries: SidebarIconEntry[]): SidebarIconDiagnostic[] => {
+  const diagnostics: SidebarIconDiagnostic[] = [];
+
+  for (const entry of entries) {
+    const parsed = parseIconValueStrict(entry.iconValue);
+    if (!parsed) {
+      diagnostics.push({
+        index: entry.index,
+        iconValue: entry.iconValue,
+        reason: "invalid-format",
+        message: `Icon must use canonical format ("si:<slug>" or "ph:<name>").`,
+      });
+      continue;
+    }
+
+    if (parsed.source === "simple-icons" && !isSimpleIconSlug(parsed.slug)) {
+      diagnostics.push({
+        index: entry.index,
+        iconValue: entry.iconValue,
+        reason: "unknown-simple-icon",
+        message: `Unknown Simple Icons slug "${parsed.slug}".`,
+      });
+      continue;
+    }
+
+    if (parsed.source === "phosphor" && !isPhosphorIconName(parsed.name)) {
+      diagnostics.push({
+        index: entry.index,
+        iconValue: entry.iconValue,
+        reason: "unknown-phosphor-icon",
+        message: `Unknown Phosphor icon name "${parsed.name}".`,
+      });
+    }
+  }
+
+  return diagnostics;
+};

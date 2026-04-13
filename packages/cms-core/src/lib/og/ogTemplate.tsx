@@ -167,7 +167,12 @@ export function OgTemplate({
                 src={uri}
                 width={22}
                 height={22}
-                style={{ opacity: 0.6, width: 22, height: 22 }}
+                style={{
+                  opacity: 0.8,
+                  width: 22,
+                  height: 22,
+                  filter: "brightness(0) invert(1)",
+                }}
               />
             ))}
           </div>

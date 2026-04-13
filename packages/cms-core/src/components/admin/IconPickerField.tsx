@@ -252,7 +252,10 @@ export const IconPickerField: TextFieldClientComponent = ({ field, path }) => {
         value={selectedOption}
       />
 
-      <FieldDescription description={"Search the catalogue"} path={path} />
+      <FieldDescription
+        description={'Use picker values only ("si:<slug>" or "ph:<name>"). Avoid manual text edits.'}
+        path={path}
+      />
     </div>
   );
 };
