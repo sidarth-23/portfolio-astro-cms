@@ -9,9 +9,12 @@
   },
   "exports": {
     "./cms": "./src/cms.ts",
-    "./web": "./src/web/index.ts",
-    "./web/client": "./src/web/client/index.ts",
-    "./web/styles.css": "./src/web/styles.css"
+    "./web/html": "./src/web/html/index.ts",
+    "./web/html/daisyui": "./src/web/html/daisyui/index.ts",
+    "./web/html/tailwind": "./src/web/html/tailwind/index.ts",
+    "./web/html/client": "./src/web/html/client/index.ts",
+    "./web/html/styles.css": "./src/web/html/styles.css",
+    "./web/util": "./src/web/util/index.ts"
   },
   "devDependencies": {
     "@sidshub/eslint-config": "workspace:*",

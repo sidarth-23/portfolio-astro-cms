@@ -69,7 +69,7 @@ const CopyIcon = () => (
   </svg>
 );
 
-export function CodeDaisy(props: CodeProps) {
+export function Code(props: CodeProps) {
   if (props.mode === "multiple") {
     const { entries, caption } = props;
     const captionText = caption?.trim() ?? "";
@@ -78,6 +78,8 @@ export function CodeDaisy(props: CodeProps) {
       <figure
         class="code-block-figure overflow-hidden rounded-xl border border-base-content/10 bg-base-300 shadow-lg"
         data-code-tabs
+        data-active-classes="font-medium text-base-content border-base-content"
+        data-inactive-classes="font-normal text-base-content/60 border-transparent"
       >
         {/* Tab bar — full-width bottom border separates header from code */}
         <div class="code-panel-header flex items-center border-b border-base-content/10">

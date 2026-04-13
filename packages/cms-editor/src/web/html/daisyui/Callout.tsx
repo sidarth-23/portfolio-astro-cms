@@ -12,7 +12,7 @@ const variantToAlertClass: Record<string, string> = {
   tip: "alert alert-success",
 };
 
-export function CalloutDaisy({ variant, title, contentHtml, wrapperClass }: CalloutProps) {
+export function Callout({ variant, title, contentHtml, wrapperClass }: CalloutProps) {
   const alertClass = variantToAlertClass[variant] ?? "alert alert-info";
   const outerClass = wrapperClass ? `${wrapperClass} ${alertClass}` : alertClass;
 

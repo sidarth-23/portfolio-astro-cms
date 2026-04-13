@@ -1,8 +1,8 @@
 /** @jsxImportSource preact */
-import { resolveUrl, ImagePicture } from "../image-utils";
+import { resolveUrl, ImagePicture } from "../../util/image";
 import type { UploadProps } from "../types";
 
-export function UploadDaisy({ doc, alt, captionHtml, mediaBaseUrl }: UploadProps) {
+export function Upload({ doc, alt, captionHtml, mediaBaseUrl }: UploadProps) {
   if (!doc.url) return null;
 
   const url = resolveUrl(doc.url, mediaBaseUrl);
@@ -19,8 +19,7 @@ export function UploadDaisy({ doc, alt, captionHtml, mediaBaseUrl }: UploadProps
 
   return (
     <figure class="image-figure">
-      {/* position:relative + aspect-ratio creates the 16:9 letterbox frame */}
-      <div style="position:relative;width:100%;aspect-ratio:16/9;background-color:var(--fallback-b2,oklch(var(--b2)));overflow:hidden;border-radius:0.5rem;">
+      <div class="relative w-full overflow-hidden rounded-lg bg-gray-100 dark:bg-gray-800" style="aspect-ratio:16/9;">
         <ImagePicture doc={doc} alt={alt} mediaBaseUrl={mediaBaseUrl} />
       </div>
       <figcaption

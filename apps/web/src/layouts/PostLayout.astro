@@ -3,7 +3,7 @@ import TableOfContents from "@/components/TableOfContents.astro";
 import BaseLayout from "@/layouts/BaseLayout.astro";
 import { generateFilterUrl } from "@/lib/utils";
 import { PhList, PhX } from "phosphor-icons-astro";
-import type { TableOfContentsItem } from "@sidshub/cms-editor/web";
+import type { TableOfContentsItem } from "@sidshub/cms-editor/web/html";
 
 type Tag = { name: string; slug: string };
 type Category = { name: string; slug: string };
@@ -213,7 +213,7 @@ const jsonLd = {
   </div>
 
   <script>
-    import { initCodeBlocks, initImageGallery } from "@sidshub/cms-editor/web/client";
+    import { initCodeBlocks, initImageGallery } from "@sidshub/cms-editor/web/html/client";
 
     let cleanupCodeBlocks = () => {};
     let cleanupImageGallery = () => {};
@@ -245,7 +245,7 @@ const jsonLd = {
   {
     showTableOfContents && (
       <script>
-        import { initTableOfContents } from "@sidshub/cms-editor/web/client";
+        import { initTableOfContents } from "@sidshub/cms-editor/web/html/client";
 
         const POST_TOC_DRAWER_ID = "post-toc-drawer";
         let cleanupPostTableOfContents = () => {};

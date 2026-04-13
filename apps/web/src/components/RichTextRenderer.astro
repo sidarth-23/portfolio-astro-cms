@@ -1,28 +1,22 @@
 ---
-import {
-  renderRichTextToHTML,
-  type CalloutVariantProfile,
-  type RichTextCssEngine,
-  type RichTextValue,
-} from "@sidshub/cms-editor/web";
+import { renderRichTextToHTML } from "@sidshub/cms-editor/web/html/daisyui";
+import type { CalloutVariantProfile, RichTextValue } from "@sidshub/cms-editor/web/html";
 import { ASTRO_CMS_API_URL } from "astro:env/server";
 
 type Props = {
   className?: string;
   data?: RichTextValue | null;
   enableContainer?: boolean;
-  cssEngine?: RichTextCssEngine;
   calloutVariantProfile?: CalloutVariantProfile;
   mediaBaseUrl?: string;
 };
 
-const { className, data, enableContainer = false, cssEngine = "daisyui", calloutVariantProfile = "generic", mediaBaseUrl }: Props =
+const { className, data, enableContainer = false, calloutVariantProfile = "generic", mediaBaseUrl }: Props =
   Astro.props;
 const resolvedMediaBaseUrl = mediaBaseUrl ?? ASTRO_CMS_API_URL;
 const html = await renderRichTextToHTML(
   { className, data, enableContainer },
   {
-    cssEngine,
     calloutVariantProfile,
     mediaBaseUrl: resolvedMediaBaseUrl,
   },

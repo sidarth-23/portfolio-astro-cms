@@ -1,6 +1,24 @@
+import type { SerializedEditorState } from "lexical";
 import type { ComponentType } from "preact";
-import type { UploadDoc } from "./image-utils";
+import type { UploadDoc } from "../util/image";
 
+// Core value types
+export type RichTextValue = SerializedEditorState;
+export type CalloutVariantProfile = "generic" | "blog";
+
+export type RichTextRenderOptions = {
+  className?: string;
+  data?: RichTextValue | null;
+  enableContainer?: boolean;
+};
+
+export type TableOfContentsItem = {
+  depth: 2 | 3;
+  id: string;
+  text: string;
+};
+
+// Block component prop types
 export type CalloutProps = {
   variant: string;
   title?: string | null;

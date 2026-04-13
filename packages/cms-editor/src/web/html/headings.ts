@@ -1,7 +1,7 @@
 import type { DefaultNodeTypes } from "@payloadcms/richtext-lexical";
 import type { HTMLConvertersAsync } from "@payloadcms/richtext-lexical/html-async";
 
-import { slugify } from "./slugify";
+import { slugify } from "../util/slugify";
 import type { RichTextValue, TableOfContentsItem } from "./types";
 
 type HeadingTag = "h1" | "h2" | "h3" | "h4" | "h5" | "h6";

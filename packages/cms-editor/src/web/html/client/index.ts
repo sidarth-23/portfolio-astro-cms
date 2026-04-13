@@ -108,16 +108,15 @@ export const initCodeBlocks = (root: ParentNode = document): (() => void) => {
       });
     }
 
+    const activeClasses = (container.dataset.activeClasses ?? "font-medium text-base-content border-base-content").split(" ").filter(Boolean);
+    const inactiveClasses = (container.dataset.inactiveClasses ?? "font-normal text-base-content/60 border-transparent").split(" ").filter(Boolean);
+
     const activateTab = (index: number) => {
       tabs.forEach((tab) => {
         const isActive = tab.getAttribute("data-tab-index") === String(index);
         tab.setAttribute("aria-selected", isActive ? "true" : "false");
-        tab.classList.toggle("font-medium", isActive);
-        tab.classList.toggle("font-normal", !isActive);
-        tab.classList.toggle("text-base-content", isActive);
-        tab.classList.toggle("text-base-content/60", !isActive);
-        tab.classList.toggle("border-base-content", isActive);
-        tab.classList.toggle("border-transparent", !isActive);
+        activeClasses.forEach((cls) => tab.classList.toggle(cls, isActive));
+        inactiveClasses.forEach((cls) => tab.classList.toggle(cls, !isActive));
       });
 
       panels.forEach((panel) => {
