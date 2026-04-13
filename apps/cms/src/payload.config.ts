@@ -1,8 +1,8 @@
 import { postgresAdapter } from "@payloadcms/db-postgres";
 import { resendAdapter } from "@payloadcms/email-resend";
 import { s3Storage } from "@payloadcms/storage-s3";
-import { createCmsConfig } from "@sidshub/cms-config/builder";
-import { migrationDir } from "@sidshub/cms-config/migrations-dir";
+import { createCmsConfig } from "@sidshub/cms-core/builder";
+import { migrationDir } from "@sidshub/cms-core/migrations-dir";
 
 import { env } from "./env";
 import { ensureS3BucketExists } from "./lib/ensureS3Bucket";

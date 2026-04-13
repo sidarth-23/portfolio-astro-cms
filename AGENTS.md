@@ -8,7 +8,8 @@ This is a **public monorepo** for `https://www.sidshub.in`.
 
 - `apps/web`: Astro 5 portfolio + blog frontend (MDX)
 - `apps/cms`: Payload CMS backend
-- `packages/cms-config`: shared Payload config/types
+- `packages/cms-core`: shared Payload config/types
+- `packages/cms-editor`: Lexical rich text editor integration (CMS + web)
 
 Core stack: **Bun workspaces**, **TypeScript (strict)**, **Tailwind CSS v4**, **DaisyUI v5**, **Payload CMS**, **PostgreSQL**, **MinIO**.
 
@@ -45,11 +46,13 @@ Add a `vitest.config.ts` and a `"test"` script in `package.json`.
 
 ### Linting / Formatting
 
-No ESLint or Prettier config file. `prettier-plugin-astro` is a devDependency. To format:
+ESLint is configured via `@sidshub/eslint-config` (shared package). Prettier is configured at the root (`.prettierrc`).
 
 ```bash
-bunx prettier --write --plugin prettier-plugin-astro "apps/web/src/**/*.{astro,ts,tsx,js,mjs,css,md,mdx}"
-bunx prettier --write "apps/cms/src/**/*.{ts,js}"
+bun run lint          # Run ESLint across all workspaces
+bun run lint:fix      # Auto-fix ESLint issues
+bun run format        # Format all files with Prettier
+bun run format:check  # Check formatting without writing
 ```
 
 ## Project Structure
@@ -73,8 +76,9 @@ apps/
 │   ├── package.json
 │   └── ...
 packages/
-└── cms-config/
-    └── src/payload-types.ts
+├── cms-core/
+│   └── src/payload-types.ts
+└── cms-editor/
 ```
 
 ## Public Repo Safety Rules
@@ -151,7 +155,7 @@ Posts go in `apps/web/src/content/blog/` as `.mdx` files. Schema in `apps/web/sr
 
 ### Payload / CMS
 
-- Prefer updating schema/config in `packages/cms-config` when change should be shared.
+- Prefer updating schema/config in `packages/cms-core` when change should be shared.
 - After CMS schema changes, regenerate types with `bun run payload:types`.
 - Keep migration behavior aligned with the existing environment strategy in `apps/cms/README.md`.
 

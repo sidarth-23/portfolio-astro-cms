@@ -1,5 +1,5 @@
 import { icons as phosphorIconCatalog } from "@phosphor-icons/core";
-import { parseIconValueStrict } from "@sidshub/cms-config/icon-value";
+import { parseIconValueStrict } from "@sidshub/cms-core/icon-value";
 import { PhLink } from "phosphor-icons-astro";
 import * as phosphorIcons from "phosphor-icons-astro";
 import * as simpleIcons from "simple-icons";

@@ -6,8 +6,8 @@ import ThemePreloadScript from "../components/ThemePreloadScript.astro";
 import ThemeSwitcher from "../components/ThemeSwitcher.astro";
 import { ClientRouter } from "astro:transitions";
 import { ASTRO_CMS_API_URL, ASTRO_CMS_READ_TOKEN } from "astro:env/server";
-import { createCmsRestClient } from "@sidshub/cms-config/client/rest";
-import type { HomePage, SiteSetting } from "@sidshub/cms-config/payload-types";
+import { createCmsRestClient } from "@sidshub/cms-core/client/rest";
+import type { HomePage, SiteSetting } from "@sidshub/cms-core/payload-types";
 
 import { TRANSITION_API } from "../consts";
 

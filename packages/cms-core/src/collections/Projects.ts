@@ -1,5 +1,5 @@
 import type { CollectionConfig } from "payload";
-import { createBasicRichTextEditor } from "@sidshub/lexical/cms";
+import { createBasicRichTextEditor } from "@sidshub/cms-editor/cms";
 
 import { readAccess } from "../access/readAccess";
 

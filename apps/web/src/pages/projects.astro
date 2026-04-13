@@ -3,8 +3,8 @@ import RichTextRenderer from "@/components/RichTextRenderer.astro";
 import HorizontalCard from "@/components/HorizontalCard.astro";
 import BaseLayout from "@/layouts/BaseLayout.astro";
 import { ASTRO_CMS_API_URL, ASTRO_CMS_READ_TOKEN } from "astro:env/server";
-import { asProjectArray } from "@sidshub/cms-config/client";
-import { createCmsRestClient } from "@sidshub/cms-config/client/rest";
+import { asProjectArray } from "@sidshub/cms-core/client";
+import { createCmsRestClient } from "@sidshub/cms-core/client/rest";
 
 const cmsClient = createCmsRestClient({ apiUrl: ASTRO_CMS_API_URL, token: ASTRO_CMS_READ_TOKEN });
 const projectsPage = await cmsClient.getProjectsPage();

@@ -1,8 +1,12 @@
 {
-  "name": "@sidshub/cms-config",
+  "name": "@sidshub/cms-core",
   "version": "0.0.1",
   "private": true,
   "type": "module",
+  "scripts": {
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix"
+  },
   "exports": {
     ".": "./src/payload-types.ts",
     "./builder": "./src/builder.ts",
@@ -12,13 +16,17 @@
     "./migrations-dir": "./src/migrations/dir.ts",
     "./payload-types": "./src/payload-types.ts"
   },
+  "devDependencies": {
+    "@sidshub/eslint-config": "workspace:*",
+    "eslint": "^9.24.0"
+  },
   "dependencies": {
     "@payloadcms/plugin-seo": "3.82.1",
     "@payloadcms/sdk": "3.82.1",
     "@phosphor-icons/core": "^2.1.1",
     "@react-email/components": "^0.5.7",
     "@react-email/render": "^1.4.0",
-    "@sidshub/lexical": "workspace:*",
+    "@sidshub/cms-editor": "workspace:*",
     "lexical": "^0.35.0",
     "payload": "3.82.1",
     "simple-icons": "^16.15.0",

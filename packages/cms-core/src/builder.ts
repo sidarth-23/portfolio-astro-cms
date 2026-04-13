@@ -1,7 +1,7 @@
 import path from "path";
 import { fileURLToPath } from "url";
 
-import { createBasicRichTextEditor } from "@sidshub/lexical/cms";
+import { createBasicRichTextEditor } from "@sidshub/cms-editor/cms";
 import { seoPlugin } from "@payloadcms/plugin-seo";
 import { buildConfig } from "payload";
 import type { CollectionConfig, Config, EmailAdapter, Field, GlobalConfig, Plugin } from "payload";

@@ -1,10 +1,3 @@
-import eslintPluginAstro from "eslint-plugin-astro";
+import astroConfig from "@sidshub/eslint-config/astro";
 
-const eslintConfig = [
-  ...eslintPluginAstro.configs["flat/recommended"],
-  {
-    ignores: ["dist/", ".astro/"],
-  },
-];
-
-export default eslintConfig;
+export default astroConfig;

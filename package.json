@@ -16,11 +16,15 @@
     "build:cms": "turbo run build --filter=@sidshub/cms",
     "check:web": "turbo run check --filter=@sidshub/web",
     "payload:types": "turbo run generate:types --filter=@sidshub/cms",
-    "lint": "turbo run lint --filter=@sidshub/web --filter=@sidshub/cms",
-    "lint:fix": "turbo run lint:fix --filter=@sidshub/web --filter=@sidshub/cms"
+    "lint": "turbo run lint",
+    "lint:fix": "turbo run lint:fix",
+    "format": "prettier --write .",
+    "format:check": "prettier --check ."
   },
   "devDependencies": {
     "eslint": "^9.24.0",
+    "prettier": "^3.5.3",
+    "prettier-plugin-astro": "^0.14.1",
     "turbo": "^2.5.8"
   }
 }

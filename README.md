@@ -4,7 +4,8 @@ Public monorepo for [sidshub.in](https://www.sidshub.in), containing:
 
 - `apps/web`: Astro portfolio and blog frontend
 - `apps/cms`: Payload CMS backend
-- `packages/cms-config`: shared CMS config and generated types
+- `packages/cms-core`: shared CMS config and generated types
+- `packages/cms-editor`: Lexical rich text editor integration (CMS + web)
 
 ## Tech Stack
 

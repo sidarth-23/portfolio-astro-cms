@@ -1,5 +1,5 @@
 import type { AllowList, CollectionConfig } from "payload";
-import { createMinimalRichTextEditor } from "@sidshub/lexical/cms";
+import { createMinimalRichTextEditor } from "@sidshub/cms-editor/cms";
 
 const pasteUrlAllowList: AllowList = [
   { hostname: "sidshub.in", protocol: "https" },

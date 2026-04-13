@@ -1,7 +1,7 @@
 ---
 import ErrorLayout from "@/layouts/ErrorLayout.astro";
 import { ASTRO_CMS_API_URL, ASTRO_CMS_READ_TOKEN } from "astro:env/server";
-import { createCmsRestClient } from "@sidshub/cms-config/client/rest";
+import { createCmsRestClient } from "@sidshub/cms-core/client/rest";
 
 const cmsClient = createCmsRestClient({ apiUrl: ASTRO_CMS_API_URL, token: ASTRO_CMS_READ_TOKEN });
 const {

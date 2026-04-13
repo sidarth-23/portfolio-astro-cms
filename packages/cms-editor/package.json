@@ -1,13 +1,21 @@
 {
-  "name": "@sidshub/lexical",
+  "name": "@sidshub/cms-editor",
   "version": "0.0.1",
   "private": true,
   "type": "module",
+  "scripts": {
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix"
+  },
   "exports": {
     "./cms": "./src/cms.ts",
     "./web": "./src/web/index.ts",
     "./web/client": "./src/web/client/index.ts",
     "./web/styles.css": "./src/web/styles.css"
+  },
+  "devDependencies": {
+    "@sidshub/eslint-config": "workspace:*",
+    "eslint": "^9.24.0"
   },
   "dependencies": {
     "@payloadcms/richtext-lexical": "3.82.1",

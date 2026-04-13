@@ -1,8 +1,8 @@
 ---
 import { PhCaretLeft } from "phosphor-icons-astro";
 import { ASTRO_CMS_API_URL, ASTRO_CMS_READ_TOKEN } from "astro:env/server";
-import { createCmsRestClient } from "@sidshub/cms-config/client/rest";
-import type { Post, Series } from "@sidshub/cms-config/payload-types";
+import { createCmsRestClient } from "@sidshub/cms-core/client/rest";
+import type { Post, Series } from "@sidshub/cms-core/payload-types";
 
 import HorizontalCard from "@/components/HorizontalCard.astro";
 import BaseLayout from "@/layouts/BaseLayout.astro";

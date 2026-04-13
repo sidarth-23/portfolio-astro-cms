@@ -25,8 +25,8 @@
     "@payloadcms/plugin-seo": "3.82.1",
     "@payloadcms/richtext-lexical": "3.82.1",
     "@payloadcms/storage-s3": "3.82.1",
-    "@sidshub/cms-config": "workspace:*",
-    "@sidshub/lexical": "workspace:*",
+    "@sidshub/cms-core": "workspace:*",
+    "@sidshub/cms-editor": "workspace:*",
     "@t3-oss/env-core": "^0.13.4",
     "cross-env": "^7.0.3",
     "next": "^15.4.11",
@@ -37,9 +37,8 @@
     "zod": "^3.24.1"
   },
   "devDependencies": {
-    "@eslint/eslintrc": "^3.3.1",
+    "@sidshub/eslint-config": "workspace:*",
     "eslint": "^9.24.0",
-    "eslint-config-next": "^15.4.11",
     "typescript": "^5.7.2"
   }
 }

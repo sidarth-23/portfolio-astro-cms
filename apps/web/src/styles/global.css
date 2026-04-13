@@ -1,7 +1,7 @@
 @import "tailwindcss";
-@import "@sidshub/lexical/web/styles.css";
+@import "@sidshub/cms-editor/web/styles.css";
 @source "../../../../packages/lexical/src";
-@source "../../../../node_modules/@sidshub/lexical";
+@source "../../../../node_modules/@sidshub/cms-editor";
 @plugin "@tailwindcss/typography";
 @plugin "daisyui"{
 	themes: emerald --default, night --prefersdark;

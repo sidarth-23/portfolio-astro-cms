@@ -4,7 +4,7 @@ import TimeLineElement from "@/components/TimeLine.astro";
 import BaseLayout from "@/layouts/BaseLayout.astro";
 import { resolveIcon } from "@/lib/resolveIcon";
 import { ASTRO_CMS_API_URL, ASTRO_CMS_READ_TOKEN } from "astro:env/server";
-import { createCmsRestClient } from "@sidshub/cms-config/client/rest";
+import { createCmsRestClient } from "@sidshub/cms-core/client/rest";
 import { PhLink } from "phosphor-icons-astro";
 
 const cmsClient = createCmsRestClient({

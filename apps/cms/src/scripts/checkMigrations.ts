@@ -6,7 +6,7 @@ import { Client } from "pg";
 
 const filename = fileURLToPath(import.meta.url);
 const dirname = path.dirname(filename);
-const migrationsDir = path.resolve(dirname, "../../../../packages/cms-config/src/migrations");
+const migrationsDir = path.resolve(dirname, "../../../../packages/cms-core/src/migrations");
 
 const getRequiredDatabaseUri = (): string => {
   const value = process.env.DATABASE_URI?.trim();
