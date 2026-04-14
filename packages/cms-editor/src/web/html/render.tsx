@@ -8,6 +8,7 @@ import type { DefaultNodeTypes, SerializedBlockNode, SerializedUploadNode } from
 import { renderToStaticMarkup } from "preact-render-to-string";
 
 import { highlightCode } from "../util/shiki";
+import type { UploadDoc } from "../util/image";
 import { createHeadingConverters } from "./headings";
 import { createInternalDocHrefResolver, type InternalDocHrefRouteMap } from "./linkResolver";
 import { ContentSection } from "./ContentSection";
@@ -17,6 +18,13 @@ import type {
   RichTextRenderOptions,
   RichTextValue,
 } from "./types";
+
+type PopulatedUploadValue = {
+  alt?: string | null;
+  caption?: RichTextValue | null;
+  url?: string | null;
+  [key: string]: unknown;
+};
 
 type NodeTypes = DefaultNodeTypes | SerializedBlockNode<Record<string, unknown>>;
 
@@ -48,8 +56,10 @@ export function createRichTextRenderer(components: BlockComponents) {
       ...defaultConverters,
       upload: async ({ node }: { node: SerializedUploadNode }) => {
         if (typeof node.value !== "object" || !node.value) return "";
-        const alt = (node as any).fields?.alt ?? (node.value as any).alt ?? "";
-        const mediaCaption = (node.value as any).caption as RichTextValue | null | undefined;
+        const alt = (node.fields as Record<string, unknown> | undefined)?.alt as string | undefined
+          ?? (node.value as PopulatedUploadValue).alt
+          ?? "";
+        const mediaCaption = (node.value as PopulatedUploadValue).caption;
         const captionHtml = mediaCaption
           ? await renderRichTextToHTML(
               { data: mediaCaption, enableContainer: false },
@@ -57,7 +67,7 @@ export function createRichTextRenderer(components: BlockComponents) {
             )
           : null;
         return renderToStaticMarkup(
-          <Upload doc={node.value as any} alt={alt} captionHtml={captionHtml} mediaBaseUrl={config?.mediaBaseUrl} />,
+          <Upload doc={node.value as UploadDoc} alt={alt} captionHtml={captionHtml} mediaBaseUrl={config?.mediaBaseUrl} />,
         );
       },
       ...LinkHTMLConverterAsync({ internalDocToHref }),
@@ -79,15 +89,19 @@ export function createRichTextRenderer(components: BlockComponents) {
         imageGallery: async ({ node }: { node: SerializedBlockNode<Record<string, unknown>> }) => {
           const fields = node.fields ?? {};
           const caption = (fields.caption as string | null | undefined) ?? null;
-          const rawImages = (fields.images as Array<{ image: any }> | null | undefined) ?? [];
+          const rawImages = (fields.images as Array<{ image: UploadDoc | string | number | null }> | null | undefined) ?? [];
 
           const images = await Promise.all(
             rawImages
-              .filter((entry) => entry.image && typeof entry.image === "object" && entry.image.url)
+              .filter((entry): entry is { image: PopulatedUploadValue & UploadDoc } =>
+                entry.image !== null &&
+                typeof entry.image === "object" &&
+                typeof (entry.image as UploadDoc).url === "string",
+              )
               .map(async (entry) => {
                 const doc = entry.image;
                 const alt = (doc.alt as string) ?? "";
-                const mediaCaption = doc.caption as RichTextValue | null | undefined;
+                const mediaCaption = doc.caption;
                 const captionHtml = mediaCaption
                   ? await renderRichTextToHTML(
                       { data: mediaCaption, enableContainer: false },
@@ -150,7 +164,7 @@ export function createRichTextRenderer(components: BlockComponents) {
   const renderBlock = async (block: Record<string, unknown>, config?: RichTextRenderConfig): Promise<string> => {
     switch (block.blockType) {
       case "contentSection": {
-        const contentHtml = await renderRichTextToHTML({ data: block.content as any, enableContainer: false }, config);
+        const contentHtml = await renderRichTextToHTML({ data: block.content as RichTextValue, enableContainer: false }, config);
         return renderToStaticMarkup(
           <ContentSection title={block.title as string | null} contentHtml={contentHtml} />,
         );
@@ -159,7 +173,7 @@ export function createRichTextRenderer(components: BlockComponents) {
       case "callout": {
         const profile = config?.calloutVariantProfile ?? "generic";
         const fallbackVariant = fallbackVariantByProfile[profile];
-        const contentHtml = await renderRichTextToHTML({ data: block.content as any, enableContainer: false }, config);
+        const contentHtml = await renderRichTextToHTML({ data: block.content as RichTextValue, enableContainer: false }, config);
         return renderToStaticMarkup(
           <Callout
             variant={(block.variant as string) || fallbackVariant}
@@ -202,15 +216,19 @@ export function createRichTextRenderer(components: BlockComponents) {
 
       case "imageGallery": {
         const caption = (block.caption as string | null | undefined) ?? null;
-        const rawImages = (block.images as Array<{ image: any }> | null | undefined) ?? [];
+        const rawImages = (block.images as Array<{ image: UploadDoc | string | number | null }> | null | undefined) ?? [];
 
         const images = await Promise.all(
           rawImages
-            .filter((entry) => entry.image && typeof entry.image === "object" && entry.image.url)
+            .filter((entry): entry is { image: PopulatedUploadValue & UploadDoc } =>
+              entry.image !== null &&
+              typeof entry.image === "object" &&
+              typeof (entry.image as UploadDoc).url === "string",
+            )
             .map(async (entry) => {
               const doc = entry.image;
               const alt = (doc.alt as string) ?? "";
-              const mediaCaption = doc.caption as RichTextValue | null | undefined;
+              const mediaCaption = doc.caption;
               const captionHtml = mediaCaption
                 ? await renderRichTextToHTML(
                     { data: mediaCaption, enableContainer: false },
