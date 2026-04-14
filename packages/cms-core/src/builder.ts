@@ -1,6 +1,3 @@
-import path from "path";
-import { fileURLToPath } from "url";
-
 import { seoPlugin } from "@payloadcms/plugin-seo";
 import { buildConfig } from "payload";
 import type { CollectionConfig, Config, EmailAdapter, Field, GlobalConfig, Plugin } from "payload";
@@ -29,9 +26,6 @@ import type { HookType } from "@/lib/deployment/factory";
 import type { DeploymentStatusAdapter } from "@/lib/deployment/types";
 import { createBasicRichTextEditor } from "@/lib/editor";
 import { SEO_COLLECTIONS, SEO_GLOBALS } from "@/lib/og/registry";
-
-const filename = fileURLToPath(import.meta.url);
-const dirname = path.dirname(filename);
 
 let _deploymentStatusAdapter: DeploymentStatusAdapter | undefined;
 let _showDeploymentStatusCard = false;
@@ -203,7 +197,7 @@ export function createCmsConfig(options: CmsConfigOptions) {
         },
       },
       importMap: {
-        baseDir: path.resolve(dirname),
+        baseDir: import.meta.dirname,
       },
     },
     routes: {
@@ -233,7 +227,7 @@ export function createCmsConfig(options: CmsConfigOptions) {
     db: options.db,
     secret: options.secret,
     typescript: {
-      outputFile: path.resolve(dirname, "payload-types.ts"),
+      outputFile: new URL("./payload-types.ts", import.meta.url).pathname,
     },
   });
 }

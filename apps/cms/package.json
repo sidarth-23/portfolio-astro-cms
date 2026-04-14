@@ -10,8 +10,8 @@
     "start": "cross-env NODE_OPTIONS=--no-deprecation next start -p 3000",
     "lint": "cross-env NODE_OPTIONS=--no-deprecation eslint .",
     "lint:fix": "cross-env NODE_OPTIONS=--no-deprecation eslint . --fix",
-    "generate:types": "cross-env NODE_OPTIONS=--no-deprecation payload generate:types",
-    "generate:importmap": "cross-env NODE_OPTIONS=--no-deprecation payload generate:importmap && bunx prettier --write \"src/app/(payload)/importMap.js\""
+    "generate:types": "cross-env NODE_OPTIONS='--no-deprecation --experimental-loader=./scripts/css-loader.mjs' payload generate:types",
+    "generate:importmap": "cross-env NODE_OPTIONS='--no-deprecation --experimental-loader=./scripts/css-loader.mjs' payload generate:importmap && bunx prettier --write \"src/app/(payload)/importMap.js\""
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.888.0",

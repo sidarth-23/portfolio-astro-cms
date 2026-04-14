@@ -11,6 +11,8 @@ export default defineConfig({
     "src/lib/icons/index.ts",
     "src/lib/deployment/index.ts",
     "src/lib/validation/index.ts",
+    "src/components/admin/**/*.{ts,tsx}",
+    "src/plugin/markdown-paste/client.tsx",
   ],
   format: "esm",
   dts: true,

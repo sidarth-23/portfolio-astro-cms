@@ -1,7 +1,7 @@
 import { RscEntryLexicalCell as RscEntryLexicalCell_44fe37237e0ebf4470c9990d8cb7b07e } from "@payloadcms/richtext-lexical/rsc";
 import { RscEntryLexicalField as RscEntryLexicalField_44fe37237e0ebf4470c9990d8cb7b07e } from "@payloadcms/richtext-lexical/rsc";
 import { LexicalDiffComponent as LexicalDiffComponent_44fe37237e0ebf4470c9990d8cb7b07e } from "@payloadcms/richtext-lexical/rsc";
-import { MarkdownPasteFeatureClient as MarkdownPasteFeatureClient_9dc5d07931a10324519c8b2746345bf6 } from "@sidshub/cms-editor/plugin/markdown-paste";
+import { MarkdownPasteFeatureClient as MarkdownPasteFeatureClient_92632001a8c39848084fd97352373031 } from "../../../../../packages/cms-core/dist/plugin/markdown-paste/client";
 import { SuperscriptFeatureClient as SuperscriptFeatureClient_e70f5e05f09f93e00b997edb1ef0c864 } from "@payloadcms/richtext-lexical/client";
 import { SubscriptFeatureClient as SubscriptFeatureClient_e70f5e05f09f93e00b997edb1ef0c864 } from "@payloadcms/richtext-lexical/client";
 import { BlocksFeatureClient as BlocksFeatureClient_e70f5e05f09f93e00b997edb1ef0c864 } from "@payloadcms/richtext-lexical/client";
@@ -59,8 +59,8 @@ export const importMap = {
     RscEntryLexicalField_44fe37237e0ebf4470c9990d8cb7b07e,
   "@payloadcms/richtext-lexical/rsc#LexicalDiffComponent":
     LexicalDiffComponent_44fe37237e0ebf4470c9990d8cb7b07e,
-  "@sidshub/cms-editor/plugin/markdown-paste#MarkdownPasteFeatureClient":
-    MarkdownPasteFeatureClient_9dc5d07931a10324519c8b2746345bf6,
+  "./plugin/markdown-paste/client#MarkdownPasteFeatureClient":
+    MarkdownPasteFeatureClient_92632001a8c39848084fd97352373031,
   "@payloadcms/richtext-lexical/client#SuperscriptFeatureClient":
     SuperscriptFeatureClient_e70f5e05f09f93e00b997edb1ef0c864,
   "@payloadcms/richtext-lexical/client#SubscriptFeatureClient":

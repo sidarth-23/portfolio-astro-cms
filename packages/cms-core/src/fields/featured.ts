@@ -1,8 +1,12 @@
-import type { CollectionSlug, Field, RichTextAdapterProvider } from "payload";
+import type { CollectionSlug, Field, RichTextAdapter, RichTextAdapterProvider } from "payload";
 
 type FeaturedSectionFieldsArgs = {
   relationTo?: CollectionSlug[];
-  descriptionEditor?: RichTextAdapterProvider<unknown, unknown, unknown>;
+  descriptionEditor?: // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  | RichTextAdapter<any, any, object>
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    | RichTextAdapterProvider<any, any, object>
+    | undefined;
 };
 
 export const featuredSectionFields = ({

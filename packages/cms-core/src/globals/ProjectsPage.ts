@@ -7,12 +7,6 @@ import { projectsPageSchema } from "../lib/validation";
 
 type ProjectRelationValue = number | string | { id?: number | string | null } | null | undefined;
 
-type ProjectsPageFormData = {
-  sections?: Array<{
-    projects?: ProjectRelationValue[] | null;
-  }> | null;
-};
-
 const toProjectID = (value: ProjectRelationValue): number | string | undefined => {
   if (typeof value === "number" || typeof value === "string") {
     return value;
@@ -28,46 +22,35 @@ const toProjectID = (value: ProjectRelationValue): number | string | undefined =
   return undefined;
 };
 
+const getUniqueProjectIDs = (values: unknown): Array<number | string> => {
+  if (!Array.isArray(values)) {
+    return [];
+  }
+
+  const ids = values
+    .map((value) => toProjectID(value as ProjectRelationValue))
+    .filter((id): id is number | string => id !== undefined);
+
+  return [...new Set(ids)];
+};
+
 const getSelectedProjectIDs = (data: unknown): Array<number | string> => {
   if (!data || typeof data !== "object") {
     return [];
   }
 
-  const sections = (data as ProjectsPageFormData).sections;
+  const sections = (data as { sections?: unknown }).sections;
   if (!Array.isArray(sections)) {
     return [];
   }
 
-  const ids: Array<number | string> = [];
-  for (const section of sections) {
-    if (!section || !Array.isArray(section.projects)) {
-      continue;
+  const ids = sections.flatMap((section) => {
+    if (!section || typeof section !== "object") {
+      return [];
     }
 
-    for (const project of section.projects) {
-      const id = toProjectID(project);
-      if (id !== undefined) {
-        ids.push(id);
-      }
-    }
-  }
-
-  return [...new Set(ids)];
-};
-
-const getSectionProjectIDs = (siblingData: unknown): Array<number | string> => {
-  if (!siblingData || typeof siblingData !== "object") {
-    return [];
-  }
-
-  const projects = (siblingData as { projects?: ProjectRelationValue[] | null }).projects;
-  if (!Array.isArray(projects)) {
-    return [];
-  }
-
-  const ids = projects
-    .map((project) => toProjectID(project))
-    .filter((id): id is number | string => id !== undefined);
+    return getUniqueProjectIDs((section as { projects?: unknown }).projects);
+  });
 
   return [...new Set(ids)];
 };
@@ -125,7 +108,9 @@ export const ProjectsPage: GlobalConfig = {
                   minRows: 1,
                   filterOptions: ({ data, siblingData }) => {
                     const selectedIDs = getSelectedProjectIDs(data);
-                    const currentSectionIDs = new Set(getSectionProjectIDs(siblingData));
+                    const currentSectionIDs = new Set(
+                      getUniqueProjectIDs((siblingData as { projects?: unknown } | null)?.projects),
+                    );
                     const excludedIDs = selectedIDs.filter((id) => !currentSectionIDs.has(id));
 
                     if (excludedIDs.length === 0) {
