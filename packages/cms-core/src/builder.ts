@@ -25,6 +25,7 @@ import { createCollectionRedeployHook } from "./hooks/triggerCollectionRedeploy"
 import { createTriggerDeployment } from "./hooks/triggerDeployment";
 import { createTriggerDevRefresh } from "./hooks/triggerDevRefresh";
 import { createGlobalRedeployHook } from "./hooks/triggerGlobalRedeploy";
+import { SEO_COLLECTIONS, SEO_GLOBALS } from "./lib/og/registry";
 
 const filename = fileURLToPath(import.meta.url);
 const dirname = path.dirname(filename);
@@ -112,8 +113,8 @@ export function createCmsConfig(options: CmsConfigOptions) {
     },
     plugins: [
       seoPlugin({
-        collections: ["posts", "series", "projects"],
-        globals: ["home-page", "cv-page", "blog-page", "series-page", "projects-page", "not-found-page"],
+        collections: [...SEO_COLLECTIONS],
+        globals: [...SEO_GLOBALS],
         tabbedUI: true,
         uploadsCollection: "media",
         fields: withRequiredSeoFields,

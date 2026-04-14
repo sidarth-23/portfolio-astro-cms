@@ -1,16 +1,11 @@
-import { readFile } from "node:fs/promises";
-import { createRequire } from "node:module";
-
 import * as simpleIcons from "simple-icons";
 
-import { isPhosphorIconName, isSimpleIconSlug, parseIconValueStrict } from "../icons";
+import { getPhosphorIconSvgUrl, isPhosphorIconName, isSimpleIconSlug, parseIconValueStrict } from "../icons";
 
 type SimpleIconEntry = {
   slug: string;
   svg: string;
 };
-
-const require = createRequire(import.meta.url);
 
 const SIMPLE_ICONS_BY_SLUG = new Map(
   Object.values(simpleIcons)
@@ -40,14 +35,6 @@ export type IconFetchResult =
       reason: IconFetchFailureReason;
       message: string;
     };
-
-const resolvePhosphorSvgPath = (name: string): string | null => {
-  try {
-    return require.resolve(`@phosphor-icons/core/assets/regular/${name}.svg`);
-  } catch {
-    return null;
-  }
-};
 
 export async function fetchIconSvg(iconValue: string): Promise<IconFetchResult> {
   const parsed = parseIconValueStrict(iconValue);
@@ -87,23 +74,22 @@ export async function fetchIconSvg(iconValue: string): Promise<IconFetchResult> 
     };
   }
 
-  const svgPath = resolvePhosphorSvgPath(parsed.name);
-  if (!svgPath) {
-    return {
-      ok: false,
-      reason: "missing-phosphor-asset",
-      message: `Local Phosphor asset not found for icon "${parsed.name}" (expected regular weight SVG).`,
-    };
-  }
-
   try {
-    const svg = await readFile(svgPath, "utf-8");
+    const response = await fetch(getPhosphorIconSvgUrl(parsed.name));
+    if (!response.ok) {
+      return {
+        ok: false,
+        reason: "missing-phosphor-asset",
+        message: `Failed to fetch Phosphor icon "${parsed.name}" from CDN (HTTP ${response.status}).`,
+      };
+    }
+    const svg = await response.text();
     return { ok: true, svg };
   } catch {
     return {
       ok: false,
       reason: "read-failed",
-      message: `Failed to read local Phosphor SVG for "${parsed.name}".`,
+      message: `Network error fetching Phosphor icon "${parsed.name}" from CDN.`,
     };
   }
 }

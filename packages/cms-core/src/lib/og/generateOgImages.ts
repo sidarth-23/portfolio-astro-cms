@@ -1,15 +1,13 @@
 import type { Payload } from "payload";
 
-import type { BlogPage, CvPage, HomePage, Media, NotFoundPage, Post, Project, ProjectsPage, Series, SeriesPage } from "../../payload-types";
+import type { Media } from "../../payload-types";
 import type { IconFetchFailureReason } from "./fetchIconSvg";
 import { fetchIconSvg, svgToDataUri } from "./fetchIconSvg";
 import type { SidebarIconDiagnostic } from "./fetchProfileImage";
 import { fetchProfileImageDataUri, fetchSidebarIcons, getSidebarIconDiagnostics } from "./fetchProfileImage";
+import type { OgTarget } from "./registry";
+import { OG_TARGETS } from "./registry";
 import { renderOgImage } from "./renderOgImage";
-
-// ---------------------------------------------------------------------------
-// Public types
-// ---------------------------------------------------------------------------
 
 export type OgGenerationMode = "unset-only" | "replace-all";
 
@@ -36,10 +34,6 @@ export type GenerateOgImagesOptions = {
   siteUrl?: string;
 };
 
-// ---------------------------------------------------------------------------
-// Internal types
-// ---------------------------------------------------------------------------
-
 type SharedAssets = {
   profileImageDataUri: string | undefined;
   socialIconDataUris: string[];
@@ -52,21 +46,68 @@ type ProcessorResult = {
   errors: Array<{ entity: string; error: string }>;
 };
 
-// ---------------------------------------------------------------------------
-// Helpers
-// ---------------------------------------------------------------------------
+type SeoMeta = {
+  title: string;
+  description: string;
+  image?: (number | null) | Media;
+};
 
-/**
- * Extracts a numeric media ID from Payload's polymorphic media ref type.
- * Payload stores relationships as either a populated object or a raw ID.
- */
-function resolveMediaId(ref: ((number | null) | Media) | undefined): number | null {
-  if (ref === null || ref === undefined) return null;
-  if (typeof ref === "number") return ref;
-  return ref.id;
+type ContentRecord = Record<string, unknown>;
+
+// ---- Helpers ----
+
+function resolveMediaId(value: unknown): number | null {
+  if (value === null || value === undefined) return null;
+  if (typeof value === "number") return value;
+  if (typeof value === "object" && "id" in value && typeof (value as Media).id === "number") {
+    return (value as Media).id;
+  }
+  return null;
 }
 
-async function uploadGeneratedOgImage(
+/**
+ * Get complete SEO meta from a document.
+ * Returns null if title or description are missing — the update must include
+ * both required fields or Payload's field validation will reject it.
+ */
+function getSeoMeta(doc: ContentRecord): SeoMeta | null {
+  const meta = doc.meta as SeoMeta | undefined;
+  if (!meta?.title?.trim() || !meta?.description?.trim()) return null;
+  return meta;
+}
+
+/**
+ * Get the title to render on the OG image.
+ * Uses the configured field if specified, otherwise falls back to meta.title.
+ */
+function getOgTitle(target: OgTarget, doc: ContentRecord): string | null {
+  if (target.ogTitle) {
+    const val = doc[target.ogTitle];
+    return typeof val === "string" && val.trim() ? val.trim() : null;
+  }
+  const meta = doc.meta as SeoMeta | undefined;
+  return meta?.title?.trim() || null;
+}
+
+/** Auto-generate an entity label for error reporting */
+function getEntityLabel(target: OgTarget, doc: ContentRecord): string {
+  if (target.type === "collection") {
+    const name = doc.title ?? doc.name ?? doc.slug ?? "";
+    return `${target.slug}/${doc.id} (${name})`;
+  }
+  return `global/${target.slug}`;
+}
+
+/** Auto-generate the OG image filename */
+function getOgFilename(target: OgTarget, doc: ContentRecord): string {
+  if (target.type === "collection") {
+    const slug = typeof doc.slug === "string" ? doc.slug : String(doc.id ?? "item");
+    return `og-${target.slug}-${slug}.png`;
+  }
+  return `og-${target.slug}.png`;
+}
+
+async function uploadOgImage(
   payload: Payload,
   title: string,
   filename: string,
@@ -88,245 +129,145 @@ async function uploadGeneratedOgImage(
   return media.id;
 }
 
-// ---------------------------------------------------------------------------
-// Processors — one per entity type, each fully typed
-// ---------------------------------------------------------------------------
-
-/**
- * Posts: copy coverImage → meta.image (no Satori generation).
- * Falls back to Satori auto-generate if a post has no cover image.
- */
-async function processPostsOg(
+async function processDoc(
   payload: Payload,
+  target: OgTarget,
+  doc: ContentRecord,
+  mode: OgGenerationMode,
+  assets: SharedAssets,
+): Promise<{ generated: boolean; skipped: boolean; error?: string }> {
+  // Check if OG image is already set (skip in unset-only mode)
+  const meta = doc.meta as SeoMeta | undefined;
+  const currentImageId = resolveMediaId(meta?.image);
+  if (mode === "unset-only" && currentImageId !== null) {
+    return { generated: false, skipped: true };
+  }
+
+  // Validate complete SEO meta — both title and description must exist
+  // because Payload replaces the entire meta group on update, and they are required fields
+  const seoMeta = getSeoMeta(doc);
+  if (!seoMeta) {
+    return {
+      generated: false,
+      skipped: false,
+      error: "SEO title and description must be set before generating an OG image (fill in the SEO tab).",
+    };
+  }
+
+  // Get title to render on the OG image
+  const ogTitle = getOgTitle(target, doc);
+  if (!ogTitle) {
+    return {
+      generated: false,
+      skipped: false,
+      error: `Cannot generate OG image: the configured title field "${target.ogTitle}" is empty.`,
+    };
+  }
+
+  // Resolve image — use existing if available, otherwise generate
+  const filename = getOgFilename(target, doc);
+  let imageId: number;
+  if (target.type === "collection" && target.existingImage) {
+    const existing = resolveMediaId(doc[target.existingImage]);
+    imageId = existing ?? await uploadOgImage(payload, ogTitle, filename, assets);
+  } else {
+    imageId = await uploadOgImage(payload, ogTitle, filename, assets);
+  }
+
+  // Build update data — always include required SEO fields to satisfy Payload field validation
+  const updateData = {
+    meta: { title: seoMeta.title, description: seoMeta.description, image: imageId },
+  };
+
+  if (target.type === "collection") {
+    const docId = doc.id;
+    if (typeof docId !== "number") {
+      return { generated: false, skipped: false, error: "Cannot update: document ID is missing." };
+    }
+
+    await payload.update({
+      collection: target.slug as never,
+      id: docId,
+      data: updateData as never,
+      context: { skipDataValidation: true },
+      ...(doc._status === "draft" ? { draft: true } : {}),
+    });
+  } else {
+    await payload.updateGlobal({
+      slug: target.slug as never,
+      data: updateData as never,
+      context: { skipDataValidation: true },
+    });
+  }
+
+  return { generated: true, skipped: false };
+}
+
+async function processTarget(
+  payload: Payload,
+  target: OgTarget,
   mode: OgGenerationMode,
   assets: SharedAssets,
 ): Promise<ProcessorResult> {
   const result: ProcessorResult = { generated: 0, skipped: 0, errors: [] };
 
-  const { docs: posts } = await payload.find({
-    collection: "posts",
-    limit: 0,
-    pagination: false,
-    depth: 1, // depth 1 to resolve coverImage as Media object
-  });
+  if (target.type === "collection") {
+    const found = await payload.find({
+      collection: target.slug as never,
+      limit: 0,
+      pagination: false,
+      depth: target.depth ?? 0,
+    });
 
-  for (const post of posts) {
-    const label = `posts/${post.id} (${post.title})`;
+    for (const rawDoc of found.docs) {
+      const doc = rawDoc as unknown as ContentRecord;
+      const label = getEntityLabel(target, doc);
 
-    if (mode === "unset-only" && resolveMediaId(post.meta.image) !== null) {
-      result.skipped++;
-      continue;
+      try {
+        const docResult = await processDoc(payload, target, doc, mode, assets);
+        if (docResult.generated) {
+          result.generated++;
+          continue;
+        }
+
+        result.skipped++;
+        if (docResult.error) {
+          result.errors.push({ entity: label, error: docResult.error });
+        }
+      } catch (error) {
+        result.errors.push({ entity: label, error: error instanceof Error ? error.message : String(error) });
+      }
     }
 
-    try {
-      const coverMediaId = resolveMediaId(post.coverImage);
-      const imageId = coverMediaId
-        ?? await uploadGeneratedOgImage(payload, post.title, `og-post-${post.slug}.png`, assets);
-      await payload.update({
-        collection: "posts",
-        id: post.id,
-        data: { meta: { image: imageId } },
-        context: { skipDataValidation: true },
-        ...(post._status === "draft" ? { draft: true } : {}),
-      });
+    return result;
+  }
+
+  // Global
+  try {
+    const doc = (await payload.findGlobal({ slug: target.slug as never, depth: 0 })) as unknown as ContentRecord;
+    const label = getEntityLabel(target, doc);
+
+    const docResult = await processDoc(payload, target, doc, mode, assets);
+    if (docResult.generated) {
       result.generated++;
-    } catch (error) {
-      result.errors.push({ entity: label, error: error instanceof Error ? error.message : String(error) });
+    } else {
+      result.skipped++;
+      if (docResult.error) {
+        result.errors.push({ entity: label, error: docResult.error });
+      }
     }
+  } catch (error) {
+    result.errors.push({ entity: `global/${target.slug}`, error: error instanceof Error ? error.message : String(error) });
   }
 
   return result;
 }
 
-/**
- * Projects: copy image → meta.image (no Satori generation).
- * Falls back to Satori auto-generate if a project has no image.
- * Always sets meta title/description since projects were recently added to the SEO plugin.
- */
-async function processProjectsOg(
-  payload: Payload,
-  mode: OgGenerationMode,
-  assets: SharedAssets,
-): Promise<ProcessorResult> {
-  const result: ProcessorResult = { generated: 0, skipped: 0, errors: [] };
-
-  const { docs: projects } = await payload.find({
-    collection: "projects",
-    limit: 0,
-    pagination: false,
-    depth: 1, // depth 1 to resolve image as Media object
-  });
-
-  for (const project of projects) {
-    const label = `projects/${project.id} (${project.title})`;
-
-    if (mode === "unset-only" && resolveMediaId(project.meta.image) !== null) {
-      result.skipped++;
-      continue;
-    }
-
-    try {
-      const imageMediaId = resolveMediaId(project.image);
-      const imageId = imageMediaId
-        ?? await uploadGeneratedOgImage(payload, project.title, `og-project-${project.slug}.png`, assets);
-      await payload.update({
-        collection: "projects",
-        id: project.id,
-        data: { meta: { title: project.title, description: "", image: imageId } },
-        context: { skipDataValidation: true },
-        ...(project._status === "draft" ? { draft: true } : {}),
-      });
-      result.generated++;
-    } catch (error) {
-      result.errors.push({ entity: label, error: error instanceof Error ? error.message : String(error) });
-    }
-  }
-
-  return result;
-}
-
-/**
- * Series: auto-generate OG image via Satori.
- */
-async function processSeriesOg(
-  payload: Payload,
-  mode: OgGenerationMode,
-  assets: SharedAssets,
-): Promise<ProcessorResult> {
-  const result: ProcessorResult = { generated: 0, skipped: 0, errors: [] };
-
-  const { docs: allSeries } = await payload.find({
-    collection: "series",
-    limit: 0,
-    pagination: false,
-    depth: 0,
-  });
-
-  for (const series of allSeries) {
-    const label = `series/${series.id} (${series.name})`;
-
-    if (mode === "unset-only" && resolveMediaId(series.meta.image) !== null) {
-      result.skipped++;
-      continue;
-    }
-
-    try {
-      const mediaId = await uploadGeneratedOgImage(payload, series.name, `og-series-${series.slug}.png`, assets);
-      await payload.update({
-        collection: "series",
-        id: series.id,
-        data: { meta: { image: mediaId } },
-        context: { skipDataValidation: true },
-      });
-      result.generated++;
-    } catch (error) {
-      result.errors.push({ entity: label, error: error instanceof Error ? error.message : String(error) });
-    }
-  }
-
-  return result;
-}
-
-async function processHomePageOg(payload: Payload, mode: OgGenerationMode, assets: SharedAssets): Promise<ProcessorResult> {
-  const result: ProcessorResult = { generated: 0, skipped: 0, errors: [] };
-  try {
-    const doc: HomePage = await payload.findGlobal({ slug: "home-page", depth: 0 });
-    if (mode === "unset-only" && resolveMediaId(doc.meta.image) !== null) return { ...result, skipped: 1 };
-    const mediaId = await uploadGeneratedOgImage(payload, doc.meta.title, "og-home-page.png", assets);
-    await payload.updateGlobal({ slug: "home-page", data: { meta: { image: mediaId } }, context: { skipDataValidation: true } });
-    return { ...result, generated: 1 };
-  } catch (error) {
-    return { ...result, errors: [{ entity: "global/home-page", error: error instanceof Error ? error.message : String(error) }] };
-  }
-}
-
-async function processCvPageOg(payload: Payload, mode: OgGenerationMode, assets: SharedAssets): Promise<ProcessorResult> {
-  const result: ProcessorResult = { generated: 0, skipped: 0, errors: [] };
-  try {
-    const doc: CvPage = await payload.findGlobal({ slug: "cv-page", depth: 0 });
-    if (mode === "unset-only" && resolveMediaId(doc.meta.image) !== null) return { ...result, skipped: 1 };
-    const mediaId = await uploadGeneratedOgImage(payload, doc.meta.title, "og-cv-page.png", assets);
-    await payload.updateGlobal({ slug: "cv-page", data: { meta: { image: mediaId } }, context: { skipDataValidation: true } });
-    return { ...result, generated: 1 };
-  } catch (error) {
-    return { ...result, errors: [{ entity: "global/cv-page", error: error instanceof Error ? error.message : String(error) }] };
-  }
-}
-
-async function processBlogPageOg(payload: Payload, mode: OgGenerationMode, assets: SharedAssets): Promise<ProcessorResult> {
-  const result: ProcessorResult = { generated: 0, skipped: 0, errors: [] };
-  try {
-    const doc: BlogPage = await payload.findGlobal({ slug: "blog-page", depth: 0 });
-    if (mode === "unset-only" && resolveMediaId(doc.meta.image) !== null) return { ...result, skipped: 1 };
-    const mediaId = await uploadGeneratedOgImage(payload, doc.meta.title, "og-blog-page.png", assets);
-    await payload.updateGlobal({ slug: "blog-page", data: { meta: { image: mediaId } }, context: { skipDataValidation: true } });
-    return { ...result, generated: 1 };
-  } catch (error) {
-    return { ...result, errors: [{ entity: "global/blog-page", error: error instanceof Error ? error.message : String(error) }] };
-  }
-}
-
-async function processSeriesPageOg(payload: Payload, mode: OgGenerationMode, assets: SharedAssets): Promise<ProcessorResult> {
-  const result: ProcessorResult = { generated: 0, skipped: 0, errors: [] };
-  try {
-    const doc: SeriesPage = await payload.findGlobal({ slug: "series-page", depth: 0 });
-    if (mode === "unset-only" && resolveMediaId(doc.meta.image) !== null) return { ...result, skipped: 1 };
-    const mediaId = await uploadGeneratedOgImage(payload, doc.meta.title, "og-series-page.png", assets);
-    await payload.updateGlobal({ slug: "series-page", data: { meta: { image: mediaId } }, context: { skipDataValidation: true } });
-    return { ...result, generated: 1 };
-  } catch (error) {
-    return { ...result, errors: [{ entity: "global/series-page", error: error instanceof Error ? error.message : String(error) }] };
-  }
-}
-
-async function processProjectsPageOg(payload: Payload, mode: OgGenerationMode, assets: SharedAssets): Promise<ProcessorResult> {
-  const result: ProcessorResult = { generated: 0, skipped: 0, errors: [] };
-  try {
-    const doc: ProjectsPage = await payload.findGlobal({ slug: "projects-page", depth: 0 });
-    if (mode === "unset-only" && resolveMediaId(doc.meta.image) !== null) return { ...result, skipped: 1 };
-    const mediaId = await uploadGeneratedOgImage(payload, doc.meta.title, "og-projects-page.png", assets);
-    await payload.updateGlobal({ slug: "projects-page", data: { meta: { image: mediaId } }, context: { skipDataValidation: true } });
-    return { ...result, generated: 1 };
-  } catch (error) {
-    return { ...result, errors: [{ entity: "global/projects-page", error: error instanceof Error ? error.message : String(error) }] };
-  }
-}
-
-async function processNotFoundPageOg(payload: Payload, mode: OgGenerationMode, assets: SharedAssets): Promise<ProcessorResult> {
-  const result: ProcessorResult = { generated: 0, skipped: 0, errors: [] };
-  try {
-    const doc: NotFoundPage = await payload.findGlobal({ slug: "not-found-page", depth: 0 });
-    if (mode === "unset-only" && resolveMediaId(doc.meta.image) !== null) return { ...result, skipped: 1 };
-    const mediaId = await uploadGeneratedOgImage(payload, doc.meta.title, "og-not-found-page.png", assets);
-    await payload.updateGlobal({ slug: "not-found-page", data: { meta: { image: mediaId } }, context: { skipDataValidation: true } });
-    return { ...result, generated: 1 };
-  } catch (error) {
-    return { ...result, errors: [{ entity: "global/not-found-page", error: error instanceof Error ? error.message : String(error) }] };
-  }
-}
-
-// ---------------------------------------------------------------------------
-// Orchestrator
-// ---------------------------------------------------------------------------
-
-/**
- * Generates and uploads OG images for all SEO-enabled entities.
- *
- * Image strategy per entity:
- * - posts     → copy coverImage field; fallback to Satori auto-generate
- * - projects  → copy image field; fallback to Satori auto-generate
- * - series    → Satori auto-generate
- * - all globals → Satori auto-generate
- *
- * Add new entities by implementing a processor function above and adding it
- * to the PROCESSORS array below.
- */
 export async function generateOgImages(
   payload: Payload,
   mode: OgGenerationMode,
   options: GenerateOgImagesOptions = {},
 ): Promise<OgGenerationResult> {
-  // Load shared assets once — profile image and social icons from site-settings
   const [profileImageDataUri, iconEntries] = await Promise.all([
     fetchProfileImageDataUri(payload),
     fetchSidebarIcons(payload),
@@ -341,32 +282,19 @@ export async function generateOgImages(
   );
 
   const successfulIconSvgs = iconFetchResults.flatMap((item) => (item.result.ok ? [item.result.svg] : []));
-  const socialIconDataUris = await Promise.all(successfulIconSvgs.map((s) => svgToDataUri(s)));
+  const socialIconDataUris = await Promise.all(successfulIconSvgs.map((svg) => svgToDataUri(svg)));
 
   const assets: SharedAssets = { profileImageDataUri, socialIconDataUris, siteUrl: options.siteUrl };
 
-  const processors = [
-    processPostsOg,
-    processProjectsOg,
-    processSeriesOg,
-    processHomePageOg,
-    processCvPageOg,
-    processBlogPageOg,
-    processSeriesPageOg,
-    processProjectsPageOg,
-    processNotFoundPageOg,
-  ];
-
   const failedToLoad = iconFetchResults.flatMap((item) => {
     if (item.result.ok) return [];
-    return [
-      {
-        index: item.entry.index,
-        iconValue: item.entry.iconValue,
-        reason: item.result.reason,
-        message: item.result.message,
-      },
-    ];
+
+    return [{
+      index: item.entry.index,
+      iconValue: item.entry.iconValue,
+      reason: item.result.reason,
+      message: item.result.message,
+    }];
   });
 
   const totals: OgGenerationResult = {
@@ -390,12 +318,12 @@ export async function generateOgImages(
     });
   }
 
-  for (const processor of processors) {
-    const r = await processor(payload, mode, assets);
-    totals.generated += r.generated;
-    totals.skipped += r.skipped;
-    totals.errors.push(...r.errors);
-    totals.total += r.generated + r.skipped + r.errors.length;
+  for (const target of OG_TARGETS) {
+    const targetResult = await processTarget(payload, target, mode, assets);
+    totals.generated += targetResult.generated;
+    totals.skipped += targetResult.skipped;
+    totals.errors.push(...targetResult.errors);
+    totals.total += targetResult.generated + targetResult.skipped + targetResult.errors.length;
   }
 
   return totals;
