@@ -147,10 +147,6 @@ export const makeHomePage = (posts: Post[], overrides: Partial<HomePage> = {}): 
   name: faker.person.fullName(),
   role: faker.person.jobTitle(),
   about: makeRichText(),
-  meta: {
-    title: "Mock Portfolio",
-    description: faker.lorem.sentence(),
-  },
   featuredSections: [
     {
       name: "Featured Posts",

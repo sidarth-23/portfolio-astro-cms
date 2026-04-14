@@ -1,21 +1,15 @@
 ---
 import NotFoundState from "@/components/NotFoundState.astro";
 import ErrorLayout from "@/layouts/ErrorLayout.astro";
-import { cmsClient } from "@/lib/cms";
+import { getErrorPageSeo } from "@/lib/seo";
 
-const { meta } = await cmsClient.getHomePage();
-
-if (!meta.title || !meta.description) {
-  throw new Error(
-    "500 page requires Home SEO `meta.title` + `meta.description`.",
-  );
-}
+const seo = await getErrorPageSeo();
 ---
 
 <ErrorLayout
-  title={meta.title}
-  description={meta.description}
-  image={cmsClient.mediaToUrl(meta?.image)}
+  title={seo.title}
+  description={seo.description}
+  image={seo.image}
 >
   <NotFoundState
     title="500"

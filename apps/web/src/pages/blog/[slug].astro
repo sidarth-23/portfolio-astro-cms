@@ -7,6 +7,7 @@ import PostLayout from "@/layouts/PostLayout.astro";
 import { extractTableOfContents } from "@sidshub/cms-editor/web/html";
 import { resolveIcon } from "@/lib/resolveIcon";
 import { cmsClient } from "@/lib/cms";
+import { getErrorPageSeo } from "@/lib/seo";
 
 export const prerender = false;
 
@@ -69,13 +70,7 @@ if (post) {
   }
 }
 
-const homePage = missingPost ? await cmsClient.getHomePage() : null;
-
-if (homePage && (!homePage.meta?.title || !homePage.meta?.description)) {
-  throw new Error(
-    "404 page requires Home SEO `meta.title` + `meta.description`.",
-  );
-}
+const errorSeo = missingPost ? await getErrorPageSeo() : null;
 
 if (post?.meta && (!post.meta.title || !post.meta.description)) {
   throw new Error(
@@ -100,11 +95,11 @@ const pubDate = post?.publishedAt || post?.createdAt || new Date().toISOString()
 ---
 
 {
-  missingPost && homePage ? (
+  missingPost && errorSeo ? (
     <ErrorLayout
-      title={homePage.meta.title}
-      description={homePage.meta.description}
-      image={cmsClient.mediaToUrl(homePage.meta?.image)}
+      title={errorSeo.title}
+      description={errorSeo.description}
+      image={errorSeo.image}
     >
       <NotFoundState
         title="404"

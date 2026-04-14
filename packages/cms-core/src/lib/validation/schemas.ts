@@ -96,36 +96,38 @@ export const siteSettingsSchema = withSeoMeta({
   ).optional(),
 });
 
-export const homePageSchema = withSeoMeta({
-  greeting: requiredText.optional(),
-  name: requiredText.optional(),
-  role: requiredText.optional(),
-  about: z.unknown().optional(),
-  featuredSections: z
-    .array(
-      z
-        .object({
-          name: requiredText.optional(),
-          description: z.unknown().optional(),
-          sourceCollection: z.enum(["posts", "projects"]).optional(),
-          posts: z.unknown().optional(),
-          projects: z.unknown().optional(),
-        })
-        .passthrough(),
-    )
-    .optional(),
-  ctaButtons: z
-    .array(
-      z
-        .object({
-          title: requiredText.optional(),
-          variant: z.enum(HOME_CTA_VARIANT_VALUES).optional(),
-          link: z.unknown().optional(),
-        })
-        .passthrough(),
-    )
-    .optional(),
-});
+export const homePageSchema = z
+  .object({
+    greeting: requiredText.optional(),
+    name: requiredText.optional(),
+    role: requiredText.optional(),
+    about: z.unknown().optional(),
+    featuredSections: z
+      .array(
+        z
+          .object({
+            name: requiredText.optional(),
+            description: z.unknown().optional(),
+            sourceCollection: z.enum(["posts", "projects"]).optional(),
+            posts: z.unknown().optional(),
+            projects: z.unknown().optional(),
+          })
+          .passthrough(),
+      )
+      .optional(),
+    ctaButtons: z
+      .array(
+        z
+          .object({
+            title: requiredText.optional(),
+            variant: z.enum(HOME_CTA_VARIANT_VALUES).optional(),
+            link: z.unknown().optional(),
+          })
+          .passthrough(),
+      )
+      .optional(),
+  })
+  .passthrough();
 
 export const blogPageSchema = withSeoMeta({
   title: requiredText.optional(),
