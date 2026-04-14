@@ -13,13 +13,15 @@ type SeoConfirmModalProps = {
   slug: string;
   /** Which fields have differences — these are shown as a list in the dialog */
   changedFields: Array<"title" | "description" | "image">;
-  /** Called when user clicks "Update SEO" */
+  /** Called when user clicks "Update SEO". Caller is responsible for closing the drawer via closeModal(). */
   onConfirm: () => void;
-  /** Called when user clicks "Skip" */
+  /** Called when user clicks "Skip". Caller is responsible for closing the drawer via closeModal(). */
   onSkip: () => void;
 };
 
 export function SeoConfirmModal({ slug, changedFields, onConfirm, onSkip }: SeoConfirmModalProps) {
+  if (changedFields.length === 0) return null;
+
   const drawerSlug = useDrawerSlug(slug);
 
   return (
