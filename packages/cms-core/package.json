@@ -24,6 +24,10 @@
     "./admin-overrides.css": "./dist/styles/admin-overrides.css",
     "./admin/*": "./dist/components/admin/*.mjs"
   },
+  "peerDependencies": {
+    "qs-esm": "*",
+    "sharp": "*"
+  },
   "devDependencies": {
     "@faker-js/faker": "^9.8.0",
     "@sidshub/eslint-config": "workspace:*",

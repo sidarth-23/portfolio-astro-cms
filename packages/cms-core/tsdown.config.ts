@@ -21,6 +21,7 @@ export default defineConfig({
   unbundle: true,
   fixedExtension: true,
   platform: "neutral",
+  external: ["node:path", "node:url", "path", "url", "fs/promises", "sharp", "qs-esm"],
   skipNodeModulesBundle: true,
   copy: [
     {
