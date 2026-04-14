@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 import { Drawer, DrawerToggler, useDrawerSlug } from "@payloadcms/ui";
 import { toast } from "@payloadcms/ui";
@@ -26,17 +26,10 @@ type DeleteResult = {
 
 export function OrphanedMediaDrawer() {
   const drawerSlug = useDrawerSlug("orphaned-media");
-  const [isOpen, setIsOpen] = useState(false);
   const [status, setStatus] = useState<"idle" | "scanning" | "deleting" | "done">("idle");
   const [result, setResult] = useState<ScanResult | null>(null);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    if (isOpen) {
-      void scan();
-    }
-  }, [isOpen]);
 
   async function scan() {
     setStatus("scanning");
@@ -152,7 +145,7 @@ export function OrphanedMediaDrawer() {
     <>
       <DrawerToggler
         slug={drawerSlug}
-        onClick={() => setIsOpen(true)}
+        onClick={() => { void scan(); }}
         style={{
           display: "inline-flex",
           alignItems: "center",
