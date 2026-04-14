@@ -98,6 +98,7 @@ export function createCmsConfig(options: CmsConfigOptions) {
   );
 
   return buildConfig({
+    // Experimental in Payload v3 — may change in minor versions until stable.
     folders: {},
     editor: createBasicRichTextEditor(),
     serverURL: options.serverURL,
