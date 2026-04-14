@@ -58,15 +58,6 @@ type HomeCtaButton = {
   newTab: boolean;
 };
 
-const buildPublishedWhere = (options: PostFilterOptions = {}): Where => {
-  const conditions: Where[] = [{ _status: { equals: "published" } }];
-  if (options.slug) conditions.push({ slug: { equals: options.slug } });
-  if (options.categorySlug) conditions.push({ "primaryCategory.slug": { equals: options.categorySlug } });
-  if (options.seriesSlug) conditions.push({ "series.slug": { equals: options.seriesSlug } });
-  if (options.search)
-    conditions.push({ or: [{ title: { like: options.search } }, { excerpt: { like: options.search } }] });
-  return conditions.length === 1 ? conditions[0] : { and: conditions };
-};
 
 const sortPosts = (posts: Post[]): Post[] => {
   return posts.sort((a, b) => {
@@ -90,10 +81,31 @@ const toTrimmedString = (value: unknown): string | undefined => {
 };
 
 export const createCmsClient = ({ sdk, mediaBaseUrl }: CmsTransport) => {
+  const buildPublishedWhere = async (options: PostFilterOptions = {}): Promise<Where> => {
+    const conditions: Where[] = [{ _status: { equals: "published" } }];
+    if (options.slug) conditions.push({ slug: { equals: options.slug } });
+    if (options.categorySlug) conditions.push({ "primaryCategory.slug": { equals: options.categorySlug } });
+    if (options.seriesSlug) {
+      const seriesResponse = await sdk.find({
+        collection: "series",
+        where: { slug: { equals: options.seriesSlug } },
+        depth: 1,
+        limit: 1,
+      });
+      const postIds = (seriesResponse.docs[0]?.posts ?? [])
+        .map((p) => (typeof p === "number" ? p : (p as { id?: unknown }).id))
+        .filter((id): id is number => typeof id === "number");
+      conditions.push(postIds.length > 0 ? { id: { in: postIds } } : { id: { equals: -1 } });
+    }
+    if (options.search)
+      conditions.push({ or: [{ title: { like: options.search } }, { excerpt: { like: options.search } }] });
+    return conditions.length === 1 ? conditions[0] : { and: conditions };
+  };
+
   const fetchPublishedPostsPage = async (options: PublishedPostsQueryOptions = {}) => {
     return sdk.find({
       collection: "posts",
-      where: buildPublishedWhere(options),
+      where: await buildPublishedWhere(options),
       depth: options.depth ?? 3,
       sort: options.sort ?? "-publishedAt",
       limit: options.limit ?? options.pageSize,
@@ -134,7 +146,7 @@ export const createCmsClient = ({ sdk, mediaBaseUrl }: CmsTransport) => {
   ): Promise<boolean> => {
     const result = await sdk.count({
       collection: "posts",
-      where: buildPublishedWhere(filters),
+      where: await buildPublishedWhere(filters),
     });
 
     return result.totalDocs > 0;

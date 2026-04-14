@@ -79,7 +79,11 @@ export interface Config {
     'payload-preferences': PayloadPreference;
     'payload-migrations': PayloadMigration;
   };
-  collectionsJoins: {};
+  collectionsJoins: {
+    posts: {
+      series: 'series';
+    };
+  };
   collectionsSelect: {
     users: UsersSelect<false> | UsersSelect<true>;
     media: MediaSelect<false> | MediaSelect<true>;
@@ -286,7 +290,11 @@ export interface Post {
   /**
    * Managed from the Series collection.
    */
-  series?: (number | null) | Series;
+  series?: {
+    docs?: (number | Series)[];
+    hasNextPage?: boolean;
+    totalDocs?: number;
+  };
   meta: {
     title: string;
     description: string;
@@ -331,10 +339,6 @@ export interface Post {
           | null;
       }[]
     | null;
-  /**
-   * Managed from Home Page featured sections.
-   */
-  homeSectionsSummary?: string | null;
   updatedAt: string;
   createdAt: string;
   _status?: ('draft' | 'published') | null;
@@ -769,7 +773,6 @@ export interface PostsSelect<T extends boolean = true> {
               id?: T;
             };
       };
-  homeSectionsSummary?: T;
   updatedAt?: T;
   createdAt?: T;
   _status?: T;

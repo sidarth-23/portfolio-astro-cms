@@ -1,7 +1,6 @@
 import type { CollectionConfig } from "payload";
 
 import { readAccess } from "../access/readAccess";
-import { syncSeriesPostsToPosts } from "../hooks/syncSeriesPostsToPosts";
 
 import { slugField } from "../fields/slug";
 import { createPayloadDataSchemaHook } from "../lib/validation";
@@ -19,7 +18,6 @@ export const Series: CollectionConfig = {
   },
   hooks: {
     beforeValidate: [createPayloadDataSchemaHook(seriesSchema, { errorPrefix: "Series validation failed:" })],
-    afterChange: [syncSeriesPostsToPosts],
   },
   fields: [
     {

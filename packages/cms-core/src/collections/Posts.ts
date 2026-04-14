@@ -80,16 +80,12 @@ export const Posts: CollectionConfig = {
             },
             {
               name: "series",
-              type: "relationship",
-              relationTo: "series",
-              required: false,
+              type: "join",
+              collection: "series",
+              on: "posts",
+              maxDepth: 1,
               admin: {
-                readOnly: true,
                 description: "Managed from the Series collection.",
-              },
-              access: {
-                create: () => false,
-                update: () => false,
               },
             },
           ],
@@ -172,19 +168,6 @@ export const Posts: CollectionConfig = {
           ],
         },
       ],
-    },
-    {
-      name: "homeSectionsSummary",
-      type: "text",
-      admin: {
-        position: "sidebar",
-        readOnly: true,
-        description: "Managed from Home Page featured sections.",
-      },
-      access: {
-        create: () => false,
-        update: () => false,
-      },
     },
   ],
   versions: {

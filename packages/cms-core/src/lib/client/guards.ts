@@ -21,8 +21,14 @@ export const asCategory = (value: RelationValue<Category>): Category | undefined
   return isObjectRelation<Category>(value) ? value : undefined;
 };
 
-export const asSeries = (value: RelationValue<Series>): Series | undefined => {
-  return isObjectRelation<Series>(value) ? value : undefined;
+export const asSeries = (value: unknown): Series | undefined => {
+  if (typeof value !== "object" || value === null) return undefined;
+  // Payload join field shape: { docs?: T[], hasNextPage?: boolean }
+  if ("docs" in value) {
+    const first = (value as { docs?: unknown[] }).docs?.[0];
+    return typeof first === "object" && first !== null ? (first as Series) : undefined;
+  }
+  return value as Series;
 };
 
 export const asUserArray = (value: Post["authors"]): User[] => {

@@ -4,7 +4,6 @@ import { createBasicRichTextEditor } from "@sidshub/cms-editor/cms";
 import { readAccess } from "../access/readAccess";
 import { featuredSectionFields } from "../fields/featured";
 import { linkField } from "../fields/link";
-import { syncHomeSectionsToPosts } from "../hooks/syncHomeSectionsToPosts";
 import { HOME_CTA_VARIANT_OPTIONS } from "../lib/content";
 import { createPayloadDataSchemaHook } from "../lib/validation";
 import { homePageSchema } from "../lib/validation";
@@ -20,7 +19,6 @@ export const HomePage: GlobalConfig = {
   },
   hooks: {
     beforeValidate: [createPayloadDataSchemaHook(homePageSchema, { errorPrefix: "Home page validation failed:" })],
-    afterChange: [syncHomeSectionsToPosts],
   },
   fields: [
     {
