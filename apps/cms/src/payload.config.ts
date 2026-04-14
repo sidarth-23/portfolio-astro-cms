@@ -8,17 +8,6 @@ import type { HookConfig } from "@sidshub/cms-core/deployment";
 import { env } from "./env";
 import { ensureS3BucketExists } from "./lib/ensureS3Bucket";
 
-const isLocalEndpoint = (endpoint?: string): boolean => {
-  if (!endpoint) return false;
-  return endpoint.includes("localhost") || endpoint.includes("127.0.0.1");
-};
-
-const shouldAutoCreateBucket = (): boolean => {
-  if (env.S3_AUTO_CREATE_BUCKET === "true") return true;
-  if (env.S3_AUTO_CREATE_BUCKET === "false") return false;
-  return env.NODE_ENV !== "production" && isLocalEndpoint(env.S3_ENDPOINT);
-};
-
 function buildDeploymentAdapter(): ReturnType<typeof createDeploymentAdapter> | undefined {
   if (!env.SITE_BUILD_HOOK_TYPE) return undefined;
   switch (env.SITE_BUILD_HOOK_TYPE) {
@@ -90,14 +79,12 @@ export default createCmsConfig({
   deploymentHookType: env.SITE_BUILD_HOOK_TYPE,
   deploymentHookValid: isDeploymentHookValid(),
   onInit: async () => {
-    if (env.S3_ENDPOINT && shouldAutoCreateBucket()) {
-      await ensureS3BucketExists({
-        bucket: env.S3_BUCKET,
-        endpoint: env.S3_ENDPOINT,
-        region: env.S3_REGION,
-        accessKeyId: env.S3_ACCESS_KEY_ID,
-        secretAccessKey: env.S3_SECRET_ACCESS_KEY,
-      });
-    }
+    await ensureS3BucketExists({
+      bucket: env.S3_BUCKET,
+      endpoint: env.S3_ENDPOINT,
+      region: env.S3_REGION,
+      accessKeyId: env.S3_ACCESS_KEY_ID,
+      secretAccessKey: env.S3_SECRET_ACCESS_KEY,
+    });
   },
 });

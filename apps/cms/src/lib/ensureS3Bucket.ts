@@ -1,20 +1,20 @@
-import { CreateBucketCommand, HeadBucketCommand, S3Client } from "@aws-sdk/client-s3";
+import { HeadBucketCommand, S3Client } from "@aws-sdk/client-s3";
 
 type S3BucketConfig = {
   bucket: string;
-  endpoint: string;
+  endpoint?: string;
   region: string;
   accessKeyId: string;
   secretAccessKey: string;
 };
 
-const isNoSuchBucketError = (error: unknown): boolean => {
+const getS3ErrorName = (error: unknown): string | undefined => {
   if (!(error instanceof Error)) {
-    return false;
+    return undefined;
   }
 
-  const candidate = error as Error & { name?: string; Code?: string };
-  return candidate.name === "NotFound" || candidate.name === "NoSuchBucket" || candidate.Code === "NoSuchBucket";
+  const candidate = error as Error & { name?: string; Code?: string; code?: string };
+  return candidate.Code ?? candidate.code ?? candidate.name;
 };
 
 export const ensureS3BucketExists = async (config: S3BucketConfig): Promise<void> => {
@@ -31,10 +31,20 @@ export const ensureS3BucketExists = async (config: S3BucketConfig): Promise<void
   try {
     await s3Client.send(new HeadBucketCommand({ Bucket: config.bucket }));
   } catch (error) {
-    if (!isNoSuchBucketError(error)) {
-      throw error;
+    const errorName = getS3ErrorName(error);
+
+    if (errorName === "NoSuchBucket" || errorName === "NotFound") {
+      throw new Error(
+        `S3 bucket \"${config.bucket}\" does not exist. Provision it before starting CMS (for local setup use: task up or task up:build).`,
+      );
     }
 
-    await s3Client.send(new CreateBucketCommand({ Bucket: config.bucket }));
+    if (errorName === "AccessDenied") {
+      throw new Error(
+        `Access denied while validating S3 bucket \"${config.bucket}\". Check S3 credentials and bucket permissions.`,
+      );
+    }
+
+    throw error;
   }
 };

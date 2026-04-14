@@ -14,9 +14,11 @@ bun run --filter @sidshub/cms cleanup:media
 Copy the root `.env.cms.example` to `apps/cms/.env` and fill required values.
 
 Required for web read access over REST:
+
 - `CMS_READ_TOKEN` (must match `ASTRO_CMS_READ_TOKEN` used by the web app)
 
 Required for auth email delivery via Resend:
+
 - `RESEND_API_KEY`
 - `EMAIL_FROM_ADDRESS`
 - `EMAIL_FROM_NAME`
@@ -26,7 +28,8 @@ Required for auth email delivery via Resend:
 
 - Uses MongoDB as primary DB.
 - Uses MinIO (S3-compatible) for media storage.
-- Auto-creates the configured S3 bucket in local dev (or when `S3_AUTO_CREATE_BUCKET=true`).
+- Bucket provisioning is owned by infrastructure (Compose/Taskfile), not CMS runtime.
+- CMS validates bucket presence at startup and fails fast when the bucket is missing.
 - No migration workflow is required in local or production runtime.
 - Uses `@payloadcms/plugin-seo` for SEO metadata.
 - Uses Lexical editor for long-form content.
@@ -58,7 +61,7 @@ If you see errors like `Cannot find module './vendor-chunks/date-fns.js'` while 
 If you see S3 errors like `NoSuchBucket` for media files:
 
 - Cause: local MinIO bucket has not been created yet.
-- Resolution: set `S3_AUTO_CREATE_BUCKET=true` (default in `.env.cms.example`) and restart CMS dev.
+- Resolution: run `task up` or `task up:build` so Taskfile provisions the bucket via `minio-init`.
 
 ## Media Uploads
 

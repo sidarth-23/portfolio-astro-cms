@@ -8,6 +8,7 @@
 ## Required Env Vars
 
 ### payload-cms (CMS app)
+
 - `PAYLOAD_SECRET`
 - `CMS_READ_TOKEN`
 - `PAYLOAD_PUBLIC_SERVER_URL`
@@ -19,7 +20,7 @@
 - `S3_BUCKET`
 - `S3_REGION`
 - `S3_ENDPOINT`
-- `S3_AUTO_CREATE_BUCKET` (recommended: `true` for MinIO)
+- `MINIO_CREATE_BUCKET_ON_STARTUP` (recommended: `false`; set `true` only when you want compose to provision bucket)
 - `S3_ACCESS_KEY_ID`
 - `S3_SECRET_ACCESS_KEY`
 - `WEB_DEPLOY_WEBHOOK_URL`
@@ -28,6 +29,7 @@
 - `MEDIA_CLEANUP_DRY_RUN` (optional, default `false`)
 
 ### astro-web (Web app)
+
 - `ASTRO_SITE_URL`
 - `ASTRO_CMS_API_URL`
 - `ASTRO_CMS_READ_TOKEN`
@@ -44,8 +46,14 @@
 - Deploy the CMS app (`docker-compose.cms.yml`) first.
 - Wait for `payload-cms` health check to pass.
 - Deploy the Web app (`docker-compose.web.yml`) after CMS is healthy.
-- `payload-cms` starts after `mongodb` is healthy and `minio` is started.
+- `payload-cms` starts after `mongodb` is healthy, `minio` is healthy, and `minio-init` completes.
 - `astro-web` builds static output during image build and fails fast when CMS data is unreachable or invalid.
+
+## MinIO Bucket Provisioning
+
+- Bucket provisioning is infrastructure-owned.
+- `minio-init` in `docker-compose.cms.yml` provisions `S3_BUCKET` only when `MINIO_CREATE_BUCKET_ON_STARTUP=true`.
+- CMS no longer creates buckets at runtime; it validates bucket existence at startup and fails fast if missing.
 
 ## Domain Suggestion
 

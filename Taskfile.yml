@@ -1,4 +1,4 @@
-version: '3'
+version: "3"
 
 vars:
   COMPOSE_FILE: docker-compose.local.yml
@@ -10,11 +10,36 @@ tasks:
     desc: Start local infrastructure (Postgres, MinIO)
     cmds:
       - docker compose -f {{.COMPOSE_FILE}} up -d
+      - task: minio:ensure-bucket
 
   up:build:
     desc: Build and start local infrastructure
     cmds:
       - docker compose -f {{.COMPOSE_FILE}} up -d --build
+      - task: minio:ensure-bucket
+
+  minio:ensure-bucket:
+    desc: Ensure MinIO bucket exists for local media uploads
+    cmds:
+      - |
+        set -e
+        max_attempts=20
+        attempt=1
+        while [ "$attempt" -le "$max_attempts" ]; do
+          if docker compose -f {{.COMPOSE_FILE}} run --rm minio-init; then
+            echo "MinIO bucket is ready."
+            exit 0
+          fi
+
+          if [ "$attempt" -eq "$max_attempts" ]; then
+            echo "Failed to ensure MinIO bucket after ${max_attempts} attempts."
+            exit 1
+          fi
+
+          echo "Bucket bootstrap attempt ${attempt}/${max_attempts} failed; retrying in 2s..."
+          attempt=$((attempt + 1))
+          sleep 2
+        done
 
   down:
     desc: Stop all local services
