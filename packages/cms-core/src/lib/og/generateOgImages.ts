@@ -3,6 +3,7 @@ import type { Payload } from "payload";
 import type { Media } from "../../payload-types";
 import type { IconFetchFailureReason } from "./fetchIconSvg";
 import { fetchIconSvg, svgToDataUri } from "./fetchIconSvg";
+import { ensureOgFolder } from "./ensureOgFolder";
 import type { SidebarIconDiagnostic } from "./fetchProfileImage";
 import { fetchProfileImageDataUri, fetchSidebarIcons, getSidebarIconDiagnostics } from "./fetchProfileImage";
 import type { OgTarget } from "./registry";
@@ -38,6 +39,7 @@ type SharedAssets = {
   profileImageDataUri: string | undefined;
   socialIconDataUris: string[];
   siteUrl?: string;
+  ogFolderId: number | string;
 };
 
 type ProcessorResult = {
@@ -138,7 +140,7 @@ async function uploadOgImage(
 
   const media = await payload.create({
     collection: "media",
-    data: { alt: `OG image for ${title}` },
+    data: { alt: `OG image for ${title}`, folder: assets.ogFolderId } as never,
     file: { data: buffer, mimetype: "image/png", name: filename, size: buffer.length },
   });
 
@@ -293,9 +295,10 @@ export async function generateOgImages(
   mode: OgGenerationMode,
   options: GenerateOgImagesOptions = {},
 ): Promise<OgGenerationResult> {
-  const [profileImageDataUri, iconEntries] = await Promise.all([
+  const [profileImageDataUri, iconEntries, ogFolderId] = await Promise.all([
     fetchProfileImageDataUri(payload),
     fetchSidebarIcons(payload),
+    ensureOgFolder(payload),
   ]);
 
   const invalidConfigured = getSidebarIconDiagnostics(iconEntries);
@@ -309,7 +312,7 @@ export async function generateOgImages(
   const successfulIconSvgs = iconFetchResults.flatMap((item) => (item.result.ok ? [item.result.svg] : []));
   const socialIconDataUris = await Promise.all(successfulIconSvgs.map((svg) => svgToDataUri(svg)));
 
-  const assets: SharedAssets = { profileImageDataUri, socialIconDataUris, siteUrl: options.siteUrl };
+  const assets: SharedAssets = { profileImageDataUri, socialIconDataUris, siteUrl: options.siteUrl, ogFolderId };
 
   const failedToLoad = iconFetchResults.flatMap((item) => {
     if (item.result.ok) return [];
