@@ -295,7 +295,7 @@ export interface FolderInterface {
 export interface Post {
   id: string;
   title: string;
-  excerpt: string;
+  description: string;
   content: {
     root: {
       type: string;
@@ -425,21 +425,7 @@ export interface Series {
 export interface Project {
   id: string;
   title: string;
-  description: {
-    root: {
-      type: string;
-      children: {
-        type: any;
-        version: number;
-        [k: string]: unknown;
-      }[];
-      direction: ('ltr' | 'rtl') | null;
-      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
-      indent: number;
-      version: number;
-    };
-    [k: string]: unknown;
-  };
+  description: string;
   image?: (string | null) | Media;
   badges?:
     | {
@@ -773,7 +759,7 @@ export interface SeriesSelect<T extends boolean = true> {
  */
 export interface PostsSelect<T extends boolean = true> {
   title?: T;
-  excerpt?: T;
+  description?: T;
   content?: T;
   coverImage?: T;
   primaryCategory?: T;

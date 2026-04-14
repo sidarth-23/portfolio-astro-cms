@@ -4,6 +4,7 @@ import { createBasicRichTextEditor, createDocumentRichTextEditor } from "@sidshu
 import { readAccess } from "../access/readAccess";
 
 import { populateAuthors } from "../hooks/populateAuthors";
+import { createSuggestMetadataAutoPopulationHook } from "../hooks/suggestMetadataAutoPopulation";
 import { slugField } from "../fields/slug";
 import { createPayloadDataSchemaHook } from "../lib/validation";
 import { postsSchema } from "../lib/validation";
@@ -19,6 +20,7 @@ export const Posts: CollectionConfig = {
     group: "Content",
   },
   hooks: {
+    beforeChange: [createSuggestMetadataAutoPopulationHook("posts")],
     beforeValidate: [createPayloadDataSchemaHook(postsSchema, { errorPrefix: "Posts validation failed:" })],
     afterRead: [populateAuthors],
   },
@@ -35,7 +37,7 @@ export const Posts: CollectionConfig = {
               required: true,
             },
             {
-              name: "excerpt",
+              name: "description",
               type: "textarea",
               required: true,
             },

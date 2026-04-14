@@ -13,8 +13,20 @@ import type {
   SiteSetting,
 } from "../../../payload-types";
 
-let _id = 100;
-const nextId = () => _id++;
+let _counter = 0;
+
+const makeMongoId = () => {
+  // Generate a MongoDB-like ObjectId (24-character hex string)
+  // Structure: 4 bytes timestamp + 5 bytes random + 3 bytes counter
+  const timestamp = Math.floor(Date.now() / 1000).toString(16).padStart(8, "0");
+  const random = Array.from({ length: 10 }, () =>
+    Math.floor(Math.random() * 16).toString(16)
+  ).join("");
+  const counter = (_counter++ % 0xffffff).toString(16).padStart(6, "0");
+  return (timestamp + random + counter).slice(0, 24);
+};
+
+const nextId = makeMongoId;
 
 export const makeRichText = () => ({
   root: {
@@ -65,7 +77,7 @@ export const makePost = (category: Category, overrides: Partial<Post> = {}): Pos
   return {
     id: nextId(),
     title,
-    excerpt: faker.lorem.sentence(),
+    description: faker.lorem.sentence(),
     content: makeRichText(),
     primaryCategory: category,
     slug,
@@ -106,7 +118,7 @@ export const makeProject = (overrides: Partial<Project> = {}): Project => {
     id: nextId(),
     title,
     slug,
-    description: makeRichText(),
+    description: faker.lorem.sentence(),
     _status: "published",
     meta: {
       title,
@@ -119,7 +131,7 @@ export const makeProject = (overrides: Partial<Project> = {}): Project => {
 };
 
 export const makeSiteSetting = (overrides: Partial<SiteSetting> = {}): SiteSetting => ({
-  id: 1,
+  id: nextId(),
   sidebarFooterItems: [],
   updatedAt: new Date().toISOString(),
   createdAt: new Date().toISOString(),
@@ -127,7 +139,7 @@ export const makeSiteSetting = (overrides: Partial<SiteSetting> = {}): SiteSetti
 });
 
 export const makeHomePage = (posts: Post[], overrides: Partial<HomePage> = {}): HomePage => ({
-  id: 1,
+  id: nextId(),
   greeting: "Hello,",
   name: faker.person.fullName(),
   role: faker.person.jobTitle(),
@@ -141,7 +153,7 @@ export const makeHomePage = (posts: Post[], overrides: Partial<HomePage> = {}): 
       name: "Featured Posts",
       collection: "posts",
       posts: posts.slice(0, 3),
-      id: "section-1",
+      id: nextId(),
     },
   ],
   ctaButtons: [
@@ -153,7 +165,7 @@ export const makeHomePage = (posts: Post[], overrides: Partial<HomePage> = {}): 
         page: "blog",
         newTab: false,
       },
-      id: "btn-1",
+      id: nextId(),
     },
   ],
   updatedAt: new Date().toISOString(),
@@ -162,7 +174,7 @@ export const makeHomePage = (posts: Post[], overrides: Partial<HomePage> = {}): 
 });
 
 export const makeBlogPage = (overrides: Partial<BlogPage> = {}): BlogPage => ({
-  id: 1,
+  id: nextId(),
   title: "Blog",
   intro: "Welcome to the mock blog.",
   meta: {
@@ -175,16 +187,14 @@ export const makeBlogPage = (overrides: Partial<BlogPage> = {}): BlogPage => ({
 });
 
 export const makeCvPage = (overrides: Partial<CvPage> = {}): CvPage => ({
-  id: 1,
+  id: nextId(),
   sections: [
     {
-      id: "sec-1",
       title: "Experience",
       type: "items",
       itemsVariant: "timeline",
       items: [
         {
-          id: "item-1",
           itemType: "organizationRole",
           title: faker.person.jobTitle(),
           organization: faker.company.name(),
@@ -195,17 +205,15 @@ export const makeCvPage = (overrides: Partial<CvPage> = {}): CvPage => ({
       ],
     },
     {
-      id: "sec-2",
       title: "Skills",
       type: "badges",
       badgeGroups: [
         {
           title: "Languages",
           badges: [
-            { value: "TypeScript", id: "b-1" },
-            { value: "Rust", id: "b-2" },
+            { value: "TypeScript" },
+            { value: "Rust" },
           ],
-          id: "bg-1",
         },
       ],
     },
@@ -220,10 +228,9 @@ export const makeCvPage = (overrides: Partial<CvPage> = {}): CvPage => ({
 });
 
 export const makeProjectsPage = (projects: Project[], overrides: Partial<ProjectsPage> = {}): ProjectsPage => ({
-  id: 1,
+  id: nextId(),
   sections: [
     {
-      id: "sec-1",
       title: "All Projects",
       projects,
     },
@@ -238,7 +245,7 @@ export const makeProjectsPage = (projects: Project[], overrides: Partial<Project
 });
 
 export const makeSeriesPage = (overrides: Partial<SeriesPage> = {}): SeriesPage => ({
-  id: 1,
+  id: nextId(),
   backToSeriesLabel: "Back to Series",
   meta: {
     title: "Mock Series",
@@ -250,7 +257,7 @@ export const makeSeriesPage = (overrides: Partial<SeriesPage> = {}): SeriesPage 
 });
 
 export const makeNotFoundPage = (overrides: Partial<NotFoundPage> = {}): NotFoundPage => ({
-  id: 1,
+  id: nextId(),
   title: "404",
   description: "Page not found.",
   ctaLabel: "Go Home",

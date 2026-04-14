@@ -99,7 +99,7 @@ const seriesSeoDescription = series.meta?.description || seriesPageMeta.descript
             <HorizontalCard
               title={`Part ${index + 1}: ${post.title}`}
               img={cmsClient.mediaToUrl(post.coverImage)}
-              desc={post.excerpt}
+              desc={post.description}
               url={`/blog/${post.slug}`}
               target="_self"
               category={cmsClient.categoryFromPost(post)}

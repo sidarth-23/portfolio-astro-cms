@@ -107,6 +107,7 @@ export function createCmsConfig(options: CmsConfigOptions) {
     admin: {
       user: Users.slug,
       components: {
+        actions: ["./components/admin/RulesPanel#SetupChecklistHeaderAction"],
         afterNavLinks: ["./components/admin/nav/DashboardNavLink#DashboardNavLink"],
         views: {
           dashboard: {

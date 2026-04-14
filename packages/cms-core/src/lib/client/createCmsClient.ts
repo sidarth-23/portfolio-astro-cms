@@ -104,7 +104,7 @@ export const createCmsClient = ({ sdk, mediaBaseUrl }: CmsTransport) => {
       conditions.push(postIds.length > 0 ? { id: { in: postIds } } : { id: { equals: "__no_series_posts__" } });
     }
     if (options.search)
-      conditions.push({ or: [{ title: { like: options.search } }, { excerpt: { like: options.search } }] });
+      conditions.push({ or: [{ title: { like: options.search } }, { description: { like: options.search } }] });
     return conditions.length === 1 ? conditions[0] : { and: conditions };
   };
 

@@ -2,12 +2,14 @@ import type { CollectionAfterReadHook } from "payload";
 
 import type { User } from "../payload-types";
 
+type AuthorLink = NonNullable<User["links"]>[number];
+
 type PopulatedAuthor = {
   id: number | string;
   name?: string | null;
   bio?: User["bio"];
   avatar?: User["avatar"];
-  links?: Array<{ icon?: string | null; url?: string | null; newTab?: boolean | null }>;
+  links?: Array<Pick<AuthorLink, "icon" | "url" | "newTab">>;
 };
 
 export const populateAuthors: CollectionAfterReadHook = async ({ doc, req: { payload } }) => {
@@ -35,15 +37,17 @@ export const populateAuthors: CollectionAfterReadHook = async ({ doc, req: { pay
         continue;
       }
 
-      // `links` is not yet in payload-types.ts (pending migration); cast via unknown
-      const authorLinks = (authorDoc as unknown as { links?: unknown }).links;
       populatedAuthors.push({
         id: authorDoc.id,
         name: authorDoc.name,
         bio: authorDoc.bio,
         avatar: authorDoc.avatar,
-        links: Array.isArray(authorLinks)
-          ? (authorLinks as Array<{ icon?: string | null; url?: string | null; newTab?: boolean | null }>)
+        links: Array.isArray(authorDoc.links)
+          ? authorDoc.links.map((link) => ({
+              icon: link.icon,
+              url: link.url,
+              newTab: link.newTab,
+            }))
           : undefined,
       });
     } catch {

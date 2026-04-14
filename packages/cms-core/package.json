@@ -17,7 +17,6 @@
     "./icons": "./src/lib/icons/index.ts",
     "./deployment": "./src/lib/deployment/index.ts",
     "./validation": "./src/lib/validation/index.ts",
-    "./migrations-dir": "./src/migrationsDir.ts",
     "./payload-types": "./src/payload-types.ts"
   },
   "devDependencies": {

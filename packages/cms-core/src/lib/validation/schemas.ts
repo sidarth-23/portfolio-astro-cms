@@ -199,7 +199,7 @@ export const cvPageSchema = withSeoMeta({
 
 export const postsSchema = withSeoMeta({
   title: requiredText.optional(),
-  excerpt: requiredText.optional(),
+  description: requiredText.optional(),
   tags: z.array(z.object({ value: requiredText.optional() }).passthrough()).optional(),
 });
 

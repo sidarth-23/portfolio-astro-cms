@@ -43,68 +43,72 @@ const featuredSections = homePage.featuredSections ?? [];
       <RichTextRenderer data={homePage.about} />
     </div>
 
-    {ctaButtons.length > 0 && (
-      <div class="mt-6 flex gap-4 flex-wrap">
-        {ctaButtons.map((button) => (
-          <a
-            class={`btn md:btn-lg ${variantToButtonClass[button.variant]}`}
-            href={button.href}
-            target={button.newTab ? "_blank" : undefined}
-            rel={button.newTab ? "noopener noreferrer" : undefined}
-          >
-            {button.title}
-          </a>
-        ))}
-      </div>
-    )}
+    {
+      ctaButtons.length > 0 && (
+        <div class="mt-6 flex gap-4 flex-wrap">
+          {ctaButtons.map((button) => (
+            <a
+              class={`btn md:btn-lg ${variantToButtonClass[button.variant]}`}
+              href={button.href}
+              target={button.newTab ? "_blank" : undefined}
+              rel={button.newTab ? "noopener noreferrer" : undefined}
+            >
+              {button.title}
+            </a>
+          ))}
+        </div>
+      )
+    }
   </div>
 
-  {featuredSections.length > 0 && (
-    <div class="mt-14 flex flex-col gap-12">
-      {featuredSections.map((section) => (
-        <section>
-          <div class="mb-6">
-            <h2 class="text-3xl w-full font-bold my-2">{section.name}</h2>
-            {section.description && (
-              <div class="prose prose-lg max-w-none">
-                <RichTextRenderer data={section.description} />
-              </div>
-            )}
-          </div>
+  {
+    featuredSections.length > 0 && (
+      <div class="mt-14 flex flex-col gap-12">
+        {featuredSections.map((section) => (
+          <section>
+            <div class="mb-6">
+              <h2 class="text-3xl w-full font-bold my-2">{section.name}</h2>
+              {section.description && (
+                <div class="prose prose-lg max-w-none">
+                  <RichTextRenderer data={section.description} />
+                </div>
+              )}
+            </div>
 
-          {(section.collection === "posts" || !section.collection) &&
-            cmsClient.featuredPostsFromHomeSection(section).map((post) => (
-              <>
-                <HorizontalCard
-                  title={post.title}
-                  img={cmsClient.mediaToUrl(post.coverImage)}
-                  desc={post.excerpt}
-                  url={`/blog/${post.slug}`}
-                  category={cmsClient.categoryFromPost(post)}
-                  tags={cmsClient.tagsFromPost(post)}
-                  series={cmsClient.seriesFromPost(post)}
-                />
-                <div class="divider my-0" />
-              </>
-            ))}
+            {(section.collection === "posts" || !section.collection) &&
+              cmsClient.featuredPostsFromHomeSection(section).map((post) => (
+                <>
+                  <HorizontalCard
+                    title={post.title}
+                    img={cmsClient.mediaToUrl(post.coverImage)}
+                    desc={post.description}
+                    url={`/blog/${post.slug}`}
+                    category={cmsClient.categoryFromPost(post)}
+                    tags={cmsClient.tagsFromPost(post)}
+                    series={cmsClient.seriesFromPost(post)}
+                  />
+                  <div class="divider my-0" />
+                </>
+              ))}
 
-          {section.collection === "projects" &&
-            cmsClient.featuredProjectsFromHomeSection(section).map((project) => (
-              <>
-                <HorizontalCard
-                  title={project.title}
-                  img={cmsClient.mediaToUrl(project.image)}
-                  descRich={project.description}
-                  url={"/projects/" + project.slug}
-                  badges={cmsClient.badgesFromProject(project)}
-                  tags={cmsClient.tagsFromProject(project)}
-                  links={cmsClient.linksFromProject(project)}
-                />
-                <div class="divider my-0" />
-              </>
-            ))}
-        </section>
-      ))}
-    </div>
-  )}
+            {section.collection === "projects" &&
+              cmsClient.featuredProjectsFromHomeSection(section).map((project) => (
+                <>
+                  <HorizontalCard
+                    title={project.title}
+                    img={cmsClient.mediaToUrl(project.image)}
+                    desc={project.description}
+                    url={"/projects/" + project.slug}
+                    badges={cmsClient.badgesFromProject(project)}
+                    tags={cmsClient.tagsFromProject(project)}
+                    links={cmsClient.linksFromProject(project)}
+                  />
+                  <div class="divider my-0" />
+                </>
+              ))}
+          </section>
+        ))}
+      </div>
+    )
+  }
 </BaseLayout>

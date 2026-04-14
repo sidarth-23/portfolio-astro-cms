@@ -1,8 +1,8 @@
 import type { CollectionConfig } from "payload";
-import { createBasicRichTextEditor } from "@sidshub/cms-editor/cms";
 
 import { readAccess } from "../access/readAccess";
 
+import { createSuggestMetadataAutoPopulationHook } from "../hooks/suggestMetadataAutoPopulation";
 import { iconPickerField } from "../fields/iconPicker";
 import { linkFields } from "../fields/link";
 import { slugField } from "../fields/slug";
@@ -20,6 +20,7 @@ export const Projects: CollectionConfig = {
     group: "Content",
   },
   hooks: {
+    beforeChange: [createSuggestMetadataAutoPopulationHook("projects")],
     beforeValidate: [
       createPayloadDataSchemaHook(projectsSchema, {
         errorPrefix: "Projects validation failed:",
@@ -40,9 +41,8 @@ export const Projects: CollectionConfig = {
             },
             {
               name: "description",
-              type: "richText",
+              type: "textarea",
               required: true,
-              editor: createBasicRichTextEditor(),
             },
             {
               name: "image",

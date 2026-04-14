@@ -59,7 +59,7 @@ tasks:
     cmds:
       - docker compose -f {{.COMPOSE_FILE}} exec postgres psql -U postgres -c "DROP DATABASE IF EXISTS payload;"
       - docker compose -f {{.COMPOSE_FILE}} exec postgres psql -U postgres -c "CREATE DATABASE payload;"
-      - echo "Database reset complete. Restart CMS to apply migrations."
+      - echo "Database reset complete."
 
   db:shell:
     desc: Open psql shell to the database

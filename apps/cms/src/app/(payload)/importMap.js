@@ -41,6 +41,7 @@ import { SectionRowLabel as SectionRowLabel_ec40328e4fa7e50be5521512430803ee } f
 import { CtaButtonRowLabel as CtaButtonRowLabel_21f05950458c091161a962787a64c946 } from '../../../../../packages/cms-core/src/components/admin/rowLabels/CtaButtonRowLabel'
 import { ItemRowLabel as ItemRowLabel_ef785df577c0f700616de08d4de99213 } from '../../../../../packages/cms-core/src/components/admin/rowLabels/ItemRowLabel'
 import { BadgeGroupRowLabel as BadgeGroupRowLabel_e17f3e5c9b47ac47d259a324429e5130 } from '../../../../../packages/cms-core/src/components/admin/rowLabels/BadgeGroupRowLabel'
+import { SetupChecklistHeaderAction as SetupChecklistHeaderAction_a18a6f5d8b10b1518e4ff8f0236f14f1 } from '../../../../../packages/cms-core/src/components/admin/RulesPanel'
 import { DashboardNavLink as DashboardNavLink_dcd6f454f3d74acc2bf3dabfd4bb3514 } from '../../../../../packages/cms-core/src/components/admin/nav/DashboardNavLink'
 import { S3ClientUploadHandler as S3ClientUploadHandler_f97aa6c64367fa259c5bc0567239ef24 } from '@payloadcms/storage-s3/client'
 import { DashboardView as DashboardView_f0f8d4a7080efd2cd25bb6be37c094c0 } from '../../../../../packages/cms-core/src/components/admin/Dashboard'
@@ -90,6 +91,7 @@ export const importMap = {
   "./components/admin/rowLabels/CtaButtonRowLabel#CtaButtonRowLabel": CtaButtonRowLabel_21f05950458c091161a962787a64c946,
   "./components/admin/rowLabels/ItemRowLabel#ItemRowLabel": ItemRowLabel_ef785df577c0f700616de08d4de99213,
   "./components/admin/rowLabels/BadgeGroupRowLabel#BadgeGroupRowLabel": BadgeGroupRowLabel_e17f3e5c9b47ac47d259a324429e5130,
+  "./components/admin/RulesPanel#SetupChecklistHeaderAction": SetupChecklistHeaderAction_a18a6f5d8b10b1518e4ff8f0236f14f1,
   "./components/admin/nav/DashboardNavLink#DashboardNavLink": DashboardNavLink_dcd6f454f3d74acc2bf3dabfd4bb3514,
   "@payloadcms/storage-s3/client#S3ClientUploadHandler": S3ClientUploadHandler_f97aa6c64367fa259c5bc0567239ef24,
   "./components/admin/Dashboard#DashboardView": DashboardView_f0f8d4a7080efd2cd25bb6be37c094c0,
