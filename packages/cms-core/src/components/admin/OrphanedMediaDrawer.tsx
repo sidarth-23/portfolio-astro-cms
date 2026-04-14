@@ -30,6 +30,7 @@ export function OrphanedMediaDrawer() {
   const [result, setResult] = useState<ScanResult | null>(null);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [error, setError] = useState<string | null>(null);
+  const [pendingAction, setPendingAction] = useState<{ ids: string[]; label: string } | null>(null);
 
   async function scan() {
     setStatus("scanning");
@@ -91,10 +92,10 @@ export function OrphanedMediaDrawer() {
         credentials: "include",
         body: JSON.stringify({ ids }),
       });
-      const data = (await res.json()) as DeleteResult;
+      const data = await res.json().catch(() => ({})) as DeleteResult & { error?: string };
 
       if (!res.ok) {
-        setError("Delete request failed.");
+        setError(data.error ?? "Delete request failed.");
         setStatus("done");
         return;
       }
@@ -114,27 +115,23 @@ export function OrphanedMediaDrawer() {
     }
   }
 
-  async function deleteSelected() {
+  function deleteSelected() {
     const ids = Array.from(selectedIds);
     if (ids.length === 0) return;
 
-    const confirmed = window.confirm(
-      `Delete ${ids.length} selected item${ids.length !== 1 ? "s" : ""}? This cannot be undone.`,
-    );
-    if (!confirmed) return;
-
-    await deleteIds(ids);
+    setPendingAction({
+      ids,
+      label: `Delete ${ids.length} item${ids.length !== 1 ? "s" : ""}? This cannot be undone.`,
+    });
   }
 
-  async function deleteAll() {
+  function deleteAll() {
     if (!result || result.orphaned.length === 0) return;
 
-    const confirmed = window.confirm(
-      `Delete all ${result.orphaned.length} orphaned item${result.orphaned.length !== 1 ? "s" : ""}? This cannot be undone.`,
-    );
-    if (!confirmed) return;
-
-    await deleteIds(result.orphaned.map((item) => item.id));
+    setPendingAction({
+      ids: result.orphaned.map((item) => item.id),
+      label: `Delete all ${result.orphaned.length} orphaned item${result.orphaned.length !== 1 ? "s" : ""}? This cannot be undone.`,
+    });
   }
 
   const isLoading = status === "scanning" || status === "deleting";
@@ -143,6 +140,8 @@ export function OrphanedMediaDrawer() {
 
   return (
     <>
+      {/* Payload's Drawer has no onOpen callback. Triggering scan via onClick
+          ensures a fresh scan on every open. */}
       <DrawerToggler
         slug={drawerSlug}
         onClick={() => { void scan(); }}
@@ -243,7 +242,7 @@ export function OrphanedMediaDrawer() {
                       cursor: isLoading ? "not-allowed" : "pointer",
                     }}
                   >
-                    {status === "deleting" ? "Deleting…" : `Delete Selected (${selectedIds.size})`}
+                    {isLoading ? "Processing…" : `Delete Selected (${selectedIds.size})`}
                   </button>
                 )}
 
@@ -267,6 +266,59 @@ export function OrphanedMediaDrawer() {
               </>
             )}
           </div>
+
+          {/* Inline confirmation bar */}
+          {pendingAction && (
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: "10px",
+                padding: "10px 14px",
+                background: "var(--theme-error-50, rgba(239,68,68,0.08))",
+                border: "1px solid var(--theme-error-400, rgba(239,68,68,0.3))",
+                borderRadius: "4px",
+                fontSize: "13px",
+                flexWrap: "wrap",
+              }}
+            >
+              <span style={{ flex: 1, color: "var(--theme-error-500, #ef4444)", fontWeight: 500 }}>
+                {pendingAction.label}
+              </span>
+              <button
+                type="button"
+                onClick={() => { void deleteIds(pendingAction.ids); setPendingAction(null); }}
+                style={{
+                  padding: "5px 12px",
+                  background: "var(--theme-error-500, #ef4444)",
+                  color: "#fff",
+                  border: "none",
+                  borderRadius: "4px",
+                  fontSize: "13px",
+                  fontWeight: 600,
+                  cursor: "pointer",
+                }}
+              >
+                Confirm Delete
+              </button>
+              <button
+                type="button"
+                onClick={() => setPendingAction(null)}
+                style={{
+                  padding: "5px 12px",
+                  background: "transparent",
+                  color: "var(--theme-text)",
+                  border: "1px solid var(--theme-elevation-200)",
+                  borderRadius: "4px",
+                  fontSize: "13px",
+                  fontWeight: 500,
+                  cursor: "pointer",
+                }}
+              >
+                Cancel
+              </button>
+            </div>
+          )}
 
           {/* Error */}
           {error && (
