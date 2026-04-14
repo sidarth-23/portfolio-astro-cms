@@ -14,12 +14,23 @@ export async function ensureOgFolder(payload: Payload, folderName: string = DEFA
   });
 
   if (existing.docs.length > 0) {
-    return existing.docs[0].id;
+    const folder = existing.docs[0];
+    const hasMediaLink = Array.isArray(folder.folderType) && folder.folderType.includes("media");
+
+    if (!hasMediaLink) {
+      await payload.update({
+        collection: "payload-folders",
+        id: folder.id,
+        data: { folderType: ["media"] } as never,
+      });
+    }
+
+    return folder.id;
   }
 
   const created = await payload.create({
     collection: "payload-folders",
-    data: { name: folderName },
+    data: { name: folderName, folderType: ["media"] } as never,
   });
 
   return created.id;
