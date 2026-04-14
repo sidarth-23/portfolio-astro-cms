@@ -26,6 +26,7 @@ const pasteUrlAllowList: AllowList = [
 
 export const Media: CollectionConfig = {
   slug: "media",
+  folders: true,
   upload: {
     mimeTypes: ["image/*"],
     pasteURL: {

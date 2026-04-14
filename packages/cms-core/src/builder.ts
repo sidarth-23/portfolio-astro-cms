@@ -98,6 +98,7 @@ export function createCmsConfig(options: CmsConfigOptions) {
   );
 
   return buildConfig({
+    folders: {},
     editor: createBasicRichTextEditor(),
     serverURL: options.serverURL,
     email: options.email,
