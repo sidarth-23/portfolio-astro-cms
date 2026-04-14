@@ -1,4 +1,5 @@
 import type { Payload } from "payload";
+import { SEO_COLLECTIONS, SEO_GLOBALS } from "./og/registry";
 
 // ---------------------------------------------------------------------------
 // Public types
@@ -15,7 +16,6 @@ export type OrphanedMediaItem = {
 export type OrphanedMediaResult = {
   orphaned: OrphanedMediaItem[];
   totalMedia: number;
-  totalReferenced: number;
 };
 
 // ---------------------------------------------------------------------------
@@ -126,53 +126,44 @@ async function collectPaged<T>(query: PagedQuery<T>): Promise<T[]> {
 export async function collectReferencedMediaIds(
   payload: Payload,
 ): Promise<Set<string>> {
-  const ids = new Set<string>();
+  const referencedIds = new Set<string>();
 
-  // Helper: add resolved ID from a generic doc field
-  const addField = (doc: unknown, field: string): void => {
+  // Helper: merge a partial Set into the shared referencedIds set
+  const merge = (partial: Set<string>): void => {
+    for (const id of partial) referencedIds.add(id);
+  };
+
+  // Helper: add resolved ID from a generic doc field into a local Set
+  const addField = (ids: Set<string>, doc: unknown, field: string): void => {
     const id = resolveId((doc as Record<string, unknown>)[field]);
     if (id !== null) ids.add(id);
   };
 
   // ------------------------------------------------------------------
-  // 1. posts.coverImage  (scan drafts too)
-  // ------------------------------------------------------------------
-  await collectPaged((page) =>
-    payload.find({
-      collection: "posts",
-      depth: 0,
-      draft: true,
-      limit: 100,
-      page,
-      select: { coverImage: true },
-    }),
-  ).then((docs) => {
-    for (const doc of docs) addField(doc, "coverImage");
-  });
-
-  // ------------------------------------------------------------------
-  // 2. posts.content  (rich-text walk — upload nodes & imageGallery blocks)
+  // 1. posts — coverImage + content (single scan, both fields together)
   //    Also scan drafts so draft-only images aren't flagged as orphaned.
   // ------------------------------------------------------------------
-  await collectPaged((page) =>
+  const scanPosts = collectPaged((page) =>
     payload.find({
       collection: "posts",
       depth: 0,
       draft: true,
       limit: 100,
       page,
-      select: { content: true },
     }),
   ).then((docs) => {
+    const ids = new Set<string>();
     for (const doc of docs) {
-      extractMediaIdsFromLexical((doc as Record<string, unknown>).content, ids);
+      addField(ids, doc, "coverImage");
+      extractMediaIdsFromLexical((doc as unknown as Record<string, unknown>).content, ids);
     }
+    return ids;
   });
 
   // ------------------------------------------------------------------
-  // 3. projects.image  (scan drafts too)
+  // 2. projects.image  (scan drafts too)
   // ------------------------------------------------------------------
-  await collectPaged((page) =>
+  const scanProjects = collectPaged((page) =>
     payload.find({
       collection: "projects",
       depth: 0,
@@ -182,13 +173,15 @@ export async function collectReferencedMediaIds(
       select: { image: true },
     }),
   ).then((docs) => {
-    for (const doc of docs) addField(doc, "image");
+    const ids = new Set<string>();
+    for (const doc of docs) addField(ids, doc, "image");
+    return ids;
   });
 
   // ------------------------------------------------------------------
-  // 4. users.avatar
+  // 3. users.avatar
   // ------------------------------------------------------------------
-  await collectPaged((page) =>
+  const scanUsers = collectPaged((page) =>
     payload.find({
       collection: "users",
       depth: 0,
@@ -197,76 +190,94 @@ export async function collectReferencedMediaIds(
       select: { avatar: true },
     }),
   ).then((docs) => {
-    for (const doc of docs) addField(doc, "avatar");
+    const ids = new Set<string>();
+    for (const doc of docs) addField(ids, doc, "avatar");
+    return ids;
   });
 
   // ------------------------------------------------------------------
-  // 5. site-settings.profileImage  (global)
+  // 4. site-settings.profileImage  (global)
   // ------------------------------------------------------------------
-  try {
-    const siteSettings = await payload.findGlobal({
-      slug: "site-settings",
-      depth: 0,
-    });
-    const id = resolveId(
-      (siteSettings as unknown as Record<string, unknown>).profileImage,
-    );
-    if (id !== null) ids.add(id);
-  } catch {
-    // Global may not be initialised yet — ignore
-  }
+  const scanSiteSettings = (async () => {
+    const ids = new Set<string>();
+    try {
+      const siteSettings = await payload.findGlobal({
+        slug: "site-settings",
+        depth: 0,
+      });
+      const id = resolveId(
+        (siteSettings as unknown as Record<string, unknown>).profileImage,
+      );
+      if (id !== null) ids.add(id);
+    } catch {
+      // Global may not be initialised yet — ignore
+    }
+    return ids;
+  })();
+
+  // Run all main collection/global scans concurrently
+  const [postsIds, projectsIds, usersIds, siteSettingsIds] = await Promise.all([
+    scanPosts,
+    scanProjects,
+    scanUsers,
+    scanSiteSettings,
+  ]);
+  merge(postsIds);
+  merge(projectsIds);
+  merge(usersIds);
+  merge(siteSettingsIds);
 
   // ------------------------------------------------------------------
-  // 6. SEO meta.image — collections (posts, projects, series) with drafts
+  // 5. SEO meta.image — collections (posts, projects, series) with drafts
   // ------------------------------------------------------------------
-  const seoCollections = ["posts", "projects", "series"] as const;
-  for (const col of seoCollections) {
-    await collectPaged((page) =>
-      payload.find({
-        collection: col,
-        depth: 0,
-        draft: true,
-        limit: 100,
-        page,
-        select: { meta: true },
+  const seoCollectionResults = await Promise.all(
+    SEO_COLLECTIONS.map((col) =>
+      collectPaged((page) =>
+        payload.find({
+          collection: col,
+          depth: 0,
+          draft: true,
+          limit: 100,
+          page,
+          select: { meta: true },
+        }),
+      ).then((docs) => {
+        const ids = new Set<string>();
+        for (const doc of docs) {
+          const meta = (doc as Record<string, unknown>).meta;
+          if (meta && typeof meta === "object") {
+            const id = resolveId((meta as Record<string, unknown>).image);
+            if (id !== null) ids.add(id);
+          }
+        }
+        return ids;
       }),
-    ).then((docs) => {
-      for (const doc of docs) {
-        const meta = (doc as Record<string, unknown>).meta;
+    ),
+  );
+  for (const ids of seoCollectionResults) merge(ids);
+
+  // ------------------------------------------------------------------
+  // 6. SEO meta.image — globals
+  // ------------------------------------------------------------------
+  const seoGlobalResults = await Promise.all(
+    SEO_GLOBALS.map(async (slug) => {
+      const ids = new Set<string>();
+      try {
+        const globalDoc = await payload.findGlobal({ slug, depth: 0 });
+        const meta = (globalDoc as unknown as Record<string, unknown>).meta;
         if (meta && typeof meta === "object") {
           const id = resolveId((meta as Record<string, unknown>).image);
           if (id !== null) ids.add(id);
         }
+      } catch {
+        // Global may not exist yet — ignore
       }
-    });
-  }
+      return ids;
+    }),
+  );
+  for (const ids of seoGlobalResults) merge(ids);
 
-  // ------------------------------------------------------------------
-  // 7. SEO meta.image — globals
-  // ------------------------------------------------------------------
-  const seoGlobalSlugs = [
-    "home-page",
-    "cv-page",
-    "blog-page",
-    "series-page",
-    "projects-page",
-    "not-found-page",
-  ] as const;
-
-  for (const slug of seoGlobalSlugs) {
-    try {
-      const globalDoc = await payload.findGlobal({ slug, depth: 0 });
-      const meta = (globalDoc as unknown as Record<string, unknown>).meta;
-      if (meta && typeof meta === "object") {
-        const id = resolveId((meta as Record<string, unknown>).image);
-        if (id !== null) ids.add(id);
-      }
-    } catch {
-      // Global may not exist yet — ignore
-    }
-  }
-
-  return ids;
+  return referencedIds;
 }
 
 // ---------------------------------------------------------------------------
@@ -320,7 +331,6 @@ export async function findOrphanedMedia(
   ]);
 
   const totalMedia = allMediaDocs.length;
-  const totalReferenced = referencedIds.size;
 
   const orphaned: OrphanedMediaItem[] = allMediaDocs
     .filter((doc) => !referencedIds.has(doc.id))
@@ -332,5 +342,5 @@ export async function findOrphanedMedia(
       createdAt: doc.createdAt,
     }));
 
-  return { orphaned, totalMedia, totalReferenced };
+  return { orphaned, totalMedia };
 }
