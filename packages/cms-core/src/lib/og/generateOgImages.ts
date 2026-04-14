@@ -190,7 +190,6 @@ async function processDoc(
       id: docId,
       data: updateData as never,
       context: { skipDataValidation: true },
-      ...(doc._status === "draft" ? { draft: true } : {}),
     });
   } else {
     await payload.updateGlobal({
