@@ -6,6 +6,6 @@ export type DeploymentStatusResult = {
   deployUrl: string | null
 }
 
-export interface DeploymentStatusAdapter {
+export type DeploymentStatusAdapter = {
   getStatus(): Promise<DeploymentStatusResult>
 }
