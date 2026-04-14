@@ -2,18 +2,19 @@
 
 import { CodeField, useFormFields } from '@payloadcms/ui';
 import React, { useId, useMemo } from 'react';
+import type { CodeFieldClient, CodeFieldValidation, RenderedField, SanitizedFieldPermissions } from 'payload';
 
 type Languages = Record<string, string>;
 
 type Props = {
   autoComplete?: string;
-  field: any;
+  field: Omit<CodeFieldClient, 'type'> & Partial<Pick<CodeFieldClient, 'type'>>;
   forceRender?: boolean;
   languages?: Languages;
   path: string;
-  permissions?: any;
+  permissions?: SanitizedFieldPermissions;
   readOnly?: boolean;
-  renderedBlocks?: any;
+  renderedBlocks?: RenderedField[];
   schemaPath?: string;
   typescript?: {
     enableSemanticValidation?: boolean;
@@ -22,7 +23,7 @@ type Props = {
     target?: string;
     typeRoots?: string[];
   };
-  validate?: any;
+  validate?: CodeFieldValidation;
 };
 
 export function CodeFieldComponent({
@@ -46,7 +47,7 @@ export function CodeFieldComponent({
   const props = useMemo(
     () => ({
       ...field,
-      type: 'code',
+      type: 'code' as const,
       admin: {
         ...field.admin,
         editorOptions: {},

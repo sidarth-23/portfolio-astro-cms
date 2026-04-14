@@ -12,6 +12,7 @@ import {
 import type { ReactSelectOption as Option } from "@payloadcms/ui";
 import type { TextFieldClientComponent } from "payload";
 import { components as reactSelectComponents } from "react-select";
+import type { OptionProps, SingleValueProps } from "react-select";
 
 import { parseIconValueStrict } from "../../lib/icons";
 import { getPhosphorIconSvgUrl } from "../../lib/icons";
@@ -120,8 +121,8 @@ export const IconPickerField: TextFieldClientComponent = ({ field, path }) => {
 
   const selectComponents = useMemo(() => {
     return {
-      Option: (props: any) => {
-        const option = props.data as IconOption;
+      Option: (props: OptionProps<IconOption, false>) => {
+        const option = props.data;
 
         return (
           <reactSelectComponents.Option {...props}>
@@ -145,8 +146,8 @@ export const IconPickerField: TextFieldClientComponent = ({ field, path }) => {
           </reactSelectComponents.Option>
         );
       },
-      SingleValue: (props: any) => {
-        const option = props.data as IconOption;
+      SingleValue: (props: SingleValueProps<IconOption, false>) => {
+        const option = props.data;
 
         return (
           <reactSelectComponents.SingleValue {...props}>
