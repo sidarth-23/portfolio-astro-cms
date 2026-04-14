@@ -5,6 +5,7 @@ import {
   BoldFeature,
   ChecklistFeature,
   FixedToolbarFeature,
+  type FeatureProviderServer,
   HeadingFeature,
   HorizontalRuleFeature,
   IndentFeature,
@@ -23,6 +24,7 @@ import {
   UploadFeature,
   lexicalEditor,
 } from "@payloadcms/richtext-lexical";
+import type { Block } from "payload";
 
 type HeadingSize = "h1" | "h2" | "h3" | "h4" | "h5" | "h6";
 
@@ -193,7 +195,7 @@ const createBaseTextFeatures = () => {
   ];
 };
 
-const createCodeBlock = (): any => ({
+const createCodeBlock = (): Block => ({
   slug: "Code",
   interfaceName: "LexicalCodeBlock",
   labels: { singular: "Code", plural: "Code" },
@@ -285,7 +287,7 @@ const createCodeBlock = (): any => ({
   ],
 });
 
-const createImageGalleryBlock = (): any => ({
+const createImageGalleryBlock = (): Block => ({
   slug: "imageGallery",
   interfaceName: "LexicalImageGalleryBlock",
   labels: { singular: "Image Gallery", plural: "Image Galleries" },
@@ -314,7 +316,7 @@ const createImageGalleryBlock = (): any => ({
   ],
 });
 
-const createCalloutBlock = (profile: CalloutVariantProfile): any => {
+const createCalloutBlock = (profile: CalloutVariantProfile): Block => {
   return {
     slug: "callout",
     interfaceName: "LexicalCalloutBlock",
@@ -341,10 +343,10 @@ const createCalloutBlock = (profile: CalloutVariantProfile): any => {
         editor: createMinimalRichTextEditor(),
       },
     ],
-  } as const;
+  };
 };
 
-export const createLexicalEditor = ({ variant, ...overrides }: LexicalEditorOptions): any => {
+export const createLexicalEditor = ({ variant, ...overrides }: LexicalEditorOptions) => {
   const variantDefaults = DEFAULT_VARIANT_OPTIONS[variant];
   const options = {
     ...variantDefaults,
@@ -353,8 +355,8 @@ export const createLexicalEditor = ({ variant, ...overrides }: LexicalEditorOpti
   };
 
   return lexicalEditor({
-    features: (): any[] => {
-      const features: any[] = [...createBaseTextFeatures()];
+    features: () => {
+      const features: FeatureProviderServer<any, any, any>[] = [...createBaseTextFeatures()];
 
       if (options.enableInlineToolbar) {
         features.push(InlineToolbarFeature());
@@ -408,7 +410,7 @@ export const createLexicalEditor = ({ variant, ...overrides }: LexicalEditorOpti
         features.push(HorizontalRuleFeature());
       }
 
-      const lexicalBlocks: any[] = [];
+      const lexicalBlocks: Block[] = [];
 
       if (options.enableCodeBlock) {
         lexicalBlocks.push(createCodeBlock());
@@ -437,21 +439,21 @@ export const createLexicalEditor = ({ variant, ...overrides }: LexicalEditorOpti
   });
 };
 
-export const createMinimalRichTextEditor = (options: Omit<LexicalEditorOptions, "variant"> = {}): any => {
+export const createMinimalRichTextEditor = (options: Omit<LexicalEditorOptions, "variant"> = {}) => {
   return createLexicalEditor({
     variant: "minimal",
     ...options,
   });
 };
 
-export const createBasicRichTextEditor = (options: Omit<LexicalEditorOptions, "variant"> = {}): any => {
+export const createBasicRichTextEditor = (options: Omit<LexicalEditorOptions, "variant"> = {}) => {
   return createLexicalEditor({
     variant: "basic",
     ...options,
   });
 };
 
-export const createDocumentRichTextEditor = (options: Omit<LexicalEditorOptions, "variant"> = {}): any => {
+export const createDocumentRichTextEditor = (options: Omit<LexicalEditorOptions, "variant"> = {}) => {
   return createLexicalEditor({
     variant: "document",
     ...options,
