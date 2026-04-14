@@ -39,6 +39,11 @@ export const Media: CollectionConfig = {
   admin: {
     useAsTitle: "alt",
     group: "Assets",
+    components: {
+      beforeListTable: [
+        "./components/admin/OrphanedMediaDrawer#OrphanedMediaDrawer",
+      ],
+    },
   },
   fields: [
     {
