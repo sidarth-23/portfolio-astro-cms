@@ -64,6 +64,8 @@ Git hooks are installed automatically on `bun install` using `simple-git-hooks`.
 - `pre-commit`: runs `lint-staged` on staged files only.
 - `commit-msg`: validates commit messages using Conventional Commits.
 
+The pre-commit hook skips when there are no staged changes and runs `lint-staged --allow-empty` when files are staged. This avoids failing `git commit --amend` when auto-fixes result in no net staged diff.
+
 ### What Pre-commit Enforces
 
 - For staged `*.{js,jsx,ts,tsx,cjs,mjs,astro}` files:
