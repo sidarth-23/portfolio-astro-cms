@@ -1,3 +1,4 @@
+import reactHooksPlugin from "eslint-plugin-react-hooks";
 import baseConfig from "@sidshub/eslint-config";
 
 /** @type {import("eslint").Linter.Config[]} */
@@ -5,6 +6,15 @@ export default [
   ...baseConfig,
   {
     ignores: ["src/payload-types.ts"],
+  },
+  {
+    files: ["src/**/*.{ts,tsx,jsx}"],
+    plugins: {
+      "react-hooks": reactHooksPlugin,
+    },
+    rules: {
+      ...reactHooksPlugin.configs.recommended.rules,
+    },
   },
   {
     files: ["src/**/*.{ts,tsx}"],
@@ -22,6 +32,10 @@ export default [
                 "!../lib/validation",
                 "!../lib/og",
                 "!../lib/email",
+                "!../lib/seo",
+                "!../lib/seoFieldMapping",
+                "!../lib/orphanedMedia",
+                "!../lib/deployment",
                 "../../lib/*",
                 "!../../lib/client",
                 "!../../lib/content",
@@ -29,6 +43,10 @@ export default [
                 "!../../lib/validation",
                 "!../../lib/og",
                 "!../../lib/email",
+                "!../../lib/seo",
+                "!../../lib/seoFieldMapping",
+                "!../../lib/orphanedMedia",
+                "!../../lib/deployment",
                 "../../../lib/*",
                 "!../../../lib/client",
                 "!../../../lib/content",
@@ -36,6 +54,10 @@ export default [
                 "!../../../lib/validation",
                 "!../../../lib/og",
                 "!../../../lib/email",
+                "!../../../lib/seo",
+                "!../../../lib/seoFieldMapping",
+                "!../../../lib/orphanedMedia",
+                "!../../../lib/deployment",
               ],
               message: "Import from `lib/<module>` barrels, not deeper files.",
             },
