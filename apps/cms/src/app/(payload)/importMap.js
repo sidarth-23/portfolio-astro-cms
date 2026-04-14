@@ -20,6 +20,9 @@ import { ItalicFeatureClient as ItalicFeatureClient_e70f5e05f09f93e00b997edb1ef0
 import { ParagraphFeatureClient as ParagraphFeatureClient_e70f5e05f09f93e00b997edb1ef0c864 } from '@payloadcms/richtext-lexical/client'
 import { IconPickerField as IconPickerField_fce113047fd43dfbeedb5a0597d6ab52 } from '../../../../../packages/cms-core/src/components/admin/IconPickerField'
 import { LinkRowLabel as LinkRowLabel_a526a8bf0b3e759cc2b71b6fa0e9f56c } from '../../../../../packages/cms-core/src/components/admin/rowLabels/LinkRowLabel'
+import { FolderTableCell as FolderTableCell_f9c02e79a4aed9a3924487c0cd4cafb1 } from '@payloadcms/next/rsc'
+import { FolderField as FolderField_f9c02e79a4aed9a3924487c0cd4cafb1 } from '@payloadcms/next/rsc'
+import { OrphanedMediaDrawer as OrphanedMediaDrawer_0fa35ba4a1d04dea31219863bc20db97 } from '../../../../../packages/cms-core/src/components/admin/OrphanedMediaDrawer'
 import { OverviewComponent as OverviewComponent_a8a977ebc872c5d5ea7ee689724c0860 } from '@payloadcms/plugin-seo/client'
 import { MetaTitleComponent as MetaTitleComponent_a8a977ebc872c5d5ea7ee689724c0860 } from '@payloadcms/plugin-seo/client'
 import { MetaDescriptionComponent as MetaDescriptionComponent_a8a977ebc872c5d5ea7ee689724c0860 } from '@payloadcms/plugin-seo/client'
@@ -33,6 +36,7 @@ import { AlignFeatureClient as AlignFeatureClient_e70f5e05f09f93e00b997edb1ef0c8
 import { ChecklistFeatureClient as ChecklistFeatureClient_e70f5e05f09f93e00b997edb1ef0c864 } from '@payloadcms/richtext-lexical/client'
 import { HeadingFeatureClient as HeadingFeatureClient_e70f5e05f09f93e00b997edb1ef0c864 } from '@payloadcms/richtext-lexical/client'
 import { BadgeRowLabel as BadgeRowLabel_24238ecca7db753c46604b9d7cf93856 } from '../../../../../packages/cms-core/src/components/admin/rowLabels/BadgeRowLabel'
+import { FolderTypeField as FolderTypeField_2b8867833a34864a02ddf429b0728a40 } from '@payloadcms/next/client'
 import { SectionRowLabel as SectionRowLabel_ec40328e4fa7e50be5521512430803ee } from '../../../../../packages/cms-core/src/components/admin/rowLabels/SectionRowLabel'
 import { CtaButtonRowLabel as CtaButtonRowLabel_21f05950458c091161a962787a64c946 } from '../../../../../packages/cms-core/src/components/admin/rowLabels/CtaButtonRowLabel'
 import { ItemRowLabel as ItemRowLabel_ef785df577c0f700616de08d4de99213 } from '../../../../../packages/cms-core/src/components/admin/rowLabels/ItemRowLabel'
@@ -65,6 +69,9 @@ export const importMap = {
   "@payloadcms/richtext-lexical/client#ParagraphFeatureClient": ParagraphFeatureClient_e70f5e05f09f93e00b997edb1ef0c864,
   "./components/admin/IconPickerField#IconPickerField": IconPickerField_fce113047fd43dfbeedb5a0597d6ab52,
   "./components/admin/rowLabels/LinkRowLabel#LinkRowLabel": LinkRowLabel_a526a8bf0b3e759cc2b71b6fa0e9f56c,
+  "@payloadcms/next/rsc#FolderTableCell": FolderTableCell_f9c02e79a4aed9a3924487c0cd4cafb1,
+  "@payloadcms/next/rsc#FolderField": FolderField_f9c02e79a4aed9a3924487c0cd4cafb1,
+  "./components/admin/OrphanedMediaDrawer#OrphanedMediaDrawer": OrphanedMediaDrawer_0fa35ba4a1d04dea31219863bc20db97,
   "@payloadcms/plugin-seo/client#OverviewComponent": OverviewComponent_a8a977ebc872c5d5ea7ee689724c0860,
   "@payloadcms/plugin-seo/client#MetaTitleComponent": MetaTitleComponent_a8a977ebc872c5d5ea7ee689724c0860,
   "@payloadcms/plugin-seo/client#MetaDescriptionComponent": MetaDescriptionComponent_a8a977ebc872c5d5ea7ee689724c0860,
@@ -78,6 +85,7 @@ export const importMap = {
   "@payloadcms/richtext-lexical/client#ChecklistFeatureClient": ChecklistFeatureClient_e70f5e05f09f93e00b997edb1ef0c864,
   "@payloadcms/richtext-lexical/client#HeadingFeatureClient": HeadingFeatureClient_e70f5e05f09f93e00b997edb1ef0c864,
   "./components/admin/rowLabels/BadgeRowLabel#BadgeRowLabel": BadgeRowLabel_24238ecca7db753c46604b9d7cf93856,
+  "@payloadcms/next/client#FolderTypeField": FolderTypeField_2b8867833a34864a02ddf429b0728a40,
   "./components/admin/rowLabels/SectionRowLabel#SectionRowLabel": SectionRowLabel_ec40328e4fa7e50be5521512430803ee,
   "./components/admin/rowLabels/CtaButtonRowLabel#CtaButtonRowLabel": CtaButtonRowLabel_21f05950458c091161a962787a64c946,
   "./components/admin/rowLabels/ItemRowLabel#ItemRowLabel": ItemRowLabel_ef785df577c0f700616de08d4de99213,
