@@ -12,6 +12,10 @@ type DokployApplicationResponse = {
 }
 
 export function dokployAdapter(config: DokployConfig): DeploymentStatusAdapter {
+  if (!config.apiUrl.trim()) throw new Error('[dokployAdapter] apiUrl must not be empty')
+  if (!config.apiKey.trim()) throw new Error('[dokployAdapter] apiKey must not be empty')
+  if (!config.applicationId.trim()) throw new Error('[dokployAdapter] applicationId must not be empty')
+
   return {
     async getStatus(): Promise<DeploymentStatusResult> {
       const { apiUrl, apiKey, applicationId } = config
@@ -21,6 +25,7 @@ export function dokployAdapter(config: DokployConfig): DeploymentStatusAdapter {
       try {
         const response = await fetch(url, {
           headers: { Authorization: `Bearer ${apiKey}` },
+          signal: AbortSignal.timeout(5000),
         })
         if (!response.ok) {
           return { status: 'unknown', lastDeployedAt: null, deployUrl: null }
@@ -34,10 +39,12 @@ export function dokployAdapter(config: DokployConfig): DeploymentStatusAdapter {
         done: 'deployed',
         running: 'building',
         error: 'failed',
+        idle: 'unknown',
       }
 
       const status = statusMap[data.applicationStatus ?? ''] ?? 'unknown'
-      const lastDeployedAt = data.createdAt ? new Date(data.createdAt) : null
+      const parsed = data.createdAt ? new Date(data.createdAt) : null
+      const lastDeployedAt = parsed && !isNaN(parsed.getTime()) ? parsed : null
       const deployUrl = `${apiUrl.replace(/\/$/, '')}/dashboard/project/${encodeURIComponent(applicationId)}`
 
       return { status, lastDeployedAt, deployUrl }
