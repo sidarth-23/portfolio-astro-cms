@@ -27,7 +27,7 @@ function hasMetaField(data: any): data is { meta: Record<string, any> } {
 export function createSuggestMetadataAutoPopulationHook(
   collectionSlug: "posts" | "projects" | "series",
 ): CollectionBeforeChangeHook {
-  return async ({ data, operation }) => {
+  return ({ data, operation }) => {
     // Skip if not creating or updating
     if (operation !== "create" && operation !== "update") {
       return data;
