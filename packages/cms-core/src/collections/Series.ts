@@ -16,6 +16,11 @@ export const Series: CollectionConfig = {
     useAsTitle: "name",
     defaultColumns: ["name", "slug", "updatedAt"],
     group: "Taxonomy",
+    components: {
+      edit: {
+        SaveButton: "./components/admin/seo/SeoAwareButtons#SeoSaveButton",
+      },
+    },
   },
   hooks: {
     beforeChange: [createSuggestMetadataAutoPopulationHook("series")],

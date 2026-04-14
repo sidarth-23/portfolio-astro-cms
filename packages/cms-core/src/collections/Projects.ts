@@ -18,6 +18,12 @@ export const Projects: CollectionConfig = {
     useAsTitle: "title",
     defaultColumns: ["title", "_status", "updatedAt"],
     group: "Content",
+    components: {
+      edit: {
+        PublishButton: "./components/admin/seo/SeoAwareButtons#SeoPublishButton",
+        SaveDraftButton: "./components/admin/seo/SeoAwareButtons#SeoSaveDraftButton",
+      },
+    },
   },
   hooks: {
     beforeChange: [createSuggestMetadataAutoPopulationHook("projects")],

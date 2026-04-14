@@ -45,47 +45,13 @@ const {
   links = [],
 } = Astro.props;
 const contentClass = `hero-content flex-col ${reverse ? "md:flex-row-reverse" : "md:flex-row"} md:gap-8 lg:gap-10`;
+const contentBodyClass = `grow w-full space-y-1 relative ${links.length > 0 ? "pr-10 sm:pr-12" : ""}`;
 ---
 
 <div
   class="card transition-colors duration-300 ease-in-out rounded-xl block hover:bg-base-content/5 group relative z-0"
 >
   <a href={url} target={target} class="absolute inset-0 z-10" aria-label={title}></a>
-  {
-    links && links.length > 0 && (
-      <div class="absolute top-4 right-4 z-20 flex flex-col gap-1">
-        {links.map((link) => {
-          const iconData = resolveIcon(link.icon);
-          if (!iconData) return null;
-          const label = iconData.source === "simple-icons" ? iconData.title : iconData.name;
-          return (
-            <a
-              href={link.url}
-              target={link.newTab ? "_blank" : undefined}
-              rel={link.newTab ? "noopener noreferrer" : undefined}
-              title={label}
-              aria-label={label}
-              class="btn btn-circle btn-sm btn-ghost transition-all duration-300"
-            >
-              {iconData.source === "simple-icons" ? (
-                <svg
-                  width={20}
-                  height={20}
-                  viewBox="0 0 24 24"
-                  aria-hidden="true"
-                  fill="currentColor"
-                >
-                  <path d={iconData.path} />
-                </svg>
-              ) : (
-                <iconData.component size={20} weight="regular" />
-              )}
-            </a>
-          );
-        })}
-      </div>
-    )
-  }
   <div class={contentClass}>
     {
       img && (
@@ -94,11 +60,46 @@ const contentClass = `hero-content flex-col ${reverse ? "md:flex-row-reverse" : 
         </div>
       )
     }
-    <div class="grow w-full space-y-1">
+    <div class={contentBodyClass}>
       <div>
         {category && <span class="badge badge-primary badge-sm mb-1">{category.name}</span>}
         {series && <span class="badge badge-secondary badge-sm mb-1 ml-1">{series.name}</span>}
       </div>
+      {
+        links.length > 0 && (
+          <div class="absolute top-0 right-0 z-20 flex gap-1">
+            {links.map((link) => {
+              const iconData = resolveIcon(link.icon);
+              if (!iconData) return null;
+              const label = iconData.source === "simple-icons" ? iconData.title : iconData.name;
+              return (
+                <a
+                  href={link.url}
+                  target={link.newTab ? "_blank" : undefined}
+                  rel={link.newTab ? "noopener noreferrer" : undefined}
+                  title={label}
+                  aria-label={label}
+                  class="btn btn-circle btn-sm btn-ghost transition-all duration-300"
+                >
+                  {iconData.source === "simple-icons" ? (
+                    <svg
+                      width={20}
+                      height={20}
+                      viewBox="0 0 24 24"
+                      aria-hidden="true"
+                      fill="currentColor"
+                    >
+                      <path d={iconData.path} />
+                    </svg>
+                  ) : (
+                    <iconData.component size={20} weight="regular" />
+                  )}
+                </a>
+              );
+            })}
+          </div>
+        )
+      }
       <h1 class="text-xl font-bold decoration-2 underline-offset-4 flex items-center gap-2">
         <span class="group-hover:underline">{title}</span>
         {badges.map((item) => <div class="badge badge-secondary mx-2">{item}</div>)}

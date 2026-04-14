@@ -20,9 +20,9 @@ type SeoConfirmModalProps = {
 };
 
 export function SeoConfirmModal({ slug, changedFields, onConfirm, onSkip }: SeoConfirmModalProps) {
-  if (changedFields.length === 0) return null;
-
   const drawerSlug = useDrawerSlug(slug);
+
+  if (changedFields.length === 0) return null;
 
   return (
     <Drawer slug={drawerSlug} title="Update SEO metadata?">
