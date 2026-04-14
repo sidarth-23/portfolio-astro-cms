@@ -60,13 +60,13 @@ export function getSeoFieldMapping(collectionSlug: string): SeoFieldMapping | un
  * @param fieldName - The field name to extract (supports nested paths with dot notation)
  * @returns The string value, or empty string if field not found or not a string
  */
-export function extractFieldValue(data: Record<string, any>, fieldName: string): string {
+export function extractFieldValue(data: Record<string, unknown>, fieldName: string): string {
   const parts = fieldName.split(".");
-  let value: any = data;
+  let value: unknown = data;
 
   for (const part of parts) {
     if (value && typeof value === "object" && part in value) {
-      value = value[part];
+      value = (value as Record<string, unknown>)[part];
     } else {
       return "";
     }
@@ -92,7 +92,7 @@ export function extractFieldValue(data: Record<string, any>, fieldName: string):
  * - null or undefined
  */
 export function extractImageField(
-  data: Record<string, any>,
+  data: Record<string, unknown>,
   fieldName: string | null,
 ): string | number | null {
   if (!fieldName) return null;
@@ -102,11 +102,11 @@ export function extractImageField(
 
   // Try to extract from media object
   const parts = fieldName.split(".");
-  let field: any = data;
+  let field: unknown = data;
 
   for (const part of parts) {
     if (field && typeof field === "object" && part in field) {
-      field = field[part];
+      field = (field as Record<string, unknown>)[part];
     } else {
       return null;
     }
@@ -114,7 +114,7 @@ export function extractImageField(
 
   // If it's a media object with id
   if (field && typeof field === "object" && "id" in field) {
-    return field.id;
+    return (field as { id: string | number }).id;
   }
 
   // If it's a direct ID
@@ -133,7 +133,7 @@ export function extractImageField(
  * @returns Suggested meta values { title, description, image? }
  */
 export function proposeSeoMetaValues(
-  data: Record<string, any>,
+  data: Record<string, unknown>,
   mapping: SeoFieldMapping,
 ): {
   title: string;
@@ -151,6 +151,13 @@ export function proposeSeoMetaValues(
   };
 }
 
+type MetaDifferences = {
+  hasDifferences: boolean;
+  title?: { existing: string; proposed: string };
+  description?: { existing: string; proposed: string };
+  image?: { existing: string | number | null; proposed: string | number | null };
+};
+
 /**
  * Check if proposed meta values differ from existing meta values
  *
@@ -159,34 +166,42 @@ export function proposeSeoMetaValues(
  * @returns Object indicating which fields differ, with proposed vs existing values
  */
 export function getMetaDifferences(
-  existing: Record<string, any>,
+  existing: Record<string, unknown>,
   proposed: {
     title: string;
     description: string;
     image: string | number | null;
   },
-): {
-  hasDifferences: boolean;
-  title?: { existing: string; proposed: string };
-  description?: { existing: string; proposed: string };
-  image?: { existing: string | number | null; proposed: string | number | null };
-} {
-  const differences: any = {
+): MetaDifferences {
+  const differences: MetaDifferences = {
     hasDifferences: false,
   };
 
   if (existing.title !== proposed.title) {
-    differences.title = { existing: existing.title || "", proposed: proposed.title };
+    differences.title = {
+      existing: typeof existing.title === "string" ? existing.title : "",
+      proposed: proposed.title,
+    };
     differences.hasDifferences = true;
   }
 
   if (existing.description !== proposed.description) {
-    differences.description = { existing: existing.description || "", proposed: proposed.description };
+    differences.description = {
+      existing: typeof existing.description === "string" ? existing.description : "",
+      proposed: proposed.description,
+    };
     differences.hasDifferences = true;
   }
 
   if (existing.image !== proposed.image) {
-    differences.image = { existing: existing.image || null, proposed: proposed.image };
+    const existingImage = existing.image;
+    differences.image = {
+      existing:
+        typeof existingImage === "string" || typeof existingImage === "number"
+          ? existingImage
+          : null,
+      proposed: proposed.image,
+    };
     differences.hasDifferences = true;
   }
 
