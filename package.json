@@ -35,7 +35,7 @@
   },
   "lint-staged": {
     "{apps,packages}/**/*.{js,jsx,ts,tsx,cjs,mjs,astro}": [
-      "eslint --fix --max-warnings=0",
+      "eslint --fix --max-warnings=0 --no-warn-ignored",
       "prettier --write"
     ],
     "*.{js,jsx,ts,tsx,cjs,mjs}": [

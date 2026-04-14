@@ -29,6 +29,7 @@ export default [
       "**/*.generated.*",
       "**/payload-types.ts",
       "**/payload-generated-schema.ts",
+      "**/importMap.js",
     ],
   },
 ];

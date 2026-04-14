@@ -17,7 +17,12 @@ export default function createNextConfig(importMetaUrl) {
     ...compat.extends("next/core-web-vitals", "next/typescript"),
     ...baseConfig,
     {
-      ignores: [".next/", "src/payload-types.ts", "src/payload-generated-schema.ts"],
+      ignores: [
+        ".next/",
+        "src/payload-types.ts",
+        "src/payload-generated-schema.ts",
+        "src/app/(payload)/importMap.js",
+      ],
     },
   ];
 }

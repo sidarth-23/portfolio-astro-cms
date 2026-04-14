@@ -31,7 +31,7 @@ const {
   links = [],
 } = Astro.props;
 const contentClass = `hero-content flex-col ${reverse ? "md:flex-row-reverse" : "md:flex-row"} md:gap-8 lg:gap-10 relative z-20 pointer-events-none`;
-const contentBodyClass = `grow w-full space-y-1 relative ${links.length > 0 ? "pr-10 sm:pr-12" : ""}`;
+const contentBodyClass = "grow w-full space-y-1 relative";
 ---
 
 <div
@@ -51,45 +51,49 @@ const contentBodyClass = `grow w-full space-y-1 relative ${links.length > 0 ? "p
         {category && <span class="badge badge-primary badge-sm mb-1">{category.name}</span>}
         {series && <span class="badge badge-secondary badge-sm mb-1 ml-1">{series.name}</span>}
       </div>
-      {
-        links.length > 0 && (
-          <div class="absolute top-0 right-0 z-20 flex gap-1 pointer-events-auto">
-            {links.map((link) => {
-              const iconData = resolveIcon(link.icon);
-              if (!iconData) return null;
-              const label = iconData.source === "simple-icons" ? iconData.title : iconData.name;
-              return (
-                <a
-                  href={link.url}
-                  target={link.newTab ? "_blank" : undefined}
-                  rel={link.newTab ? "noopener noreferrer" : undefined}
-                  title={label}
-                  aria-label={label}
-                  class="btn btn-circle btn-sm btn-ghost transition-all duration-300"
-                >
-                  {iconData.source === "simple-icons" ? (
-                    <svg
-                      width={20}
-                      height={20}
-                      viewBox="0 0 24 24"
-                      aria-hidden="true"
-                      fill="currentColor"
-                    >
-                      <path d={iconData.path} />
-                    </svg>
-                  ) : (
-                    <iconData.component size={20} weight="regular" />
-                  )}
-                </a>
-              );
-            })}
-          </div>
-        )
-      }
-      <h1 class="text-xl font-bold decoration-2 underline-offset-4 flex items-center gap-2">
-        <span class="group-hover:underline">{title}</span>
-        {badges.map((item) => <div class="badge badge-secondary mx-2">{item}</div>)}
-      </h1>
+      <div class="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+        <h1
+          class="min-w-0 text-xl font-bold decoration-2 underline-offset-4 flex items-center gap-1.5 flex-wrap"
+        >
+          <span class="group-hover:underline">{title}</span>
+          {badges.map((item) => <div class="badge badge-secondary badge-xs">{item}</div>)}
+        </h1>
+        {
+          links.length > 0 && (
+            <div class="z-20 flex gap-1 pointer-events-auto sm:shrink-0">
+              {links.map((link) => {
+                const iconData = resolveIcon(link.icon);
+                if (!iconData) return null;
+                const label = iconData.source === "simple-icons" ? iconData.title : iconData.name;
+                return (
+                  <a
+                    href={link.url}
+                    target={link.newTab ? "_blank" : undefined}
+                    rel={link.newTab ? "noopener noreferrer" : undefined}
+                    title={label}
+                    aria-label={label}
+                    class="btn btn-circle btn-sm btn-ghost transition-all duration-300"
+                  >
+                    {iconData.source === "simple-icons" ? (
+                      <svg
+                        width={20}
+                        height={20}
+                        viewBox="0 0 24 24"
+                        aria-hidden="true"
+                        fill="currentColor"
+                      >
+                        <path d={iconData.path} />
+                      </svg>
+                    ) : (
+                      <iconData.component size={20} weight="regular" />
+                    )}
+                  </a>
+                );
+              })}
+            </div>
+          )
+        }
+      </div>
       {desc && <p class="py-1 text-1xl">{desc}</p>}
       {
         tags.length > 0 && (
