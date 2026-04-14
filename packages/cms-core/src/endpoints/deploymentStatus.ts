@@ -1,6 +1,6 @@
 import type { Endpoint } from "payload";
 
-import { getDeploymentStatusAdapter } from "../builder";
+import { getDeploymentStatusAdapter, getDeploymentHookValid } from "../builder";
 
 export const deploymentStatusEndpoint: Endpoint = {
   path: "/deployment-status",
@@ -13,6 +13,8 @@ export const deploymentStatusEndpoint: Endpoint = {
     const adapter = getDeploymentStatusAdapter();
     if (!adapter) {
       return Response.json({
+        configured: false,
+        misconfigured: !getDeploymentHookValid(),
         status: "unknown",
         lastDeployedAt: null,
         deployUrl: null,
@@ -21,9 +23,11 @@ export const deploymentStatusEndpoint: Endpoint = {
 
     try {
       const result = await adapter.getStatus();
-      return Response.json(result);
+      return Response.json({ configured: true, misconfigured: false, ...result });
     } catch {
       return Response.json({
+        configured: true,
+        misconfigured: false,
         status: "unknown",
         lastDeployedAt: null,
         deployUrl: null,

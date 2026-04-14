@@ -28,11 +28,15 @@ import { createTriggerDevRefresh } from "./hooks/triggerDevRefresh";
 import { createGlobalRedeployHook } from "./hooks/triggerGlobalRedeploy";
 import { SEO_COLLECTIONS, SEO_GLOBALS } from "./lib/og/registry";
 import type { DeploymentStatusAdapter } from "./lib/deployment/types";
+import type { HookType } from "./lib/deployment/factory";
 
 const filename = fileURLToPath(import.meta.url);
 const dirname = path.dirname(filename);
 
 let _deploymentStatusAdapter: DeploymentStatusAdapter | undefined;
+let _showDeploymentStatusCard = false;
+let _deploymentHookType: HookType | undefined;
+let _deploymentHookValid = false;
 
 export function setDeploymentStatusAdapter(adapter: DeploymentStatusAdapter | undefined) {
   _deploymentStatusAdapter = adapter;
@@ -40,6 +44,30 @@ export function setDeploymentStatusAdapter(adapter: DeploymentStatusAdapter | un
 
 export function getDeploymentStatusAdapter(): DeploymentStatusAdapter | undefined {
   return _deploymentStatusAdapter;
+}
+
+export function setShowDeploymentStatusCard(show: boolean) {
+  _showDeploymentStatusCard = show;
+}
+
+export function getShowDeploymentStatusCard(): boolean {
+  return _showDeploymentStatusCard;
+}
+
+export function setDeploymentHookType(type: HookType | undefined) {
+  _deploymentHookType = type;
+}
+
+export function getDeploymentHookType(): HookType | undefined {
+  return _deploymentHookType;
+}
+
+export function setDeploymentHookValid(valid: boolean) {
+  _deploymentHookValid = valid;
+}
+
+export function getDeploymentHookValid(): boolean {
+  return _deploymentHookValid;
 }
 
 export type CmsConfigOptions = {
@@ -54,11 +82,17 @@ export type CmsConfigOptions = {
   devRefreshUrl?: string;
   onInit?: () => Promise<void>;
   deploymentStatus?: DeploymentStatusAdapter;
+  showDeploymentStatus?: boolean;
+  deploymentHookType?: HookType;
+  deploymentHookValid?: boolean;
 };
 
 export function createCmsConfig(options: CmsConfigOptions) {
   setReadAccessToken(options.readAccessToken);
   setDeploymentStatusAdapter(options.deploymentStatus);
+  setShowDeploymentStatusCard(options.showDeploymentStatus ?? false);
+  setDeploymentHookType(options.deploymentHookType);
+  setDeploymentHookValid(options.deploymentHookValid ?? false);
 
   const triggerDeploy = createTriggerDeployment(options.deployHook);
   const triggerRefresh = createTriggerDevRefresh(options.devRefreshUrl);
@@ -84,7 +118,15 @@ export function createCmsConfig(options: CmsConfigOptions) {
   const siteUrl = options.siteUrl ?? "https://sidshub.in";
 
   // URL mapping: collection/global slug → public-facing URL on the frontend
-  const generateURL = ({ doc, collectionSlug, globalSlug }: { doc: Record<string, unknown>; collectionSlug?: string; globalSlug?: string }): string => {
+  const generateURL = ({
+    doc,
+    collectionSlug,
+    globalSlug,
+  }: {
+    doc: Record<string, unknown>;
+    collectionSlug?: string;
+    globalSlug?: string;
+  }): string => {
     if (collectionSlug === "posts") return `${siteUrl}/blog/${doc.slug ?? ""}`;
     if (collectionSlug === "projects") return `${siteUrl}/projects/${doc.slug ?? ""}`;
     if (collectionSlug === "series") return `${siteUrl}/blog/series/${doc.slug ?? ""}`;
@@ -138,9 +180,7 @@ export function createCmsConfig(options: CmsConfigOptions) {
     BlogPage,
     SeriesPage,
     ProjectsPage,
-  ].map(
-    withGlobalAfterChangeHook,
-  );
+  ].map(withGlobalAfterChangeHook);
 
   return buildConfig({
     // Experimental in Payload v3 — may change in minor versions until stable.
@@ -151,9 +191,7 @@ export function createCmsConfig(options: CmsConfigOptions) {
     admin: {
       user: Users.slug,
       components: {
-        afterNavLinks: [
-          "./components/admin/nav/DashboardNavLink#DashboardNavLink",
-        ],
+        afterNavLinks: ["./components/admin/nav/DashboardNavLink#DashboardNavLink"],
         views: {
           dashboard: {
             Component: "./components/admin/Dashboard#DashboardView",
@@ -171,7 +209,11 @@ export function createCmsConfig(options: CmsConfigOptions) {
     routes: {
       admin: "/",
     },
-    endpoints: [generateOgImagesEndpoint(options.siteUrl), deploymentStatusEndpoint, ...orphanedMediaEndpoints],
+    endpoints: [
+      generateOgImagesEndpoint(options.siteUrl),
+      deploymentStatusEndpoint,
+      ...orphanedMediaEndpoints,
+    ],
     collections,
     globals,
     onInit: async () => {

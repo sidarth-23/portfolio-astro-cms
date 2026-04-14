@@ -1,10 +1,15 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import { Pill } from "@payloadcms/ui";
+
+import type { HookType } from "../../lib/deployment/factory";
 
 type DeploymentStatus = "deployed" | "building" | "failed" | "unknown";
 
 type StatusResult = {
+  configured: boolean;
+  misconfigured: boolean;
   status: DeploymentStatus;
   lastDeployedAt: string | null;
   deployUrl: string | null;
@@ -17,27 +22,16 @@ const STATUS_LABELS: Record<DeploymentStatus, string> = {
   unknown: "Unknown",
 };
 
-const STATUS_COLORS: Record<DeploymentStatus, { bg: string; text: string; border: string }> = {
-  deployed: {
-    bg: "var(--theme-success-50, rgba(34,197,94,0.1))",
-    text: "var(--theme-success-500, #16a34a)",
-    border: "var(--theme-success-300, rgba(34,197,94,0.4))",
-  },
-  building: {
-    bg: "rgba(234,179,8,0.1)",
-    text: "#a16207",
-    border: "rgba(234,179,8,0.4)",
-  },
-  failed: {
-    bg: "var(--theme-error-50, rgba(239,68,68,0.08))",
-    text: "var(--theme-error-500, #ef4444)",
-    border: "var(--theme-error-400, rgba(239,68,68,0.3))",
-  },
-  unknown: {
-    bg: "var(--theme-elevation-50, rgba(0,0,0,0.04))",
-    text: "var(--theme-elevation-500)",
-    border: "var(--theme-elevation-200)",
-  },
+const STATUS_PILL_STYLE: Record<DeploymentStatus, "success" | "warning" | "error" | "light-gray"> =
+  {
+    deployed: "success",
+    building: "warning",
+    failed: "error",
+    unknown: "light-gray",
+  };
+
+const HOOK_TYPE_LABELS: Record<HookType, string> = {
+  dokploy: "Dokploy",
 };
 
 function formatDate(iso: string | null): string {
@@ -53,7 +47,11 @@ function formatDate(iso: string | null): string {
   });
 }
 
-export function DeploymentStatusCard() {
+type Props = {
+  hookType?: HookType;
+};
+
+export function DeploymentStatusCard({ hookType }: Props) {
   const [result, setResult] = useState<StatusResult | null>(null);
   const [manualLoading, setManualLoading] = useState(false);
   const [autoRefreshing, setAutoRefreshing] = useState(false);
@@ -95,17 +93,37 @@ export function DeploymentStatusCard() {
     startPolling();
   };
 
-  const status = result?.status ?? "unknown";
-  const colors = STATUS_COLORS[status];
+  const serviceLabel = hookType ? (HOOK_TYPE_LABELS[hookType] ?? hookType) : "Web app";
 
   return (
     <div style={{ marginTop: "8px", marginBottom: "32px" }}>
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "12px" }}>
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          marginBottom: "12px",
+        }}
+      >
         <div>
-          <h3 style={{ margin: "0 0 4px 0", fontSize: "18px", fontWeight: 600, color: "var(--theme-text)" }}>
+          <h3
+            style={{
+              margin: "0 0 4px 0",
+              fontSize: "18px",
+              fontWeight: 600,
+              color: "var(--theme-text)",
+            }}
+          >
             Deployment Status
           </h3>
-          <p style={{ margin: 0, fontSize: "13px", color: "var(--theme-elevation-600)", lineHeight: "1.5" }}>
+          <p
+            style={{
+              margin: 0,
+              fontSize: "13px",
+              color: "var(--theme-elevation-600)",
+              lineHeight: "1.5",
+            }}
+          >
             Live status of the web app deployment.
           </p>
         </div>
@@ -158,7 +176,12 @@ export function DeploymentStatusCard() {
       >
         <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "13px" }}>
           <thead>
-            <tr style={{ background: "var(--theme-elevation-50)", borderBottom: "1px solid var(--theme-elevation-150)" }}>
+            <tr
+              style={{
+                background: "var(--theme-elevation-50)",
+                borderBottom: "1px solid var(--theme-elevation-150)",
+              }}
+            >
               {["Service", "Status", "Last deployed", "Link"].map((h) => (
                 <th
                   key={h}
@@ -178,57 +201,97 @@ export function DeploymentStatusCard() {
             </tr>
           </thead>
           <tbody>
-            <tr>
-              <td style={{ padding: "12px 14px", color: "var(--theme-text)", fontWeight: 500 }}>Web app</td>
-              <td style={{ padding: "12px 14px" }}>
-                <span
+            {result?.misconfigured ? (
+              <tr>
+                <td style={{ padding: "12px 14px", color: "var(--theme-text)", fontWeight: 500 }}>
+                  {serviceLabel}
+                </td>
+                <td style={{ padding: "12px 14px" }}>
+                  <Pill pillStyle="error">Misconfigured</Pill>
+                </td>
+                <td
+                  colSpan={2}
                   style={{
-                    display: "inline-flex",
-                    alignItems: "center",
-                    gap: "6px",
-                    padding: "3px 10px",
-                    borderRadius: "999px",
+                    padding: "12px 14px",
+                    color: "var(--theme-error-500, #ef4444)",
                     fontSize: "12px",
-                    fontWeight: 600,
-                    background: colors.bg,
-                    color: colors.text,
-                    border: `1px solid ${colors.border}`,
                   }}
                 >
-                  {status === "building" && (
-                    <span
-                      style={{
-                        display: "inline-block",
-                        width: "8px",
-                        height: "8px",
-                        border: `2px solid ${colors.border}`,
-                        borderTopColor: colors.text,
-                        borderRadius: "50%",
-                        animation: "ds-spin 0.7s linear infinite",
-                      }}
-                    />
+                  SITE_BUILD_HOOK_URL, SITE_BUILD_HOOK_SECRET, or provider-specific vars are
+                  missing.
+                </td>
+              </tr>
+            ) : result !== null && !result.configured ? (
+              <tr>
+                <td style={{ padding: "12px 14px", color: "var(--theme-text)", fontWeight: 500 }}>
+                  {serviceLabel}
+                </td>
+                <td style={{ padding: "12px 14px" }}>
+                  <Pill pillStyle="light-gray">Not configured</Pill>
+                </td>
+                <td
+                  colSpan={2}
+                  style={{
+                    padding: "12px 14px",
+                    color: "var(--theme-elevation-500)",
+                    fontSize: "12px",
+                  }}
+                >
+                  Adapter not initialised. Check your deployment environment variables.
+                </td>
+              </tr>
+            ) : (
+              <tr>
+                <td style={{ padding: "12px 14px", color: "var(--theme-text)", fontWeight: 500 }}>
+                  {serviceLabel}
+                </td>
+                <td style={{ padding: "12px 14px" }}>
+                  {result ? (
+                    <span style={{ display: "inline-flex", alignItems: "center", gap: "6px" }}>
+                      {result.status === "building" && (
+                        <span
+                          style={{
+                            display: "inline-block",
+                            width: "8px",
+                            height: "8px",
+                            border: "2px solid var(--theme-elevation-300)",
+                            borderTopColor: "var(--theme-elevation-700)",
+                            borderRadius: "50%",
+                            animation: "ds-spin 0.7s linear infinite",
+                          }}
+                        />
+                      )}
+                      <Pill pillStyle={STATUS_PILL_STYLE[result.status]}>
+                        {STATUS_LABELS[result.status]}
+                      </Pill>
+                    </span>
+                  ) : (
+                    <Pill pillStyle="light-gray">—</Pill>
                   )}
-                  {STATUS_LABELS[status]}
-                </span>
-              </td>
-              <td style={{ padding: "12px 14px", color: "var(--theme-elevation-700)" }}>
-                {result ? formatDate(result.lastDeployedAt) : "—"}
-              </td>
-              <td style={{ padding: "12px 14px" }}>
-                {result?.deployUrl ? (
-                  <a
-                    href={result.deployUrl}
-                    target="_blank"
-                    rel="noreferrer"
-                    style={{ color: "var(--theme-text)", fontSize: "12px", textDecoration: "underline" }}
-                  >
-                    Open
-                  </a>
-                ) : (
-                  <span style={{ color: "var(--theme-elevation-400)" }}>—</span>
-                )}
-              </td>
-            </tr>
+                </td>
+                <td style={{ padding: "12px 14px", color: "var(--theme-elevation-700)" }}>
+                  {result ? formatDate(result.lastDeployedAt) : "—"}
+                </td>
+                <td style={{ padding: "12px 14px" }}>
+                  {result?.deployUrl ? (
+                    <a
+                      href={result.deployUrl}
+                      target="_blank"
+                      rel="noreferrer"
+                      style={{
+                        color: "var(--theme-text)",
+                        fontSize: "12px",
+                        textDecoration: "underline",
+                      }}
+                    >
+                      Open
+                    </a>
+                  ) : (
+                    <span style={{ color: "var(--theme-elevation-400)" }}>—</span>
+                  )}
+                </td>
+              </tr>
+            )}
           </tbody>
         </table>
       </div>
