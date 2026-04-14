@@ -24,7 +24,7 @@ const formatMonth = (dateStr: string) => {
 const getSubtitle = (item: any) => {
   if (item.itemType === "organizationRole") {
     const start = formatMonth(item.startMonth);
-    const end = formatMonth(item.endMonth) || "Present";
+    const end = item.currentlyWorkingHere ? "Current" : formatMonth(item.endMonth);
     const generated = [
       [start, end].filter(Boolean).join(" - "),
       item.organization,

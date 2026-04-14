@@ -174,13 +174,33 @@ const cvBadgeGroupSchema = z
 
 const cvItemSchema = z
   .object({
+    itemType: z.enum(["generic", "organizationRole", "linked"]).optional(),
     title: requiredText.optional(),
     subtitle: optionalText.nullish(),
+    startMonth: z.string().nullish(),
     organization: optionalText.nullish(),
     location: optionalText.nullish(),
+    endMonth: z.string().nullish(),
+    currentlyWorkingHere: z.boolean().optional(),
     url: optionalHttpUrl.nullish(),
   })
-  .passthrough();
+  .passthrough()
+  .superRefine((value, ctx) => {
+    if (value.itemType !== "organizationRole") {
+      return;
+    }
+
+    const isCurrent = value.currentlyWorkingHere === true;
+    const hasEndMonth = Boolean(value.endMonth);
+
+    if (!isCurrent && !hasEndMonth) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ["endMonth"],
+        message: "End month is required unless currently working here is enabled.",
+      });
+    }
+  });
 
 export const cvPageSchema = withSeoMeta({
   sections: z

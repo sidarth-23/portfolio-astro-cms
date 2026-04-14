@@ -1092,6 +1092,7 @@ export interface CvPage {
           subtitle?: string | null;
           startMonth?: string | null;
           endMonth?: string | null;
+          currentlyWorkingHere?: boolean | null;
           organization?: string | null;
           location?: string | null;
           url?: string | null;
@@ -1325,6 +1326,7 @@ export interface CvPageSelect<T extends boolean = true> {
               subtitle?: T;
               startMonth?: T;
               endMonth?: T;
+              currentlyWorkingHere?: T;
               organization?: T;
               location?: T;
               url?: T;

@@ -49,11 +49,22 @@ const sectionItemFields: Field[] = [
     type: "date",
     admin: {
       condition: (_, siblingData) =>
-        siblingData?.itemType === "organizationRole",
+        siblingData?.itemType === "organizationRole" &&
+        !siblingData?.currentlyWorkingHere,
       date: {
         pickerAppearance: "monthOnly",
         displayFormat: "MMM yyyy",
       },
+    },
+  },
+  {
+    name: "currentlyWorkingHere",
+    label: "Currently working here",
+    type: "checkbox",
+    defaultValue: false,
+    admin: {
+      condition: (_, siblingData) =>
+        siblingData?.itemType === "organizationRole",
     },
   },
   {

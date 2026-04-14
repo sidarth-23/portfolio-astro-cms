@@ -200,6 +200,7 @@ export const makeCvPage = (overrides: Partial<CvPage> = {}): CvPage => ({
           organization: faker.company.name(),
           location: faker.location.city(),
           startMonth: "2022-01-01",
+          currentlyWorkingHere: true,
           endMonth: null,
         },
       ],
