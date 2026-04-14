@@ -2,6 +2,7 @@
 import NotFoundState from "@/components/NotFoundState.astro";
 import ErrorLayout from "@/layouts/ErrorLayout.astro";
 import { getErrorPageSeo } from "@/lib/seo";
+import { PhMagnifyingGlass } from "phosphor-icons-astro";
 
 const seo = await getErrorPageSeo();
 ---
@@ -12,10 +13,10 @@ const seo = await getErrorPageSeo();
   image={seo.image}
 >
   <NotFoundState
-    title="404"
-    description="The page you're looking for couldn't be found."
-    ctaLabel="Home"
+    title="Page not found"
+    description="The page you're looking for doesn't exist or may have been moved."
+    ctaLabel="Back to home"
     ctaHref="/"
-    emoji="🏝"
+    icon={PhMagnifyingGlass}
   />
 </ErrorLayout>

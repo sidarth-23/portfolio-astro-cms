@@ -2,6 +2,7 @@
 import NotFoundState from "@/components/NotFoundState.astro";
 import ErrorLayout from "@/layouts/ErrorLayout.astro";
 import { getErrorPageSeo } from "@/lib/seo";
+import { PhWarningCircle } from "phosphor-icons-astro";
 
 const seo = await getErrorPageSeo();
 ---
@@ -12,10 +13,10 @@ const seo = await getErrorPageSeo();
   image={seo.image}
 >
   <NotFoundState
-    title="500"
-    description="Something went wrong while loading this page."
-    ctaLabel="Home"
+    title="Something went wrong"
+    description="We ran into an unexpected error. Please try again later."
+    ctaLabel="Back to home"
     ctaHref="/"
-    emoji="⚠️"
+    icon={PhWarningCircle}
   />
 </ErrorLayout>
