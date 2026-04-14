@@ -1,9 +1,19 @@
 "use client";
 
 import { useState } from "react";
+import type { Column } from "payload";
 
-import { Drawer, DrawerToggler, useDrawerSlug } from "@payloadcms/ui";
-import { toast } from "@payloadcms/ui";
+import {
+  Button,
+  Drawer,
+  DrawerToggler,
+  Pagination,
+  Table,
+  toast,
+  useDrawerSlug,
+} from "@payloadcms/ui";
+
+const PAGE_LIMIT = 10;
 
 type OrphanedMediaItem = {
   id: string;
@@ -24,6 +34,9 @@ type DeleteResult = {
   errors: Array<{ id: string; error: string }>;
 };
 
+// field is required by the Column type but never read by the Table renderer
+const DUMMY_FIELD = {} as Column["field"];
+
 export function OrphanedMediaDrawer() {
   const drawerSlug = useDrawerSlug("orphaned-media");
   const [status, setStatus] = useState<"idle" | "scanning" | "deleting" | "done">("idle");
@@ -31,17 +44,17 @@ export function OrphanedMediaDrawer() {
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [error, setError] = useState<string | null>(null);
   const [pendingAction, setPendingAction] = useState<{ ids: string[]; label: string } | null>(null);
+  const [page, setPage] = useState(1);
 
   async function scan() {
     setStatus("scanning");
     setError(null);
     setResult(null);
     setSelectedIds(new Set());
+    setPage(1);
 
     try {
-      const res = await fetch("/api/orphaned-media", {
-        credentials: "include",
-      });
+      const res = await fetch("/api/orphaned-media", { credentials: "include" });
       const data = await res.json();
 
       if (!res.ok) {
@@ -61,11 +74,8 @@ export function OrphanedMediaDrawer() {
   function toggleItem(id: string) {
     setSelectedIds((prev) => {
       const next = new Set(prev);
-      if (next.has(id)) {
-        next.delete(id);
-      } else {
-        next.add(id);
-      }
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
       return next;
     });
   }
@@ -92,7 +102,7 @@ export function OrphanedMediaDrawer() {
         credentials: "include",
         body: JSON.stringify({ ids }),
       });
-      const data = await res.json().catch(() => ({})) as DeleteResult & { error?: string };
+      const data = (await res.json().catch(() => ({}))) as DeleteResult & { error?: string };
 
       if (!res.ok) {
         setError(data.error ?? "Delete request failed.");
@@ -100,14 +110,9 @@ export function OrphanedMediaDrawer() {
         return;
       }
 
-      if (data.deleted > 0) {
-        toast.success(`Deleted ${data.deleted} item${data.deleted !== 1 ? "s" : ""}.`);
-      }
-      if (data.failed > 0) {
-        toast.error(`Failed to delete ${data.failed} item${data.failed !== 1 ? "s" : ""}.`);
-      }
+      if (data.deleted > 0) toast.success(`Deleted ${data.deleted} item${data.deleted !== 1 ? "s" : ""}.`);
+      if (data.failed > 0) toast.error(`Failed to delete ${data.failed} item${data.failed !== 1 ? "s" : ""}.`);
 
-      // Re-scan after deletion
       await scan();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Network error during deletion");
@@ -115,49 +120,159 @@ export function OrphanedMediaDrawer() {
     }
   }
 
-  function deleteSelected() {
-    const ids = Array.from(selectedIds);
-    if (ids.length === 0) return;
-
-    setPendingAction({
-      ids,
-      label: `Delete ${ids.length} item${ids.length !== 1 ? "s" : ""}? This cannot be undone.`,
-    });
-  }
-
-  function deleteAll() {
-    if (!result || result.orphaned.length === 0) return;
-
-    setPendingAction({
-      ids: result.orphaned.map((item) => item.id),
-      label: `Delete all ${result.orphaned.length} orphaned item${result.orphaned.length !== 1 ? "s" : ""}? This cannot be undone.`,
-    });
+  function confirmDelete(ids: string[], label: string) {
+    setPendingAction({ ids, label });
   }
 
   const isLoading = status === "scanning" || status === "deleting";
   const orphaned = result?.orphaned ?? [];
   const allSelected = orphaned.length > 0 && selectedIds.size === orphaned.length;
 
+  // Pagination
+  const totalPages = Math.max(1, Math.ceil(orphaned.length / PAGE_LIMIT));
+  const safePage = Math.min(page, totalPages);
+  const startIndex = (safePage - 1) * PAGE_LIMIT;
+  const pageItems = orphaned.slice(startIndex, startIndex + PAGE_LIMIT);
+
+  // Build Table columns — renderedCells is indexed by pageItems row
+  const columns: Column[] = [
+    {
+      accessor: "select",
+      active: true,
+      field: DUMMY_FIELD,
+      Heading: (
+        <input
+          type="checkbox"
+          checked={allSelected}
+          onChange={allSelected ? deselectAll : selectAll}
+          disabled={isLoading || orphaned.length === 0}
+          title={allSelected ? "Deselect all" : "Select all"}
+          style={{ cursor: "pointer" }}
+        />
+      ),
+      renderedCells: pageItems.map((item) => (
+        <input
+          key={item.id}
+          type="checkbox"
+          checked={selectedIds.has(item.id)}
+          onChange={() => toggleItem(item.id)}
+          disabled={isLoading}
+          style={{ cursor: isLoading ? "not-allowed" : "pointer" }}
+        />
+      )),
+    },
+    {
+      accessor: "url",
+      active: true,
+      field: DUMMY_FIELD,
+      Heading: "Preview",
+      renderedCells: pageItems.map((item) =>
+        item.url ? (
+          <img
+            key={item.id}
+            src={item.url}
+            alt={item.alt ?? item.filename ?? "media"}
+            style={{ width: 40, height: 40, objectFit: "cover", borderRadius: 3, display: "block" }}
+          />
+        ) : (
+          <div
+            key={item.id}
+            style={{
+              width: 40,
+              height: 40,
+              borderRadius: 3,
+              background: "var(--theme-elevation-150)",
+            }}
+          />
+        ),
+      ),
+    },
+    {
+      accessor: "filename",
+      active: true,
+      field: DUMMY_FIELD,
+      Heading: "File",
+      renderedCells: pageItems.map((item) => (
+        <div key={item.id} style={{ minWidth: 0 }}>
+          <div
+            style={{
+              fontWeight: 500,
+              whiteSpace: "nowrap",
+              overflow: "hidden",
+              textOverflow: "ellipsis",
+              maxWidth: 260,
+            }}
+          >
+            {item.filename ?? "(no filename)"}
+          </div>
+          {item.alt && (
+            <div
+              style={{
+                fontSize: "0.8em",
+                color: "var(--theme-elevation-500)",
+                whiteSpace: "nowrap",
+                overflow: "hidden",
+                textOverflow: "ellipsis",
+                maxWidth: 260,
+                marginTop: 2,
+              }}
+            >
+              {item.alt}
+            </div>
+          )}
+        </div>
+      )),
+    },
+    {
+      accessor: "createdAt",
+      active: true,
+      field: DUMMY_FIELD,
+      Heading: "Created",
+      renderedCells: pageItems.map((item) => (
+        <span key={item.id} style={{ whiteSpace: "nowrap" }}>
+          {new Date(item.createdAt).toLocaleDateString()}
+        </span>
+      )),
+    },
+    {
+      accessor: "actions",
+      active: true,
+      field: DUMMY_FIELD,
+      Heading: "",
+      renderedCells: pageItems.map((item) => (
+        <Button
+          key={item.id}
+          buttonStyle="error"
+          size="small"
+          disabled={isLoading}
+          onClick={() =>
+            confirmDelete([item.id], `Delete "${item.filename ?? item.id}"? This cannot be undone.`)
+          }
+        >
+          Delete
+        </Button>
+      )),
+    },
+  ];
+
   return (
     <>
-      {/* Payload's Drawer has no onOpen callback. Triggering scan via onClick
-          ensures a fresh scan on every open. */}
       <DrawerToggler
         slug={drawerSlug}
         onClick={() => { void scan(); }}
         style={{
           display: "inline-flex",
           alignItems: "center",
-          gap: "6px",
+          gap: 6,
           padding: "6px 14px",
           background: "var(--theme-elevation-150)",
           color: "var(--theme-text)",
           border: "1px solid var(--theme-elevation-200)",
-          borderRadius: "4px",
-          fontSize: "13px",
+          borderRadius: 4,
+          fontSize: 13,
           fontWeight: 500,
           cursor: "pointer",
-          marginBottom: "12px",
+          marginBottom: 12,
         }}
       >
         Find Orphaned Media
@@ -167,156 +282,110 @@ export function OrphanedMediaDrawer() {
         <div
           style={{
             padding: "24px",
-            height: "100%",
             display: "flex",
             flexDirection: "column",
-            gap: "16px",
+            gap: 16,
             color: "var(--theme-text)",
           }}
         >
-          {/* Header description */}
-          <p style={{ margin: 0, fontSize: "13px", color: "var(--color-base-800)", lineHeight: "1.5" }}>
+          {/* Description */}
+          <p style={{ margin: 0, fontSize: 13, color: "var(--theme-elevation-800)", lineHeight: 1.5 }}>
             Media items that are not referenced by any collection document.
             {result && (
               <span>
-                {" "}
-                Found <strong>{orphaned.length}</strong> orphaned out of{" "}
+                {" "}Found <strong>{orphaned.length}</strong> orphaned out of{" "}
                 <strong>{result.totalMedia}</strong> total media items.
               </span>
             )}
           </p>
 
-          {/* Controls */}
-          <div style={{ display: "flex", alignItems: "center", gap: "8px", flexWrap: "wrap" }}>
-            <button
-              type="button"
-              onClick={() => void scan()}
+          {/* Toolbar */}
+          <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
+            <Button
+              buttonStyle="secondary"
+              size="small"
               disabled={isLoading}
-              style={{
-                padding: "6px 14px",
-                background: isLoading ? "var(--theme-elevation-150)" : "var(--theme-text)",
-                color: isLoading ? "var(--color-base-800)" : "var(--theme-bg)",
-                border: "none",
-                borderRadius: "4px",
-                fontSize: "13px",
-                fontWeight: 600,
-                cursor: isLoading ? "not-allowed" : "pointer",
-              }}
+              onClick={() => void scan()}
             >
               {status === "scanning" ? "Scanning…" : "Re-scan"}
-            </button>
+            </Button>
 
             {orphaned.length > 0 && (
               <>
-                <button
-                  type="button"
-                  onClick={allSelected ? deselectAll : selectAll}
+                <Button
+                  buttonStyle="subtle"
+                  size="small"
                   disabled={isLoading}
-                  style={{
-                    padding: "6px 14px",
-                    background: "transparent",
-                    color: "var(--theme-text)",
-                    border: "1px solid var(--theme-elevation-200)",
-                    borderRadius: "4px",
-                    fontSize: "13px",
-                    fontWeight: 500,
-                    cursor: isLoading ? "not-allowed" : "pointer",
-                  }}
+                  onClick={allSelected ? deselectAll : selectAll}
                 >
                   {allSelected ? "Deselect All" : "Select All"}
-                </button>
+                </Button>
 
                 {selectedIds.size > 0 && (
-                  <button
-                    type="button"
-                    onClick={() => void deleteSelected()}
+                  <Button
+                    buttonStyle="error"
+                    size="small"
                     disabled={isLoading}
-                    style={{
-                      padding: "6px 14px",
-                      background: "var(--theme-error-100, rgba(239,68,68,0.15))",
-                      color: "var(--theme-error-500, #ef4444)",
-                      border: "1px solid var(--theme-error-400, rgba(239,68,68,0.3))",
-                      borderRadius: "4px",
-                      fontSize: "13px",
-                      fontWeight: 600,
-                      cursor: isLoading ? "not-allowed" : "pointer",
-                    }}
+                    onClick={() =>
+                      confirmDelete(
+                        Array.from(selectedIds),
+                        `Delete ${selectedIds.size} selected item${selectedIds.size !== 1 ? "s" : ""}? This cannot be undone.`,
+                      )
+                    }
                   >
                     {isLoading ? "Processing…" : `Delete Selected (${selectedIds.size})`}
-                  </button>
+                  </Button>
                 )}
 
-                <button
-                  type="button"
-                  onClick={() => void deleteAll()}
+                <Button
+                  buttonStyle="error"
+                  size="small"
                   disabled={isLoading}
-                  style={{
-                    padding: "6px 14px",
-                    background: "var(--theme-error-100, rgba(239,68,68,0.15))",
-                    color: "var(--theme-error-500, #ef4444)",
-                    border: "1px solid var(--theme-error-400, rgba(239,68,68,0.3))",
-                    borderRadius: "4px",
-                    fontSize: "13px",
-                    fontWeight: 600,
-                    cursor: isLoading ? "not-allowed" : "pointer",
-                  }}
+                  onClick={() =>
+                    confirmDelete(
+                      orphaned.map((item) => item.id),
+                      `Delete all ${orphaned.length} orphaned item${orphaned.length !== 1 ? "s" : ""}? This cannot be undone.`,
+                    )
+                  }
                 >
                   Delete All ({orphaned.length})
-                </button>
+                </Button>
               </>
             )}
           </div>
 
-          {/* Inline confirmation bar */}
+          {/* Inline confirmation */}
           {pendingAction && (
             <div
               style={{
                 display: "flex",
                 alignItems: "center",
-                gap: "10px",
+                gap: 10,
                 padding: "10px 14px",
                 background: "var(--theme-error-50, rgba(239,68,68,0.08))",
                 border: "1px solid var(--theme-error-400, rgba(239,68,68,0.3))",
-                borderRadius: "4px",
-                fontSize: "13px",
+                borderRadius: 4,
+                fontSize: 13,
                 flexWrap: "wrap",
               }}
             >
               <span style={{ flex: 1, color: "var(--theme-error-500, #ef4444)", fontWeight: 500 }}>
                 {pendingAction.label}
               </span>
-              <button
-                type="button"
+              <Button
+                buttonStyle="error"
+                size="small"
                 onClick={() => { void deleteIds(pendingAction.ids); setPendingAction(null); }}
-                style={{
-                  padding: "5px 12px",
-                  background: "var(--theme-error-500, #ef4444)",
-                  color: "#fff",
-                  border: "none",
-                  borderRadius: "4px",
-                  fontSize: "13px",
-                  fontWeight: 600,
-                  cursor: "pointer",
-                }}
               >
                 Confirm Delete
-              </button>
-              <button
-                type="button"
+              </Button>
+              <Button
+                buttonStyle="secondary"
+                size="small"
                 onClick={() => setPendingAction(null)}
-                style={{
-                  padding: "5px 12px",
-                  background: "transparent",
-                  color: "var(--theme-text)",
-                  border: "1px solid var(--theme-elevation-200)",
-                  borderRadius: "4px",
-                  fontSize: "13px",
-                  fontWeight: 500,
-                  cursor: "pointer",
-                }}
               >
                 Cancel
-              </button>
+              </Button>
             </div>
           )}
 
@@ -327,8 +396,8 @@ export function OrphanedMediaDrawer() {
                 padding: "10px 14px",
                 background: "var(--theme-error-50, rgba(239,68,68,0.08))",
                 border: "1px solid var(--theme-error-400, rgba(239,68,68,0.3))",
-                borderRadius: "4px",
-                fontSize: "13px",
+                borderRadius: 4,
+                fontSize: 13,
                 color: "var(--theme-error-500, #ef4444)",
               }}
             >
@@ -338,12 +407,12 @@ export function OrphanedMediaDrawer() {
 
           {/* Scanning state */}
           {status === "scanning" && (
-            <div style={{ fontSize: "13px", color: "var(--color-base-800)", display: "flex", alignItems: "center", gap: "8px" }}>
+            <div style={{ fontSize: 13, color: "var(--theme-elevation-800)", display: "flex", alignItems: "center", gap: 8 }}>
               <span
                 style={{
                   display: "inline-block",
-                  width: "12px",
-                  height: "12px",
+                  width: 12,
+                  height: 12,
                   border: "2px solid var(--theme-elevation-200)",
                   borderTopColor: "var(--theme-text)",
                   borderRadius: "50%",
@@ -361,108 +430,32 @@ export function OrphanedMediaDrawer() {
                 padding: "10px 14px",
                 background: "var(--theme-success-50, rgba(34,197,94,0.08))",
                 border: "1px solid var(--theme-success-400, rgba(34,197,94,0.3))",
-                borderRadius: "4px",
-                fontSize: "13px",
-                color: "var(--theme-text)",
+                borderRadius: 4,
+                fontSize: 13,
               }}
             >
               No orphaned media found.
             </div>
           )}
 
-          {/* Results list */}
+          {/* Table */}
           {orphaned.length > 0 && (
-            <div
-              style={{
-                flex: 1,
-                overflowY: "auto",
-                border: "1px solid var(--theme-elevation-150)",
-                borderRadius: "4px",
-                background: "var(--theme-elevation-0)",
-              }}
-            >
-              {orphaned.map((item) => (
-                <label
-                  key={item.id}
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: "12px",
-                    padding: "10px 14px",
-                    borderBottom: "1px solid var(--theme-elevation-150)",
-                    cursor: "pointer",
-                    background: selectedIds.has(item.id) ? "var(--theme-elevation-50, rgba(0,0,0,0.03))" : "transparent",
-                  }}
-                >
-                  <input
-                    type="checkbox"
-                    checked={selectedIds.has(item.id)}
-                    onChange={() => toggleItem(item.id)}
-                    disabled={isLoading}
-                    style={{ accentColor: "var(--theme-text)", flexShrink: 0 }}
-                  />
+            <>
+              <Table columns={columns} data={pageItems} appearance="condensed" />
 
-                  {/* Thumbnail */}
-                  {item.url ? (
-                    <img
-                      src={item.url}
-                      alt={item.alt ?? item.filename ?? "media"}
-                      style={{
-                        width: "48px",
-                        height: "48px",
-                        objectFit: "cover",
-                        borderRadius: "3px",
-                        flexShrink: 0,
-                        background: "var(--theme-elevation-150)",
-                      }}
-                    />
-                  ) : (
-                    <div
-                      style={{
-                        width: "48px",
-                        height: "48px",
-                        borderRadius: "3px",
-                        background: "var(--theme-elevation-150)",
-                        flexShrink: 0,
-                      }}
-                    />
-                  )}
-
-                  {/* Info */}
-                  <div style={{ flex: 1, minWidth: 0 }}>
-                    <div
-                      style={{
-                        fontSize: "13px",
-                        fontWeight: 500,
-                        color: "var(--theme-text)",
-                        whiteSpace: "nowrap",
-                        overflow: "hidden",
-                        textOverflow: "ellipsis",
-                      }}
-                    >
-                      {item.filename ?? "(no filename)"}
-                    </div>
-                    {item.alt && (
-                      <div
-                        style={{
-                          fontSize: "12px",
-                          color: "var(--color-base-800)",
-                          whiteSpace: "nowrap",
-                          overflow: "hidden",
-                          textOverflow: "ellipsis",
-                          marginTop: "2px",
-                        }}
-                      >
-                        {item.alt}
-                      </div>
-                    )}
-                    <div style={{ fontSize: "11px", color: "var(--theme-elevation-500, #9ca3af)", marginTop: "2px" }}>
-                      {new Date(item.createdAt).toLocaleDateString()}
-                    </div>
-                  </div>
-                </label>
-              ))}
-            </div>
+              {totalPages > 1 && (
+                <Pagination
+                  page={safePage}
+                  totalPages={totalPages}
+                  hasNextPage={safePage < totalPages}
+                  hasPrevPage={safePage > 1}
+                  nextPage={safePage < totalPages ? safePage + 1 : undefined}
+                  prevPage={safePage > 1 ? safePage - 1 : undefined}
+                  limit={PAGE_LIMIT}
+                  onChange={(p) => setPage(p)}
+                />
+              )}
+            </>
           )}
         </div>
 
