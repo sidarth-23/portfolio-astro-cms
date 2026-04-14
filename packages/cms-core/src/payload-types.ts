@@ -1017,7 +1017,7 @@ export interface HomePage {
           };
           [k: string]: unknown;
         } | null;
-        collection: 'posts' | 'projects';
+        sourceCollection: 'posts' | 'projects';
         posts?: (string | Post)[] | null;
         projects?: (string | Project)[] | null;
         id?: string | null;
@@ -1274,7 +1274,7 @@ export interface HomePageSelect<T extends boolean = true> {
     | {
         name?: T;
         description?: T;
-        collection?: T;
+        sourceCollection?: T;
         posts?: T;
         projects?: T;
         id?: T;

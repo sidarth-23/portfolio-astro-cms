@@ -107,7 +107,7 @@ export const homePageSchema = withSeoMeta({
         .object({
           name: requiredText.optional(),
           description: z.unknown().optional(),
-          collection: z.enum(["posts", "projects"]).optional(),
+          sourceCollection: z.enum(["posts", "projects"]).optional(),
           posts: z.unknown().optional(),
           projects: z.unknown().optional(),
         })

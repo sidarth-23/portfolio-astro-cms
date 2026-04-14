@@ -151,7 +151,7 @@ export const makeHomePage = (posts: Post[], overrides: Partial<HomePage> = {}): 
   featuredSections: [
     {
       name: "Featured Posts",
-      collection: "posts",
+      sourceCollection: "posts",
       posts: posts.slice(0, 3),
       id: nextId(),
     },

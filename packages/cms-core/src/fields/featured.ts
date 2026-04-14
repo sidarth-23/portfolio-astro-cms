@@ -22,7 +22,7 @@ export const featuredSectionFields = ({
     required: false,
     admin: {
       condition: (_: Record<string, unknown>, siblingData: Record<string, unknown>) =>
-        siblingData?.collection === slug,
+        siblingData?.sourceCollection === slug,
     },
   }));
 
@@ -39,7 +39,7 @@ export const featuredSectionFields = ({
       ...(descriptionEditor ? { editor: descriptionEditor } : {}),
     },
     {
-      name: "collection",
+      name: "sourceCollection",
       type: "select",
       required: true,
       defaultValue: relationTo[0],

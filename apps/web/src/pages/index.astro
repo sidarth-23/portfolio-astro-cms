@@ -75,7 +75,7 @@ const featuredSections = homePage.featuredSections ?? [];
               )}
             </div>
 
-            {(section.collection === "posts" || !section.collection) &&
+            {(section.sourceCollection === "posts" || !section.sourceCollection) &&
               cmsClient.featuredPostsFromHomeSection(section).map((post) => (
                 <>
                   <HorizontalCard
@@ -91,7 +91,7 @@ const featuredSections = homePage.featuredSections ?? [];
                 </>
               ))}
 
-            {section.collection === "projects" &&
+            {section.sourceCollection === "projects" &&
               cmsClient.featuredProjectsFromHomeSection(section).map((project) => (
                 <>
                   <HorizontalCard
