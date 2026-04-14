@@ -343,7 +343,7 @@ export interface Post {
   authors?: (string | User)[] | null;
   populatedAuthors?:
     | {
-        id?: number | null;
+        id?: string | null;
         name?: string | null;
         bio?: {
           root: {

@@ -5,7 +5,7 @@ import type { User } from "../payload-types";
 type AuthorLink = NonNullable<User["links"]>[number];
 
 type PopulatedAuthor = {
-  id: number | string;
+  id: string;
   name?: string | null;
   bio?: User["bio"];
   avatar?: User["avatar"];
@@ -38,7 +38,7 @@ export const populateAuthors: CollectionAfterReadHook = async ({ doc, req: { pay
       }
 
       populatedAuthors.push({
-        id: authorDoc.id,
+        id: String(authorDoc.id),
         name: authorDoc.name,
         bio: authorDoc.bio,
         avatar: authorDoc.avatar,

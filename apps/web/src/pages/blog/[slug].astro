@@ -1,11 +1,14 @@
 ---
+import NotFoundState from "@/components/NotFoundState.astro";
+import ErrorLayout from "@/layouts/ErrorLayout.astro";
 import RichTextRenderer from "@/components/RichTextRenderer.astro";
 import SeriesNav from "@/components/SeriesNav.astro";
 import PostLayout from "@/layouts/PostLayout.astro";
 import { extractTableOfContents } from "@sidshub/cms-editor/web/html";
-import type { Post } from "@sidshub/cms-core/payload-types";
 import { resolveIcon } from "@/lib/resolveIcon";
 import { cmsClient } from "@/lib/cms";
+
+export const prerender = false;
 
 type SeriesNavProps = {
   seriesName: string;
@@ -37,76 +40,53 @@ const getAuthorLinks = (author: unknown): AuthorLink[] => {
   return Array.isArray(links) ? (links as AuthorLink[]) : [];
 };
 
-export async function getStaticPaths() {
-  const posts = await cmsClient.getAllPublishedPosts();
-  const seriesSlugs = Array.from(
-    new Set(
-      posts
-        .map((post) => cmsClient.seriesFromPost(post)?.slug)
-        .filter((slug): slug is string => Boolean(slug)),
-    ),
-  );
+const slug = Astro.params.slug;
+const post = slug ? await cmsClient.getPostBySlug(slug) : null;
+const missingPost = !slug || !post;
 
-  // Build a map of series slug to posts ordered in CMS.
-  const seriesMap = new Map<string, Post[]>();
-  const orderedSeriesPosts = await Promise.all(
-    seriesSlugs.map(async (slug) => ({
-      slug,
-      posts: await cmsClient.getPostsBySeries(slug),
-    })),
-  );
-  orderedSeriesPosts.forEach((item) => {
-    seriesMap.set(item.slug, item.posts);
-  });
+let seriesNav: SeriesNavProps | undefined;
 
-  return posts.map((post) => {
-    let seriesNav: SeriesNavProps | undefined;
+if (post) {
+  const series = cmsClient.seriesFromPost(post);
 
-    const series = cmsClient.seriesFromPost(post);
-    if (series?.slug) {
-      const seriesPosts = seriesMap.get(series.slug) || [];
-      const currentIndex = seriesPosts.findIndex((p) => p.slug === post.slug);
+  if (series?.slug) {
+    const seriesPosts = await cmsClient.getPostsBySeries(series.slug);
+    const currentIndex = seriesPosts.findIndex((entry) => entry.slug === post.slug);
 
-      if (currentIndex !== -1) {
-        const prevPost =
-          currentIndex > 0 ? seriesPosts[currentIndex - 1] : undefined;
-        const nextPost =
-          currentIndex < seriesPosts.length - 1
-            ? seriesPosts[currentIndex + 1]
-            : undefined;
+    if (currentIndex !== -1) {
+      const prevPost = currentIndex > 0 ? seriesPosts[currentIndex - 1] : undefined;
+      const nextPost = currentIndex < seriesPosts.length - 1 ? seriesPosts[currentIndex + 1] : undefined;
 
-        seriesNav = {
-          seriesName: series.name,
-          seriesSlug: series.slug,
-          currentPart: currentIndex + 1,
-          totalParts: seriesPosts.length,
-          prevPost: prevPost
-            ? { slug: prevPost.slug, title: prevPost.title }
-            : undefined,
-          nextPost: nextPost
-            ? { slug: nextPost.slug, title: nextPost.title }
-            : undefined,
-        };
-      }
+      seriesNav = {
+        seriesName: series.name,
+        seriesSlug: series.slug,
+        currentPart: currentIndex + 1,
+        totalParts: seriesPosts.length,
+        prevPost: prevPost ? { slug: prevPost.slug, title: prevPost.title } : undefined,
+        nextPost: nextPost ? { slug: nextPost.slug, title: nextPost.title } : undefined,
+      };
     }
-
-    return {
-      params: { slug: post.slug },
-      props: { post, seriesNav },
-    };
-  });
+  }
 }
 
-interface Props {
-  post: Post;
-  seriesNav?: SeriesNavProps;
+const notFoundPage = missingPost ? await cmsClient.getNotFoundPage() : null;
+
+if (notFoundPage && (!notFoundPage.title || !notFoundPage.description || !notFoundPage.meta.title || !notFoundPage.meta.description)) {
+  throw new Error(
+    "404 page requires `title`, `description`, and SEO `meta.title` + `meta.description`.",
+  );
 }
 
-const { post, seriesNav } = Astro.props;
-const category = cmsClient.categoryFromPost(post);
-const series = cmsClient.seriesFromPost(post);
-const tags = cmsClient.tagsFromPost(post);
-const authors = cmsClient.authorsFromPost(post);
+if (post?.meta && (!post.meta.title || !post.meta.description)) {
+  throw new Error(
+    `Post "${post.slug}" requires SEO \`meta.title\` and \`meta.description\`.`,
+  );
+}
+
+const category = post ? cmsClient.categoryFromPost(post) : undefined;
+const series = post ? cmsClient.seriesFromPost(post) : undefined;
+const tags = post ? cmsClient.tagsFromPost(post) : [];
+const authors = post ? cmsClient.authorsFromPost(post) : [];
 const visibleAuthors = authors.filter((author) => {
   const hasName = Boolean(author.name?.trim());
   const hasBio = Boolean(author.bio);
@@ -115,154 +95,167 @@ const visibleAuthors = authors.filter((author) => {
 
   return hasName || hasBio || hasAvatar || hasLinks;
 });
-const toc = extractTableOfContents(post.content);
-const pubDate = post.publishedAt || post.createdAt || new Date().toISOString();
-const { meta } = post;
-
-if (!meta?.title || !meta?.description) {
-  throw new Error(
-    `Post "${post.slug}" requires SEO \`meta.title\` and \`meta.description\`.`,
-  );
-}
+const toc = post ? extractTableOfContents(post.content) : [];
+const pubDate = post?.publishedAt || post?.createdAt || new Date().toISOString();
 ---
 
-<PostLayout
-  title={post.title}
-  seoTitle={meta.title}
-  description={meta.description}
-  pubDate={pubDate}
-  updatedDate={post.updatedAt}
-  heroImage={cmsClient.mediaToUrl(post.coverImage)}
-  tags={tags}
-  category={category}
-  series={series}
-  authors={visibleAuthors}
-  toc={toc}
->
-  {
-    seriesNav && (
-      <SeriesNav
-        position="top"
-        seriesName={seriesNav.seriesName}
-        seriesSlug={seriesNav.seriesSlug}
-        currentPart={seriesNav.currentPart}
-        totalParts={seriesNav.totalParts}
-        prevPost={seriesNav.prevPost}
-        nextPost={seriesNav.nextPost}
+{
+  missingPost && notFoundPage ? (
+    <ErrorLayout
+      title={notFoundPage.meta.title}
+      description={notFoundPage.meta.description}
+      image={cmsClient.mediaToUrl(notFoundPage.meta?.image)}
+    >
+      <NotFoundState
+        title={notFoundPage.title}
+        description={notFoundPage.description}
+        ctaLabel={notFoundPage.ctaLabel}
+        ctaHref={notFoundPage.ctaHref}
+        emoji={notFoundPage.emoji}
       />
-    )
-  }
+    </ErrorLayout>
+  ) : (
+    post && (
+      <PostLayout
+        title={post.title}
+        seoTitle={post.meta.title}
+        description={post.meta.description}
+        pubDate={pubDate}
+        updatedDate={post.updatedAt}
+        heroImage={cmsClient.mediaToUrl(post.coverImage)}
+        tags={tags}
+        category={category}
+        series={series}
+        authors={visibleAuthors}
+        toc={toc}
+      >
+        {
+          seriesNav && (
+            <SeriesNav
+              position="top"
+              seriesName={seriesNav.seriesName}
+              seriesSlug={seriesNav.seriesSlug}
+              currentPart={seriesNav.currentPart}
+              totalParts={seriesNav.totalParts}
+              prevPost={seriesNav.prevPost}
+              nextPost={seriesNav.nextPost}
+            />
+          )
+        }
 
-  <RichTextRenderer data={post.content} calloutVariantProfile="blog" />
+        <RichTextRenderer data={post.content} calloutVariantProfile="blog" />
 
-  {
-    seriesNav && (
-      <SeriesNav
-        position="bottom"
-        seriesName={seriesNav.seriesName}
-        seriesSlug={seriesNav.seriesSlug}
-        currentPart={seriesNav.currentPart}
-        totalParts={seriesNav.totalParts}
-        prevPost={seriesNav.prevPost}
-        nextPost={seriesNav.nextPost}
-      />
-    )
-  }
+        {
+          seriesNav && (
+            <SeriesNav
+              position="bottom"
+              seriesName={seriesNav.seriesName}
+              seriesSlug={seriesNav.seriesSlug}
+              currentPart={seriesNav.currentPart}
+              totalParts={seriesNav.totalParts}
+              prevPost={seriesNav.prevPost}
+              nextPost={seriesNav.nextPost}
+            />
+          )
+        }
 
-  {
-    visibleAuthors.length > 0 && (
-      <section class="mt-16 sm:mt-24 pt-10 border-t border-base-content/20">
-        <h2 class="text-base font-bold uppercase tracking-wider text-base-content mb-8">
-          {visibleAuthors.length > 1 ? "Authors" : "Author"}
-        </h2>
-        <div class="flex flex-col gap-10">
-          {visibleAuthors.map((author) => {
-            const avatarUrl = cmsClient.mediaToUrl(author.avatar);
+        {
+          visibleAuthors.length > 0 && (
+            <section class="mt-16 sm:mt-24 pt-10 border-t border-base-content/20">
+              <h2 class="text-base font-bold uppercase tracking-wider text-base-content mb-8">
+                {visibleAuthors.length > 1 ? "Authors" : "Author"}
+              </h2>
+              <div class="flex flex-col gap-10">
+                {visibleAuthors.map((author) => {
+                  const avatarUrl = cmsClient.mediaToUrl(author.avatar);
 
-            return (
-              <article class="flex flex-col sm:flex-row gap-6 items-start bg-base-200/30 p-6 sm:p-8 rounded-2xl border border-base-content/20">
-                {avatarUrl ? (
-                  <img
-                    src={avatarUrl}
-                    alt={author.name || "Author avatar"}
-                    class="w-16 h-16 sm:w-20 sm:h-20 rounded-full object-cover shrink-0 ring-1 ring-base-content/10"
-                    loading="lazy"
-                  />
-                ) : (
-                  <div class="w-16 h-16 sm:w-20 sm:h-20 rounded-full shrink-0 bg-base-300/50 flex items-center justify-center text-base-content/40 ring-1 ring-base-content/10">
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      width="24"
-                      height="24"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      stroke-width="2"
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                    >
-                      <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" />
-                      <circle cx="12" cy="7" r="4" />
-                    </svg>
-                  </div>
-                )}
-                <div class="flex-1">
-                  <h3 class="text-lg font-semibold">
-                    {author.name || "Unknown Author"}
-                  </h3>
-                  {author.bio && (
-                    <div class="mt-3 text-sm sm:text-base leading-relaxed text-base-content/70 prose prose-sm max-w-none prose-p:last:mb-0">
-                      <RichTextRenderer data={author.bio} />
-                    </div>
-                  )}
-                  {getAuthorLinks(author).length > 0 && (
-                      <div class="mt-5 flex gap-4 items-center">
-                        {getAuthorLinks(author).map((link) => {
-                          if (!link.icon || !link.url) return null;
-                          const iconData = resolveIcon(link.icon);
-                          if (!iconData) return null;
+                  return (
+                    <article class="flex flex-col sm:flex-row gap-6 items-start bg-base-200/30 p-6 sm:p-8 rounded-2xl border border-base-content/20">
+                      {avatarUrl ? (
+                        <img
+                          src={avatarUrl}
+                          alt={author.name || "Author avatar"}
+                          class="w-16 h-16 sm:w-20 sm:h-20 rounded-full object-cover shrink-0 ring-1 ring-base-content/10"
+                          loading="lazy"
+                        />
+                      ) : (
+                        <div class="w-16 h-16 sm:w-20 sm:h-20 rounded-full shrink-0 bg-base-300/50 flex items-center justify-center text-base-content/40 ring-1 ring-base-content/10">
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            width="24"
+                            height="24"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="2"
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                          >
+                            <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" />
+                            <circle cx="12" cy="7" r="4" />
+                          </svg>
+                        </div>
+                      )}
+                      <div class="flex-1">
+                        <h3 class="text-lg font-semibold">
+                          {author.name || "Unknown Author"}
+                        </h3>
+                        {author.bio && (
+                          <div class="mt-3 text-sm sm:text-base leading-relaxed text-base-content/70 prose prose-sm max-w-none prose-p:last:mb-0">
+                            <RichTextRenderer data={author.bio} />
+                          </div>
+                        )}
+                        {getAuthorLinks(author).length > 0 && (
+                            <div class="mt-5 flex gap-4 items-center">
+                              {getAuthorLinks(author).map((link) => {
+                                if (!link.icon || !link.url) return null;
+                                const iconData = resolveIcon(link.icon);
+                                if (!iconData) return null;
 
-                          const PhosphorIcon =
-                            iconData.source === "phosphor"
-                              ? iconData.component
-                              : null;
-                          const label =
-                            iconData.source === "simple-icons"
-                              ? iconData.title
-                              : iconData.name;
+                                const PhosphorIcon =
+                                  iconData.source === "phosphor"
+                                    ? iconData.component
+                                    : null;
+                                const label =
+                                  iconData.source === "simple-icons"
+                                    ? iconData.title
+                                    : iconData.name;
 
-                          return (
-                            <a
-                              href={link.url}
-                              target={link.newTab ? "_blank" : undefined}
-                              rel={link.newTab ? "noopener noreferrer" : undefined}
-                              class="text-base-content/50 hover:text-base-content transition-colors"
-                              aria-label={label}
-                              title={label}
-                            >
-                              {iconData.source === "simple-icons" && (
-                                <svg
-                                  width={20}
-                                  height={20}
-                                  viewBox="0 0 24 24"
-                                  aria-hidden="true"
-                                  fill="currentColor"
-                                >
-                                  <path d={iconData.path} />
-                                </svg>
-                              )}
-                              {PhosphorIcon && <PhosphorIcon size={20} />}
-                            </a>
-                          );
-                        })}
+                                return (
+                                  <a
+                                    href={link.url}
+                                    target={link.newTab ? "_blank" : undefined}
+                                    rel={link.newTab ? "noopener noreferrer" : undefined}
+                                    class="text-base-content/50 hover:text-base-content transition-colors"
+                                    aria-label={label}
+                                    title={label}
+                                  >
+                                    {iconData.source === "simple-icons" && (
+                                      <svg
+                                        width={20}
+                                        height={20}
+                                        viewBox="0 0 24 24"
+                                        aria-hidden="true"
+                                        fill="currentColor"
+                                      >
+                                        <path d={iconData.path} />
+                                      </svg>
+                                    )}
+                                    {PhosphorIcon && <PhosphorIcon size={20} />}
+                                  </a>
+                                );
+                              })}
+                            </div>
+                          )}
                       </div>
-                    )}
-                </div>
-              </article>
-            );
-          })}
-        </div>
-      </section>
+                    </article>
+                  );
+                })}
+              </div>
+            </section>
+          )
+        }
+      </PostLayout>
     )
-  }
-</PostLayout>
+  )
+}

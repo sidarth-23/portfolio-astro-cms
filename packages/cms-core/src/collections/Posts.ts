@@ -141,7 +141,7 @@ export const Posts: CollectionConfig = {
       fields: [
         {
           name: "id",
-          type: "number",
+          type: "text",
         },
         {
           name: "name",

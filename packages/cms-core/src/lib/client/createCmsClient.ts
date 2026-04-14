@@ -42,8 +42,11 @@ const PAGE_ROUTES: Record<string, string> = {
 };
 
 type TaxonomyDoc = {
+  id: RelationID;
   slug?: string | null;
 };
+
+type SeriesLookupDoc = TaxonomyDoc & Pick<Series, "posts">;
 
 type CmsTransport = {
   sdk: PayloadSDK<Config>;
@@ -59,6 +62,8 @@ type HomeCtaButton = {
 };
 
 type RelationID = number | string;
+
+const NO_MATCHING_POSTS_ID = "__no_matching_posts__";
 
 
 const sortPosts = (posts: Post[]): Post[] => {
@@ -87,24 +92,57 @@ const toTrimmedString = (value: unknown): string | undefined => {
 };
 
 export const createCmsClient = ({ sdk, mediaBaseUrl }: CmsTransport) => {
+  const getTaxonomyDocBySlug = async <TDoc extends TaxonomyDoc>(
+    collection: "categories" | "series",
+    slug: string,
+    depth = 0,
+  ): Promise<TDoc | null> => {
+    const response = await sdk.find({
+      collection: collection as "categories",
+      where: { slug: { equals: slug } },
+      depth,
+      limit: 1,
+    });
+
+    return (response.docs[0] as unknown as TDoc | undefined) ?? null;
+  };
+
+  const getSeriesPostIds = async (seriesSlug: string): Promise<RelationID[]> => {
+    const series = await getTaxonomyDocBySlug<SeriesLookupDoc>("series", seriesSlug, 1);
+    if (!series) {
+      return [];
+    }
+
+    return ((series.posts as Array<RelationID | { id?: unknown }> | null | undefined) ?? [])
+      .map((post) => (isRelationID(post) ? post : post.id))
+      .filter((id): id is RelationID => isRelationID(id));
+  };
+
   const buildPublishedWhere = async (options: PostFilterOptions = {}): Promise<Where> => {
     const conditions: Where[] = [{ _status: { equals: "published" } }];
-    if (options.slug) conditions.push({ slug: { equals: options.slug } });
-    if (options.categorySlug) conditions.push({ "primaryCategory.slug": { equals: options.categorySlug } });
-    if (options.seriesSlug) {
-      const seriesResponse = await sdk.find({
-        collection: "series",
-        where: { slug: { equals: options.seriesSlug } },
-        depth: 1,
-        limit: 1,
-      });
-      const postIds = (seriesResponse.docs[0]?.posts ?? [])
-        .map((p) => (isRelationID(p) ? p : (p as { id?: unknown }).id))
-        .filter((id): id is RelationID => isRelationID(id));
-      conditions.push(postIds.length > 0 ? { id: { in: postIds } } : { id: { equals: "__no_series_posts__" } });
+    if (options.slug) {
+      conditions.push({ slug: { equals: options.slug } });
     }
-    if (options.search)
-      conditions.push({ or: [{ title: { like: options.search } }, { description: { like: options.search } }] });
+
+    if (options.categorySlug) {
+      const category = await getTaxonomyDocBySlug<TaxonomyDoc>("categories", options.categorySlug);
+      conditions.push(
+        category
+          ? { primaryCategory: { equals: category.id } }
+          : { id: { equals: NO_MATCHING_POSTS_ID } },
+      );
+    }
+
+    if (options.seriesSlug) {
+      const postIds = await getSeriesPostIds(options.seriesSlug);
+      conditions.push(postIds.length > 0 ? { id: { in: postIds } } : { id: { equals: NO_MATCHING_POSTS_ID } });
+    }
+
+    const search = toTrimmedString(options.search);
+    if (search) {
+      conditions.push({ or: [{ title: { like: search } }, { description: { like: search } }] });
+    }
+
     return conditions.length === 1 ? conditions[0] : { and: conditions };
   };
 
@@ -188,7 +226,7 @@ export const createCmsClient = ({ sdk, mediaBaseUrl }: CmsTransport) => {
     },
 
     getHomePage: async (): Promise<HomePage> => {
-      return sdk.findGlobal({ slug: "home-page", depth: 2 });
+      return sdk.findGlobal({ slug: "home-page", depth: 3 });
     },
 
     getCvPage: async (): Promise<CvPage> => {
@@ -423,14 +461,7 @@ export const createCmsClient = ({ sdk, mediaBaseUrl }: CmsTransport) => {
     },
 
     getPostsBySeries: async (seriesSlug: string): Promise<Post[]> => {
-      const response = await sdk.find({
-        collection: "series",
-        where: { slug: { equals: seriesSlug } },
-        depth: 3,
-        limit: 1,
-      });
-
-      const series = response.docs[0];
+      const series = await getTaxonomyDocBySlug<SeriesLookupDoc>("series", seriesSlug, 3);
       if (!series?.posts || series.posts.length === 0) {
         return [];
       }
