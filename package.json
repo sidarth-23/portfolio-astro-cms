@@ -23,13 +23,36 @@
     "payload:types": "turbo run generate:types --filter=@sidshub/cms",
     "lint": "turbo run lint",
     "lint:fix": "turbo run lint:fix",
+    "precommit": "lint-staged",
+    "commitlint": "commitlint",
     "format": "prettier --write .",
-    "format:check": "prettier --check ."
+    "format:check": "prettier --check .",
+    "postinstall": "simple-git-hooks"
+  },
+  "simple-git-hooks": {
+    "pre-commit": "bun run precommit",
+    "commit-msg": "bun run commitlint --edit $1"
+  },
+  "lint-staged": {
+    "{apps,packages}/**/*.{js,jsx,ts,tsx,cjs,mjs,astro}": [
+      "eslint --fix --max-warnings=0",
+      "prettier --write"
+    ],
+    "*.{js,jsx,ts,tsx,cjs,mjs}": [
+      "prettier --write"
+    ],
+    "*.{json,md,mdx,yaml,yml,css,scss,html}": [
+      "prettier --write"
+    ]
   },
   "devDependencies": {
+    "@commitlint/cli": "^19.8.1",
+    "@commitlint/config-conventional": "^19.8.1",
     "eslint": "^9.24.0",
+    "lint-staged": "^15.5.2",
     "prettier": "^3.5.3",
     "prettier-plugin-astro": "^0.14.1",
+    "simple-git-hooks": "^2.13.1",
     "turbo": "^2.5.8"
   }
 }

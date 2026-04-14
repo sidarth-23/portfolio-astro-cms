@@ -57,6 +57,40 @@ bun run check:web     # Astro type checks
 bun run payload:types # Regenerate Payload types
 ```
 
+## Git Hooks
+
+Git hooks are installed automatically on `bun install` using `simple-git-hooks`.
+
+- `pre-commit`: runs `lint-staged` on staged files only.
+- `commit-msg`: validates commit messages using Conventional Commits.
+
+### What Pre-commit Enforces
+
+- For staged `*.{js,jsx,ts,tsx,cjs,mjs,astro}` files:
+  - `eslint --fix --max-warnings=0`
+  - `prettier --write`
+- For staged `*.{json,md,mdx,yaml,yml,css,scss,html}` files:
+  - `prettier --write`
+
+`lint-staged` re-stages any files that are auto-fixed, so the formatted code is what gets committed.
+
+### Commit Message Format
+
+Commit messages must follow Conventional Commits, for example:
+
+- `feat(web): add OG image cleanup toggle`
+- `fix(cms): handle empty deployment status`
+- `chore: update eslint config`
+
+### Manual Commands
+
+If you need to run the same checks manually:
+
+```bash
+bun run precommit
+bun run commitlint --edit .git/COMMIT_EDITMSG
+```
+
 ## Taskfile Commands
 
 ```bash
