@@ -1,5 +1,4 @@
 ---
-import RichTextRenderer from "@/components/RichTextRenderer.astro";
 import { resolveIcon } from "@/lib/resolveIcon";
 
 type Tag = {
@@ -104,6 +103,7 @@ const contentClass = `hero-content flex-col ${reverse ? "md:flex-row-reverse" : 
         <span class="group-hover:underline">{title}</span>
         {badges.map((item) => <div class="badge badge-secondary mx-2">{item}</div>)}
       </h1>
+      {desc && <p class="py-1 text-1xl">{desc}</p>}
       {
         tags.length > 0 && (
           <div class="card-actions justify-end gap-2 mt-2">
