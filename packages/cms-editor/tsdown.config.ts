@@ -12,7 +12,6 @@ export default defineConfig({
   format: "esm",
   dts: true,
   outDir: "dist",
-  clean: true,
   unbundle: true,
   fixedExtension: true,
   platform: "neutral",
