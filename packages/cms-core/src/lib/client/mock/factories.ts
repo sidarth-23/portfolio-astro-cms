@@ -73,12 +73,14 @@ export const makePost = (category: Category, overrides: Partial<Post> = {}): Pos
   const title = faker.lorem.words(4);
   const slug = title.toLowerCase().replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, "");
   const now = faker.date.past().toISOString();
-  return {
+  const post = {
     id: nextId(),
     title,
     description: faker.lorem.sentence(),
     content: makeRichText(),
     primaryCategory: category,
+    coverImage: nextId(),
+    authors: [],
     slug,
     publishedAt: now,
     updatedAt: now,
@@ -90,6 +92,12 @@ export const makePost = (category: Category, overrides: Partial<Post> = {}): Pos
     },
     ...overrides,
   };
+
+  return {
+    ...post,
+    coverImage: overrides.coverImage ?? post.coverImage,
+    authors: overrides.authors ?? post.authors,
+  } as Post;
 };
 
 export const makeSeries = (posts: Post[], overrides: Partial<Series> = {}): Series => {
