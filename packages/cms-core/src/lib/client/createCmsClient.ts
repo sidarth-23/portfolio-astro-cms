@@ -217,7 +217,9 @@ export const createCmsClient = ({ sdk, mediaBaseUrl }: CmsTransport) => {
       };
 
       const isProject = (value: RelationID | Project | null | undefined): value is Project => {
-        return typeof value === "object" && value !== null && (value as Project)._status !== "draft";
+        return (
+          typeof value === "object" && value !== null && (value as Project)._status !== "draft"
+        );
       };
 
       // No _status check here: the Series collection does not have draft/publish
@@ -226,7 +228,9 @@ export const createCmsClient = ({ sdk, mediaBaseUrl }: CmsTransport) => {
         return typeof value === "object" && value !== null;
       };
 
-      const resolveHref = (button: NonNullable<HomePage["ctaButtons"]>[number]): string | undefined => {
+      const resolveHref = (
+        button: NonNullable<HomePage["ctaButtons"]>[number],
+      ): string | undefined => {
         if (!button.link) {
           return undefined;
         }
@@ -249,11 +253,19 @@ export const createCmsClient = ({ sdk, mediaBaseUrl }: CmsTransport) => {
           return `/blog/${reference.value.slug}`;
         }
 
-        if (reference.relationTo === "projects" && isProject(reference.value) && reference.value.slug) {
+        if (
+          reference.relationTo === "projects" &&
+          isProject(reference.value) &&
+          reference.value.slug
+        ) {
           return `/projects/${reference.value.slug}`;
         }
 
-        if (reference.relationTo === "series" && isSeries(reference.value) && reference.value.slug) {
+        if (
+          reference.relationTo === "series" &&
+          isSeries(reference.value) &&
+          reference.value.slug
+        ) {
           return `/blog/series/${reference.value.slug}`;
         }
 
@@ -281,7 +293,9 @@ export const createCmsClient = ({ sdk, mediaBaseUrl }: CmsTransport) => {
       );
     },
 
-    featuredPostsFromHomeSection: (section: NonNullable<HomePage["featuredSections"]>[number]): Post[] => {
+    featuredPostsFromHomeSection: (
+      section: NonNullable<HomePage["featuredSections"]>[number],
+    ): Post[] => {
       if (!Array.isArray(section.posts)) {
         return [];
       }
@@ -289,7 +303,9 @@ export const createCmsClient = ({ sdk, mediaBaseUrl }: CmsTransport) => {
       return section.posts.filter(isPublishedPostRelation);
     },
 
-    featuredProjectsFromHomeSection: (section: NonNullable<HomePage["featuredSections"]>[number]): Project[] => {
+    featuredProjectsFromHomeSection: (
+      section: NonNullable<HomePage["featuredSections"]>[number],
+    ): Project[] => {
       if (!Array.isArray(section.projects)) {
         return [];
       }
@@ -300,7 +316,9 @@ export const createCmsClient = ({ sdk, mediaBaseUrl }: CmsTransport) => {
       );
     },
 
-    getAllPublishedPosts: async (filters: Omit<PostFilterOptions, "slug"> = {}): Promise<Post[]> => {
+    getAllPublishedPosts: async (
+      filters: Omit<PostFilterOptions, "slug"> = {},
+    ): Promise<Post[]> => {
       const limit = 100;
       const firstPage = await fetchPublishedPostsPage({
         ...filters,
@@ -459,7 +477,7 @@ export const createCmsClient = ({ sdk, mediaBaseUrl }: CmsTransport) => {
 
     getAllSeriesWithPosts: async (): Promise<
       Array<{
-        id: number;
+        id: RelationID;
         name: string;
         slug: string;
         description?: string | null;
@@ -578,7 +596,9 @@ export const createCmsClient = ({ sdk, mediaBaseUrl }: CmsTransport) => {
       };
 
       const isProject = (value: RelationID | Project | null | undefined): value is Project => {
-        return typeof value === "object" && value !== null && (value as Project)._status !== "draft";
+        return (
+          typeof value === "object" && value !== null && (value as Project)._status !== "draft"
+        );
       };
 
       // No _status check here: the Series collection does not have draft/publish
@@ -611,16 +631,28 @@ export const createCmsClient = ({ sdk, mediaBaseUrl }: CmsTransport) => {
             return undefined;
           }
 
-          if (reference.relationTo === "posts" && isPost(reference.value as RelationID | Post) && (reference.value as Post).slug) {
+          if (
+            reference.relationTo === "posts" &&
+            isPost(reference.value as RelationID | Post) &&
+            (reference.value as Post).slug
+          ) {
             return `/blog/${(reference.value as Post).slug}`;
           }
 
-          if (reference.relationTo === "projects" && isProject(reference.value as RelationID | Project) && (reference.value as Project).slug) {
+          if (
+            reference.relationTo === "projects" &&
+            isProject(reference.value as RelationID | Project) &&
+            (reference.value as Project).slug
+          ) {
             // Links to the project detail page (not the /projects#slug anchor used by homeCtaButtons).
             return `/projects/${(reference.value as Project).slug}`;
           }
 
-          if (reference.relationTo === "series" && isSeries(reference.value as RelationID | Series) && (reference.value as Series).slug) {
+          if (
+            reference.relationTo === "series" &&
+            isSeries(reference.value as RelationID | Series) &&
+            (reference.value as Series).slug
+          ) {
             return `/blog/series/${(reference.value as Series).slug}`;
           }
 
