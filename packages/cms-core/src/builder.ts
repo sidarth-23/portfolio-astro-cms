@@ -26,9 +26,20 @@ import { createTriggerDeployment } from "./hooks/triggerDeployment";
 import { createTriggerDevRefresh } from "./hooks/triggerDevRefresh";
 import { createGlobalRedeployHook } from "./hooks/triggerGlobalRedeploy";
 import { SEO_COLLECTIONS, SEO_GLOBALS } from "./lib/og/registry";
+import type { DeploymentStatusAdapter } from './lib/deployment/types'
 
 const filename = fileURLToPath(import.meta.url);
 const dirname = path.dirname(filename);
+
+let _deploymentStatusAdapter: DeploymentStatusAdapter | undefined
+
+export function setDeploymentStatusAdapter(adapter: DeploymentStatusAdapter | undefined) {
+  _deploymentStatusAdapter = adapter
+}
+
+export function getDeploymentStatusAdapter(): DeploymentStatusAdapter | undefined {
+  return _deploymentStatusAdapter
+}
 
 export type CmsConfigOptions = {
   secret: string;
@@ -41,6 +52,7 @@ export type CmsConfigOptions = {
   deployHook?: { webhookUrl: string; branch: string };
   devRefreshUrl?: string;
   onInit?: () => Promise<void>;
+  deploymentStatus?: DeploymentStatusAdapter;
 };
 
 const withRequiredSeoFields = ({ defaultFields }: { defaultFields: Field[] }): Field[] => {
@@ -54,6 +66,7 @@ const withRequiredSeoFields = ({ defaultFields }: { defaultFields: Field[] }): F
 
 export function createCmsConfig(options: CmsConfigOptions) {
   setReadAccessToken(options.readAccessToken);
+  setDeploymentStatusAdapter(options.deploymentStatus);
 
   const triggerDeploy = createTriggerDeployment(options.deployHook);
   const triggerRefresh = createTriggerDevRefresh(options.devRefreshUrl);
