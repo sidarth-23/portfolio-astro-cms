@@ -20,6 +20,7 @@ import { ProjectsPage } from "./globals/ProjectsPage";
 import { SeriesPage } from "./globals/SeriesPage";
 import { SiteSettings } from "./globals/SiteSettings";
 import { setReadAccessToken } from "./access/readAccessConfig";
+import { deploymentStatusEndpoint } from "./endpoints/deploymentStatus";
 import { generateOgImagesEndpoint } from "./endpoints/generateOgImages";
 import { createCollectionRedeployHook } from "./hooks/triggerCollectionRedeploy";
 import { createTriggerDeployment } from "./hooks/triggerDeployment";
@@ -118,7 +119,7 @@ export function createCmsConfig(options: CmsConfigOptions) {
     routes: {
       admin: "/",
     },
-    endpoints: [generateOgImagesEndpoint(options.siteUrl)],
+    endpoints: [generateOgImagesEndpoint(options.siteUrl), deploymentStatusEndpoint],
     collections,
     globals,
     onInit: async () => {
