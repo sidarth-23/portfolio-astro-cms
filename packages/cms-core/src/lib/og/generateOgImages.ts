@@ -89,6 +89,15 @@ function getOgTitle(target: OgTarget, doc: ContentRecord): string | null {
   return meta?.title?.trim() || null;
 }
 
+function getOgDescription(target: OgTarget, doc: ContentRecord): string | null {
+  if (target.ogDescription) {
+    const val = doc[target.ogDescription];
+    return typeof val === "string" && val.trim() ? val.trim() : null;
+  }
+  const meta = doc.meta as SeoMeta | undefined;
+  return meta?.description?.trim() || null;
+}
+
 /** Auto-generate an entity label for error reporting */
 function getEntityLabel(target: OgTarget, doc: ContentRecord): string {
   if (target.type === "collection") {
@@ -110,11 +119,13 @@ function getOgFilename(target: OgTarget, doc: ContentRecord): string {
 async function uploadOgImage(
   payload: Payload,
   title: string,
+  description: string,
   filename: string,
   assets: SharedAssets,
 ): Promise<number> {
   const buffer = await renderOgImage({
     title,
+    description,
     profileImageDataUri: assets.profileImageDataUri,
     socialIconDataUris: assets.socialIconDataUris,
     siteUrl: assets.siteUrl,
@@ -164,14 +175,24 @@ async function processDoc(
     };
   }
 
+  const ogDescription = getOgDescription(target, doc);
+  if (!ogDescription) {
+    const descriptionSource = target.ogDescription ?? "meta.description";
+    return {
+      generated: false,
+      skipped: false,
+      error: `Cannot generate OG image: the configured description field "${descriptionSource}" is empty.`,
+    };
+  }
+
   // Resolve image — use existing if available, otherwise generate
   const filename = getOgFilename(target, doc);
   let imageId: number;
   if (target.type === "collection" && target.existingImage) {
     const existing = resolveMediaId(doc[target.existingImage]);
-    imageId = existing ?? await uploadOgImage(payload, ogTitle, filename, assets);
+    imageId = existing ?? await uploadOgImage(payload, ogTitle, ogDescription, filename, assets);
   } else {
-    imageId = await uploadOgImage(payload, ogTitle, filename, assets);
+    imageId = await uploadOgImage(payload, ogTitle, ogDescription, filename, assets);
   }
 
   // Build update data — always include required SEO fields to satisfy Payload field validation

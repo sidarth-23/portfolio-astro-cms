@@ -25,12 +25,16 @@ type TitleOpts<T> =
   | { ogTitle?: undefined }         // defaults to meta.title (SEO)
   | { ogTitle: StringKeyOf<T> };    // must be a string field on T
 
+type DescriptionOpts<T> =
+  | { ogDescription?: undefined }         // defaults to meta.description (SEO)
+  | { ogDescription: StringKeyOf<T> };    // must be a string field on T
+
 type TypedCollectionConfig<T extends WithSeo & WithSlug> = {
   depth?: number;
   existingImage?: MediaKeyOf<T>;    // must be a media field on T
-} & TitleOpts<T>;
+} & TitleOpts<T> & DescriptionOpts<T>;
 
-type TypedGlobalConfig<T extends WithSeo> = TitleOpts<T>;
+type TypedGlobalConfig<T extends WithSeo> = TitleOpts<T> & DescriptionOpts<T>;
 
 // ---- Public runtime types ----
 
@@ -39,6 +43,7 @@ export type CollectionOgTarget = {
   slug: string;
   depth?: number;
   ogTitle?: string;        // field name; undefined → use meta.title
+  ogDescription?: string;  // field name; undefined → use meta.description
   existingImage?: string;  // field name for existing image
 };
 
@@ -46,6 +51,7 @@ export type GlobalOgTarget = {
   type: "global";
   slug: string;
   ogTitle?: string;        // field name; undefined → use meta.title
+  ogDescription?: string;  // field name; undefined → use meta.description
 };
 
 export type OgTarget = CollectionOgTarget | GlobalOgTarget;

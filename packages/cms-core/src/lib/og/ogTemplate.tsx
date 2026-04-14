@@ -2,9 +2,16 @@ import type { ReactElement } from "react";
 
 export type OgTemplateProps = {
   title: string;
+  description: string;
   profileImageDataUri?: string;
   socialIconDataUris: string[];
   siteUrl?: string;
+};
+
+const clampText = (value: string, maxLength: number): string => {
+  const normalized = value.replace(/\s+/g, " ").trim();
+  if (normalized.length <= maxLength) return normalized;
+  return normalized.slice(0, maxLength - 1).trimEnd() + "…";
 };
 
 const toDisplayHost = (siteUrl: string): string => {
@@ -17,12 +24,13 @@ const toDisplayHost = (siteUrl: string): string => {
 
 export function OgTemplate({
   title,
+  description,
   profileImageDataUri,
   socialIconDataUris,
   siteUrl = "https://sidshub.in",
 }: OgTemplateProps): ReactElement {
-  // Truncate long titles
-  const displayTitle = title.length > 60 ? title.slice(0, 57) + "…" : title;
+  const displayTitle = clampText(title, 60);
+  const displayDescription = clampText(description, 132);
   const displayHost = toDisplayHost(siteUrl);
 
   return (
@@ -67,7 +75,8 @@ export function OgTemplate({
             flexDirection: "column",
             justifyContent: "center",
             flex: 1,
-            gap: 16,
+            gap: 20,
+            paddingRight: profileImageDataUri ? 12 : 0,
           }}
         >
           {/* Decorative accent line */}
@@ -92,6 +101,20 @@ export function OgTemplate({
             }}
           >
             {displayTitle}
+          </div>
+
+          <div
+            style={{
+              maxWidth: 720,
+              fontSize: 26,
+              fontWeight: 400,
+              color: "rgba(226,232,240,0.78)",
+              lineHeight: 1.4,
+              letterSpacing: "-0.01em",
+              display: "flex",
+            }}
+          >
+            {displayDescription}
           </div>
         </div>
 
