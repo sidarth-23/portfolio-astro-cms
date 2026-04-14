@@ -1,4 +1,3 @@
-export { ensureOgFolder } from "./ensureOgFolder";
 export { fetchIconSvg, svgToDataUri } from "./fetchIconSvg";
 export { fetchProfileImageDataUri, fetchSidebarIcons, getSidebarIconDiagnostics } from "./fetchProfileImage";
 export { generateOgImages } from "./generateOgImages";
