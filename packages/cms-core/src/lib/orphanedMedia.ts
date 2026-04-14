@@ -155,7 +155,7 @@ export async function collectReferencedMediaIds(
     const ids = new Set<string>();
     for (const doc of docs) {
       addField(ids, doc, "coverImage");
-      extractMediaIdsFromLexical((doc as unknown as Record<string, unknown>).content, ids);
+      extractMediaIdsFromLexical(doc.content, ids);
     }
     return ids;
   });
@@ -205,9 +205,7 @@ export async function collectReferencedMediaIds(
         slug: "site-settings",
         depth: 0,
       });
-      const id = resolveId(
-        (siteSettings as unknown as Record<string, unknown>).profileImage,
-      );
+      const id = resolveId(siteSettings.profileImage);
       if (id !== null) ids.add(id);
     } catch {
       // Global may not be initialised yet — ignore
