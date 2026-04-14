@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useCallback, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import {
   FormSubmit,
   useForm,
@@ -50,12 +50,20 @@ export function SeoSaveButton() {
   const { collectionSlug } = useDocumentInfo();
 
   const drawerSlug = useDrawerSlug('seo-confirm-save');
-  const { openModal, closeModal } = useModal();
+  const { openModal, closeModal, modalState } = useModal();
 
   const resolveRef = useRef<((confirmed: boolean) => void) | null>(null);
   const [changedFields, setChangedFields] = useState<Array<'title' | 'description' | 'image'>>([]);
 
   const disabled = (operation === 'update' && !modified) || uploadStatus === 'uploading';
+
+  // If the user closes the drawer via X/ESC/backdrop, resolve the pending promise as "skip"
+  useEffect(() => {
+    if (!modalState[drawerSlug]?.isOpen && resolveRef.current) {
+      resolveRef.current(false);
+      resolveRef.current = null;
+    }
+  }, [modalState, drawerSlug]);
 
   const handleConfirm = useCallback(() => {
     closeModal(drawerSlug);
@@ -108,7 +116,9 @@ export function SeoSaveButton() {
     { cmdCtrlKey: true, editDepth, keyCodes: ['s'] },
     (e) => {
       if (disabled) {
-        // absorb the event
+        e.preventDefault();
+        e.stopPropagation();
+        return;
       }
       e.preventDefault();
       e.stopPropagation();
@@ -131,7 +141,7 @@ export function SeoSaveButton() {
         {t('general:save')}
       </FormSubmit>
       <SeoConfirmModal
-        slug="seo-confirm-save"
+        slug={drawerSlug}
         changedFields={changedFields}
         onConfirm={handleConfirm}
         onSkip={handleSkip}
@@ -168,7 +178,7 @@ export function SeoPublishButton() {
   const { t } = useTranslation();
 
   const drawerSlug = useDrawerSlug('seo-confirm-publish');
-  const { openModal, closeModal } = useModal();
+  const { openModal, closeModal, modalState } = useModal();
 
   const resolveRef = useRef<((confirmed: boolean) => void) | null>(null);
   const [changedFields, setChangedFields] = useState<Array<'title' | 'description' | 'image'>>([]);
@@ -176,6 +186,14 @@ export function SeoPublishButton() {
   const hasNewerVersions = unpublishedVersionCount > 0;
   const canPublish =
     !!hasPublishPermission && (modified || hasNewerVersions || !hasPublishedDoc) && uploadStatus !== 'uploading';
+
+  // If the user closes the drawer via X/ESC/backdrop, resolve the pending promise as "skip"
+  useEffect(() => {
+    if (!modalState[drawerSlug]?.isOpen && resolveRef.current) {
+      resolveRef.current(false);
+      resolveRef.current = null;
+    }
+  }, [modalState, drawerSlug]);
 
   const handleConfirm = useCallback(() => {
     closeModal(drawerSlug);
@@ -275,7 +293,7 @@ export function SeoPublishButton() {
         {t('version:publishChanges')}
       </FormSubmit>
       <SeoConfirmModal
-        slug="seo-confirm-publish"
+        slug={drawerSlug}
         changedFields={changedFields}
         onConfirm={handleConfirm}
         onSkip={handleSkip}
@@ -310,12 +328,20 @@ export function SeoSaveDraftButton() {
   const operation = useOperation();
 
   const drawerSlug = useDrawerSlug('seo-confirm-draft');
-  const { openModal, closeModal } = useModal();
+  const { openModal, closeModal, modalState } = useModal();
 
   const resolveRef = useRef<((confirmed: boolean) => void) | null>(null);
   const [changedFields, setChangedFields] = useState<Array<'title' | 'description' | 'image'>>([]);
 
   const disabled = (operation === 'update' && !modified) || uploadStatus === 'uploading';
+
+  // If the user closes the drawer via X/ESC/backdrop, resolve the pending promise as "skip"
+  useEffect(() => {
+    if (!modalState[drawerSlug]?.isOpen && resolveRef.current) {
+      resolveRef.current(false);
+      resolveRef.current = null;
+    }
+  }, [modalState, drawerSlug]);
 
   const handleConfirm = useCallback(() => {
     closeModal(drawerSlug);
@@ -411,7 +437,9 @@ export function SeoSaveDraftButton() {
     { cmdCtrlKey: true, editDepth, keyCodes: ['s'] },
     (e) => {
       if (disabled) {
-        // absorb the event
+        e.preventDefault();
+        e.stopPropagation();
+        return;
       }
       e.preventDefault();
       e.stopPropagation();
@@ -436,7 +464,7 @@ export function SeoSaveDraftButton() {
         {t('version:saveDraft')}
       </FormSubmit>
       <SeoConfirmModal
-        slug="seo-confirm-draft"
+        slug={drawerSlug}
         changedFields={changedFields}
         onConfirm={handleConfirm}
         onSkip={handleSkip}

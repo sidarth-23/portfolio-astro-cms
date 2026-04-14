@@ -1,6 +1,6 @@
 "use client";
 
-import { Drawer, useDrawerSlug } from "@payloadcms/ui";
+import { Drawer } from "@payloadcms/ui";
 
 const FIELD_LABELS: Record<"title" | "description" | "image", string> = {
   title: "Title",
@@ -9,7 +9,11 @@ const FIELD_LABELS: Record<"title" | "description" | "image", string> = {
 };
 
 type SeoConfirmModalProps = {
-  /** Drawer slug (unique per call site, used with Payload's Drawer system) */
+  /**
+   * The already-formatted drawer slug from `useDrawerSlug()` in the parent.
+   * The parent is responsible for computing this via `useDrawerSlug(baseSlug)` to
+   * ensure the slug matches the one passed to `openModal()`.
+   */
   slug: string;
   /** Which fields have differences — these are shown as a list in the dialog */
   changedFields: Array<"title" | "description" | "image">;
@@ -20,10 +24,8 @@ type SeoConfirmModalProps = {
 };
 
 export function SeoConfirmModal({ slug, changedFields, onConfirm, onSkip }: SeoConfirmModalProps) {
-  const drawerSlug = useDrawerSlug(slug);
-
   return (
-    <Drawer slug={drawerSlug} title="Update SEO metadata?">
+    <Drawer slug={slug} title="Update SEO metadata?">
       {changedFields.length > 0 && (
         <div
           style={{
