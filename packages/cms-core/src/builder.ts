@@ -26,19 +26,19 @@ import { createTriggerDeployment } from "./hooks/triggerDeployment";
 import { createTriggerDevRefresh } from "./hooks/triggerDevRefresh";
 import { createGlobalRedeployHook } from "./hooks/triggerGlobalRedeploy";
 import { SEO_COLLECTIONS, SEO_GLOBALS } from "./lib/og/registry";
-import type { DeploymentStatusAdapter } from './lib/deployment/types'
+import type { DeploymentStatusAdapter } from "./lib/deployment/types";
 
 const filename = fileURLToPath(import.meta.url);
 const dirname = path.dirname(filename);
 
-let _deploymentStatusAdapter: DeploymentStatusAdapter | undefined
+let _deploymentStatusAdapter: DeploymentStatusAdapter | undefined;
 
 export function setDeploymentStatusAdapter(adapter: DeploymentStatusAdapter | undefined) {
-  _deploymentStatusAdapter = adapter
+  _deploymentStatusAdapter = adapter;
 }
 
 export function getDeploymentStatusAdapter(): DeploymentStatusAdapter | undefined {
-  return _deploymentStatusAdapter
+  return _deploymentStatusAdapter;
 }
 
 export type CmsConfigOptions = {
