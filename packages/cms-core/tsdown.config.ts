@@ -22,4 +22,10 @@ export default defineConfig({
   fixedExtension: true,
   platform: "neutral",
   skipNodeModulesBundle: true,
+  copy: [
+    {
+      from: "src/styles/admin-overrides.css",
+      to: "dist/styles/admin-overrides.css",
+    },
+  ],
 });

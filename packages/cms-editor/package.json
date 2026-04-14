@@ -16,7 +16,7 @@
     "./web/html/daisyui": "./dist/web/html/daisyui/index.mjs",
     "./web/html/tailwind": "./dist/web/html/tailwind/index.mjs",
     "./web/html/client": "./dist/web/html/client/index.mjs",
-    "./web/html/styles.css": "./src/web/html/styles.css",
+    "./web/html/styles.css": "./dist/web/html/styles.css",
     "./web/util": "./dist/web/util/index.mjs"
   },
   "devDependencies": {

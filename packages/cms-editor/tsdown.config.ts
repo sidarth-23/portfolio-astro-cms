@@ -17,4 +17,10 @@ export default defineConfig({
   fixedExtension: true,
   platform: "neutral",
   skipNodeModulesBundle: true,
+  copy: [
+    {
+      from: "src/web/html/styles.css",
+      to: "dist/web/html/styles.css",
+    },
+  ],
 });
