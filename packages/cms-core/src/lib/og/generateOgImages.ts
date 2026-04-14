@@ -39,7 +39,6 @@ type SharedAssets = {
   profileImageDataUri: string | undefined;
   socialIconDataUris: string[];
   siteUrl?: string;
-  ogFolderId: number | string;
 };
 
 type ProcessorResult = {
@@ -128,6 +127,7 @@ async function uploadOgImage(
   title: string,
   description: string,
   filename: string,
+  ogFolderId: number | string,
   assets: SharedAssets,
 ): Promise<RelationID> {
   const buffer = await renderOgImage({
@@ -140,7 +140,7 @@ async function uploadOgImage(
 
   const media = await payload.create({
     collection: "media",
-    data: { alt: `OG image for ${title}`, folder: assets.ogFolderId } as never,
+    data: { alt: `OG image for ${title}`, folder: ogFolderId } as never,
     file: { data: buffer, mimetype: "image/png", name: filename, size: buffer.length },
   });
 
@@ -152,6 +152,7 @@ async function processDoc(
   target: OgTarget,
   doc: ContentRecord,
   mode: OgGenerationMode,
+  ogFolderId: number | string,
   assets: SharedAssets,
 ): Promise<{ generated: boolean; skipped: boolean; error?: string }> {
   // Check if OG image is already set (skip in unset-only mode)
@@ -192,15 +193,9 @@ async function processDoc(
     };
   }
 
-  // Resolve image — use existing if available, otherwise generate
+  // Always render and persist OG images into the media collection.
   const filename = getOgFilename(target, doc);
-  let imageId: RelationID;
-  if (target.type === "collection" && target.existingImage) {
-    const existing = resolveMediaId(doc[target.existingImage]);
-    imageId = existing ?? await uploadOgImage(payload, ogTitle, ogDescription, filename, assets);
-  } else {
-    imageId = await uploadOgImage(payload, ogTitle, ogDescription, filename, assets);
-  }
+  const imageId = await uploadOgImage(payload, ogTitle, ogDescription, filename, ogFolderId, assets);
 
   // Build update data — always include required SEO fields to satisfy Payload field validation
   const updateData = {
@@ -237,6 +232,7 @@ async function processTarget(
   assets: SharedAssets,
 ): Promise<ProcessorResult> {
   const result: ProcessorResult = { generated: 0, skipped: 0, errors: [] };
+  const ogFolderId = await ensureOgFolder(payload, target.folderName);
 
   if (target.type === "collection") {
     const found = await payload.find({
@@ -251,7 +247,7 @@ async function processTarget(
       const label = getEntityLabel(target, doc);
 
       try {
-        const docResult = await processDoc(payload, target, doc, mode, assets);
+        const docResult = await processDoc(payload, target, doc, mode, ogFolderId, assets);
         if (docResult.generated) {
           result.generated++;
           continue;
@@ -274,7 +270,7 @@ async function processTarget(
     const doc = (await payload.findGlobal({ slug: target.slug as never, depth: 0 })) as unknown as ContentRecord;
     const label = getEntityLabel(target, doc);
 
-    const docResult = await processDoc(payload, target, doc, mode, assets);
+    const docResult = await processDoc(payload, target, doc, mode, ogFolderId, assets);
     if (docResult.generated) {
       result.generated++;
     } else {
@@ -295,10 +291,9 @@ export async function generateOgImages(
   mode: OgGenerationMode,
   options: GenerateOgImagesOptions = {},
 ): Promise<OgGenerationResult> {
-  const [profileImageDataUri, iconEntries, ogFolderId] = await Promise.all([
+  const [profileImageDataUri, iconEntries] = await Promise.all([
     fetchProfileImageDataUri(payload),
     fetchSidebarIcons(payload),
-    ensureOgFolder(payload),
   ]);
 
   const invalidConfigured = getSidebarIconDiagnostics(iconEntries);
@@ -312,7 +307,7 @@ export async function generateOgImages(
   const successfulIconSvgs = iconFetchResults.flatMap((item) => (item.result.ok ? [item.result.svg] : []));
   const socialIconDataUris = await Promise.all(successfulIconSvgs.map((svg) => svgToDataUri(svg)));
 
-  const assets: SharedAssets = { profileImageDataUri, socialIconDataUris, siteUrl: options.siteUrl, ogFolderId };
+  const assets: SharedAssets = { profileImageDataUri, socialIconDataUris, siteUrl: options.siteUrl };
 
   const failedToLoad = iconFetchResults.flatMap((item) => {
     if (item.result.ok) return [];

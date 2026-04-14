@@ -1,5 +1,5 @@
 import type { Payload } from "payload";
-import { SEO_COLLECTIONS, SEO_GLOBALS } from "./og/registry";
+import { OG_TARGETS, SEO_COLLECTIONS, SEO_GLOBALS } from "./og/registry";
 
 // ---------------------------------------------------------------------------
 // Public types
@@ -30,12 +30,22 @@ export type OrphanedMediaResult = {
 function resolveId(value: unknown): string | null {
   if (value === null || value === undefined) return null;
   if (typeof value === "string") return value;
+  if (typeof value === "number") return String(value);
   if (typeof value === "object" && "id" in (value as object)) {
     const id = (value as Record<string, unknown>).id;
     if (typeof id === "string") return id;
+    if (typeof id === "number") return String(id);
   }
   return null;
 }
+
+const getMappedOgFolderNames = (): string[] => {
+  const names = OG_TARGETS
+    .map((target) => target.folderName?.trim())
+    .filter((name): name is string => Boolean(name));
+
+  return [...new Set(names)];
+};
 
 /**
  * Recursively walk a Lexical JSON node tree and collect referenced media IDs.
@@ -275,6 +285,53 @@ export async function collectReferencedMediaIds(
   );
   for (const ids of seoGlobalResults) merge(ids);
 
+  // ------------------------------------------------------------------
+  // 7. Media in configured OG folders are considered referenced
+  // ------------------------------------------------------------------
+  const folderNames = getMappedOgFolderNames();
+  if (folderNames.length > 0) {
+    const folderDocs = await payload.find({
+      collection: "payload-folders",
+      depth: 0,
+      pagination: false,
+      limit: 0,
+      where: {
+        name: {
+          in: folderNames,
+        },
+      },
+    });
+
+    const folderIds = folderDocs.docs
+      .map((doc) => resolveId(doc.id))
+      .filter((id): id is string => id !== null);
+
+    if (folderIds.length > 0) {
+      const folderMediaIds = await collectPaged((page) =>
+        payload.find({
+          collection: "media",
+          depth: 0,
+          limit: 100,
+          page,
+          where: {
+            folder: {
+              in: folderIds,
+            },
+          },
+        }).then((result) => ({
+          docs: result.docs
+            .map((doc) => resolveId(doc.id))
+            .filter((id): id is string => id !== null),
+          totalPages: result.totalPages,
+        })),
+      );
+
+      for (const id of folderMediaIds) {
+        referencedIds.add(id);
+      }
+    }
+  }
+
   return referencedIds;
 }
 
@@ -316,7 +373,7 @@ export async function findOrphanedMedia(
         })
         .then((result) => ({
           docs: result.docs.map((doc) => ({
-            id: doc.id,
+            id: String(doc.id),
             filename: doc.filename ?? null,
             alt: doc.alt,
             url: doc.url ?? null,

@@ -56,15 +56,6 @@ export type CmsConfigOptions = {
   deploymentStatus?: DeploymentStatusAdapter;
 };
 
-const withRequiredSeoFields = ({ defaultFields }: { defaultFields: Field[] }): Field[] => {
-  return defaultFields.map((field) => {
-    if ("name" in field && (field.name === "title" || field.name === "description")) {
-      return { ...field, required: true };
-    }
-    return field;
-  });
-};
-
 export function createCmsConfig(options: CmsConfigOptions) {
   setReadAccessToken(options.readAccessToken);
   setDeploymentStatusAdapter(options.deploymentStatus);
@@ -89,6 +80,53 @@ export function createCmsConfig(options: CmsConfigOptions) {
       afterChange: [...(globalConfig.hooks?.afterChange ?? []), globalRedeployHook],
     },
   });
+
+  const siteUrl = options.siteUrl ?? "https://sidshub.in";
+
+  // URL mapping: collection/global slug → public-facing URL on the frontend
+  const generateURL = ({ doc, collectionSlug, globalSlug }: { doc: Record<string, any>; collectionSlug?: string; globalSlug?: string }): string => {
+    if (collectionSlug === "posts") return `${siteUrl}/blog/${doc.slug ?? ""}`;
+    if (collectionSlug === "projects") return `${siteUrl}/projects/${doc.slug ?? ""}`;
+    if (collectionSlug === "series") return `${siteUrl}/blog/series/${doc.slug ?? ""}`;
+    if (globalSlug === "site-settings" || globalSlug === "home-page") return siteUrl;
+    if (globalSlug === "blog-page" || globalSlug === "series-page") return `${siteUrl}/blog`;
+    if (globalSlug === "cv-page") return `${siteUrl}/cv`;
+    if (globalSlug === "projects-page") return `${siteUrl}/projects`;
+    return siteUrl;
+  };
+
+  const withSeoOverrides = ({ defaultFields }: { defaultFields: Field[] }): Field[] => {
+    const fields = defaultFields.map((field) => {
+      if ("name" in field && (field.name === "title" || field.name === "description")) {
+        return { ...field, required: true };
+      }
+      return field;
+    });
+
+    // Insert social card preview immediately after the SERP preview field
+    const socialCardField: Field = {
+      name: "socialCardPreview",
+      type: "ui",
+      admin: {
+        components: {
+          Field: {
+            clientProps: { siteUrl },
+            path: "./components/admin/seo/SocialCardPreview#SocialCardPreview",
+          },
+        },
+      },
+      label: "Social Card Preview",
+    };
+
+    const previewIdx = fields.findIndex((f) => "name" in f && f.name === "preview");
+    if (previewIdx !== -1) {
+      fields.splice(previewIdx + 1, 0, socialCardField);
+    } else {
+      fields.push(socialCardField);
+    }
+
+    return fields;
+  };
 
   const collections: CollectionConfig[] = [Users, Media, Categories, Series, Posts, Projects].map(
     withCollectionAfterChangeHook,
@@ -145,7 +183,8 @@ export function createCmsConfig(options: CmsConfigOptions) {
         globals: [...SEO_GLOBALS],
         tabbedUI: true,
         uploadsCollection: "media",
-        fields: withRequiredSeoFields,
+        generateURL,
+        fields: withSeoOverrides,
       }),
       ...(options.storagePlugins ?? []),
     ],

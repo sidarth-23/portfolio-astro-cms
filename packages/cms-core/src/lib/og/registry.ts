@@ -32,9 +32,12 @@ type DescriptionOpts<T> =
 type TypedCollectionConfig<T extends WithSeo & WithSlug> = {
   depth?: number;
   existingImage?: MediaKeyOf<T>;    // must be a media field on T
+  folderName?: string;
 } & TitleOpts<T> & DescriptionOpts<T>;
 
-type TypedGlobalConfig<T extends WithSeo> = TitleOpts<T> & DescriptionOpts<T>;
+type TypedGlobalConfig<T extends WithSeo> = {
+  folderName?: string;
+} & TitleOpts<T> & DescriptionOpts<T>;
 
 // ---- Public runtime types ----
 
@@ -45,6 +48,7 @@ export type CollectionOgTarget = {
   ogTitle?: string;        // field name; undefined → use meta.title
   ogDescription?: string;  // field name; undefined → use meta.description
   existingImage?: string;  // field name for existing image
+  folderName?: string;
 };
 
 export type GlobalOgTarget = {
@@ -52,6 +56,7 @@ export type GlobalOgTarget = {
   slug: string;
   ogTitle?: string;        // field name; undefined → use meta.title
   ogDescription?: string;  // field name; undefined → use meta.description
+  folderName?: string;
 };
 
 export type OgTarget = CollectionOgTarget | GlobalOgTarget;
@@ -68,23 +73,27 @@ function global<T extends WithSeo>(slug: string, config?: TypedGlobalConfig<T>):
 
 // ---- Registry ----
 
+const DEFAULT_OG_FOLDER_NAME = "Auto Generated";
+
 export const OG_TARGETS: OgTarget[] = [
   collection<Post>("posts", {
     ogTitle: "title",
     existingImage: "coverImage",
     depth: 1,
+    folderName: "Auto Generated Posts",
   }),
   collection<Project>("projects", {
     ogTitle: "title",
     existingImage: "image",
     depth: 1,
+    folderName: "Auto Generated Projects",
   }),
-  collection<Series>("series"),           // ogTitle omitted → uses meta.title
-  global<CvPage>("cv-page"),
-  global<BlogPage>("blog-page"),
-  global<SeriesPage>("series-page"),
-  global<ProjectsPage>("projects-page"),
-  global<SiteSetting>("site-settings"),
+  collection<Series>("series", { folderName: "Auto Generated Series" }),
+  global<CvPage>("cv-page", { folderName: "Auto Generated CV" }),
+  global<BlogPage>("blog-page", { folderName: "Auto Generated Blog" }),
+  global<SeriesPage>("series-page", { folderName: "Auto Generated Series" }),
+  global<ProjectsPage>("projects-page", { folderName: "Auto Generated Projects" }),
+  global<SiteSetting>("site-settings", { folderName: DEFAULT_OG_FOLDER_NAME }),
 ];
 
 /** Collections that have the SEO plugin enabled */
