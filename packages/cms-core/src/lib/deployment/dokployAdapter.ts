@@ -9,7 +9,6 @@ type DokployConfig = {
 
 type DokployApplicationResponse = {
   applicationStatus?: string
-  createdAt?: string
 }
 
 export function dokployAdapter(config: DokployConfig): DeploymentStatusAdapter {
