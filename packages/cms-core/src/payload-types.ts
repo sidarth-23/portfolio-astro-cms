@@ -294,6 +294,7 @@ export interface Post {
   id: string;
   title: string;
   description: string;
+  coverImage: string | Media;
   content: {
     root: {
       type: string;
@@ -309,7 +310,6 @@ export interface Post {
     };
     [k: string]: unknown;
   };
-  coverImage?: (string | null) | Media;
   primaryCategory: string | Category;
   tags?:
     | {
@@ -322,10 +322,6 @@ export interface Post {
     hasNextPage?: boolean;
     totalDocs?: number;
   };
-  /**
-   * View only. Manage membership and ordering from the Series collection.
-   */
-  series?: (string | Series)[] | null;
   meta: {
     title: string;
     description: string;
@@ -338,8 +334,12 @@ export interface Post {
    * Auto-generated from title, but can be edited.
    */
   slug: string;
+  /**
+   * View only. Manage membership and ordering from the Series collection.
+   */
+  series?: (string | Series)[] | null;
   publishedAt?: string | null;
-  authors?: (string | User)[] | null;
+  authors: (string | User)[];
   populatedAuthors?:
     | {
         id?: string | null;
@@ -759,8 +759,8 @@ export interface SeriesSelect<T extends boolean = true> {
 export interface PostsSelect<T extends boolean = true> {
   title?: T;
   description?: T;
-  content?: T;
   coverImage?: T;
+  content?: T;
   primaryCategory?: T;
   tags?:
     | T
@@ -769,7 +769,6 @@ export interface PostsSelect<T extends boolean = true> {
         id?: T;
       };
   seriesLinks?: T;
-  series?: T;
   meta?:
     | T
     | {
@@ -778,6 +777,7 @@ export interface PostsSelect<T extends boolean = true> {
         image?: T;
       };
   slug?: T;
+  series?: T;
   publishedAt?: T;
   authors?: T;
   populatedAuthors?:

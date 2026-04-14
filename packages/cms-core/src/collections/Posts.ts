@@ -45,6 +45,12 @@ export const Posts: CollectionConfig = {
               required: true,
             },
             {
+              name: "coverImage",
+              type: "upload",
+              relationTo: "media",
+              required: true,
+            },
+            {
               name: "content",
               type: "richText",
               required: true,
@@ -54,12 +60,6 @@ export const Posts: CollectionConfig = {
                 enableImageGallery: true,
                 calloutVariantProfile: "blog",
               }),
-            },
-            {
-              name: "coverImage",
-              type: "upload",
-              relationTo: "media",
-              required: false,
             },
             {
               name: "primaryCategory",
@@ -93,27 +93,27 @@ export const Posts: CollectionConfig = {
                 hidden: true,
               },
             },
-            {
-              name: "series",
-              type: "relationship",
-              relationTo: "series",
-              hasMany: true,
-              virtual: true,
-              access: {
-                create: () => false,
-                update: () => false,
-              },
-              admin: {
-                readOnly: true,
-                description:
-                  "View only. Manage membership and ordering from the Series collection.",
-              },
-            },
           ],
         },
       ],
     },
     slugField({ fieldToUse: "title" }),
+    {
+      name: "series",
+      type: "relationship",
+      relationTo: "series",
+      hasMany: true,
+      virtual: true,
+      access: {
+        create: () => false,
+        update: () => false,
+      },
+      admin: {
+        readOnly: true,
+        position: "sidebar",
+        description: "View only. Manage membership and ordering from the Series collection.",
+      },
+    },
     {
       name: "publishedAt",
       type: "date",
@@ -141,7 +141,7 @@ export const Posts: CollectionConfig = {
       type: "relationship",
       relationTo: "users",
       hasMany: true,
-      required: false,
+      required: true,
       admin: {
         position: "sidebar",
       },
