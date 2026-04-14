@@ -40,7 +40,7 @@ const cleanItems = items
             href={item.url}
             target={item.newTab ? "_blank" : undefined}
             rel={item.newTab ? "noreferrer noopener" : undefined}
-            class="mx-3 group-[.collapsed]:mx-1"
+            class="mx-3 group-[.collapsed]:mx-1 hover:text-primary transition-colors"
             aria-label={iconData.source === "simple-icons" ? iconData.title : iconData.name}
             title={iconData.source === "simple-icons" ? iconData.title : iconData.name}
           >
