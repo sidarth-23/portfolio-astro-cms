@@ -1,6 +1,7 @@
 import type { Payload } from "payload";
 
 import type { Media } from "../../payload-types";
+import { collectReferencedMediaIds } from "../orphanedMedia";
 import type { IconFetchFailureReason } from "./fetchIconSvg";
 import { fetchIconSvg, svgToDataUri } from "./fetchIconSvg";
 import { ensureOgFolder } from "./ensureOgFolder";
@@ -17,6 +18,14 @@ export type OgGenerationResult = {
   generated: number;
   skipped: number;
   errors: Array<{ entity: string; error: string }>;
+  cleanup: {
+    enabled: boolean;
+    attempted: number;
+    deleted: number;
+    skippedReferenced: number;
+    failed: number;
+    errors: Array<{ entity: string; imageId: string; error: string }>;
+  };
   iconDiagnostics: {
     configured: number;
     loaded: number;
@@ -33,6 +42,7 @@ export type OgGenerationResult = {
 
 export type GenerateOgImagesOptions = {
   siteUrl?: string;
+  wipeOldImages?: boolean;
 };
 
 type SharedAssets = {
@@ -45,6 +55,14 @@ type ProcessorResult = {
   generated: number;
   skipped: number;
   errors: Array<{ entity: string; error: string }>;
+  replaced: Array<{ entity: string; oldImageId: string; newImageId: string }>;
+};
+
+type ProcessDocResult = {
+  generated: boolean;
+  skipped: boolean;
+  error?: string;
+  replacedImage?: { oldImageId: string; newImageId: string };
 };
 
 type SeoMeta = {
@@ -154,7 +172,7 @@ async function processDoc(
   mode: OgGenerationMode,
   ogFolderId: number | string,
   assets: SharedAssets,
-): Promise<{ generated: boolean; skipped: boolean; error?: string }> {
+): Promise<ProcessDocResult> {
   // Check if OG image is already set (skip in unset-only mode)
   const meta = doc.meta as SeoMeta | undefined;
   const currentImageId = resolveMediaId(meta?.image);
@@ -196,6 +214,7 @@ async function processDoc(
   // Always render and persist OG images into the media collection.
   const filename = getOgFilename(target, doc);
   const imageId = await uploadOgImage(payload, ogTitle, ogDescription, filename, ogFolderId, assets);
+  const nextImageId = String(imageId);
 
   // Build update data — always include required SEO fields to satisfy Payload field validation
   const updateData = {
@@ -222,7 +241,71 @@ async function processDoc(
     });
   }
 
-  return { generated: true, skipped: false };
+  const previousImageId = currentImageId !== null ? String(currentImageId) : null;
+
+  return {
+    generated: true,
+    skipped: false,
+    replacedImage: previousImageId !== null && previousImageId !== nextImageId
+      ? { oldImageId: previousImageId, newImageId: nextImageId }
+      : undefined,
+  };
+}
+
+type CleanupResult = {
+  attempted: number;
+  deleted: number;
+  skippedReferenced: number;
+  failed: number;
+  errors: Array<{ entity: string; imageId: string; error: string }>;
+};
+
+async function cleanupReplacedOldImages(
+  payload: Payload,
+  replaced: Array<{ entity: string; oldImageId: string; newImageId: string }>,
+): Promise<CleanupResult> {
+  const byOldId = new Map<string, string[]>();
+
+  for (const item of replaced) {
+    const entities = byOldId.get(item.oldImageId) ?? [];
+    entities.push(item.entity);
+    byOldId.set(item.oldImageId, entities);
+  }
+
+  const result: CleanupResult = {
+    attempted: byOldId.size,
+    deleted: 0,
+    skippedReferenced: 0,
+    failed: 0,
+    errors: [],
+  };
+
+  if (byOldId.size === 0) {
+    return result;
+  }
+
+  const referencedIds = await collectReferencedMediaIds(payload);
+
+  for (const [oldImageId, entities] of byOldId.entries()) {
+    if (referencedIds.has(oldImageId)) {
+      result.skippedReferenced++;
+      continue;
+    }
+
+    try {
+      await payload.delete({ collection: "media", id: oldImageId });
+      result.deleted++;
+    } catch (error) {
+      result.failed++;
+      result.errors.push({
+        entity: entities.join(", "),
+        imageId: oldImageId,
+        error: error instanceof Error ? error.message : String(error),
+      });
+    }
+  }
+
+  return result;
 }
 
 async function processTarget(
@@ -231,7 +314,7 @@ async function processTarget(
   mode: OgGenerationMode,
   assets: SharedAssets,
 ): Promise<ProcessorResult> {
-  const result: ProcessorResult = { generated: 0, skipped: 0, errors: [] };
+  const result: ProcessorResult = { generated: 0, skipped: 0, errors: [], replaced: [] };
   const ogFolderId = await ensureOgFolder(payload, target.folderName);
 
   if (target.type === "collection") {
@@ -250,6 +333,9 @@ async function processTarget(
         const docResult = await processDoc(payload, target, doc, mode, ogFolderId, assets);
         if (docResult.generated) {
           result.generated++;
+          if (docResult.replacedImage) {
+            result.replaced.push({ entity: label, ...docResult.replacedImage });
+          }
           continue;
         }
 
@@ -273,6 +359,9 @@ async function processTarget(
     const docResult = await processDoc(payload, target, doc, mode, ogFolderId, assets);
     if (docResult.generated) {
       result.generated++;
+      if (docResult.replacedImage) {
+        result.replaced.push({ entity: label, ...docResult.replacedImage });
+      }
     } else {
       result.skipped++;
       if (docResult.error) {
@@ -325,6 +414,14 @@ export async function generateOgImages(
     generated: 0,
     skipped: 0,
     errors: [],
+    cleanup: {
+      enabled: options.wipeOldImages === true,
+      attempted: 0,
+      deleted: 0,
+      skippedReferenced: 0,
+      failed: 0,
+      errors: [],
+    },
     iconDiagnostics: {
       configured: iconEntries.length,
       loaded: successfulIconSvgs.length,
@@ -341,12 +438,26 @@ export async function generateOgImages(
     });
   }
 
+  const replacedCandidates: Array<{ entity: string; oldImageId: string; newImageId: string }> = [];
+
   for (const target of OG_TARGETS) {
     const targetResult = await processTarget(payload, target, mode, assets);
     totals.generated += targetResult.generated;
     totals.skipped += targetResult.skipped;
     totals.errors.push(...targetResult.errors);
+    replacedCandidates.push(...targetResult.replaced);
     totals.total += targetResult.generated + targetResult.skipped + targetResult.errors.length;
+  }
+
+  if (options.wipeOldImages) {
+    const cleanup = await cleanupReplacedOldImages(payload, replacedCandidates);
+    totals.cleanup = { enabled: true, ...cleanup };
+    for (const cleanupError of cleanup.errors) {
+      totals.errors.push({
+        entity: cleanupError.entity,
+        error: `Failed to delete old image ${cleanupError.imageId}: ${cleanupError.error}`,
+      });
+    }
   }
 
   return totals;

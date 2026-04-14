@@ -84,7 +84,7 @@ export function createCmsConfig(options: CmsConfigOptions) {
   const siteUrl = options.siteUrl ?? "https://sidshub.in";
 
   // URL mapping: collection/global slug → public-facing URL on the frontend
-  const generateURL = ({ doc, collectionSlug, globalSlug }: { doc: Record<string, any>; collectionSlug?: string; globalSlug?: string }): string => {
+  const generateURL = ({ doc, collectionSlug, globalSlug }: { doc: Record<string, unknown>; collectionSlug?: string; globalSlug?: string }): string => {
     if (collectionSlug === "posts") return `${siteUrl}/blog/${doc.slug ?? ""}`;
     if (collectionSlug === "projects") return `${siteUrl}/projects/${doc.slug ?? ""}`;
     if (collectionSlug === "series") return `${siteUrl}/blog/series/${doc.slug ?? ""}`;

@@ -10,7 +10,6 @@ import {
   optionalLinkUrl,
   optionalText,
   optionalTextWithFallback,
-  requiredHttpUrl,
   requiredText,
 } from "./primitives";
 

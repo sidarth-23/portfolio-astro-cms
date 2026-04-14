@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useEffect, useRef, useState } from 'react';
-import { useAllFormFields, useConfig, useDocumentInfo, useForm, useLocale, useTranslation } from '@payloadcms/ui';
+import { useAllFormFields, useConfig, useDocumentInfo, useForm, useLocale } from '@payloadcms/ui';
 import { reduceToSerializableFields } from '@payloadcms/ui/shared';
 import { formatAdminURL } from 'payload/shared';
 
@@ -36,7 +36,6 @@ function getMediaUrl(imageValue: unknown): string | null {
 }
 
 export function SocialCardPreview({ siteUrl }: Props) {
-  const { t } = useTranslation();
   const { config: { routes: { api }, serverURL } } = useConfig();
   const locale = useLocale();
   const [fields] = useAllFormFields();
@@ -93,7 +92,7 @@ export function SocialCardPreview({ siteUrl }: Props) {
     }
 
     // Second try: the initialData might have a populated media object
-    const initialImage = (docInfo.initialData as Record<string, any>)?.meta?.image;
+    const initialImage = (docInfo.initialData as { meta?: { image?: unknown } } | undefined)?.meta?.image;
     const initialUrl = getMediaUrl(initialImage);
     if (initialUrl) {
       setImageUrl(initialUrl.startsWith('http') ? initialUrl : `${serverURL}${initialUrl}`);

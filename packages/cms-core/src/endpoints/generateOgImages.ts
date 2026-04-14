@@ -13,15 +13,17 @@ export const generateOgImagesEndpoint = (siteUrl?: string): Endpoint => {
       }
 
       let mode: OgGenerationMode = "unset-only";
+      let wipeOldImages = false;
       try {
         const body = await req.json?.();
         if (body?.mode === "replace-all") mode = "replace-all";
+        if (body?.wipeOldImages === true) wipeOldImages = true;
       } catch {
         // Body parse failure — use default mode
       }
 
       try {
-        const result = await generateOgImages(req.payload, mode, { siteUrl });
+        const result = await generateOgImages(req.payload, mode, { siteUrl, wipeOldImages });
         return Response.json(result);
       } catch (error) {
         const message = error instanceof Error ? error.message : String(error);

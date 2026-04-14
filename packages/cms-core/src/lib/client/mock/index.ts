@@ -1,4 +1,6 @@
 import { faker } from "@faker-js/faker";
+import type { PayloadSDK } from "@payloadcms/sdk";
+import type { Config } from "../../../payload-types";
 import { createCmsClient } from "../createCmsClient";
 import {
   makeBlogPage,
@@ -150,9 +152,8 @@ export const createCmsMockClient = () => {
     },
   };
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   return createCmsClient({
-    sdk: fakeSdk as any,
+    sdk: fakeSdk as unknown as PayloadSDK<Config>,
     mediaBaseUrl: "http://mock",
     siteUrl: "http://mock",
   });

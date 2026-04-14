@@ -6,6 +6,7 @@ import type { OgGenerationMode, OgGenerationResult } from "../../lib/og";
 
 export function OgGeneratorCard() {
   const [mode, setMode] = useState<OgGenerationMode>("unset-only");
+  const [wipeOldImages, setWipeOldImages] = useState(false);
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<OgGenerationResult | null>(null);
   const [fatalError, setFatalError] = useState<string | null>(null);
@@ -19,7 +20,7 @@ export function OgGeneratorCard() {
       const response = await fetch("/api/og-generate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ mode }),
+        body: JSON.stringify({ mode, wipeOldImages: mode === "replace-all" && wipeOldImages }),
         credentials: "include",
       });
 
@@ -60,13 +61,32 @@ export function OgGeneratorCard() {
               name="og-mode"
               value={value}
               checked={mode === value}
-              onChange={() => setMode(value)}
+              onChange={() => {
+                setMode(value);
+                if (value !== "replace-all") {
+                  setWipeOldImages(false);
+                }
+              }}
               disabled={loading}
               style={{ accentColor: "var(--theme-text)" }}
             />
             {label}
           </label>
         ))}
+
+        {mode === "replace-all" && (
+          <label style={{ display: "flex", alignItems: "center", gap: "8px", fontSize: "13px", color: "var(--theme-text)", cursor: "pointer", marginTop: "4px" }}>
+            <input
+              type="checkbox"
+              name="og-wipe-old-images"
+              checked={wipeOldImages}
+              onChange={(event) => setWipeOldImages(event.target.checked)}
+              disabled={loading}
+              style={{ accentColor: "var(--theme-text)" }}
+            />
+            Also delete replaced old meta images (skip if still referenced)
+          </label>
+        )}
       </div>
 
       <button
@@ -108,6 +128,12 @@ export function OgGeneratorCard() {
             Done — {result.generated} generated, {result.skipped} skipped
             {result.errors.length > 0 && `, ${result.errors.length} error${result.errors.length > 1 ? "s" : ""}`}
           </div>
+          {result.cleanup.enabled && (
+            <div style={{ marginTop: "6px", marginBottom: "4px" }}>
+              Cleanup — {result.cleanup.deleted} deleted, {result.cleanup.skippedReferenced} skipped (still referenced)
+              {result.cleanup.failed > 0 && `, ${result.cleanup.failed} failed`}
+            </div>
+          )}
           {result.errors.length > 0 && (
             <ul style={{ margin: "6px 0 0 0", padding: "0 0 0 16px", lineHeight: "1.6" }}>
               {result.errors.map((e, i) => (
