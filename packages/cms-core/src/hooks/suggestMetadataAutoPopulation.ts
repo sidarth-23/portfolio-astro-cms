@@ -14,8 +14,8 @@ import { getSeoFieldMapping, proposeSeoMetaValues } from "../lib/seoFieldMapping
 /**
  * Type guard: Check if the incoming data object has a meta field
  */
-function hasMetaField(data: any): data is { meta: Record<string, any> } {
-  return data && typeof data === "object" && "meta" in data && typeof data.meta === "object";
+function hasMetaField(data: unknown): data is { meta: Record<string, unknown> } {
+  return data !== null && typeof data === "object" && "meta" in data && typeof data.meta === "object";
 }
 
 /**

@@ -83,7 +83,7 @@ export function SeoSaveButton() {
     }
 
     const data = getData();
-    const check = computeSeoCheck(collectionSlug, data as Record<string, any>);
+    const check = computeSeoCheck(collectionSlug, data as Record<string, unknown>);
 
     if (!check) {
       await submit();
@@ -99,7 +99,7 @@ export function SeoSaveButton() {
     const confirmed = await confirmPromise;
 
     if (confirmed) {
-      const existingMeta = ((data as any).meta as Record<string, any>) || {};
+      const existingMeta = (data.meta as Record<string, unknown>) || {};
       const updatedMeta = {
         ...existingMeta,
         ...(check.differences.title ? { title: check.proposedMeta.title } : {}),
@@ -213,9 +213,9 @@ export function SeoPublishButton() {
     }
 
     const data = getData();
-    const check = computeSeoCheck(collectionSlug, data as Record<string, any>);
+    const check = computeSeoCheck(collectionSlug, data as Record<string, unknown>);
 
-    let seoOverrides: Record<string, any> | undefined;
+    let seoOverrides: Record<string, unknown> | undefined;
 
     if (check) {
       setChangedFields(extractChangedFields(check.differences));
@@ -227,7 +227,7 @@ export function SeoPublishButton() {
       const confirmed = await confirmPromise;
 
       if (confirmed) {
-        const existingMeta = ((data as any).meta as Record<string, any>) || {};
+        const existingMeta = (data.meta as Record<string, unknown>) || {};
         seoOverrides = {
           meta: {
             ...existingMeta,
@@ -361,9 +361,9 @@ export function SeoSaveDraftButton() {
     }
 
     const data = getData();
-    const check = computeSeoCheck(collectionSlug, data as Record<string, any>);
+    const check = computeSeoCheck(collectionSlug, data as Record<string, unknown>);
 
-    let seoOverrides: Record<string, any> | undefined;
+    let seoOverrides: Record<string, unknown> | undefined;
 
     if (check) {
       setChangedFields(extractChangedFields(check.differences));
@@ -375,7 +375,7 @@ export function SeoSaveDraftButton() {
       const confirmed = await confirmPromise;
 
       if (confirmed) {
-        const existingMeta = ((data as any).meta as Record<string, any>) || {};
+        const existingMeta = (data.meta as Record<string, unknown>) || {};
         seoOverrides = {
           meta: {
             ...existingMeta,

@@ -44,7 +44,7 @@ export type SeoCheckResult = {
  */
 export function computeSeoCheck(
   collectionSlug: string | undefined,
-  data: Record<string, any>,
+  data: Record<string, unknown>,
 ): SeoCheckResult | null {
   // No slug — nothing to check
   if (!collectionSlug) return null;
@@ -56,7 +56,7 @@ export function computeSeoCheck(
   // No meta field at all
   if (!data.meta || typeof data.meta !== "object") return null;
 
-  const existingMeta = data.meta as Record<string, any>;
+  const existingMeta = data.meta as Record<string, unknown>;
 
   // All meta fields are empty — the server hook handles first-save auto-populate
   if (!existingMeta.title && !existingMeta.description && !existingMeta.image) {
@@ -73,9 +73,9 @@ export function computeSeoCheck(
     differences,
     proposedMeta,
     currentMeta: {
-      title: existingMeta.title || "",
-      description: existingMeta.description || "",
-      image: existingMeta.image || null,
+      title: (existingMeta.title as string) || "",
+      description: (existingMeta.description as string) || "",
+      image: (existingMeta.image as string | number | null) || null,
     },
   };
 }
