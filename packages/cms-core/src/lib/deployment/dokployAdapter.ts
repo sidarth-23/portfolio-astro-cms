@@ -4,6 +4,7 @@ type DokployConfig = {
   apiUrl: string
   apiKey: string
   applicationId: string
+  projectId?: string
 }
 
 type DokployApplicationResponse = {
@@ -43,9 +44,32 @@ export function dokployAdapter(config: DokployConfig): DeploymentStatusAdapter {
       }
 
       const status = statusMap[data.applicationStatus ?? ''] ?? 'unknown'
-      const parsed = data.createdAt ? new Date(data.createdAt) : null
-      const lastDeployedAt = parsed && !isNaN(parsed.getTime()) ? parsed : null
-      const deployUrl = `${apiUrl.replace(/\/$/, '')}/dashboard/project/${encodeURIComponent(applicationId)}`
+
+      // Fetch latest deployment timestamp from deployment history
+      let lastDeployedAt: Date | null = null;
+      try {
+        const deploymentsUrl = `${apiUrl.replace(/\/$/, '')}/api/deployment.all?applicationId=${encodeURIComponent(applicationId)}`;
+        const depRes = await fetch(deploymentsUrl, {
+          headers: { Authorization: `Bearer ${apiKey}` },
+          signal: AbortSignal.timeout(5000),
+        });
+        if (depRes.ok) {
+          const deployments = (await depRes.json()) as Array<{ createdAt?: string }>;
+          if (Array.isArray(deployments) && deployments.length > 0) {
+            // Deployments are returned newest-first; take the first
+            const latest = deployments[0];
+            const parsed = latest.createdAt ? new Date(latest.createdAt) : null;
+            lastDeployedAt = parsed && !isNaN(parsed.getTime()) ? parsed : null;
+          }
+        }
+      } catch {
+        // silently ignore — lastDeployedAt stays null
+      }
+
+      const deployUrl =
+        config.projectId
+          ? `${apiUrl.replace(/\/$/, '')}/dashboard/project/${encodeURIComponent(config.projectId)}/application/${encodeURIComponent(applicationId)}`
+          : null;
 
       return { status, lastDeployedAt, deployUrl }
     },
