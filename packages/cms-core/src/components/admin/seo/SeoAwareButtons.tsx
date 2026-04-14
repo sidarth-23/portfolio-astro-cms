@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useCallback, useRef } from 'react';
+import React, { useCallback, useRef, useState } from 'react';
 import {
   FormSubmit,
   useForm,
@@ -53,7 +53,7 @@ export function SeoSaveButton() {
   const { openModal, closeModal } = useModal();
 
   const resolveRef = useRef<((confirmed: boolean) => void) | null>(null);
-  const changedFieldsRef = useRef<Array<'title' | 'description' | 'image'>>([]);
+  const [changedFields, setChangedFields] = useState<Array<'title' | 'description' | 'image'>>([]);
 
   const disabled = (operation === 'update' && !modified) || uploadStatus === 'uploading';
 
@@ -78,11 +78,11 @@ export function SeoSaveButton() {
     const check = computeSeoCheck(collectionSlug, data as Record<string, any>);
 
     if (!check) {
-      await submit({});
+      await submit();
       return;
     }
 
-    changedFieldsRef.current = extractChangedFields(check.differences);
+    setChangedFields(extractChangedFields(check.differences));
 
     const confirmPromise = new Promise<boolean>((resolve) => {
       resolveRef.current = resolve;
@@ -91,8 +91,7 @@ export function SeoSaveButton() {
     const confirmed = await confirmPromise;
 
     if (confirmed) {
-      const currentData = getData();
-      const existingMeta = ((currentData as any).meta as Record<string, any>) || {};
+      const existingMeta = ((data as any).meta as Record<string, any>) || {};
       const updatedMeta = {
         ...existingMeta,
         ...(check.differences.title ? { title: check.proposedMeta.title } : {}),
@@ -101,7 +100,7 @@ export function SeoSaveButton() {
       };
       await submit({ overrides: { meta: updatedMeta } });
     } else {
-      await submit({});
+      await submit();
     }
   }, [uploadStatus, getData, collectionSlug, openModal, drawerSlug, submit]);
 
@@ -133,7 +132,7 @@ export function SeoSaveButton() {
       </FormSubmit>
       <SeoConfirmModal
         slug="seo-confirm-save"
-        changedFields={changedFieldsRef.current}
+        changedFields={changedFields}
         onConfirm={handleConfirm}
         onSkip={handleSkip}
       />
@@ -155,6 +154,7 @@ export function SeoPublishButton() {
     setHasPublishedDoc,
     setMostRecentVersionIsAutosaved,
     setUnpublishedVersionCount,
+    unpublishedVersionCount,
     uploadStatus,
   } = useDocumentInfo();
   const {
@@ -171,10 +171,11 @@ export function SeoPublishButton() {
   const { openModal, closeModal } = useModal();
 
   const resolveRef = useRef<((confirmed: boolean) => void) | null>(null);
-  const changedFieldsRef = useRef<Array<'title' | 'description' | 'image'>>([]);
+  const [changedFields, setChangedFields] = useState<Array<'title' | 'description' | 'image'>>([]);
 
+  const hasNewerVersions = unpublishedVersionCount > 0;
   const canPublish =
-    !!hasPublishPermission && (modified || !hasPublishedDoc) && uploadStatus !== 'uploading';
+    !!hasPublishPermission && (modified || hasNewerVersions || !hasPublishedDoc) && uploadStatus !== 'uploading';
 
   const handleConfirm = useCallback(() => {
     closeModal(drawerSlug);
@@ -199,7 +200,7 @@ export function SeoPublishButton() {
     let seoOverrides: Record<string, any> | undefined;
 
     if (check) {
-      changedFieldsRef.current = extractChangedFields(check.differences);
+      setChangedFields(extractChangedFields(check.differences));
 
       const confirmPromise = new Promise<boolean>((resolve) => {
         resolveRef.current = resolve;
@@ -208,8 +209,7 @@ export function SeoPublishButton() {
       const confirmed = await confirmPromise;
 
       if (confirmed) {
-        const currentData = getData();
-        const existingMeta = ((currentData as any).meta as Record<string, any>) || {};
+        const existingMeta = ((data as any).meta as Record<string, any>) || {};
         seoOverrides = {
           meta: {
             ...existingMeta,
@@ -276,7 +276,7 @@ export function SeoPublishButton() {
       </FormSubmit>
       <SeoConfirmModal
         slug="seo-confirm-publish"
-        changedFields={changedFieldsRef.current}
+        changedFields={changedFields}
         onConfirm={handleConfirm}
         onSkip={handleSkip}
       />
@@ -313,7 +313,7 @@ export function SeoSaveDraftButton() {
   const { openModal, closeModal } = useModal();
 
   const resolveRef = useRef<((confirmed: boolean) => void) | null>(null);
-  const changedFieldsRef = useRef<Array<'title' | 'description' | 'image'>>([]);
+  const [changedFields, setChangedFields] = useState<Array<'title' | 'description' | 'image'>>([]);
 
   const disabled = (operation === 'update' && !modified) || uploadStatus === 'uploading';
 
@@ -340,7 +340,7 @@ export function SeoSaveDraftButton() {
     let seoOverrides: Record<string, any> | undefined;
 
     if (check) {
-      changedFieldsRef.current = extractChangedFields(check.differences);
+      setChangedFields(extractChangedFields(check.differences));
 
       const confirmPromise = new Promise<boolean>((resolve) => {
         resolveRef.current = resolve;
@@ -349,8 +349,7 @@ export function SeoSaveDraftButton() {
       const confirmed = await confirmPromise;
 
       if (confirmed) {
-        const currentData = getData();
-        const existingMeta = ((currentData as any).meta as Record<string, any>) || {};
+        const existingMeta = ((data as any).meta as Record<string, any>) || {};
         seoOverrides = {
           meta: {
             ...existingMeta,
@@ -438,7 +437,7 @@ export function SeoSaveDraftButton() {
       </FormSubmit>
       <SeoConfirmModal
         slug="seo-confirm-draft"
-        changedFields={changedFieldsRef.current}
+        changedFields={changedFields}
         onConfirm={handleConfirm}
         onSkip={handleSkip}
       />

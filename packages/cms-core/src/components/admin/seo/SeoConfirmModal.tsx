@@ -22,82 +22,82 @@ type SeoConfirmModalProps = {
 export function SeoConfirmModal({ slug, changedFields, onConfirm, onSkip }: SeoConfirmModalProps) {
   const drawerSlug = useDrawerSlug(slug);
 
-  if (changedFields.length === 0) return null;
-
   return (
     <Drawer slug={drawerSlug} title="Update SEO metadata?">
-      <div
-        style={{
-          padding: "24px",
-          display: "flex",
-          flexDirection: "column",
-          gap: "16px",
-          color: "var(--theme-text)",
-        }}
-      >
-        <p style={{ margin: 0, fontSize: "14px", lineHeight: "1.6", color: "var(--theme-text)" }}>
-          The following fields will be updated to match your content:
-        </p>
-
-        <ul
-          style={{
-            margin: 0,
-            paddingLeft: "20px",
-            display: "flex",
-            flexDirection: "column",
-            gap: "4px",
-          }}
-        >
-          {changedFields.map((field) => (
-            <li key={field} style={{ fontSize: "14px", color: "var(--theme-text)" }}>
-              {FIELD_LABELS[field]}
-            </li>
-          ))}
-        </ul>
-
+      {changedFields.length > 0 && (
         <div
           style={{
+            padding: "24px",
             display: "flex",
-            justifyContent: "flex-end",
-            gap: "8px",
-            marginTop: "8px",
+            flexDirection: "column",
+            gap: "16px",
+            color: "var(--theme-text)",
           }}
         >
-          <button
-            type="button"
-            onClick={onSkip}
-            style={{
-              padding: "8px 16px",
-              background: "transparent",
-              color: "var(--theme-text)",
-              border: "1px solid var(--theme-elevation-200)",
-              borderRadius: "4px",
-              fontSize: "13px",
-              fontWeight: 500,
-              cursor: "pointer",
-            }}
-          >
-            Skip
-          </button>
+          <p style={{ margin: 0, fontSize: "14px", lineHeight: "1.6", color: "var(--theme-text)" }}>
+            The following fields will be updated to match your content:
+          </p>
 
-          <button
-            type="button"
-            onClick={onConfirm}
+          <ul
             style={{
-              padding: "8px 16px",
-              background: "var(--theme-text)",
-              color: "var(--theme-bg)",
-              border: "none",
-              borderRadius: "4px",
-              fontSize: "13px",
-              fontWeight: 600,
-              cursor: "pointer",
+              margin: 0,
+              paddingLeft: "20px",
+              display: "flex",
+              flexDirection: "column",
+              gap: "4px",
             }}
           >
-            Update SEO
-          </button>
+            {changedFields.map((field) => (
+              <li key={field} style={{ fontSize: "14px", color: "var(--theme-text)" }}>
+                {FIELD_LABELS[field]}
+              </li>
+            ))}
+          </ul>
+
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "flex-end",
+              gap: "8px",
+              marginTop: "8px",
+            }}
+          >
+            <button
+              type="button"
+              onClick={onSkip}
+              style={{
+                padding: "8px 16px",
+                background: "transparent",
+                color: "var(--theme-text)",
+                border: "1px solid var(--theme-elevation-200)",
+                borderRadius: "4px",
+                fontSize: "13px",
+                fontWeight: 500,
+                cursor: "pointer",
+              }}
+            >
+              Skip
+            </button>
+
+            <button
+              type="button"
+              onClick={onConfirm}
+              style={{
+                padding: "8px 16px",
+                background: "var(--theme-text)",
+                color: "var(--theme-bg)",
+                border: "none",
+                borderRadius: "4px",
+                fontSize: "13px",
+                fontWeight: 600,
+                cursor: "pointer",
+              }}
+            >
+              Update SEO
+            </button>
+          </div>
         </div>
-      </div>
+      )}
     </Drawer>
   );
 }
