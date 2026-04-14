@@ -7,7 +7,6 @@ import type {
   CvPage,
   HomePage,
   Media,
-  NotFoundPage,
   Post,
   Project,
   ProjectsPage,
@@ -17,13 +16,7 @@ import type {
   User,
 } from "../../payload-types";
 import { createSlug } from "../content";
-import {
-  asCategory,
-  asPopulatedAuthors,
-  asSeries,
-  asSiteFooterItems,
-  asUserArray,
-} from "./guards";
+import { asCategory, asPopulatedAuthors, asSeries, asUserArray } from "./guards";
 import type {
   PaginatedPosts,
   PopulatedAuthor,
@@ -51,6 +44,7 @@ type SeriesLookupDoc = TaxonomyDoc & Pick<Series, "posts">;
 type CmsTransport = {
   sdk: PayloadSDK<Config>;
   mediaBaseUrl: string;
+  siteUrl?: string;
 };
 
 type HomeCtaVariant = NonNullable<NonNullable<HomePage["ctaButtons"]>[number]["variant"]>;
@@ -91,7 +85,20 @@ const toTrimmedString = (value: unknown): string | undefined => {
   return trimmed.length > 0 ? trimmed : undefined;
 };
 
-export const createCmsClient = ({ sdk, mediaBaseUrl }: CmsTransport) => {
+type LinkReference =
+  | { relationTo: string; value: RelationID | Post | Project | Series | null | undefined }
+  | RelationID
+  | null
+  | undefined;
+
+type LinkShape = {
+  type?: string | null;
+  url?: string | null;
+  page?: string | null;
+  reference?: LinkReference;
+};
+
+export const createCmsClient = ({ sdk, mediaBaseUrl, siteUrl }: CmsTransport) => {
   const getTaxonomyDocBySlug = async <TDoc extends TaxonomyDoc>(
     collection: "categories" | "series",
     slug: string,
@@ -135,7 +142,9 @@ export const createCmsClient = ({ sdk, mediaBaseUrl }: CmsTransport) => {
 
     if (options.seriesSlug) {
       const postIds = await getSeriesPostIds(options.seriesSlug);
-      conditions.push(postIds.length > 0 ? { id: { in: postIds } } : { id: { equals: NO_MATCHING_POSTS_ID } });
+      conditions.push(
+        postIds.length > 0 ? { id: { in: postIds } } : { id: { equals: NO_MATCHING_POSTS_ID } },
+      );
     }
 
     const search = toTrimmedString(options.search);
@@ -196,7 +205,9 @@ export const createCmsClient = ({ sdk, mediaBaseUrl }: CmsTransport) => {
     return result.totalDocs > 0;
   };
 
-  const toAbsoluteMediaUrl = (media: Media | string | number | null | undefined): string | undefined => {
+  const toAbsoluteMediaUrl = (
+    media: Media | string | number | null | undefined,
+  ): string | undefined => {
     if (!media) {
       return undefined;
     }
@@ -220,6 +231,83 @@ export const createCmsClient = ({ sdk, mediaBaseUrl }: CmsTransport) => {
     return media.url.startsWith("http") ? media.url : `${mediaBaseUrl}${media.url}`;
   };
 
+  const toAbsolutePageUrl = (route: string): string => {
+    if (!siteUrl) {
+      return route;
+    }
+
+    try {
+      return new URL(route, siteUrl).toString();
+    } catch {
+      return route;
+    }
+  };
+
+  const isPost = (value: RelationID | Post | null | undefined): value is Post => {
+    return typeof value === "object" && value !== null && value._status !== "draft";
+  };
+
+  const isProject = (value: RelationID | Project | null | undefined): value is Project => {
+    return typeof value === "object" && value !== null && value._status !== "draft";
+  };
+
+  const isSeries = (value: RelationID | Series | null | undefined): value is Series => {
+    return typeof value === "object" && value !== null;
+  };
+
+  const resolveReferenceUrl = (reference: LinkReference): string | undefined => {
+    if (!reference || isRelationID(reference)) {
+      return undefined;
+    }
+
+    const referenceValue = reference.value;
+    const postValue = referenceValue as RelationID | Post | null | undefined;
+    const projectValue = referenceValue as RelationID | Project | null | undefined;
+    const seriesValue = referenceValue as RelationID | Series | null | undefined;
+
+    if (reference.relationTo === "posts" && isPost(postValue) && postValue.slug) {
+      return `/blog/${postValue.slug}`;
+    }
+
+    if (reference.relationTo === "projects" && isProject(projectValue) && projectValue.slug) {
+      return `/projects/${projectValue.slug}`;
+    }
+
+    if (reference.relationTo === "series" && isSeries(seriesValue) && seriesValue.slug) {
+      return `/blog/series/${seriesValue.slug}`;
+    }
+
+    return undefined;
+  };
+
+  const resolveLinkUrl = (link: LinkShape | null | undefined): string | undefined => {
+    if (!link) {
+      return undefined;
+    }
+
+    const type = link.type ?? "custom";
+
+    if (type === "custom") {
+      return toTrimmedString(link.url);
+    }
+
+    if (type === "page") {
+      const page = toTrimmedString(link.page);
+      if (!page) {
+        return undefined;
+      }
+
+      const route = PAGE_ROUTES[page];
+      return route ? toAbsolutePageUrl(route) : undefined;
+    }
+
+    if (type === "reference") {
+      return resolveReferenceUrl(link.reference);
+    }
+
+    return undefined;
+  };
+
   return {
     getSiteSettings: async (): Promise<SiteSetting> => {
       return sdk.findGlobal({ slug: "site-settings", depth: 2 });
@@ -241,79 +329,15 @@ export const createCmsClient = ({ sdk, mediaBaseUrl }: CmsTransport) => {
       return sdk.findGlobal({ slug: "series-page", depth: 2 });
     },
 
-    getNotFoundPage: async (): Promise<NotFoundPage> => {
-      return sdk.findGlobal({ slug: "not-found-page", depth: 2 });
-    },
-
     getBlogPage: async (): Promise<BlogPage> => {
       return sdk.findGlobal({ slug: "blog-page", depth: 2 });
     },
 
     homeCtaButtons: (homePage: HomePage): HomeCtaButton[] => {
-      const isPost = (value: RelationID | Post): value is Post => {
-        return typeof value === "object" && value !== null && value._status !== "draft";
-      };
-
-      const isProject = (value: RelationID | Project | null | undefined): value is Project => {
-        return (
-          typeof value === "object" && value !== null && (value as Project)._status !== "draft"
-        );
-      };
-
-      // No _status check here: the Series collection does not have draft/publish
-      // versioning, so the _status field does not exist on the Series type.
-      const isSeries = (value: RelationID | Series): value is Series => {
-        return typeof value === "object" && value !== null;
-      };
-
-      const resolveHref = (
-        button: NonNullable<HomePage["ctaButtons"]>[number],
-      ): string | undefined => {
-        if (!button.link) {
-          return undefined;
-        }
-
-        if (button.link.type === "custom") {
-          return toTrimmedString(button.link.url);
-        }
-
-        if (button.link.type === "page") {
-          const route = button.link.page ? PAGE_ROUTES[button.link.page] : undefined;
-          return route;
-        }
-
-        const reference = button.link.reference;
-        if (!reference || isRelationID(reference)) {
-          return undefined;
-        }
-
-        if (reference.relationTo === "posts" && isPost(reference.value) && reference.value.slug) {
-          return `/blog/${reference.value.slug}`;
-        }
-
-        if (
-          reference.relationTo === "projects" &&
-          isProject(reference.value) &&
-          reference.value.slug
-        ) {
-          return `/projects/${reference.value.slug}`;
-        }
-
-        if (
-          reference.relationTo === "series" &&
-          isSeries(reference.value) &&
-          reference.value.slug
-        ) {
-          return `/blog/series/${reference.value.slug}`;
-        }
-
-        return undefined;
-      };
-
       return (
         homePage.ctaButtons?.flatMap((button) => {
           const title = toTrimmedString(button.title);
-          const href = resolveHref(button);
+          const href = resolveLinkUrl(button.link);
 
           if (!title || !href) {
             return [];
@@ -622,82 +646,11 @@ export const createCmsClient = ({ sdk, mediaBaseUrl }: CmsTransport) => {
         return [];
       }
 
-      const isPost = (value: RelationID | Post): value is Post => {
-        return typeof value === "object" && value !== null && value._status !== "draft";
-      };
-
-      const isProject = (value: RelationID | Project | null | undefined): value is Project => {
-        return (
-          typeof value === "object" && value !== null && (value as Project)._status !== "draft"
-        );
-      };
-
-      // No _status check here: the Series collection does not have draft/publish
-      // versioning, so the _status field does not exist on the Series type.
-      const isSeries = (value: RelationID | Series | null | undefined): value is Series => {
-        return typeof value === "object" && value !== null;
-      };
-
-      const resolveUrl = (link: NonNullable<Project["links"]>[number]): string | undefined => {
-        const type = link.type ?? "custom";
-
-        if (type === "custom") {
-          return toTrimmedString(link.url as string | undefined);
-        }
-
-        if (type === "page") {
-          const page = link.page as string | undefined;
-          if (!page) return undefined;
-          return PAGE_ROUTES[page];
-        }
-
-        if (type === "reference") {
-          const reference = link.reference as
-            | { relationTo: string; value: RelationID | Post | Project | Series | null | undefined }
-            | RelationID
-            | null
-            | undefined;
-
-          if (!reference || isRelationID(reference)) {
-            return undefined;
-          }
-
-          if (
-            reference.relationTo === "posts" &&
-            isPost(reference.value as RelationID | Post) &&
-            (reference.value as Post).slug
-          ) {
-            return `/blog/${(reference.value as Post).slug}`;
-          }
-
-          if (
-            reference.relationTo === "projects" &&
-            isProject(reference.value as RelationID | Project) &&
-            (reference.value as Project).slug
-          ) {
-            // Links to the project detail page (not the /projects#slug anchor used by homeCtaButtons).
-            return `/projects/${(reference.value as Project).slug}`;
-          }
-
-          if (
-            reference.relationTo === "series" &&
-            isSeries(reference.value as RelationID | Series) &&
-            (reference.value as Series).slug
-          ) {
-            return `/blog/series/${(reference.value as Series).slug}`;
-          }
-
-          return undefined;
-        }
-
-        return undefined;
-      };
-
       return project.links.flatMap((link) => {
         const icon = toTrimmedString(link.icon as string | undefined);
         if (!icon) return [];
 
-        const url = resolveUrl(link);
+        const url = resolveLinkUrl(link);
         if (!url) return [];
 
         return [{ icon, url, newTab: link.newTab === true }];
@@ -705,7 +658,23 @@ export const createCmsClient = ({ sdk, mediaBaseUrl }: CmsTransport) => {
     },
 
     footerItemsFromSiteSettings: (siteSettings: SiteSetting): SiteFooterItem[] => {
-      return asSiteFooterItems(siteSettings.sidebarFooterItems);
+      if (!Array.isArray(siteSettings.sidebarFooterItems)) {
+        return [];
+      }
+
+      return siteSettings.sidebarFooterItems.flatMap((item) => {
+        const icon = toTrimmedString(item?.icon);
+        if (!icon) {
+          return [];
+        }
+
+        const url = resolveLinkUrl(item);
+        if (!url) {
+          return [];
+        }
+
+        return [{ icon, url, newTab: item?.newTab === true }];
+      });
     },
 
     authorsFromPost: (post: Post): Array<PopulatedAuthor | User> => {

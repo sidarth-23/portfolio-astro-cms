@@ -5,13 +5,13 @@ import {
   makeCategory,
   makeCvPage,
   makeHomePage,
-  makeNotFoundPage,
   makePost,
   makeProject,
   makeProjectsPage,
   makeSeries,
   makeSeriesPage,
   makeSiteSetting,
+  nextId,
 } from "./factories";
 
 const getNestedValue = (obj: unknown, path: string): unknown => {
@@ -71,26 +71,50 @@ const paginate = <T>(docs: T[], page: number, limit: number) => {
 export const createCmsMockClient = () => {
   faker.seed(42);
 
-  const cat1 = makeCategory({ id: 1, name: "Technology", slug: "technology" });
-  const cat2 = makeCategory({ id: 2, name: "Engineering", slug: "engineering" });
+  const cat1 = makeCategory({ id: nextId(), name: "Technology", slug: "technology" });
+  const cat2 = makeCategory({ id: nextId(), name: "Engineering", slug: "engineering" });
   const categories = [cat1, cat2];
 
-  const post1 = makePost(cat1, { id: 10, title: "Getting Started with TypeScript", slug: "getting-started-typescript" });
-  const post2 = makePost(cat2, { id: 11, title: "Building Better APIs", slug: "building-better-apis" });
-  const post3 = makePost(cat1, { id: 12, title: "Series Part One: Introduction", slug: "series-part-one" });
-  const post4 = makePost(cat1, { id: 13, title: "Series Part Two: Advanced Topics", slug: "series-part-two" });
-  const post5 = makePost(cat2, { id: 14, title: "DevOps Fundamentals", slug: "devops-fundamentals" });
+  const post1 = makePost(cat1, {
+    id: nextId(),
+    title: "Getting Started with TypeScript",
+    slug: "getting-started-typescript",
+  });
+  const post2 = makePost(cat2, {
+    id: nextId(),
+    title: "Building Better APIs",
+    slug: "building-better-apis",
+  });
+  const post3 = makePost(cat1, {
+    id: nextId(),
+    title: "Series Part One: Introduction",
+    slug: "series-part-one",
+  });
+  const post4 = makePost(cat1, {
+    id: nextId(),
+    title: "Series Part Two: Advanced Topics",
+    slug: "series-part-two",
+  });
+  const post5 = makePost(cat2, {
+    id: nextId(),
+    title: "DevOps Fundamentals",
+    slug: "devops-fundamentals",
+  });
   const posts = [post1, post2, post3, post4, post5];
 
   const series1 = makeSeries([post3, post4], {
-    id: 20,
+    id: nextId(),
     name: "TypeScript Deep Dive",
     slug: "typescript-deep-dive",
   });
   const seriesList = [series1];
 
-  const project1 = makeProject({ id: 30, title: "Portfolio Website", slug: "portfolio-website" });
-  const project2 = makeProject({ id: 31, title: "CMS Platform", slug: "cms-platform" });
+  const project1 = makeProject({
+    id: nextId(),
+    title: "Portfolio Website",
+    slug: "portfolio-website",
+  });
+  const project2 = makeProject({ id: nextId(), title: "CMS Platform", slug: "cms-platform" });
   const projects = [project1, project2];
 
   const globals: Record<string, unknown> = {
@@ -100,7 +124,6 @@ export const createCmsMockClient = () => {
     "cv-page": makeCvPage(),
     "projects-page": makeProjectsPage(projects),
     "series-page": makeSeriesPage(),
-    "not-found-page": makeNotFoundPage(),
   };
 
   const collections: Record<string, unknown[]> = {
@@ -128,5 +151,9 @@ export const createCmsMockClient = () => {
   };
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  return createCmsClient({ sdk: fakeSdk as any, mediaBaseUrl: "http://mock" });
+  return createCmsClient({
+    sdk: fakeSdk as any,
+    mediaBaseUrl: "http://mock",
+    siteUrl: "http://mock",
+  });
 };

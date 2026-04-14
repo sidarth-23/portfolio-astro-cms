@@ -113,7 +113,6 @@ export interface Config {
     'blog-page': BlogPage;
     'series-page': SeriesPage;
     'projects-page': ProjectsPage;
-    'not-found-page': NotFoundPage;
   };
   globalsSelect: {
     'site-settings': SiteSettingsSelect<false> | SiteSettingsSelect<true>;
@@ -122,7 +121,6 @@ export interface Config {
     'blog-page': BlogPageSelect<false> | BlogPageSelect<true>;
     'series-page': SeriesPageSelect<false> | SeriesPageSelect<true>;
     'projects-page': ProjectsPageSelect<false> | ProjectsPageSelect<true>;
-    'not-found-page': NotFoundPageSelect<false> | NotFoundPageSelect<true>;
   };
   locale: null;
   widgets: {
@@ -946,6 +944,14 @@ export interface SiteSetting {
    * Auto-generated downloadable link. For Google Drive: converted from the sharing URL above. For Custom: used as-is.
    */
   resumeDownloadUrl?: string | null;
+  meta: {
+    title: string;
+    description: string;
+    /**
+     * Maximum upload file size: 12MB. Recommended file size for images is <500KB.
+     */
+    image?: (string | null) | Media;
+  };
   sidebarFooterItems?:
     | {
         icon?: string | null;
@@ -1216,28 +1222,6 @@ export interface ProjectsPage {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "not-found-page".
- */
-export interface NotFoundPage {
-  id: string;
-  title: string;
-  description: string;
-  ctaLabel?: string | null;
-  ctaHref?: string | null;
-  emoji?: string | null;
-  meta: {
-    title: string;
-    description: string;
-    /**
-     * Maximum upload file size: 12MB. Recommended file size for images is <500KB.
-     */
-    image?: (string | null) | Media;
-  };
-  updatedAt?: string | null;
-  createdAt?: string | null;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "site-settings_select".
  */
 export interface SiteSettingsSelect<T extends boolean = true> {
@@ -1245,6 +1229,13 @@ export interface SiteSettingsSelect<T extends boolean = true> {
   resumeUrlType?: T;
   resumeUrl?: T;
   resumeDownloadUrl?: T;
+  meta?:
+    | T
+    | {
+        title?: T;
+        description?: T;
+        image?: T;
+      };
   sidebarFooterItems?:
     | T
     | {
@@ -1407,27 +1398,6 @@ export interface ProjectsPageSelect<T extends boolean = true> {
         projects?: T;
         id?: T;
       };
-  meta?:
-    | T
-    | {
-        title?: T;
-        description?: T;
-        image?: T;
-      };
-  updatedAt?: T;
-  createdAt?: T;
-  globalType?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "not-found-page_select".
- */
-export interface NotFoundPageSelect<T extends boolean = true> {
-  title?: T;
-  description?: T;
-  ctaLabel?: T;
-  ctaHref?: T;
-  emoji?: T;
   meta?:
     | T
     | {

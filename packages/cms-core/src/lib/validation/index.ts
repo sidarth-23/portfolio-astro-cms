@@ -15,7 +15,6 @@ export {
   categoriesSchema,
   cvPageSchema,
   homePageSchema,
-  notFoundPageSchema,
   postsSchema,
   projectsPageSchema,
   projectsSchema,

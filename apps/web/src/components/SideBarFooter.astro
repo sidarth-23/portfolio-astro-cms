@@ -9,9 +9,19 @@ type Props = {
 const { items = [] }: Props = Astro.props;
 
 const cleanItems = items
-  .filter((item): item is SiteFooterItem => Boolean(item?.icon))
-  .slice(0, 4)
-  .filter((item) => item.url.length > 0);
+  .flatMap((item) => {
+    if (!item?.icon || item.url.length === 0) {
+      return [];
+    }
+
+    const iconData = resolveIcon(item.icon);
+    if (!iconData) {
+      return [];
+    }
+
+    return [{ item, iconData }];
+  })
+  .slice(0, 4);
 ---
 
 <div
@@ -22,12 +32,8 @@ const cleanItems = items
 {
   cleanItems.length > 0 && (
     <div class="social-icons px-4 pb-5 pt-1 flex flex-wrap gap-4 self-center justify-center sticky bottom-0 bg-base-200 group-[.collapsed]:px-1">
-      {cleanItems.map((item) => {
-        const iconData = resolveIcon(item.icon);
-        if (!iconData) return null;
-
-        const PhosphorIcon =
-          iconData.source === "phosphor" ? iconData.component : null;
+      {cleanItems.map(({ item, iconData }) => {
+        const PhosphorIcon = iconData.source === "phosphor" ? iconData.component : null;
 
         return (
           <a

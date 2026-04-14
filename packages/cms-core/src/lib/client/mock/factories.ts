@@ -4,7 +4,6 @@ import type {
   Category,
   CvPage,
   HomePage,
-  NotFoundPage,
   Post,
   Project,
   ProjectsPage,
@@ -26,7 +25,7 @@ const makeMongoId = () => {
   return (timestamp + random + counter).slice(0, 24);
 };
 
-const nextId = makeMongoId;
+export const nextId = makeMongoId;
 
 export const makeRichText = () => ({
   root: {
@@ -132,6 +131,10 @@ export const makeProject = (overrides: Partial<Project> = {}): Project => {
 
 export const makeSiteSetting = (overrides: Partial<SiteSetting> = {}): SiteSetting => ({
   id: nextId(),
+  meta: {
+    title: "Sid's Hub",
+    description: "Personal website and blog.",
+  },
   sidebarFooterItems: [],
   updatedAt: new Date().toISOString(),
   createdAt: new Date().toISOString(),
@@ -257,18 +260,3 @@ export const makeSeriesPage = (overrides: Partial<SeriesPage> = {}): SeriesPage 
   ...overrides,
 });
 
-export const makeNotFoundPage = (overrides: Partial<NotFoundPage> = {}): NotFoundPage => ({
-  id: nextId(),
-  title: "404",
-  description: "Page not found.",
-  ctaLabel: "Go Home",
-  ctaHref: "/",
-  emoji: "🔍",
-  meta: {
-    title: "404 – Not Found",
-    description: "Page not found.",
-  },
-  updatedAt: new Date().toISOString(),
-  createdAt: new Date().toISOString(),
-  ...overrides,
-});

@@ -69,11 +69,11 @@ if (post) {
   }
 }
 
-const notFoundPage = missingPost ? await cmsClient.getNotFoundPage() : null;
+const homePage = missingPost ? await cmsClient.getHomePage() : null;
 
-if (notFoundPage && (!notFoundPage.title || !notFoundPage.description || !notFoundPage.meta.title || !notFoundPage.meta.description)) {
+if (homePage && (!homePage.meta?.title || !homePage.meta?.description)) {
   throw new Error(
-    "404 page requires `title`, `description`, and SEO `meta.title` + `meta.description`.",
+    "404 page requires Home SEO `meta.title` + `meta.description`.",
   );
 }
 
@@ -100,18 +100,18 @@ const pubDate = post?.publishedAt || post?.createdAt || new Date().toISOString()
 ---
 
 {
-  missingPost && notFoundPage ? (
+  missingPost && homePage ? (
     <ErrorLayout
-      title={notFoundPage.meta.title}
-      description={notFoundPage.meta.description}
-      image={cmsClient.mediaToUrl(notFoundPage.meta?.image)}
+      title={homePage.meta.title}
+      description={homePage.meta.description}
+      image={cmsClient.mediaToUrl(homePage.meta?.image)}
     >
       <NotFoundState
-        title={notFoundPage.title}
-        description={notFoundPage.description}
-        ctaLabel={notFoundPage.ctaLabel}
-        ctaHref={notFoundPage.ctaHref}
-        emoji={notFoundPage.emoji}
+        title="404"
+        description="The page you're looking for couldn't be found."
+        ctaLabel="Home"
+        ctaHref="/"
+        emoji="🏝"
       />
     </ErrorLayout>
   ) : (

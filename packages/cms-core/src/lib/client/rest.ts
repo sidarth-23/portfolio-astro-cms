@@ -5,15 +5,23 @@ import { createCmsClient } from "./createCmsClient";
 type RestClientOptions = {
   apiUrl: string;
   token: string;
+  siteUrl?: string;
   fetchImpl?: typeof fetch;
 };
 
-export const createCmsRestClient = ({ apiUrl, token, fetchImpl = fetch }: RestClientOptions) => {
+export const createCmsRestClient = ({
+  apiUrl,
+  token,
+  siteUrl,
+  fetchImpl = fetch,
+}: RestClientOptions) => {
   const apiBase = apiUrl.replace(/\/$/, "");
   const mediaBaseUrl = apiBase.replace(/\/api$/, "");
 
   const authedFetch: typeof fetch = async (input, init = {}) => {
-    const headers = new Headers(init instanceof Request ? init.headers : (init as RequestInit).headers);
+    const headers = new Headers(
+      init instanceof Request ? init.headers : (init as RequestInit).headers,
+    );
     headers.set("Authorization", `Bearer ${token}`);
     try {
       if (init instanceof Request) {
@@ -40,5 +48,5 @@ export const createCmsRestClient = ({ apiUrl, token, fetchImpl = fetch }: RestCl
 
   const sdk = new PayloadSDK<Config>({ baseURL: apiBase, fetch: authedFetch });
 
-  return createCmsClient({ sdk, mediaBaseUrl });
+  return createCmsClient({ sdk, mediaBaseUrl, siteUrl });
 };

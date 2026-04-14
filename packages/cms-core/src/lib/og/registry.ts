@@ -1,4 +1,4 @@
-import type { BlogPage, CvPage, HomePage, Media, NotFoundPage, Post, Project, ProjectsPage, Series, SeriesPage } from "../../payload-types";
+import type { BlogPage, CvPage, HomePage, Media, Post, Project, ProjectsPage, Series, SeriesPage, SiteSetting } from "../../payload-types";
 
 // ---- Type utilities ----
 
@@ -85,11 +85,11 @@ export const OG_TARGETS: OgTarget[] = [
   global<BlogPage>("blog-page"),
   global<SeriesPage>("series-page"),
   global<ProjectsPage>("projects-page"),
-  global<NotFoundPage>("not-found-page", { ogTitle: "title" }),
+  global<SiteSetting>("site-settings"),
 ];
 
 /** Collections that have the SEO plugin enabled */
 export const SEO_COLLECTIONS = ["posts", "series", "projects"] as const;
 
 /** Globals that have the SEO plugin enabled */
-export const SEO_GLOBALS = ["home-page", "cv-page", "blog-page", "series-page", "projects-page", "not-found-page"] as const;
+export const SEO_GLOBALS = ["home-page", "cv-page", "blog-page", "series-page", "projects-page", "site-settings"] as const;

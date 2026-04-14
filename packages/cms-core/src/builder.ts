@@ -15,7 +15,6 @@ import { Users } from "./collections/Users";
 import { BlogPage } from "./globals/BlogPage";
 import { CvPage } from "./globals/CvPage";
 import { HomePage } from "./globals/HomePage";
-import { NotFoundPage } from "./globals/NotFoundPage";
 import { ProjectsPage } from "./globals/ProjectsPage";
 import { SeriesPage } from "./globals/SeriesPage";
 import { SiteSettings } from "./globals/SiteSettings";
@@ -94,7 +93,14 @@ export function createCmsConfig(options: CmsConfigOptions) {
   const collections: CollectionConfig[] = [Users, Media, Categories, Series, Posts, Projects].map(
     withCollectionAfterChangeHook,
   );
-  const globals: GlobalConfig[] = [SiteSettings, HomePage, CvPage, BlogPage, SeriesPage, ProjectsPage, NotFoundPage].map(
+  const globals: GlobalConfig[] = [
+    SiteSettings,
+    HomePage,
+    CvPage,
+    BlogPage,
+    SeriesPage,
+    ProjectsPage,
+  ].map(
     withGlobalAfterChangeHook,
   );
 

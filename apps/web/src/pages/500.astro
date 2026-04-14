@@ -1,9 +1,22 @@
 ---
 import NotFoundState from "@/components/NotFoundState.astro";
 import ErrorLayout from "@/layouts/ErrorLayout.astro";
+import { cmsClient } from "@/lib/cms";
+
+const { meta } = await cmsClient.getHomePage();
+
+if (!meta.title || !meta.description) {
+  throw new Error(
+    "500 page requires Home SEO `meta.title` + `meta.description`.",
+  );
+}
 ---
 
-<ErrorLayout title="500: Server Error" description="Something went wrong while loading this page.">
+<ErrorLayout
+  title={meta.title}
+  description={meta.description}
+  image={cmsClient.mediaToUrl(meta?.image)}
+>
   <NotFoundState
     title="500"
     description="Something went wrong while loading this page."

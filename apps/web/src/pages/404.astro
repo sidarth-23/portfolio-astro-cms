@@ -2,18 +2,12 @@
 import NotFoundState from "@/components/NotFoundState.astro";
 import ErrorLayout from "@/layouts/ErrorLayout.astro";
 import { cmsClient } from "@/lib/cms";
-const {
-  title: pageTitle,
-  description: pageDescription,
-  meta,
-  ctaLabel,
-  ctaHref,
-  emoji,
-} = await cmsClient.getNotFoundPage();
 
-if (!pageTitle || !pageDescription || !meta.title || !meta.description) {
+const { meta } = await cmsClient.getHomePage();
+
+if (!meta.title || !meta.description) {
   throw new Error(
-    "404 page requires `title`, `description`, and SEO `meta.title` + `meta.description`.",
+    "404 page requires Home SEO `meta.title` + `meta.description`.",
   );
 }
 ---
@@ -24,10 +18,10 @@ if (!pageTitle || !pageDescription || !meta.title || !meta.description) {
   image={cmsClient.mediaToUrl(meta?.image)}
 >
   <NotFoundState
-    title={pageTitle}
-    description={pageDescription}
-    ctaLabel={ctaLabel}
-    ctaHref={ctaHref}
-    emoji={emoji}
+    title="404"
+    description="The page you're looking for couldn't be found."
+    ctaLabel="Home"
+    ctaHref="/"
+    emoji="🏝"
   />
 </ErrorLayout>

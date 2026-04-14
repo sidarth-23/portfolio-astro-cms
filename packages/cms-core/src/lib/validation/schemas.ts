@@ -85,7 +85,7 @@ const withSeoMeta = <T extends z.ZodRawShape>(shape: T) => {
     .passthrough();
 };
 
-export const siteSettingsSchema = z.object({
+export const siteSettingsSchema = withSeoMeta({
   sidebarFooterItems: z.array(
     z.object({
       icon: optionalStrictIcon,
@@ -94,7 +94,7 @@ export const siteSettingsSchema = z.object({
       type: z.enum(["custom", "reference", "page"]).optional(),
     }).passthrough()
   ).optional(),
-}).passthrough();
+});
 
 export const homePageSchema = withSeoMeta({
   greeting: requiredText.optional(),
@@ -148,14 +148,6 @@ export const projectsPageSchema = withSeoMeta({
 
 export const seriesPageSchema = withSeoMeta({
   backToSeriesLabel: optionalTextWithFallback("Back to Series").optional(),
-});
-
-export const notFoundPageSchema = withSeoMeta({
-  title: requiredText.optional(),
-  description: requiredText.optional(),
-  ctaLabel: optionalTextWithFallback("Home").optional(),
-  ctaHref: optionalTextWithFallback("/").optional(),
-  emoji: optionalTextWithFallback("🏝").optional(),
 });
 
 const cvBadgeSchema = z
