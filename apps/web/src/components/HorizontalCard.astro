@@ -44,7 +44,7 @@ const {
   reverse = false,
   links = [],
 } = Astro.props;
-const contentClass = `hero-content flex-col ${reverse ? "md:flex-row-reverse" : "md:flex-row"} md:gap-8 lg:gap-10`;
+const contentClass = `hero-content flex-col ${reverse ? "md:flex-row-reverse" : "md:flex-row"} md:gap-8 lg:gap-10 relative z-20 pointer-events-none`;
 const contentBodyClass = `grow w-full space-y-1 relative ${links.length > 0 ? "pr-10 sm:pr-12" : ""}`;
 ---
 
@@ -67,7 +67,7 @@ const contentBodyClass = `grow w-full space-y-1 relative ${links.length > 0 ? "p
       </div>
       {
         links.length > 0 && (
-          <div class="absolute top-0 right-0 z-20 flex gap-1">
+          <div class="absolute top-0 right-0 z-20 flex gap-1 pointer-events-auto">
             {links.map((link) => {
               const iconData = resolveIcon(link.icon);
               if (!iconData) return null;
