@@ -14,7 +14,8 @@
     "./web/html/tailwind": "./src/web/html/tailwind/index.ts",
     "./web/html/client": "./src/web/html/client/index.ts",
     "./web/html/styles.css": "./src/web/html/styles.css",
-    "./web/util": "./src/web/util/index.ts"
+    "./web/util": "./src/web/util/index.ts",
+    "./features/markdownPaste/client": "./src/features/markdownPaste/feature.client.tsx"
   },
   "devDependencies": {
     "@sidshub/eslint-config": "workspace:*",

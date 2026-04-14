@@ -25,6 +25,7 @@ import {
   lexicalEditor,
 } from "@payloadcms/richtext-lexical";
 import type { Block } from "payload";
+import { MarkdownPasteFeature } from "./features/markdownPaste/feature.server";
 
 type HeadingSize = "h1" | "h2" | "h3" | "h4" | "h5" | "h6";
 
@@ -37,7 +38,9 @@ type LinkSettings = {
 };
 
 type RelationshipSettings = {
-  enabledCollections?: RelationshipFeatureOptions extends { enabledCollections?: infer T } ? T : never;
+  enabledCollections?: RelationshipFeatureOptions extends { enabledCollections?: infer T }
+    ? T
+    : never;
 };
 
 type UploadSettings = {
@@ -73,7 +76,10 @@ export type LexicalEditorOptions = {
 type VariantDefaults = Omit<LexicalEditorOptions, "variant">;
 
 const DEFAULT_LINK_COLLECTIONS = ["posts", "projects"] as LinkSettings["enabledCollections"];
-const DEFAULT_RELATIONSHIP_COLLECTIONS = ["posts", "projects"] as RelationshipSettings["enabledCollections"];
+const DEFAULT_RELATIONSHIP_COLLECTIONS = [
+  "posts",
+  "projects",
+] as RelationshipSettings["enabledCollections"];
 const DEFAULT_UPLOAD_COLLECTIONS = ["media"] as UploadSettings["enabledCollections"];
 
 const DEFAULT_VARIANT_OPTIONS: Record<LexicalEditorVariant, VariantDefaults> = {
@@ -170,12 +176,33 @@ const CODE_BLOCK_LANGUAGES = {
   rust: "Rust",
 } as const;
 
+const CODE_LANGUAGE_ALIASES: Record<string, string> = {
+  js: "javascript",
+  ts: "typescript",
+  sh: "bash",
+  shell: "bash",
+  zsh: "bash",
+  yml: "yaml",
+  py: "python",
+  rs: "rust",
+  htm: "html",
+};
+
+const resolveCodeLanguage = (lang?: string): string => {
+  if (!lang) return "plaintext";
+  const lower = lang.toLowerCase();
+  if (lower in CODE_BLOCK_LANGUAGES) return lower;
+  return CODE_LANGUAGE_ALIASES[lower] ?? "plaintext";
+};
+
 const createLinkFeature = ({ enabledCollections }: LinkSettings = {}) => {
   return LinkFeature({ enabledCollections: enabledCollections ?? DEFAULT_LINK_COLLECTIONS });
 };
 
 const createRelationshipFeature = ({ enabledCollections }: RelationshipSettings = {}) => {
-  return RelationshipFeature({ enabledCollections: enabledCollections ?? DEFAULT_RELATIONSHIP_COLLECTIONS });
+  return RelationshipFeature({
+    enabledCollections: enabledCollections ?? DEFAULT_RELATIONSHIP_COLLECTIONS,
+  });
 };
 
 const createUploadFeature = ({ enabledCollections }: UploadSettings = {}) => {
@@ -199,6 +226,20 @@ const createCodeBlock = (): Block => ({
   slug: "Code",
   interfaceName: "LexicalCodeBlock",
   labels: { singular: "Code", plural: "Code" },
+  jsx: {
+    customStartRegex: /^[ \t]*```(\w+)?/,
+    customEndRegex: { optional: true, regExp: /[ \t]*```$/ },
+    doNotTrimChildren: true,
+    import: ({ children, openMatch }) => ({
+      mode: "single",
+      language: resolveCodeLanguage(openMatch?.[1]),
+      code: children,
+    }),
+    export: ({ fields }) => {
+      if (fields.mode !== "single") return false;
+      return "```" + (fields.language ?? "") + "\n" + (fields.code ?? "") + "\n```";
+    },
+  },
   fields: [
     {
       name: "mode",
@@ -356,6 +397,7 @@ export const createLexicalEditor = ({ variant, ...overrides }: LexicalEditorOpti
 
   return lexicalEditor({
     features: () => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const features: FeatureProviderServer<any, any, any>[] = [...createBaseTextFeatures()];
 
       if (options.enableInlineToolbar) {
@@ -432,14 +474,16 @@ export const createLexicalEditor = ({ variant, ...overrides }: LexicalEditorOpti
         );
       }
 
-      features.push(SubscriptFeature(), SuperscriptFeature());
+      features.push(SubscriptFeature(), SuperscriptFeature(), MarkdownPasteFeature());
 
       return features;
     },
   });
 };
 
-export const createMinimalRichTextEditor = (options: Omit<LexicalEditorOptions, "variant"> = {}) => {
+export const createMinimalRichTextEditor = (
+  options: Omit<LexicalEditorOptions, "variant"> = {},
+) => {
   return createLexicalEditor({
     variant: "minimal",
     ...options,
@@ -453,7 +497,9 @@ export const createBasicRichTextEditor = (options: Omit<LexicalEditorOptions, "v
   });
 };
 
-export const createDocumentRichTextEditor = (options: Omit<LexicalEditorOptions, "variant"> = {}) => {
+export const createDocumentRichTextEditor = (
+  options: Omit<LexicalEditorOptions, "variant"> = {},
+) => {
   return createLexicalEditor({
     variant: "document",
     ...options,
