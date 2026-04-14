@@ -2,7 +2,7 @@ import type { BlogPage, CvPage, HomePage, Media, NotFoundPage, Post, Project, Pr
 
 // ---- Type utilities ----
 
-type SeoMeta = { title: string; description: string; image?: (number | null) | Media };
+type SeoMeta = { title: string; description: string; image?: (string | number | null) | Media };
 type WithSeo = { meta: SeoMeta };
 type WithSlug = { slug: string };
 

@@ -98,7 +98,7 @@ export interface Config {
     'payload-migrations': PayloadMigrationsSelect<false> | PayloadMigrationsSelect<true>;
   };
   db: {
-    defaultIDType: number;
+    defaultIDType: string;
   };
   fallbackLocale: null;
   globals: {
@@ -158,7 +158,7 @@ export interface UserAuthOperations {
  * via the `definition` "users".
  */
 export interface User {
-  id: number;
+  id: string;
   name: string;
   bio?: {
     root: {
@@ -175,7 +175,7 @@ export interface User {
     };
     [k: string]: unknown;
   } | null;
-  avatar?: (number | null) | Media;
+  avatar?: (string | null) | Media;
   links?:
     | {
         icon?: string | null;
@@ -184,15 +184,15 @@ export interface User {
         reference?:
           | ({
               relationTo: 'posts';
-              value: number | Post;
+              value: string | Post;
             } | null)
           | ({
               relationTo: 'projects';
-              value: number | Project;
+              value: string | Project;
             } | null)
           | ({
               relationTo: 'series';
-              value: number | Series;
+              value: string | Series;
             } | null);
         page?: ('home' | 'blog' | 'projects' | 'cv' | 'rss') | null;
         newTab?: boolean | null;
@@ -223,7 +223,7 @@ export interface User {
  * via the `definition` "media".
  */
 export interface Media {
-  id: number;
+  id: string;
   alt: string;
   caption?: {
     root: {
@@ -261,7 +261,7 @@ export interface Media {
  * via the `definition` "posts".
  */
 export interface Post {
-  id: number;
+  id: string;
   title: string;
   excerpt: string;
   content: {
@@ -279,8 +279,8 @@ export interface Post {
     };
     [k: string]: unknown;
   };
-  coverImage?: (number | null) | Media;
-  primaryCategory: number | Category;
+  coverImage?: (string | null) | Media;
+  primaryCategory: string | Category;
   tags?:
     | {
         value: string;
@@ -291,7 +291,7 @@ export interface Post {
    * Managed from the Series collection.
    */
   series?: {
-    docs?: (number | Series)[];
+    docs?: (string | Series)[];
     hasNextPage?: boolean;
     totalDocs?: number;
   };
@@ -301,14 +301,14 @@ export interface Post {
     /**
      * Maximum upload file size: 12MB. Recommended file size for images is <500KB.
      */
-    image?: (number | null) | Media;
+    image?: (string | null) | Media;
   };
   /**
    * Auto-generated from title, but can be edited.
    */
   slug: string;
   publishedAt?: string | null;
-  authors?: (number | User)[] | null;
+  authors?: (string | User)[] | null;
   populatedAuthors?:
     | {
         id?: number | null;
@@ -328,7 +328,7 @@ export interface Post {
           };
           [k: string]: unknown;
         } | null;
-        avatar?: (number | null) | Media;
+        avatar?: (string | null) | Media;
         links?:
           | {
               icon?: string | null;
@@ -348,10 +348,10 @@ export interface Post {
  * via the `definition` "categories".
  */
 export interface Category {
-  id: number;
+  id: string;
   name: string;
   description?: string | null;
-  parentCategory?: (number | null) | Category;
+  parentCategory?: (string | null) | Category;
   /**
    * Auto-generated from title, but can be edited.
    */
@@ -364,13 +364,13 @@ export interface Category {
  * via the `definition` "series".
  */
 export interface Series {
-  id: number;
+  id: string;
   name: string;
   description?: string | null;
   /**
    * Select and reorder posts in this series.
    */
-  posts?: (number | Post)[] | null;
+  posts?: (string | Post)[] | null;
   /**
    * Auto-generated from title, but can be edited.
    */
@@ -381,7 +381,7 @@ export interface Series {
     /**
      * Maximum upload file size: 12MB. Recommended file size for images is <500KB.
      */
-    image?: (number | null) | Media;
+    image?: (string | null) | Media;
   };
   updatedAt: string;
   createdAt: string;
@@ -391,7 +391,7 @@ export interface Series {
  * via the `definition` "projects".
  */
 export interface Project {
-  id: number;
+  id: string;
   title: string;
   description: {
     root: {
@@ -408,7 +408,7 @@ export interface Project {
     };
     [k: string]: unknown;
   };
-  image?: (number | null) | Media;
+  image?: (string | null) | Media;
   badges?:
     | {
         value: string;
@@ -428,7 +428,7 @@ export interface Project {
     /**
      * Maximum upload file size: 12MB. Recommended file size for images is <500KB.
      */
-    image?: (number | null) | Media;
+    image?: (string | null) | Media;
   };
   links?:
     | {
@@ -438,15 +438,15 @@ export interface Project {
         reference?:
           | ({
               relationTo: 'posts';
-              value: number | Post;
+              value: string | Post;
             } | null)
           | ({
               relationTo: 'projects';
-              value: number | Project;
+              value: string | Project;
             } | null)
           | ({
               relationTo: 'series';
-              value: number | Series;
+              value: string | Series;
             } | null);
         page?: ('home' | 'blog' | 'projects' | 'cv' | 'rss') | null;
         newTab?: boolean | null;
@@ -466,7 +466,7 @@ export interface Project {
  * via the `definition` "payload-kv".
  */
 export interface PayloadKv {
-  id: number;
+  id: string;
   key: string;
   data:
     | {
@@ -483,7 +483,7 @@ export interface PayloadKv {
  * via the `definition` "payload-jobs".
  */
 export interface PayloadJob {
-  id: number;
+  id: string;
   /**
    * Input data provided to the job
    */
@@ -575,36 +575,36 @@ export interface PayloadJob {
  * via the `definition` "payload-locked-documents".
  */
 export interface PayloadLockedDocument {
-  id: number;
+  id: string;
   document?:
     | ({
         relationTo: 'users';
-        value: number | User;
+        value: string | User;
       } | null)
     | ({
         relationTo: 'media';
-        value: number | Media;
+        value: string | Media;
       } | null)
     | ({
         relationTo: 'categories';
-        value: number | Category;
+        value: string | Category;
       } | null)
     | ({
         relationTo: 'series';
-        value: number | Series;
+        value: string | Series;
       } | null)
     | ({
         relationTo: 'posts';
-        value: number | Post;
+        value: string | Post;
       } | null)
     | ({
         relationTo: 'projects';
-        value: number | Project;
+        value: string | Project;
       } | null);
   globalSlug?: string | null;
   user: {
     relationTo: 'users';
-    value: number | User;
+    value: string | User;
   };
   updatedAt: string;
   createdAt: string;
@@ -614,10 +614,10 @@ export interface PayloadLockedDocument {
  * via the `definition` "payload-preferences".
  */
 export interface PayloadPreference {
-  id: number;
+  id: string;
   user: {
     relationTo: 'users';
-    value: number | User;
+    value: string | User;
   };
   key?: string | null;
   value?:
@@ -637,7 +637,7 @@ export interface PayloadPreference {
  * via the `definition` "payload-migrations".
  */
 export interface PayloadMigration {
-  id: number;
+  id: string;
   name?: string | null;
   batch?: number | null;
   updatedAt: string;
@@ -897,8 +897,8 @@ export interface PayloadMigrationsSelect<T extends boolean = true> {
  * via the `definition` "site-settings".
  */
 export interface SiteSetting {
-  id: number;
-  profileImage?: (number | null) | Media;
+  id: string;
+  profileImage?: (string | null) | Media;
   /**
    * Select Google Drive to auto-convert a sharing URL into a download link. Select Custom Link for any direct download URL.
    */
@@ -919,15 +919,15 @@ export interface SiteSetting {
         reference?:
           | ({
               relationTo: 'posts';
-              value: number | Post;
+              value: string | Post;
             } | null)
           | ({
               relationTo: 'projects';
-              value: number | Project;
+              value: string | Project;
             } | null)
           | ({
               relationTo: 'series';
-              value: number | Series;
+              value: string | Series;
             } | null);
         page?: ('home' | 'blog' | 'projects' | 'cv' | 'rss') | null;
         newTab?: boolean | null;
@@ -942,7 +942,7 @@ export interface SiteSetting {
  * via the `definition` "home-page".
  */
 export interface HomePage {
-  id: number;
+  id: string;
   greeting: string;
   name: string;
   role: string;
@@ -983,8 +983,8 @@ export interface HomePage {
           [k: string]: unknown;
         } | null;
         collection: 'posts' | 'projects';
-        posts?: (number | Post)[] | null;
-        projects?: (number | Project)[] | null;
+        posts?: (string | Post)[] | null;
+        projects?: (string | Project)[] | null;
         id?: string | null;
       }[]
     | null;
@@ -994,7 +994,7 @@ export interface HomePage {
     /**
      * Maximum upload file size: 12MB. Recommended file size for images is <500KB.
      */
-    image?: (number | null) | Media;
+    image?: (string | null) | Media;
   };
   ctaButtons?:
     | {
@@ -1006,15 +1006,15 @@ export interface HomePage {
           reference?:
             | ({
                 relationTo: 'posts';
-                value: number | Post;
+                value: string | Post;
               } | null)
             | ({
                 relationTo: 'projects';
-                value: number | Project;
+                value: string | Project;
               } | null)
             | ({
                 relationTo: 'series';
-                value: number | Series;
+                value: string | Series;
               } | null);
           page?: ('home' | 'blog' | 'projects' | 'cv' | 'rss') | null;
           newTab?: boolean | null;
@@ -1030,7 +1030,7 @@ export interface HomePage {
  * via the `definition` "cv-page".
  */
 export interface CvPage {
-  id: number;
+  id: string;
   sections: {
     title: string;
     type: 'description' | 'items' | 'badges';
@@ -1099,7 +1099,7 @@ export interface CvPage {
     /**
      * Maximum upload file size: 12MB. Recommended file size for images is <500KB.
      */
-    image?: (number | null) | Media;
+    image?: (string | null) | Media;
   };
   updatedAt?: string | null;
   createdAt?: string | null;
@@ -1109,7 +1109,7 @@ export interface CvPage {
  * via the `definition` "blog-page".
  */
 export interface BlogPage {
-  id: number;
+  id: string;
   title: string;
   intro?: string | null;
   meta: {
@@ -1118,7 +1118,7 @@ export interface BlogPage {
     /**
      * Maximum upload file size: 12MB. Recommended file size for images is <500KB.
      */
-    image?: (number | null) | Media;
+    image?: (string | null) | Media;
   };
   updatedAt?: string | null;
   createdAt?: string | null;
@@ -1128,7 +1128,7 @@ export interface BlogPage {
  * via the `definition` "series-page".
  */
 export interface SeriesPage {
-  id: number;
+  id: string;
   backToSeriesLabel?: string | null;
   meta: {
     title: string;
@@ -1136,7 +1136,7 @@ export interface SeriesPage {
     /**
      * Maximum upload file size: 12MB. Recommended file size for images is <500KB.
      */
-    image?: (number | null) | Media;
+    image?: (string | null) | Media;
   };
   updatedAt?: string | null;
   createdAt?: string | null;
@@ -1146,7 +1146,7 @@ export interface SeriesPage {
  * via the `definition` "projects-page".
  */
 export interface ProjectsPage {
-  id: number;
+  id: string;
   sections: {
     title: string;
     description?: {
@@ -1164,7 +1164,7 @@ export interface ProjectsPage {
       };
       [k: string]: unknown;
     } | null;
-    projects: (number | Project)[];
+    projects: (string | Project)[];
     id?: string | null;
   }[];
   meta: {
@@ -1173,7 +1173,7 @@ export interface ProjectsPage {
     /**
      * Maximum upload file size: 12MB. Recommended file size for images is <500KB.
      */
-    image?: (number | null) | Media;
+    image?: (string | null) | Media;
   };
   updatedAt?: string | null;
   createdAt?: string | null;
@@ -1183,7 +1183,7 @@ export interface ProjectsPage {
  * via the `definition` "not-found-page".
  */
 export interface NotFoundPage {
-  id: number;
+  id: string;
   title: string;
   description: string;
   ctaLabel?: string | null;
@@ -1195,7 +1195,7 @@ export interface NotFoundPage {
     /**
      * Maximum upload file size: 12MB. Recommended file size for images is <500KB.
      */
-    image?: (number | null) | Media;
+    image?: (string | null) | Media;
   };
   updatedAt?: string | null;
   createdAt?: string | null;
@@ -1423,14 +1423,14 @@ export interface TaskSchedulePublish {
     doc?:
       | ({
           relationTo: 'posts';
-          value: number | Post;
+          value: string | Post;
         } | null)
       | ({
           relationTo: 'projects';
-          value: number | Project;
+          value: string | Project;
         } | null);
     global?: string | null;
-    user?: (number | null) | User;
+    user?: (string | null) | User;
   };
   output?: unknown;
 }
@@ -1516,7 +1516,7 @@ export interface LexicalCalloutBlock {
  */
 export interface LexicalImageGalleryBlock {
   images: {
-    image: number | Media;
+    image: string | Media;
     id?: string | null;
   }[];
   caption?: string | null;

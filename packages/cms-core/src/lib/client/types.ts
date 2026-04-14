@@ -27,10 +27,10 @@ export type PaginatedPosts = {
   nextPage: number | null;
 };
 
-export type RelationValue<T> = number | T | null | undefined;
+export type RelationValue<T> = string | number | T | null | undefined;
 
 export type PopulatedAuthor = {
-  id?: number | null;
+  id?: string | number | null;
   name?: string | null;
   bio?: User["bio"];
   avatar?: RelationValue<Media>;

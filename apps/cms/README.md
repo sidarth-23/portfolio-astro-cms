@@ -6,8 +6,6 @@
 bun run dev:cms
 bun run build:cms
 bun run payload:types
-bun run --filter @sidshub/cms migrate:create
-bun run --filter @sidshub/cms migrate
 bun run --filter @sidshub/cms cleanup:media
 ```
 
@@ -26,35 +24,27 @@ Required for auth email delivery via Resend:
 
 ## Notes
 
-- Uses PostgreSQL as primary DB.
+- Uses MongoDB as primary DB.
 - Uses MinIO (S3-compatible) for media storage.
 - Auto-creates the configured S3 bucket in local dev (or when `S3_AUTO_CREATE_BUCKET=true`).
-- DB schema push is disabled by default in every environment.
-- Set `PAYLOAD_DB_PUSH=true` only for an explicit local escape hatch. Normal development should stay migration-only.
+- No migration workflow is required in local or production runtime.
 - Uses `@payloadcms/plugin-seo` for SEO metadata.
 - Uses Lexical editor for long-form content.
 - Uses `@payloadcms/email-resend` for auth emails.
 - Users collection is invite-only (first user bootstraps via admin, subsequent users created by authenticated admins). Password reset emails via Resend.
 
-## Migration Workflow
+## Database Workflow
 
 - Development:
-  - `bun run dev:cms` does not run `payload migrate`.
-  - `bun run dev:cms` runs a strict migration preflight before the server starts.
-  - If migrations are pending, or the local DB contains Payload's `dev` push marker, startup fails with an explicit error.
-  - Normal workflow is: change schema -> `bun run --filter @sidshub/cms migrate:create` -> `bun run --filter @sidshub/cms migrate` -> restart CMS.
-  - `bun run --filter @sidshub/cms db:check` runs the same preflight without starting dev.
-  - `bun run --filter @sidshub/cms dev:push` is available as an unsafe local-only escape hatch and intentionally bypasses the strict flow.
+  - `bun run dev:cms` starts the CMS directly with MongoDB adapter configuration.
 - Production:
-  - Create migrations from schema changes: `bun run --filter @sidshub/cms migrate:create`
-  - Apply migrations in CI/CD before starting CMS: `bun run --filter @sidshub/cms migrate`
-  - Do not auto-run migrations in app startup.
+  - Start CMS directly (`bun run build:cms` and `bun run --filter @sidshub/cms start`).
+  - No migration sidecar/job is required.
 
 ## Staging/Prod Release Order
 
-1. Run migrations: `bun run --filter @sidshub/cms migrate`
-2. Start CMS: `bun run build:cms` / `bun run --filter @sidshub/cms start`
-3. Build/deploy web after CMS health is green.
+1. Start CMS: `bun run build:cms` / `bun run --filter @sidshub/cms start`
+2. Build/deploy web after CMS health is green.
 
 This order is required because `apps/web` fetches CMS globals at build time and should fail fast when CMS is unhealthy.
 
@@ -88,19 +78,10 @@ If you see S3 errors like `NoSuchBucket` for media files:
 - Recommended first run:
   `MEDIA_CLEANUP_DRY_RUN=true bun run --filter @sidshub/cms cleanup:media`
 
-If you see `column site_settings.profile_image_id does not exist`:
+If `bun run dev:cms` fails with a database preflight error:
 
-- Cause: missing migration in the target environment.
+- Cause: `DATABASE_URI` is missing or not a MongoDB URI.
 - Resolution:
-  - Run `bun run --filter @sidshub/cms migrate`
-  - Verify with SQL:
-    `SELECT column_name FROM information_schema.columns WHERE table_name='site_settings' AND column_name='profile_image_id';`
-  - Confirm `/api/globals/site-settings?depth=2` returns `200`
-
-If `bun run dev:cms` fails with a `payload_migrations` / `dev` marker error:
-
-- Cause: the local database was previously changed via Payload schema push.
-- Resolution:
-  - reset the local DB
-  - run `bun run --filter @sidshub/cms migrate`
+  - update `apps/cms/.env`
+  - ensure `DATABASE_URI` uses `mongodb://` or `mongodb+srv://`
   - restart `bun run dev:cms`

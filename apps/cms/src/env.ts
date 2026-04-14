@@ -17,7 +17,6 @@ export const env = createEnv({
     S3_ACCESS_KEY_ID: z.string().default(""),
     S3_SECRET_ACCESS_KEY: z.string().default(""),
     S3_AUTO_CREATE_BUCKET: z.enum(["true", "false"]).optional(),
-    PAYLOAD_DB_PUSH: z.enum(["true", "false"]).optional(),
     WEB_DEPLOY_WEBHOOK_URL: z.string().url().optional(),
     WEB_DEPLOY_BRANCH: z.string().optional(),
     WEB_DEV_REFRESH_URL: z.string().url().optional(),

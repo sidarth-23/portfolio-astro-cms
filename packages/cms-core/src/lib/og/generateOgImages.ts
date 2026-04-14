@@ -49,17 +49,22 @@ type ProcessorResult = {
 type SeoMeta = {
   title: string;
   description: string;
-  image?: (number | null) | Media;
+  image?: (string | number | null) | Media;
 };
 
 type ContentRecord = Record<string, unknown>;
+type RelationID = number | string;
 
 // ---- Helpers ----
 
-function resolveMediaId(value: unknown): number | null {
+function resolveMediaId(value: unknown): RelationID | null {
   if (value === null || value === undefined) return null;
-  if (typeof value === "number") return value;
-  if (typeof value === "object" && "id" in value && typeof (value as Media).id === "number") {
+  if (typeof value === "number" || typeof value === "string") return value;
+  if (
+    typeof value === "object" &&
+    "id" in value &&
+    (typeof (value as Media).id === "number" || typeof (value as Media).id === "string")
+  ) {
     return (value as Media).id;
   }
   return null;
@@ -122,7 +127,7 @@ async function uploadOgImage(
   description: string,
   filename: string,
   assets: SharedAssets,
-): Promise<number> {
+): Promise<RelationID> {
   const buffer = await renderOgImage({
     title,
     description,
@@ -187,7 +192,7 @@ async function processDoc(
 
   // Resolve image — use existing if available, otherwise generate
   const filename = getOgFilename(target, doc);
-  let imageId: number;
+  let imageId: RelationID;
   if (target.type === "collection" && target.existingImage) {
     const existing = resolveMediaId(doc[target.existingImage]);
     imageId = existing ?? await uploadOgImage(payload, ogTitle, ogDescription, filename, assets);
@@ -202,7 +207,7 @@ async function processDoc(
 
   if (target.type === "collection") {
     const docId = doc.id;
-    if (typeof docId !== "number") {
+    if (typeof docId !== "number" && typeof docId !== "string") {
       return { generated: false, skipped: false, error: "Cannot update: document ID is missing." };
     }
 

@@ -1,14 +1,11 @@
 services:
-  postgres:
-    image: postgres:16-alpine
-    environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: payload
+  mongodb:
+    image: mongo:7
+    command: ["--bind_ip_all"]
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - mongodb_data:/data/db
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres -d payload"]
+      test: ["CMD-SHELL", "echo 'db.runCommand({ ping: 1 }).ok' | mongosh localhost:27017/test --quiet"]
       interval: 5s
       timeout: 5s
       retries: 20
@@ -23,41 +20,6 @@ services:
     volumes:
       - minio_data:/data
 
-  payload-migrate:
-    build:
-      context: .
-      dockerfile: apps/cms/Dockerfile
-      args:
-        PAYLOAD_SECRET: ${PAYLOAD_SECRET}
-        PAYLOAD_PUBLIC_SERVER_URL: ${PAYLOAD_PUBLIC_SERVER_URL}
-        RESEND_API_KEY: ${RESEND_API_KEY}
-        EMAIL_FROM_ADDRESS: ${EMAIL_FROM_ADDRESS}
-        EMAIL_FROM_NAME: ${EMAIL_FROM_NAME}
-    command: ["sh", "-c", "printf 'y\\n' | npm run migrate"]
-    restart: "no"
-    environment:
-      NODE_ENV: "production"
-      PAYLOAD_DB_PUSH: "false"
-      PAYLOAD_SECRET: ${PAYLOAD_SECRET}
-      CMS_READ_TOKEN: ${CMS_READ_TOKEN}
-      PAYLOAD_PUBLIC_SERVER_URL: ${PAYLOAD_PUBLIC_SERVER_URL}
-      ASTRO_SITE_URL: ${ASTRO_SITE_URL}
-      DATABASE_URI: ${DATABASE_URI}
-      RESEND_API_KEY: ${RESEND_API_KEY}
-      EMAIL_FROM_ADDRESS: ${EMAIL_FROM_ADDRESS}
-      EMAIL_FROM_NAME: ${EMAIL_FROM_NAME}
-      S3_BUCKET: ${S3_BUCKET}
-      S3_REGION: ${S3_REGION}
-      S3_ENDPOINT: ${S3_ENDPOINT}
-      S3_AUTO_CREATE_BUCKET: ${S3_AUTO_CREATE_BUCKET:-true}
-      S3_ACCESS_KEY_ID: ${S3_ACCESS_KEY_ID}
-      S3_SECRET_ACCESS_KEY: ${S3_SECRET_ACCESS_KEY}
-      WEB_DEPLOY_WEBHOOK_URL: ${WEB_DEPLOY_WEBHOOK_URL}
-      WEB_DEPLOY_BRANCH: ${WEB_DEPLOY_BRANCH}
-    depends_on:
-      postgres:
-        condition: service_healthy
-
   payload-cms:
     build:
       context: .
@@ -70,7 +32,6 @@ services:
         EMAIL_FROM_NAME: ${EMAIL_FROM_NAME}
     environment:
       NODE_ENV: "production"
-      PAYLOAD_DB_PUSH: "false"
       PAYLOAD_SECRET: ${PAYLOAD_SECRET}
       CMS_READ_TOKEN: ${CMS_READ_TOKEN}
       PAYLOAD_PUBLIC_SERVER_URL: ${PAYLOAD_PUBLIC_SERVER_URL}
@@ -88,8 +49,8 @@ services:
       WEB_DEPLOY_WEBHOOK_URL: ${WEB_DEPLOY_WEBHOOK_URL}
       WEB_DEPLOY_BRANCH: ${WEB_DEPLOY_BRANCH}
     depends_on:
-      payload-migrate:
-        condition: service_completed_successfully
+      mongodb:
+        condition: service_healthy
       minio:
         condition: service_started
     healthcheck:
@@ -104,5 +65,5 @@ services:
       start_period: 90s
 
 volumes:
-  postgres_data:
+  mongodb_data:
   minio_data:

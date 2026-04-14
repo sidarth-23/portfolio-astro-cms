@@ -12,7 +12,7 @@ Public monorepo for [sidshub.in](https://www.sidshub.in), containing:
 - Bun workspaces
 - Astro 5 + TypeScript (strict)
 - Tailwind CSS v4 + DaisyUI v5
-- Payload CMS + PostgreSQL + MinIO (S3-compatible storage)
+- Payload CMS + MongoDB + MinIO (S3-compatible storage)
 
 ## Prerequisites
 
@@ -67,7 +67,7 @@ task logs             # Follow all service logs
 task logs:cms         # Follow CMS logs
 task db:reset         # Reset local database
 task db:backup        # Backup local database
-task db:restore -- backups/<file>.sql
+task db:restore       # Restore local database backup
 task format           # Format web/cms source files
 ```
 

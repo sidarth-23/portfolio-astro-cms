@@ -1,0 +1,5 @@
+- UI in dashboard to show deployment progress
+- Make the components with a build system
+- Add content to projects
+- Add fumadocs to explain deployment and the application
+- cleanup function for media which is not linked

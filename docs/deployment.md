@@ -2,7 +2,7 @@
 
 ## Compose Files
 
-1. `docker-compose.cms.yml` - CMS stack (`postgres`, `minio`, `payload-migrate`, `payload-cms`)
+1. `docker-compose.cms.yml` - CMS stack (`mongodb`, `minio`, `payload-cms`)
 2. `docker-compose.web.yml` - Web stack (`astro-web`)
 
 ## Required Env Vars
@@ -44,21 +44,8 @@
 - Deploy the CMS app (`docker-compose.cms.yml`) first.
 - Wait for `payload-cms` health check to pass.
 - Deploy the Web app (`docker-compose.web.yml`) after CMS is healthy.
-- `payload-migrate` runs first and must exit successfully.
-- `payload-cms` starts only after `payload-migrate` completes successfully.
-- `payload-cms` must not run migrations in its own startup command; migrations are owned by `payload-migrate`.
+- `payload-cms` starts after `mongodb` is healthy and `minio` is started.
 - `astro-web` builds static output during image build and fails fast when CMS data is unreachable or invalid.
-
-## Migration Recovery (Schema Drift)
-
-If CMS logs include database errors like `column site_settings.profile_image_id does not exist`:
-
-1. Run migrations in the CMS runtime: `bun run --filter @sidshub/cms migrate` (or `npm run migrate` inside `apps/cms`).
-2. Validate the column exists:
-   `SELECT column_name FROM information_schema.columns WHERE table_name='site_settings' AND column_name='profile_image_id';`
-3. Validate API response:
-   `GET /api/globals/site-settings?depth=2` should return `200`.
-4. Redeploy/rebuild `astro-web` after CMS is healthy.
 
 ## Domain Suggestion
 

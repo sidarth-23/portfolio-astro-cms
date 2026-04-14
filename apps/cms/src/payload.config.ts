@@ -1,8 +1,7 @@
-import { postgresAdapter } from "@payloadcms/db-postgres";
+import { mongooseAdapter } from "@payloadcms/db-mongodb";
 import { resendAdapter } from "@payloadcms/email-resend";
 import { s3Storage } from "@payloadcms/storage-s3";
 import { createCmsConfig } from "@sidshub/cms-core/builder";
-import { migrationDir } from "@sidshub/cms-core/migrations-dir";
 
 import { env } from "./env";
 import { ensureS3BucketExists } from "./lib/ensureS3Bucket";
@@ -23,10 +22,8 @@ export default createCmsConfig({
   serverURL: env.PAYLOAD_PUBLIC_SERVER_URL,
   siteUrl: env.ASTRO_SITE_URL,
   readAccessToken: env.CMS_READ_TOKEN,
-  db: postgresAdapter({
-    migrationDir,
-    pool: { connectionString: env.DATABASE_URI },
-    push: env.PAYLOAD_DB_PUSH === "true",
+  db: mongooseAdapter({
+    url: env.DATABASE_URI,
   }),
   email: resendAdapter({
     apiKey: env.RESEND_API_KEY,

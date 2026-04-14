@@ -3,7 +3,7 @@ import type { CollectionAfterReadHook } from "payload";
 import type { User } from "../payload-types";
 
 type PopulatedAuthor = {
-  id: number;
+  id: number | string;
   name?: string | null;
   bio?: User["bio"];
   avatar?: User["avatar"];

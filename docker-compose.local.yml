@@ -1,14 +1,11 @@
 services:
-  postgres:
-    image: postgres:16-alpine
-    environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: payload
+  mongodb:
+    image: mongo:7
+    command: ["--bind_ip_all"]
     ports:
-      - "5432:5432"
+      - "27017:27017"
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - mongodb_data:/data/db
 
   minio:
     image: minio/minio:latest
@@ -23,5 +20,5 @@ services:
       - minio_data:/data
 
 volumes:
-  postgres_data:
+  mongodb_data:
   minio_data:

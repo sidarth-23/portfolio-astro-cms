@@ -58,6 +58,8 @@ type HomeCtaButton = {
   newTab: boolean;
 };
 
+type RelationID = number | string;
+
 
 const sortPosts = (posts: Post[]): Post[] => {
   return posts.sort((a, b) => {
@@ -67,8 +69,12 @@ const sortPosts = (posts: Post[]): Post[] => {
   });
 };
 
-const isPublishedPostRelation = (value: number | Post | null | undefined): value is Post => {
+const isPublishedPostRelation = (value: RelationID | Post | null | undefined): value is Post => {
   return typeof value === "object" && value !== null && value._status !== "draft";
+};
+
+const isRelationID = (value: unknown): value is RelationID => {
+  return typeof value === "number" || typeof value === "string";
 };
 
 const toTrimmedString = (value: unknown): string | undefined => {
@@ -93,9 +99,9 @@ export const createCmsClient = ({ sdk, mediaBaseUrl }: CmsTransport) => {
         limit: 1,
       });
       const postIds = (seriesResponse.docs[0]?.posts ?? [])
-        .map((p) => (typeof p === "number" ? p : (p as { id?: unknown }).id))
-        .filter((id): id is number => typeof id === "number");
-      conditions.push(postIds.length > 0 ? { id: { in: postIds } } : { id: { equals: -1 } });
+        .map((p) => (isRelationID(p) ? p : (p as { id?: unknown }).id))
+        .filter((id): id is RelationID => isRelationID(id));
+      conditions.push(postIds.length > 0 ? { id: { in: postIds } } : { id: { equals: "__no_series_posts__" } });
     }
     if (options.search)
       conditions.push({ or: [{ title: { like: options.search } }, { excerpt: { like: options.search } }] });
@@ -158,10 +164,14 @@ export const createCmsClient = ({ sdk, mediaBaseUrl }: CmsTransport) => {
     }
 
     if (typeof media === "string") {
-      return media;
+      if (media.startsWith("http") || media.startsWith("/")) {
+        return media;
+      }
+
+      return undefined;
     }
 
-    if (typeof media === "number") {
+    if (isRelationID(media)) {
       return undefined;
     }
 
@@ -202,17 +212,17 @@ export const createCmsClient = ({ sdk, mediaBaseUrl }: CmsTransport) => {
     },
 
     homeCtaButtons: (homePage: HomePage): HomeCtaButton[] => {
-      const isPost = (value: number | Post): value is Post => {
+      const isPost = (value: RelationID | Post): value is Post => {
         return typeof value === "object" && value !== null && value._status !== "draft";
       };
 
-      const isProject = (value: number | Project | null | undefined): value is Project => {
+      const isProject = (value: RelationID | Project | null | undefined): value is Project => {
         return typeof value === "object" && value !== null && (value as Project)._status !== "draft";
       };
 
       // No _status check here: the Series collection does not have draft/publish
       // versioning, so the _status field does not exist on the Series type.
-      const isSeries = (value: number | Series): value is Series => {
+      const isSeries = (value: RelationID | Series): value is Series => {
         return typeof value === "object" && value !== null;
       };
 
@@ -231,7 +241,7 @@ export const createCmsClient = ({ sdk, mediaBaseUrl }: CmsTransport) => {
         }
 
         const reference = button.link.reference;
-        if (!reference || typeof reference === "number") {
+        if (!reference || isRelationID(reference)) {
           return undefined;
         }
 
@@ -563,17 +573,17 @@ export const createCmsClient = ({ sdk, mediaBaseUrl }: CmsTransport) => {
         return [];
       }
 
-      const isPost = (value: number | Post): value is Post => {
+      const isPost = (value: RelationID | Post): value is Post => {
         return typeof value === "object" && value !== null && value._status !== "draft";
       };
 
-      const isProject = (value: number | Project | null | undefined): value is Project => {
+      const isProject = (value: RelationID | Project | null | undefined): value is Project => {
         return typeof value === "object" && value !== null && (value as Project)._status !== "draft";
       };
 
       // No _status check here: the Series collection does not have draft/publish
       // versioning, so the _status field does not exist on the Series type.
-      const isSeries = (value: number | Series | null | undefined): value is Series => {
+      const isSeries = (value: RelationID | Series | null | undefined): value is Series => {
         return typeof value === "object" && value !== null;
       };
 
@@ -592,25 +602,25 @@ export const createCmsClient = ({ sdk, mediaBaseUrl }: CmsTransport) => {
 
         if (type === "reference") {
           const reference = link.reference as
-            | { relationTo: string; value: number | Post | Project | Series | null | undefined }
-            | number
+            | { relationTo: string; value: RelationID | Post | Project | Series | null | undefined }
+            | RelationID
             | null
             | undefined;
 
-          if (!reference || typeof reference === "number") {
+          if (!reference || isRelationID(reference)) {
             return undefined;
           }
 
-          if (reference.relationTo === "posts" && isPost(reference.value as number | Post) && (reference.value as Post).slug) {
+          if (reference.relationTo === "posts" && isPost(reference.value as RelationID | Post) && (reference.value as Post).slug) {
             return `/blog/${(reference.value as Post).slug}`;
           }
 
-          if (reference.relationTo === "projects" && isProject(reference.value as number | Project) && (reference.value as Project).slug) {
+          if (reference.relationTo === "projects" && isProject(reference.value as RelationID | Project) && (reference.value as Project).slug) {
             // Links to the project detail page (not the /projects#slug anchor used by homeCtaButtons).
             return `/projects/${(reference.value as Project).slug}`;
           }
 
-          if (reference.relationTo === "series" && isSeries(reference.value as number | Series) && (reference.value as Series).slug) {
+          if (reference.relationTo === "series" && isSeries(reference.value as RelationID | Series) && (reference.value as Series).slug) {
             return `/blog/series/${(reference.value as Series).slug}`;
           }
 

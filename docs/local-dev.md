@@ -52,7 +52,7 @@ docker compose -f docker-compose.local.yml up --build
 ```
 
 This will start:
-- PostgreSQL (port 5432)
+- MongoDB (port 27017)
 - MinIO (ports 9000, 9001)
 - Payload CMS (port 3000)
 
@@ -60,7 +60,7 @@ This will start:
 
 - **Payload Admin:** http://localhost:3000/admin
 - **MinIO Console:** http://localhost:9001
-- **Postgres:** localhost:5432 (user: postgres, password: postgres)
+- **MongoDB:** localhost:27017
 
 ## 4. Stopping Services
 
@@ -81,9 +81,9 @@ docker compose -f docker-compose.local.yml down
 ### Database Management
 ```bash
 task db:reset     # Drop and recreate database
-task db:shell     # Open psql shell
-task db:backup    # Backup database to ./backups/
-task db:restore   # Restore from backup
+task db:shell     # Open database shell
+task db:backup    # Backup database to ./backups/ (if configured)
+task db:restore   # Restore from backup (if configured)
 ```
 
 ### Development Workflow
@@ -110,7 +110,7 @@ task --list
 ```
 
 ## 6. Notes
-- Data is persisted in Docker volumes (`postgres_data`, `minio_data`).
+- Data is persisted in Docker volumes (`mongodb_data`, `minio_data`).
 - For custom development, you can run Bun commands inside the `payload-cms` container or locally if you have Bun installed.
 
 ---
