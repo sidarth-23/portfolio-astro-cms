@@ -4,18 +4,20 @@
   "private": true,
   "type": "module",
   "scripts": {
+    "build": "tsdown",
+    "dev": "tsdown --watch",
+    "clean": "rm -rf dist",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix"
   },
   "exports": {
-    "./cms": "./src/cms.ts",
-    "./web/html": "./src/web/html/index.ts",
-    "./web/html/daisyui": "./src/web/html/daisyui/index.ts",
-    "./web/html/tailwind": "./src/web/html/tailwind/index.ts",
-    "./web/html/client": "./src/web/html/client/index.ts",
+    "./cms": "./dist/cms.mjs",
+    "./web/html": "./dist/web/html/index.mjs",
+    "./web/html/daisyui": "./dist/web/html/daisyui/index.mjs",
+    "./web/html/tailwind": "./dist/web/html/tailwind/index.mjs",
+    "./web/html/client": "./dist/web/html/client/index.mjs",
     "./web/html/styles.css": "./src/web/html/styles.css",
-    "./web/util": "./src/web/util/index.ts",
-    "./features/markdownPaste/client": "./src/features/markdownPaste/feature.client.tsx"
+    "./web/util": "./dist/web/util/index.mjs"
   },
   "devDependencies": {
     "@sidshub/eslint-config": "workspace:*",

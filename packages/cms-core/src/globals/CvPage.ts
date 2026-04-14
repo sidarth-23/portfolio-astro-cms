@@ -1,5 +1,5 @@
 import type { Field, GlobalConfig } from "payload";
-import { createBasicRichTextEditor } from "@sidshub/cms-editor/cms";
+import { createBasicRichTextEditor } from "@/lib/editor";
 
 import { readAccess } from "../access/readAccess";
 import { iconPickerField } from "../fields/iconPicker";
@@ -28,16 +28,14 @@ const sectionItemFields: Field[] = [
     name: "subtitle",
     type: "text",
     admin: {
-      condition: (_, siblingData) =>
-        siblingData?.itemType === "generic" || !siblingData?.itemType,
+      condition: (_, siblingData) => siblingData?.itemType === "generic" || !siblingData?.itemType,
     },
   },
   {
     name: "startMonth",
     type: "date",
     admin: {
-      condition: (_, siblingData) =>
-        siblingData?.itemType === "organizationRole",
+      condition: (_, siblingData) => siblingData?.itemType === "organizationRole",
       date: {
         pickerAppearance: "monthOnly",
         displayFormat: "MMM yyyy",
@@ -49,8 +47,7 @@ const sectionItemFields: Field[] = [
     type: "date",
     admin: {
       condition: (_, siblingData) =>
-        siblingData?.itemType === "organizationRole" &&
-        !siblingData?.currentlyWorkingHere,
+        siblingData?.itemType === "organizationRole" && !siblingData?.currentlyWorkingHere,
       date: {
         pickerAppearance: "monthOnly",
         displayFormat: "MMM yyyy",
@@ -63,24 +60,21 @@ const sectionItemFields: Field[] = [
     type: "checkbox",
     defaultValue: false,
     admin: {
-      condition: (_, siblingData) =>
-        siblingData?.itemType === "organizationRole",
+      condition: (_, siblingData) => siblingData?.itemType === "organizationRole",
     },
   },
   {
     name: "organization",
     type: "text",
     admin: {
-      condition: (_, siblingData) =>
-        siblingData?.itemType === "organizationRole",
+      condition: (_, siblingData) => siblingData?.itemType === "organizationRole",
     },
   },
   {
     name: "location",
     type: "text",
     admin: {
-      condition: (_, siblingData) =>
-        siblingData?.itemType === "organizationRole",
+      condition: (_, siblingData) => siblingData?.itemType === "organizationRole",
     },
   },
   {
@@ -136,8 +130,7 @@ export const CvPage: GlobalConfig = {
               minRows: 1,
               admin: {
                 components: {
-                  RowLabel:
-                    "./components/admin/rowLabels/SectionRowLabel#SectionRowLabel",
+                  RowLabel: "./components/admin/rowLabels/SectionRowLabel#SectionRowLabel",
                 },
               },
               fields: [
@@ -158,8 +151,7 @@ export const CvPage: GlobalConfig = {
                   type: "richText",
                   editor: createBasicRichTextEditor(),
                   admin: {
-                    condition: (_, siblingData) =>
-                      siblingData?.type === "description",
+                    condition: (_, siblingData) => siblingData?.type === "description",
                   },
                 },
                 {
@@ -169,8 +161,7 @@ export const CvPage: GlobalConfig = {
                   defaultValue: "list",
                   options: CV_ITEMS_VARIANT_OPTIONS,
                   admin: {
-                    condition: (_, siblingData) =>
-                      siblingData?.type === "items",
+                    condition: (_, siblingData) => siblingData?.type === "items",
                   },
                 },
                 {
@@ -179,11 +170,9 @@ export const CvPage: GlobalConfig = {
                   minRows: 1,
                   fields: sectionItemFields,
                   admin: {
-                    condition: (_, siblingData) =>
-                      siblingData?.type === "items",
+                    condition: (_, siblingData) => siblingData?.type === "items",
                     components: {
-                      RowLabel:
-                        "./components/admin/rowLabels/ItemRowLabel#ItemRowLabel",
+                      RowLabel: "./components/admin/rowLabels/ItemRowLabel#ItemRowLabel",
                     },
                   },
                 },
@@ -204,15 +193,13 @@ export const CvPage: GlobalConfig = {
                       fields: badgeFields,
                       admin: {
                         components: {
-                          RowLabel:
-                            "./components/admin/rowLabels/BadgeRowLabel#BadgeRowLabel",
+                          RowLabel: "./components/admin/rowLabels/BadgeRowLabel#BadgeRowLabel",
                         },
                       },
                     },
                   ],
                   admin: {
-                    condition: (_, siblingData) =>
-                      siblingData?.type === "badges",
+                    condition: (_, siblingData) => siblingData?.type === "badges",
                     components: {
                       RowLabel:
                         "./components/admin/rowLabels/BadgeGroupRowLabel#BadgeGroupRowLabel",

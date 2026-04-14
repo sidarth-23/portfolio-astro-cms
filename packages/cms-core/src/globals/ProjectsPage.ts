@@ -1,5 +1,5 @@
 import type { GlobalConfig } from "payload";
-import { createBasicRichTextEditor } from "@sidshub/cms-editor/cms";
+import { createBasicRichTextEditor } from "@/lib/editor";
 
 import { readAccess } from "../access/readAccess";
 import { createPayloadDataSchemaHook } from "../lib/validation";

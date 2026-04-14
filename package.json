@@ -13,12 +13,13 @@
   },
   "scripts": {
     "dev": "bun run dev:web",
-    "dev:web": "bun run --filter @sidshub/web dev",
-    "dev:cms": "bun run --filter @sidshub/cms dev",
+    "dev:web": "turbo run dev --filter=@sidshub/cms-core --filter=@sidshub/cms-editor --filter=@sidshub/web",
+    "dev:cms": "turbo run dev --filter=@sidshub/cms-core --filter=@sidshub/cms-editor --filter=@sidshub/cms",
     "build": "turbo run build --filter=@sidshub/web --filter=@sidshub/cms",
     "build:web": "turbo run build --filter=@sidshub/web",
     "build:test:web": "turbo run build:test --filter=@sidshub/web",
     "build:cms": "turbo run build --filter=@sidshub/cms",
+    "build:packages": "turbo run build --filter=@sidshub/cms-core --filter=@sidshub/cms-editor",
     "check:web": "turbo run check --filter=@sidshub/web",
     "payload:types": "turbo run generate:types --filter=@sidshub/cms",
     "lint": "turbo run lint",
@@ -53,6 +54,7 @@
     "prettier": "^3.5.3",
     "prettier-plugin-astro": "^0.14.1",
     "simple-git-hooks": "^2.13.1",
+    "tsdown": "^0.16.6",
     "turbo": "^2.5.8"
   }
 }

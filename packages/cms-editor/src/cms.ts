@@ -25,7 +25,6 @@ import {
   lexicalEditor,
 } from "@payloadcms/richtext-lexical";
 import type { Block } from "payload";
-import { MarkdownPasteFeature } from "./features/markdownPaste/feature.server";
 
 type HeadingSize = "h1" | "h2" | "h3" | "h4" | "h5" | "h6";
 
@@ -68,6 +67,8 @@ export type LexicalEditorOptions = {
   enableCallout?: boolean;
   calloutVariantProfile?: CalloutVariantProfile;
   enableImageGallery?: boolean;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  extraFeatures?: FeatureProviderServer<any, any, any>[];
   link?: LinkSettings;
   relationship?: RelationshipSettings;
   upload?: UploadSettings;
@@ -387,7 +388,10 @@ const createCalloutBlock = (profile: CalloutVariantProfile): Block => {
   };
 };
 
-export const createLexicalEditor = ({ variant, ...overrides }: LexicalEditorOptions) => {
+export const createLexicalEditor = ({
+  variant,
+  ...overrides
+}: LexicalEditorOptions): ReturnType<typeof lexicalEditor> => {
   const variantDefaults = DEFAULT_VARIANT_OPTIONS[variant];
   const options = {
     ...variantDefaults,
@@ -474,7 +478,11 @@ export const createLexicalEditor = ({ variant, ...overrides }: LexicalEditorOpti
         );
       }
 
-      features.push(SubscriptFeature(), SuperscriptFeature(), MarkdownPasteFeature());
+      features.push(SubscriptFeature(), SuperscriptFeature());
+
+      if (options.extraFeatures?.length) {
+        features.push(...options.extraFeatures);
+      }
 
       return features;
     },
@@ -483,14 +491,16 @@ export const createLexicalEditor = ({ variant, ...overrides }: LexicalEditorOpti
 
 export const createMinimalRichTextEditor = (
   options: Omit<LexicalEditorOptions, "variant"> = {},
-) => {
+): ReturnType<typeof lexicalEditor> => {
   return createLexicalEditor({
     variant: "minimal",
     ...options,
   });
 };
 
-export const createBasicRichTextEditor = (options: Omit<LexicalEditorOptions, "variant"> = {}) => {
+export const createBasicRichTextEditor = (
+  options: Omit<LexicalEditorOptions, "variant"> = {},
+): ReturnType<typeof lexicalEditor> => {
   return createLexicalEditor({
     variant: "basic",
     ...options,
@@ -499,7 +509,7 @@ export const createBasicRichTextEditor = (options: Omit<LexicalEditorOptions, "v
 
 export const createDocumentRichTextEditor = (
   options: Omit<LexicalEditorOptions, "variant"> = {},
-) => {
+): ReturnType<typeof lexicalEditor> => {
   return createLexicalEditor({
     variant: "document",
     ...options,

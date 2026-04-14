@@ -2,7 +2,7 @@ import type { CollectionSlug, Field, RichTextAdapterProvider } from "payload";
 
 type FeaturedSectionFieldsArgs = {
   relationTo?: CollectionSlug[];
-  descriptionEditor?: RichTextAdapterProvider;
+  descriptionEditor?: RichTextAdapterProvider<unknown, unknown, unknown>;
 };
 
 export const featuredSectionFields = ({

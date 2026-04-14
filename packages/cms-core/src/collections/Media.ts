@@ -1,5 +1,5 @@
 import type { AllowList, CollectionConfig } from "payload";
-import { createMinimalRichTextEditor } from "@sidshub/cms-editor/cms";
+import { createMinimalRichTextEditor } from "@/lib/editor";
 
 const pasteUrlAllowList: AllowList = [
   { hostname: "sidshub.in", protocol: "https" },
@@ -40,9 +40,7 @@ export const Media: CollectionConfig = {
     useAsTitle: "alt",
     group: "Assets",
     components: {
-      beforeListTable: [
-        "./components/admin/OrphanedMediaDrawer#OrphanedMediaDrawer",
-      ],
+      beforeListTable: ["./components/admin/OrphanedMediaDrawer#OrphanedMediaDrawer"],
     },
   },
   fields: [

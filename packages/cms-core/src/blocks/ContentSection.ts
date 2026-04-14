@@ -1,6 +1,6 @@
 import type { Block } from "payload";
 
-import { createBasicRichTextEditor } from "@sidshub/cms-editor/cms";
+import { createBasicRichTextEditor } from "@/lib/editor";
 
 export const ContentSectionBlock: Block = {
   slug: "contentSection",

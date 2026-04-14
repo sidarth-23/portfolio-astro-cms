@@ -1,19 +1,12 @@
 import type { CollectionConfig, Condition, PayloadRequest } from "payload";
-import { createBasicRichTextEditor } from "@sidshub/cms-editor/cms";
+import { createBasicRichTextEditor } from "@/lib/editor";
 
-import {
-  generateForgotPasswordEmailHTML,
-  generateForgotPasswordEmailSubject,
-} from "../lib/email";
+import { generateForgotPasswordEmailHTML, generateForgotPasswordEmailSubject } from "../lib/email";
 import { createPayloadDataSchemaHook } from "../lib/validation";
 import { usersSchema } from "../lib/validation";
 import { linkFields } from "../fields/link";
 
-const showProfileFieldsAfterLogin: Condition = (
-  _data,
-  _siblingData,
-  { user },
-) => {
+const showProfileFieldsAfterLogin: Condition = (_data, _siblingData, { user }) => {
   return Boolean(user);
 };
 
@@ -37,13 +30,9 @@ const buildAbsoluteURL = (serverURL: string, routePath: string): string => {
   return new URL(routePath, `${serverURL.replace(/\/+$/, "")}/`).toString();
 };
 
-const getAdminURL = (
-  req: PayloadRequest | undefined,
-  token: string,
-): string => {
+const getAdminURL = (req: PayloadRequest | undefined, token: string): string => {
   const adminRoute = req?.payload.config.routes?.admin || "/admin";
-  const resetRoute =
-    req?.payload.config.admin?.routes?.reset || "/reset";
+  const resetRoute = req?.payload.config.admin?.routes?.reset || "/reset";
   const fullPath = `${joinRoutePaths(adminRoute, resetRoute)}/${token}`;
   const serverURL = req?.payload.config.serverURL || "";
 
@@ -56,7 +45,9 @@ export const Users: CollectionConfig = {
     create: ({ req }) => Boolean(req.user),
   },
   hooks: {
-    beforeValidate: [createPayloadDataSchemaHook(usersSchema, { errorPrefix: "Users validation failed:" })],
+    beforeValidate: [
+      createPayloadDataSchemaHook(usersSchema, { errorPrefix: "Users validation failed:" }),
+    ],
   },
   auth: {
     forgotPassword: {
@@ -76,9 +67,7 @@ export const Users: CollectionConfig = {
         const userEmail = args?.user?.email;
 
         if (!userEmail) {
-          throw new Error(
-            "Missing user email for password reset email subject.",
-          );
+          throw new Error("Missing user email for password reset email subject.");
         }
 
         return generateForgotPasswordEmailSubject({ userEmail });

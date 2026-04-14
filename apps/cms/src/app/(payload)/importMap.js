@@ -1,12 +1,12 @@
 import { RscEntryLexicalCell as RscEntryLexicalCell_44fe37237e0ebf4470c9990d8cb7b07e } from "@payloadcms/richtext-lexical/rsc";
 import { RscEntryLexicalField as RscEntryLexicalField_44fe37237e0ebf4470c9990d8cb7b07e } from "@payloadcms/richtext-lexical/rsc";
 import { LexicalDiffComponent as LexicalDiffComponent_44fe37237e0ebf4470c9990d8cb7b07e } from "@payloadcms/richtext-lexical/rsc";
-import { MarkdownPasteFeatureClient as MarkdownPasteFeatureClient_924d9bbd95928b40e9bdc9375c219ece } from "@sidshub/cms-editor/features/markdownPaste/client";
+import { MarkdownPasteFeatureClient as MarkdownPasteFeatureClient_9dc5d07931a10324519c8b2746345bf6 } from "@sidshub/cms-editor/plugin/markdown-paste";
 import { SuperscriptFeatureClient as SuperscriptFeatureClient_e70f5e05f09f93e00b997edb1ef0c864 } from "@payloadcms/richtext-lexical/client";
 import { SubscriptFeatureClient as SubscriptFeatureClient_e70f5e05f09f93e00b997edb1ef0c864 } from "@payloadcms/richtext-lexical/client";
 import { BlocksFeatureClient as BlocksFeatureClient_e70f5e05f09f93e00b997edb1ef0c864 } from "@payloadcms/richtext-lexical/client";
-import { CodeFieldComponent as CodeFieldComponent_d743a3c524d5067985214c80a1f94469 } from "../../../../../packages/cms-core/src/components/admin/CodeFieldComponent";
-import { CodeEntryRowLabel as CodeEntryRowLabel_c6ccc9dd7e607819ebe514af07ca8dfc } from "../../../../../packages/cms-core/src/components/admin/rowLabels/CodeEntryRowLabel";
+import { CodeFieldComponent as CodeFieldComponent_d743a3c524d5067985214c80a1f94469 } from "../../../../../packages/cms-core/dist/components/admin/CodeFieldComponent";
+import { CodeEntryRowLabel as CodeEntryRowLabel_c6ccc9dd7e607819ebe514af07ca8dfc } from "../../../../../packages/cms-core/dist/components/admin/rowLabels/CodeEntryRowLabel";
 import { BlockquoteFeatureClient as BlockquoteFeatureClient_e70f5e05f09f93e00b997edb1ef0c864 } from "@payloadcms/richtext-lexical/client";
 import { LinkFeatureClient as LinkFeatureClient_e70f5e05f09f93e00b997edb1ef0c864 } from "@payloadcms/richtext-lexical/client";
 import { OrderedListFeatureClient as OrderedListFeatureClient_e70f5e05f09f93e00b997edb1ef0c864 } from "@payloadcms/richtext-lexical/client";
@@ -19,18 +19,18 @@ import { UnderlineFeatureClient as UnderlineFeatureClient_e70f5e05f09f93e00b997e
 import { BoldFeatureClient as BoldFeatureClient_e70f5e05f09f93e00b997edb1ef0c864 } from "@payloadcms/richtext-lexical/client";
 import { ItalicFeatureClient as ItalicFeatureClient_e70f5e05f09f93e00b997edb1ef0c864 } from "@payloadcms/richtext-lexical/client";
 import { ParagraphFeatureClient as ParagraphFeatureClient_e70f5e05f09f93e00b997edb1ef0c864 } from "@payloadcms/richtext-lexical/client";
-import { IconPickerField as IconPickerField_fce113047fd43dfbeedb5a0597d6ab52 } from "../../../../../packages/cms-core/src/components/admin/IconPickerField";
-import { LinkRowLabel as LinkRowLabel_a526a8bf0b3e759cc2b71b6fa0e9f56c } from "../../../../../packages/cms-core/src/components/admin/rowLabels/LinkRowLabel";
+import { IconPickerField as IconPickerField_fce113047fd43dfbeedb5a0597d6ab52 } from "../../../../../packages/cms-core/dist/components/admin/IconPickerField";
+import { LinkRowLabel as LinkRowLabel_a526a8bf0b3e759cc2b71b6fa0e9f56c } from "../../../../../packages/cms-core/dist/components/admin/rowLabels/LinkRowLabel";
 import { FolderTableCell as FolderTableCell_f9c02e79a4aed9a3924487c0cd4cafb1 } from "@payloadcms/next/rsc";
 import { FolderField as FolderField_f9c02e79a4aed9a3924487c0cd4cafb1 } from "@payloadcms/next/rsc";
-import { OrphanedMediaDrawer as OrphanedMediaDrawer_0fa35ba4a1d04dea31219863bc20db97 } from "../../../../../packages/cms-core/src/components/admin/OrphanedMediaDrawer";
+import { OrphanedMediaDrawer as OrphanedMediaDrawer_0fa35ba4a1d04dea31219863bc20db97 } from "../../../../../packages/cms-core/dist/components/admin/OrphanedMediaDrawer";
 import { OverviewComponent as OverviewComponent_a8a977ebc872c5d5ea7ee689724c0860 } from "@payloadcms/plugin-seo/client";
 import { MetaTitleComponent as MetaTitleComponent_a8a977ebc872c5d5ea7ee689724c0860 } from "@payloadcms/plugin-seo/client";
 import { MetaDescriptionComponent as MetaDescriptionComponent_a8a977ebc872c5d5ea7ee689724c0860 } from "@payloadcms/plugin-seo/client";
 import { MetaImageComponent as MetaImageComponent_a8a977ebc872c5d5ea7ee689724c0860 } from "@payloadcms/plugin-seo/client";
 import { PreviewComponent as PreviewComponent_a8a977ebc872c5d5ea7ee689724c0860 } from "@payloadcms/plugin-seo/client";
-import { SocialCardPreview as SocialCardPreview_21804267583b5024d08665aa8f21ce90 } from "../../../../../packages/cms-core/src/components/admin/seo/SocialCardPreview";
-import { SeoSaveButton as SeoSaveButton_303a540b70799efbad1be57e466147dd } from "../../../../../packages/cms-core/src/components/admin/seo/SeoAwareButtons";
+import { SocialCardPreview as SocialCardPreview_21804267583b5024d08665aa8f21ce90 } from "../../../../../packages/cms-core/dist/components/admin/seo/SocialCardPreview";
+import { SeoSaveButton as SeoSaveButton_303a540b70799efbad1be57e466147dd } from "../../../../../packages/cms-core/dist/components/admin/seo/SeoAwareButtons";
 import { HorizontalRuleFeatureClient as HorizontalRuleFeatureClient_e70f5e05f09f93e00b997edb1ef0c864 } from "@payloadcms/richtext-lexical/client";
 import { UploadFeatureClient as UploadFeatureClient_e70f5e05f09f93e00b997edb1ef0c864 } from "@payloadcms/richtext-lexical/client";
 import { RelationshipFeatureClient as RelationshipFeatureClient_e70f5e05f09f93e00b997edb1ef0c864 } from "@payloadcms/richtext-lexical/client";
@@ -38,18 +38,18 @@ import { IndentFeatureClient as IndentFeatureClient_e70f5e05f09f93e00b997edb1ef0
 import { AlignFeatureClient as AlignFeatureClient_e70f5e05f09f93e00b997edb1ef0c864 } from "@payloadcms/richtext-lexical/client";
 import { ChecklistFeatureClient as ChecklistFeatureClient_e70f5e05f09f93e00b997edb1ef0c864 } from "@payloadcms/richtext-lexical/client";
 import { HeadingFeatureClient as HeadingFeatureClient_e70f5e05f09f93e00b997edb1ef0c864 } from "@payloadcms/richtext-lexical/client";
-import { BadgeRowLabel as BadgeRowLabel_24238ecca7db753c46604b9d7cf93856 } from "../../../../../packages/cms-core/src/components/admin/rowLabels/BadgeRowLabel";
-import { SeoPublishButton as SeoPublishButton_303a540b70799efbad1be57e466147dd } from "../../../../../packages/cms-core/src/components/admin/seo/SeoAwareButtons";
-import { SeoSaveDraftButton as SeoSaveDraftButton_303a540b70799efbad1be57e466147dd } from "../../../../../packages/cms-core/src/components/admin/seo/SeoAwareButtons";
+import { BadgeRowLabel as BadgeRowLabel_24238ecca7db753c46604b9d7cf93856 } from "../../../../../packages/cms-core/dist/components/admin/rowLabels/BadgeRowLabel";
+import { SeoPublishButton as SeoPublishButton_303a540b70799efbad1be57e466147dd } from "../../../../../packages/cms-core/dist/components/admin/seo/SeoAwareButtons";
+import { SeoSaveDraftButton as SeoSaveDraftButton_303a540b70799efbad1be57e466147dd } from "../../../../../packages/cms-core/dist/components/admin/seo/SeoAwareButtons";
 import { FolderTypeField as FolderTypeField_2b8867833a34864a02ddf429b0728a40 } from "@payloadcms/next/client";
-import { SectionRowLabel as SectionRowLabel_ec40328e4fa7e50be5521512430803ee } from "../../../../../packages/cms-core/src/components/admin/rowLabels/SectionRowLabel";
-import { CtaButtonRowLabel as CtaButtonRowLabel_21f05950458c091161a962787a64c946 } from "../../../../../packages/cms-core/src/components/admin/rowLabels/CtaButtonRowLabel";
-import { ItemRowLabel as ItemRowLabel_ef785df577c0f700616de08d4de99213 } from "../../../../../packages/cms-core/src/components/admin/rowLabels/ItemRowLabel";
-import { BadgeGroupRowLabel as BadgeGroupRowLabel_e17f3e5c9b47ac47d259a324429e5130 } from "../../../../../packages/cms-core/src/components/admin/rowLabels/BadgeGroupRowLabel";
-import { DashboardNavLink as DashboardNavLink_dcd6f454f3d74acc2bf3dabfd4bb3514 } from "../../../../../packages/cms-core/src/components/admin/nav/DashboardNavLink";
+import { SectionRowLabel as SectionRowLabel_ec40328e4fa7e50be5521512430803ee } from "../../../../../packages/cms-core/dist/components/admin/rowLabels/SectionRowLabel";
+import { CtaButtonRowLabel as CtaButtonRowLabel_21f05950458c091161a962787a64c946 } from "../../../../../packages/cms-core/dist/components/admin/rowLabels/CtaButtonRowLabel";
+import { ItemRowLabel as ItemRowLabel_ef785df577c0f700616de08d4de99213 } from "../../../../../packages/cms-core/dist/components/admin/rowLabels/ItemRowLabel";
+import { BadgeGroupRowLabel as BadgeGroupRowLabel_e17f3e5c9b47ac47d259a324429e5130 } from "../../../../../packages/cms-core/dist/components/admin/rowLabels/BadgeGroupRowLabel";
+import { DashboardNavLink as DashboardNavLink_dcd6f454f3d74acc2bf3dabfd4bb3514 } from "../../../../../packages/cms-core/dist/components/admin/nav/DashboardNavLink";
 import { S3ClientUploadHandler as S3ClientUploadHandler_f97aa6c64367fa259c5bc0567239ef24 } from "@payloadcms/storage-s3/client";
-import { DashboardView as DashboardView_f0f8d4a7080efd2cd25bb6be37c094c0 } from "../../../../../packages/cms-core/src/components/admin/Dashboard";
-import { SetupChecklistView as SetupChecklistView_85c87385259acfdd26fbb8a286eb3b67 } from "../../../../../packages/cms-core/src/components/admin/SetupChecklistView";
+import { DashboardView as DashboardView_f0f8d4a7080efd2cd25bb6be37c094c0 } from "../../../../../packages/cms-core/dist/components/admin/Dashboard";
+import { SetupChecklistView as SetupChecklistView_85c87385259acfdd26fbb8a286eb3b67 } from "../../../../../packages/cms-core/dist/components/admin/SetupChecklistView";
 import { CollectionCards as CollectionCards_f9c02e79a4aed9a3924487c0cd4cafb1 } from "@payloadcms/next/rsc";
 
 export const importMap = {
@@ -59,8 +59,8 @@ export const importMap = {
     RscEntryLexicalField_44fe37237e0ebf4470c9990d8cb7b07e,
   "@payloadcms/richtext-lexical/rsc#LexicalDiffComponent":
     LexicalDiffComponent_44fe37237e0ebf4470c9990d8cb7b07e,
-  "@sidshub/cms-editor/features/markdownPaste/client#MarkdownPasteFeatureClient":
-    MarkdownPasteFeatureClient_924d9bbd95928b40e9bdc9375c219ece,
+  "@sidshub/cms-editor/plugin/markdown-paste#MarkdownPasteFeatureClient":
+    MarkdownPasteFeatureClient_9dc5d07931a10324519c8b2746345bf6,
   "@payloadcms/richtext-lexical/client#SuperscriptFeatureClient":
     SuperscriptFeatureClient_e70f5e05f09f93e00b997edb1ef0c864,
   "@payloadcms/richtext-lexical/client#SubscriptFeatureClient":

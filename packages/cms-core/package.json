@@ -4,20 +4,24 @@
   "private": true,
   "type": "module",
   "scripts": {
+    "build": "tsdown",
+    "dev": "tsdown --watch",
+    "clean": "rm -rf dist",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix"
   },
   "exports": {
-    ".": "./src/payload-types.ts",
-    "./builder": "./src/builder.ts",
-    "./client": "./src/lib/client/index.ts",
-    "./client/rest": "./src/lib/client/rest.ts",
-    "./client/mock": "./src/lib/client/mock/index.ts",
-    "./content": "./src/lib/content/index.ts",
-    "./icons": "./src/lib/icons/index.ts",
-    "./deployment": "./src/lib/deployment/index.ts",
-    "./validation": "./src/lib/validation/index.ts",
-    "./payload-types": "./src/payload-types.ts"
+    ".": "./dist/payload-types.mjs",
+    "./builder": "./dist/builder.mjs",
+    "./client": "./dist/lib/client/index.mjs",
+    "./client/rest": "./dist/lib/client/rest.mjs",
+    "./client/mock": "./dist/lib/client/mock/index.mjs",
+    "./content": "./dist/lib/content/index.mjs",
+    "./icons": "./dist/lib/icons/index.mjs",
+    "./deployment": "./dist/lib/deployment/index.mjs",
+    "./validation": "./dist/lib/validation/index.mjs",
+    "./payload-types": "./dist/payload-types.mjs",
+    "./admin/*": "./dist/components/admin/*.mjs"
   },
   "devDependencies": {
     "@faker-js/faker": "^9.8.0",

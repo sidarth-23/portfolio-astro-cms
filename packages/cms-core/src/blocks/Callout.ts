@@ -1,6 +1,6 @@
 import type { Block } from "payload";
 
-import { createBasicRichTextEditor } from "@sidshub/cms-editor/cms";
+import { createBasicRichTextEditor } from "@/lib/editor";
 import {
   CALLOUT_DEFAULT_VARIANT_BY_PROFILE,
   CALLOUT_VARIANTS_BY_PROFILE,
