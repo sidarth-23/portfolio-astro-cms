@@ -168,17 +168,17 @@ const cvBadgeSchema = z
 const cvBadgeGroupSchema = z
   .object({
     title: requiredText.optional(),
-    badges: z.array(cvBadgeSchema).optional(),
+    badges: z.array(cvBadgeSchema).nullish(),
   })
   .passthrough();
 
 const cvItemSchema = z
   .object({
     title: requiredText.optional(),
-    subtitle: optionalText,
-    organization: optionalText,
-    location: optionalText,
-    url: optionalHttpUrl,
+    subtitle: optionalText.nullish(),
+    organization: optionalText.nullish(),
+    location: optionalText.nullish(),
+    url: optionalHttpUrl.nullish(),
   })
   .passthrough();
 
@@ -189,8 +189,8 @@ export const cvPageSchema = withSeoMeta({
         .object({
           title: requiredText.optional(),
           type: z.enum(CV_SECTION_TYPE_VALUES).optional(),
-          items: z.array(cvItemSchema).optional(),
-          badgeGroups: z.array(cvBadgeGroupSchema).optional(),
+          items: z.array(cvItemSchema).nullish(),
+          badgeGroups: z.array(cvBadgeGroupSchema).nullish(),
         })
         .passthrough(),
     )

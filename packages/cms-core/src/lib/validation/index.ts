@@ -1,4 +1,3 @@
-export { sanitizeCvPageBeforeValidate } from "./cvPageSanitizer";
 export { createPayloadDataSchemaHook } from "./payloadSchema";
 
 export {

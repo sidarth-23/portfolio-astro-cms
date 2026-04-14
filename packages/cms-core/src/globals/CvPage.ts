@@ -8,7 +8,6 @@ import {
   CV_SECTION_ITEM_TYPE_OPTIONS,
   CV_SECTION_TYPE_OPTIONS,
 } from "../lib/content";
-import { sanitizeCvPageBeforeValidate } from "../lib/validation";
 import { createPayloadDataSchemaHook } from "../lib/validation";
 import { cvPageSchema } from "../lib/validation";
 
@@ -107,7 +106,6 @@ export const CvPage: GlobalConfig = {
   },
   hooks: {
     beforeValidate: [
-      sanitizeCvPageBeforeValidate,
       createPayloadDataSchemaHook(cvPageSchema, {
         errorPrefix: "CV page validation failed:",
       }),
