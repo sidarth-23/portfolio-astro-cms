@@ -4,6 +4,7 @@ import { createBasicRichTextEditor, createDocumentRichTextEditor } from "@sidshu
 import { readAccess } from "../access/readAccess";
 
 import { populateAuthors } from "../hooks/populateAuthors";
+import { populateSeries } from "../hooks/populateSeries";
 import { createSuggestMetadataAutoPopulationHook } from "../hooks/suggestMetadataAutoPopulation";
 import { slugField } from "../fields/slug";
 import { createPayloadDataSchemaHook } from "../lib/validation";
@@ -21,8 +22,10 @@ export const Posts: CollectionConfig = {
   },
   hooks: {
     beforeChange: [createSuggestMetadataAutoPopulationHook("posts")],
-    beforeValidate: [createPayloadDataSchemaHook(postsSchema, { errorPrefix: "Posts validation failed:" })],
-    afterRead: [populateAuthors],
+    beforeValidate: [
+      createPayloadDataSchemaHook(postsSchema, { errorPrefix: "Posts validation failed:" }),
+    ],
+    afterRead: [populateAuthors, populateSeries],
   },
   fields: [
     {
@@ -81,13 +84,29 @@ export const Posts: CollectionConfig = {
               ],
             },
             {
-              name: "series",
+              name: "seriesLinks",
               type: "join",
               collection: "series",
               on: "posts",
               maxDepth: 1,
               admin: {
-                description: "Managed from the Series collection.",
+                hidden: true,
+              },
+            },
+            {
+              name: "series",
+              type: "relationship",
+              relationTo: "series",
+              hasMany: true,
+              virtual: true,
+              access: {
+                create: () => false,
+                update: () => false,
+              },
+              admin: {
+                readOnly: true,
+                description:
+                  "View only. Manage membership and ordering from the Series collection.",
               },
             },
           ],

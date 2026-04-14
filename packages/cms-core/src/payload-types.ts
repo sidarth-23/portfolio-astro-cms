@@ -82,7 +82,7 @@ export interface Config {
   };
   collectionsJoins: {
     posts: {
-      series: 'series';
+      seriesLinks: 'series';
     };
     'payload-folders': {
       documentsAndFolders: 'payload-folders' | 'media';
@@ -317,14 +317,15 @@ export interface Post {
         id?: string | null;
       }[]
     | null;
-  /**
-   * Managed from the Series collection.
-   */
-  series?: {
+  seriesLinks?: {
     docs?: (string | Series)[];
     hasNextPage?: boolean;
     totalDocs?: number;
   };
+  /**
+   * View only. Manage membership and ordering from the Series collection.
+   */
+  series?: (string | Series)[] | null;
   meta: {
     title: string;
     description: string;
@@ -767,6 +768,7 @@ export interface PostsSelect<T extends boolean = true> {
         value?: T;
         id?: T;
       };
+  seriesLinks?: T;
   series?: T;
   meta?:
     | T

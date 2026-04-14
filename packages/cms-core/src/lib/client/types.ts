@@ -34,7 +34,7 @@ export type PopulatedAuthor = {
   name?: string | null;
   bio?: User["bio"];
   avatar?: RelationValue<Media>;
-  links?: Array<{ icon?: string | null; url?: string | null; newTab?: boolean | null }>;
+  links?: Array<{ icon?: string | null; url?: string | null; newTab?: boolean | null }> | null;
 };
 
 export type ProjectLink = {

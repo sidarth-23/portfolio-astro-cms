@@ -22,6 +22,11 @@ export const asCategory = (value: RelationValue<Category>): Category | undefined
 };
 
 export const asSeries = (value: unknown): Series | undefined => {
+  if (Array.isArray(value)) {
+    const first = value[0];
+    return typeof first === "object" && first !== null ? (first as Series) : undefined;
+  }
+
   if (typeof value !== "object" || value === null) return undefined;
   // Payload join field shape: { docs?: T[], hasNextPage?: boolean }
   if ("docs" in value) {
