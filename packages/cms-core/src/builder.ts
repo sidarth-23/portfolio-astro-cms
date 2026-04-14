@@ -22,6 +22,7 @@ import { SiteSettings } from "./globals/SiteSettings";
 import { setReadAccessToken } from "./access/readAccessConfig";
 import { deploymentStatusEndpoint } from "./endpoints/deploymentStatus";
 import { generateOgImagesEndpoint } from "./endpoints/generateOgImages";
+import { orphanedMediaEndpoints } from "./endpoints/orphanedMedia";
 import { createCollectionRedeployHook } from "./hooks/triggerCollectionRedeploy";
 import { createTriggerDeployment } from "./hooks/triggerDeployment";
 import { createTriggerDevRefresh } from "./hooks/triggerDevRefresh";
@@ -120,7 +121,7 @@ export function createCmsConfig(options: CmsConfigOptions) {
     routes: {
       admin: "/",
     },
-    endpoints: [generateOgImagesEndpoint(options.siteUrl), deploymentStatusEndpoint],
+    endpoints: [generateOgImagesEndpoint(options.siteUrl), deploymentStatusEndpoint, ...orphanedMediaEndpoints],
     collections,
     globals,
     onInit: async () => {
