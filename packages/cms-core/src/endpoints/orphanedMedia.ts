@@ -34,6 +34,10 @@ const deleteHandler: Endpoint["handler"] = async (req) => {
     // Body parse failure — treat as empty ids list
   }
 
+  if (ids.length === 0) {
+    return Response.json({ error: "No ids provided" }, { status: 400 });
+  }
+
   // Re-verify which IDs are still orphaned before deleting
   let referencedIds: Set<string>;
   try {
