@@ -1,20 +1,6 @@
 ---
 import { resolveIcon } from "@/lib/resolveIcon";
-
-type Tag = {
-  name: string;
-  slug: string;
-};
-
-type Category = {
-  name: string;
-  slug: string;
-};
-
-type Series = {
-  name: string;
-  slug: string;
-};
+import type { TagInfo, CategoryInfo, SeriesInfo } from "@sidshub/cms-core/client";
 
 type Props = {
   title: string;
@@ -23,9 +9,9 @@ type Props = {
   url: string;
   badge?: string;
   badges?: string[];
-  tags?: Tag[];
-  category?: Category;
-  series?: Series;
+  tags?: TagInfo[];
+  category?: CategoryInfo;
+  series?: SeriesInfo;
   target?: string;
   reverse?: boolean;
   links?: Array<{ icon: string; url: string; newTab: boolean }>;

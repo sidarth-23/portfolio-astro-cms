@@ -48,7 +48,7 @@ type CmsTransport = {
 };
 
 type HomeCtaVariant = NonNullable<NonNullable<HomePage["ctaButtons"]>[number]["variant"]>;
-type HomeCtaButton = {
+export type HomeCtaButton = {
   title: string;
   href: string;
   variant: HomeCtaVariant;

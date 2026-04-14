@@ -4,11 +4,7 @@ import BaseLayout from "@/layouts/BaseLayout.astro";
 import { generateFilterUrl } from "@/lib/utils";
 import { PhList, PhX } from "phosphor-icons-astro";
 import type { TableOfContentsItem } from "@sidshub/cms-editor/web/html";
-
-type Tag = { name: string; slug: string };
-type Category = { name: string; slug: string };
-type Series = { name: string; slug: string };
-type Author = { id?: number | string | null; name?: string | null };
+import type { TagInfo, CategoryInfo, SeriesInfo, PopulatedAuthor } from "@sidshub/cms-core/client";
 
 type Props = {
   title: string;
@@ -18,10 +14,10 @@ type Props = {
   updatedDate?: string;
   heroImage?: string;
   badge?: string;
-  tags?: Tag[];
-  category?: Category;
-  series?: Series;
-  authors?: Author[];
+  tags?: TagInfo[];
+  category?: CategoryInfo;
+  series?: SeriesInfo;
+  authors?: PopulatedAuthor[];
   toc?: TableOfContentsItem[];
 };
 

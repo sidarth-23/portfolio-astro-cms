@@ -1,4 +1,5 @@
 import type { Post, Media, User } from "../../payload-types";
+import type { CmsClient } from "./createCmsClient";
 
 export type PostFilterOptions = {
   slug?: string;
@@ -48,3 +49,8 @@ export type SiteFooterItem = {
   url: string;
   newTab: boolean;
 };
+
+// Derived types from CmsClient method returns — no manual shape declaration needed
+export type TagInfo = ReturnType<CmsClient["tagsFromPost"]>[number];
+export type CategoryInfo = NonNullable<ReturnType<CmsClient["categoryFromPost"]>>;
+export type SeriesInfo = NonNullable<ReturnType<CmsClient["seriesFromPost"]>>;

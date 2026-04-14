@@ -1,5 +1,5 @@
 export { createCmsClient } from "./createCmsClient";
-export type { CmsClient } from "./createCmsClient";
+export type { CmsClient, HomeCtaButton } from "./createCmsClient";
 
 export {
   asCategory,
@@ -13,11 +13,14 @@ export {
 } from "./guards";
 
 export type {
+  CategoryInfo,
   PaginatedPosts,
   PopulatedAuthor,
   PostFilterOptions,
   ProjectLink,
   PublishedPostsQueryOptions,
   RelationValue,
+  SeriesInfo,
   SiteFooterItem,
+  TagInfo,
 } from "./types";

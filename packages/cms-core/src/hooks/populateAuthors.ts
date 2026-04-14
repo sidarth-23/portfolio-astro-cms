@@ -1,16 +1,7 @@
 import type { CollectionAfterReadHook } from "payload";
 
 import type { User } from "../payload-types";
-
-type AuthorLink = NonNullable<User["links"]>[number];
-
-type PopulatedAuthor = {
-  id: string;
-  name?: string | null;
-  bio?: User["bio"];
-  avatar?: User["avatar"];
-  links?: Array<Pick<AuthorLink, "icon" | "url" | "newTab">>;
-};
+import type { PopulatedAuthor } from "../lib/client/types";
 
 export const populateAuthors: CollectionAfterReadHook = async ({ doc, req: { payload } }) => {
   const authors = Array.isArray(doc?.authors) ? doc.authors : [];
