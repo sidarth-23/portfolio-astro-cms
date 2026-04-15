@@ -1,4 +1,4 @@
-import type { Post, Media, User } from "../../payload-types";
+import type { Post, Media, User } from "@/payload-types";
 import type { CmsClient } from "./createCmsClient";
 
 export type PostFilterOptions = {

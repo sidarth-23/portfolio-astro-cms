@@ -1,6 +1,6 @@
 import type { AdminViewServerProps } from "payload";
 
-import { getShowDeploymentStatusCard, getDeploymentHookType } from "../../builder";
+import { getShowDeploymentStatusCard, getDeploymentHookType } from "@/builder";
 import { DeploymentStatusCard } from "./DeploymentStatusCard";
 import { OgGeneratorCard } from "./OgGeneratorCard";
 

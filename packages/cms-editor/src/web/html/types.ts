@@ -1,6 +1,6 @@
 import type { SerializedEditorState } from "lexical";
 import type { ComponentType } from "preact";
-import type { UploadDoc } from "../util/image";
+import type { UploadDoc } from "@/web/util/image";
 
 // Core value types
 export type RichTextValue = SerializedEditorState;

@@ -9,13 +9,15 @@
  */
 
 import type { CollectionBeforeChangeHook } from "payload";
-import { getSeoFieldMapping, proposeSeoMetaValues } from "../lib/seoFieldMapping";
+import { getSeoFieldMapping, proposeSeoMetaValues } from "@/lib/seoFieldMapping";
 
 /**
  * Type guard: Check if the incoming data object has a meta field
  */
 function hasMetaField(data: unknown): data is { meta: Record<string, unknown> } {
-  return data !== null && typeof data === "object" && "meta" in data && typeof data.meta === "object";
+  return (
+    data !== null && typeof data === "object" && "meta" in data && typeof data.meta === "object"
+  );
 }
 
 /**

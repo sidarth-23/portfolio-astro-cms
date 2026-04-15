@@ -1,7 +1,7 @@
 import type { DefaultNodeTypes } from "@payloadcms/richtext-lexical";
 import type { HTMLConvertersAsync } from "@payloadcms/richtext-lexical/html-async";
 
-import { slugify } from "../util/slugify";
+import { slugify } from "@/web/util/slugify";
 import type { RichTextValue, TableOfContentsItem } from "./types";
 
 type HeadingTag = "h1" | "h2" | "h3" | "h4" | "h5" | "h6";
@@ -91,7 +91,9 @@ export const createHeadingConverters = (): HTMLConvertersAsync<DefaultNodeTypes>
   return {
     heading: async ({ node, nodesToHTML, providedStyleTag }) => {
       const children = (await nodesToHTML({ nodes: node.children })).join("");
-      const text = extractPlainText(node as SerializedNode).replace(/\s+/g, " ").trim();
+      const text = extractPlainText(node as SerializedNode)
+        .replace(/\s+/g, " ")
+        .trim();
       const idAttribute = text ? ` id="${nextHeadingId(text)}"` : "";
 
       return `<${node.tag}${idAttribute}${providedStyleTag} class="scroll-mt-24">${children}</${node.tag}>`;

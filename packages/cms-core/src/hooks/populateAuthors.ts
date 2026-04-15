@@ -1,7 +1,7 @@
 import type { CollectionAfterReadHook } from "payload";
 
-import type { User } from "../payload-types";
-import type { PopulatedAuthor } from "../lib/client/types";
+import type { User } from "@/payload-types";
+import type { PopulatedAuthor } from "@/lib/client/types";
 
 export const populateAuthors: CollectionAfterReadHook = async ({ doc, req: { payload } }) => {
   const authors = Array.isArray(doc?.authors) ? doc.authors : [];

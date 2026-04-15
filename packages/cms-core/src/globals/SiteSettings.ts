@@ -1,10 +1,9 @@
 import type { GlobalConfig } from "payload";
 
-import { resumeLinkFields } from "../fields/resumeLink";
-import { linkFields } from "../fields/link";
-import { readAccess } from "../access/readAccess";
-import { createPayloadDataSchemaHook } from "../lib/validation";
-import { siteSettingsSchema } from "../lib/validation";
+import { resumeLinkFields } from "@/fields/resumeLink";
+import { linkFields } from "@/fields/link";
+import { readAccess } from "@/access/readAccess";
+import { createPayloadDataSchemaHook, siteSettingsSchema } from "@/lib/validation";
 
 export const SiteSettings: GlobalConfig = {
   slug: "site-settings",
@@ -17,7 +16,9 @@ export const SiteSettings: GlobalConfig = {
   },
   hooks: {
     beforeValidate: [
-      createPayloadDataSchemaHook(siteSettingsSchema, { errorPrefix: "Site Settings validation failed:" }),
+      createPayloadDataSchemaHook(siteSettingsSchema, {
+        errorPrefix: "Site Settings validation failed:",
+      }),
     ],
   },
   fields: [

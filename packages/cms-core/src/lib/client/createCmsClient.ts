@@ -14,8 +14,8 @@ import type {
   SeriesPage,
   SiteSetting,
   User,
-} from "../../payload-types";
-import { createSlug } from "../content";
+} from "@/payload-types";
+import { createSlug } from "@/lib/content";
 import { asCategory, asPopulatedAuthors, asSeries, asUserArray } from "./guards";
 import type {
   PaginatedPosts,
@@ -58,7 +58,6 @@ export type HomeCtaButton = {
 type RelationID = number | string;
 
 const NO_MATCHING_POSTS_ID = "__no_matching_posts__";
-
 
 const sortPosts = (posts: Post[]): Post[] => {
   return posts.sort((a, b) => {

@@ -14,7 +14,7 @@ import {
   getSeoFieldMapping,
   proposeSeoMetaValues,
   getMetaDifferences,
-} from "../seoFieldMapping";
+} from "@/lib/seoFieldMapping";
 
 export type SeoCheckResult = {
   differences: {

@@ -1,14 +1,11 @@
 import type { CollectionConfig } from "payload";
 import { createBasicRichTextEditor, createDocumentRichTextEditor } from "@/lib/editor";
-
-import { readAccess } from "../access/readAccess";
-
-import { populateAuthors } from "../hooks/populateAuthors";
-import { populateSeries } from "../hooks/populateSeries";
-import { createSuggestMetadataAutoPopulationHook } from "../hooks/suggestMetadataAutoPopulation";
-import { slugField } from "../fields/slug";
-import { createPayloadDataSchemaHook } from "../lib/validation";
-import { postsSchema } from "../lib/validation";
+import { readAccess } from "@/access/readAccess";
+import { populateAuthors } from "@/hooks/populateAuthors";
+import { populateSeries } from "@/hooks/populateSeries";
+import { createSuggestMetadataAutoPopulationHook } from "@/hooks/suggestMetadataAutoPopulation";
+import { slugField } from "@/fields/slug";
+import { createPayloadDataSchemaHook, postsSchema } from "@/lib/validation";
 
 export const Posts: CollectionConfig = {
   slug: "posts",

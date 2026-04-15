@@ -1,6 +1,6 @@
 import type { Payload } from "payload";
-import type { Media } from "../../payload-types";
-import { isPhosphorIconName, isSimpleIconSlug, parseIconValueStrict } from "../icons";
+import type { Media } from "@/payload-types";
+import { isPhosphorIconName, isSimpleIconSlug, parseIconValueStrict } from "@/lib/icons";
 
 export type SidebarIconEntry = {
   index: number;

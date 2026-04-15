@@ -1,5 +1,5 @@
 /** @jsxImportSource preact */
-import type { CalloutProps } from "../types";
+import type { CalloutProps } from "@/web/html/types";
 
 const variantStyles: Record<string, string> = {
   neutral: "border-l-4 border-gray-400 bg-gray-50 dark:bg-gray-800/50",

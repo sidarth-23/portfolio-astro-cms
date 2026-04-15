@@ -1,8 +1,7 @@
 "use client";
 
 import { useState } from "react";
-
-import type { OgGenerationMode, OgGenerationResult } from "../../lib/og";
+import type { OgGenerationMode, OgGenerationResult } from "@/lib/og";
 
 export function OgGeneratorCard() {
   const [mode, setMode] = useState<OgGenerationMode>("unset-only");
@@ -40,12 +39,26 @@ export function OgGeneratorCard() {
 
   return (
     <div style={{ marginTop: "24px", marginBottom: "24px" }}>
-      <h3 style={{ margin: "0 0 6px 0", fontSize: "18px", fontWeight: 600, color: "var(--theme-text)" }}>
+      <h3
+        style={{
+          margin: "0 0 6px 0",
+          fontSize: "18px",
+          fontWeight: 600,
+          color: "var(--theme-text)",
+        }}
+      >
         OG Image Generator
       </h3>
-      <p style={{ margin: "0 0 20px 0", fontSize: "13px", color: "var(--theme-elevation-600)", lineHeight: "1.5" }}>
-        Auto-generate branded Open Graph images using your profile image and social links from Site Settings.
-        Posts and projects use their cover image; all other pages are auto-generated.
+      <p
+        style={{
+          margin: "0 0 20px 0",
+          fontSize: "13px",
+          color: "var(--theme-elevation-600)",
+          lineHeight: "1.5",
+        }}
+      >
+        Auto-generate branded Open Graph images using your profile image and social links from Site
+        Settings. Posts and projects use their cover image; all other pages are auto-generated.
       </p>
 
       <div style={{ display: "flex", flexDirection: "column", gap: "8px", marginBottom: "20px" }}>
@@ -55,7 +68,17 @@ export function OgGeneratorCard() {
             { value: "replace-all", label: "Replace all meta images" },
           ] as { value: OgGenerationMode; label: string }[]
         ).map(({ value, label }) => (
-          <label key={value} style={{ display: "flex", alignItems: "center", gap: "8px", fontSize: "13px", color: "var(--theme-text)", cursor: "pointer" }}>
+          <label
+            key={value}
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "8px",
+              fontSize: "13px",
+              color: "var(--theme-text)",
+              cursor: "pointer",
+            }}
+          >
             <input
               type="radio"
               name="og-mode"
@@ -75,7 +98,17 @@ export function OgGeneratorCard() {
         ))}
 
         {mode === "replace-all" && (
-          <label style={{ display: "flex", alignItems: "center", gap: "8px", fontSize: "13px", color: "var(--theme-text)", cursor: "pointer", marginTop: "4px" }}>
+          <label
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "8px",
+              fontSize: "13px",
+              color: "var(--theme-text)",
+              cursor: "pointer",
+              marginTop: "4px",
+            }}
+          >
             <input
               type="checkbox"
               name="og-wipe-old-images"
@@ -109,7 +142,17 @@ export function OgGeneratorCard() {
         }}
       >
         {loading && (
-          <span style={{ display: "inline-block", width: "12px", height: "12px", border: "2px solid var(--theme-elevation-400)", borderTopColor: "var(--theme-elevation-600)", borderRadius: "50%", animation: "og-spin 0.7s linear infinite" }} />
+          <span
+            style={{
+              display: "inline-block",
+              width: "12px",
+              height: "12px",
+              border: "2px solid var(--theme-elevation-400)",
+              borderTopColor: "var(--theme-elevation-600)",
+              borderRadius: "50%",
+              animation: "og-spin 0.7s linear infinite",
+            }}
+          />
         )}
         {loading ? "Generating…" : "Generate OG Images"}
       </button>
@@ -117,20 +160,42 @@ export function OgGeneratorCard() {
       <style>{`@keyframes og-spin { to { transform: rotate(360deg); } }`}</style>
 
       {fatalError && (
-        <div style={{ marginTop: "16px", padding: "10px 14px", background: "var(--theme-error-50, rgba(239,68,68,0.08))", border: "1px solid var(--theme-error-400, rgba(239,68,68,0.3))", borderRadius: "4px", fontSize: "13px", color: "var(--theme-error-500, #ef4444)" }}>
+        <div
+          style={{
+            marginTop: "16px",
+            padding: "10px 14px",
+            background: "var(--theme-error-50, rgba(239,68,68,0.08))",
+            border: "1px solid var(--theme-error-400, rgba(239,68,68,0.3))",
+            borderRadius: "4px",
+            fontSize: "13px",
+            color: "var(--theme-error-500, #ef4444)",
+          }}
+        >
           {fatalError}
         </div>
       )}
 
       {result && (
-        <div style={{ marginTop: "16px", padding: "10px 14px", background: "var(--theme-success-50, rgba(34,197,94,0.08))", border: "1px solid var(--theme-success-400, rgba(34,197,94,0.3))", borderRadius: "4px", fontSize: "13px", color: "var(--theme-text)" }}>
+        <div
+          style={{
+            marginTop: "16px",
+            padding: "10px 14px",
+            background: "var(--theme-success-50, rgba(34,197,94,0.08))",
+            border: "1px solid var(--theme-success-400, rgba(34,197,94,0.3))",
+            borderRadius: "4px",
+            fontSize: "13px",
+            color: "var(--theme-text)",
+          }}
+        >
           <div style={{ fontWeight: 600, marginBottom: "4px" }}>
             Done — {result.generated} generated, {result.skipped} skipped
-            {result.errors.length > 0 && `, ${result.errors.length} error${result.errors.length > 1 ? "s" : ""}`}
+            {result.errors.length > 0 &&
+              `, ${result.errors.length} error${result.errors.length > 1 ? "s" : ""}`}
           </div>
           {result.cleanup.enabled && (
             <div style={{ marginTop: "6px", marginBottom: "4px" }}>
-              Cleanup — {result.cleanup.deleted} deleted, {result.cleanup.skippedReferenced} skipped (still referenced)
+              Cleanup — {result.cleanup.deleted} deleted, {result.cleanup.skippedReferenced} skipped
+              (still referenced)
               {result.cleanup.failed > 0 && `, ${result.cleanup.failed} failed`}
             </div>
           )}

@@ -1,9 +1,6 @@
 import type { Endpoint } from "payload";
 
-import {
-  collectReferencedMediaIds,
-  findOrphanedMedia,
-} from "../lib/orphanedMedia";
+import { collectReferencedMediaIds, findOrphanedMedia } from "@/lib/orphanedMedia";
 
 const getHandler: Endpoint["handler"] = async (req) => {
   if (!req.user) {

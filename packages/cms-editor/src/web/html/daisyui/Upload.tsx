@@ -1,12 +1,15 @@
 /** @jsxImportSource preact */
-import { resolveUrl, ImagePicture } from "../../util/image";
-import type { UploadProps } from "../types";
+import { resolveUrl, ImagePicture } from "@/web/util/image";
+import type { UploadProps } from "@/web/html/types";
 
 export function Upload({ doc, alt, captionHtml, mediaBaseUrl }: UploadProps) {
   if (!doc.url) return null;
 
   const url = resolveUrl(doc.url, mediaBaseUrl);
-  const captionText = (captionHtml ?? "").replace(/<[^>]*>/g, "").replace(/&nbsp;/g, " ").trim();
+  const captionText = (captionHtml ?? "")
+    .replace(/<[^>]*>/g, "")
+    .replace(/&nbsp;/g, " ")
+    .trim();
   const hasCaption = captionText.length > 0;
 
   if (!doc.mimeType?.startsWith("image")) {

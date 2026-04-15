@@ -1,12 +1,11 @@
 import type { GlobalConfig } from "payload";
 import { createBasicRichTextEditor } from "@/lib/editor";
 
-import { readAccess } from "../access/readAccess";
-import { featuredSectionFields } from "../fields/featured";
-import { linkField } from "../fields/link";
-import { HOME_CTA_VARIANT_OPTIONS } from "../lib/content";
-import { createPayloadDataSchemaHook } from "../lib/validation";
-import { homePageSchema } from "../lib/validation";
+import { readAccess } from "@/access/readAccess";
+import { featuredSectionFields } from "@/fields/featured";
+import { linkField } from "@/fields/link";
+import { HOME_CTA_VARIANT_OPTIONS } from "@/lib/content";
+import { createPayloadDataSchemaHook, homePageSchema } from "@/lib/validation";
 
 export const HomePage: GlobalConfig = {
   slug: "home-page",

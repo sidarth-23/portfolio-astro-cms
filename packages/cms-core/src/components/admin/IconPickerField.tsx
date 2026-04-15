@@ -13,28 +13,22 @@ import type { ReactSelectOption as Option } from "@payloadcms/ui";
 import type { TextFieldClientComponent } from "payload";
 import { components as reactSelectComponents } from "react-select";
 import type { OptionProps, SingleValueProps } from "react-select";
-
-import { parseIconValueStrict } from "../../lib/icons";
-import { getPhosphorIconSvgUrl } from "../../lib/icons";
 import {
   findSimpleIconOptions,
   getSimpleIconCdnUrl,
   SIMPLE_ICON_OPTIONS,
-} from "../../lib/icons";
-import {
+  getPhosphorIconSvgUrl,
+  parseIconValueStrict,
   findPhosphorIconOptions,
   PHOSPHOR_ICON_OPTIONS,
-} from "../../lib/icons";
+} from "@/lib/icons";
 
 type IconSource = "simple-icons" | "phosphor";
 type IconOption = Option & { previewUrl: string; source: IconSource };
 
 const RESULT_LIMIT = 50;
 
-const toSimpleIconOption = (icon: {
-  title: string;
-  slug: string;
-}): IconOption => {
+const toSimpleIconOption = (icon: { title: string; slug: string }): IconOption => {
   return {
     label: icon.title,
     value: `si:${icon.slug}`,
@@ -64,14 +58,9 @@ export const IconPickerField: TextFieldClientComponent = ({ field, path }) => {
   const { value, setValue } = useField<string>({ path });
   const storedValue = typeof value === "string" ? value.trim() : "";
 
-  const parsed = useMemo(
-    () => parseIconValueStrict(storedValue),
-    [storedValue],
-  );
+  const parsed = useMemo(() => parseIconValueStrict(storedValue), [storedValue]);
 
-  const [source, setSource] = useState<IconSource>(
-    parsed?.source ?? "simple-icons",
-  );
+  const [source, setSource] = useState<IconSource>(parsed?.source ?? "simple-icons");
   const [searchQuery, setSearchQuery] = useState("");
 
   useEffect(() => {
@@ -86,28 +75,20 @@ export const IconPickerField: TextFieldClientComponent = ({ field, path }) => {
     }
 
     if (parsed.source === "simple-icons") {
-      const icon = SIMPLE_ICON_OPTIONS.find(
-        (option) => option.slug === parsed.slug,
-      );
+      const icon = SIMPLE_ICON_OPTIONS.find((option) => option.slug === parsed.slug);
       return icon ? toSimpleIconOption(icon) : undefined;
     }
 
-    const icon = PHOSPHOR_ICON_OPTIONS.find(
-      (option) => option.name === parsed.name,
-    );
+    const icon = PHOSPHOR_ICON_OPTIONS.find((option) => option.name === parsed.name);
     return icon ? toPhosphorIconOption(icon) : undefined;
   }, [parsed]);
 
   const options = useMemo((): IconOption[] => {
     if (source === "simple-icons") {
-      return findSimpleIconOptions(searchQuery, RESULT_LIMIT).map(
-        toSimpleIconOption,
-      );
+      return findSimpleIconOptions(searchQuery, RESULT_LIMIT).map(toSimpleIconOption);
     }
 
-    return findPhosphorIconOptions(searchQuery, RESULT_LIMIT).map(
-      toPhosphorIconOption,
-    );
+    return findPhosphorIconOptions(searchQuery, RESULT_LIMIT).map(toPhosphorIconOption);
   }, [source, searchQuery]);
 
   const handleSourceToggle = useCallback(
@@ -210,10 +191,7 @@ export const IconPickerField: TextFieldClientComponent = ({ field, path }) => {
             padding: "4px 12px",
             fontSize: "12px",
             fontWeight: source === "simple-icons" ? 600 : 400,
-            background:
-              source === "simple-icons"
-                ? "var(--theme-elevation-150)"
-                : "transparent",
+            background: source === "simple-icons" ? "var(--theme-elevation-150)" : "transparent",
             color: "var(--theme-text)",
             border: "none",
             cursor: "pointer",
@@ -228,10 +206,7 @@ export const IconPickerField: TextFieldClientComponent = ({ field, path }) => {
             padding: "4px 12px",
             fontSize: "12px",
             fontWeight: source === "phosphor" ? 600 : 400,
-            background:
-              source === "phosphor"
-                ? "var(--theme-elevation-150)"
-                : "transparent",
+            background: source === "phosphor" ? "var(--theme-elevation-150)" : "transparent",
             color: "var(--theme-text)",
             border: "none",
             borderLeft: "1px solid var(--theme-elevation-150)",
@@ -254,7 +229,9 @@ export const IconPickerField: TextFieldClientComponent = ({ field, path }) => {
       />
 
       <FieldDescription
-        description={'Use picker values only ("si:<slug>" or "ph:<name>"). Avoid manual text edits.'}
+        description={
+          'Use picker values only ("si:<slug>" or "ph:<name>"). Avoid manual text edits.'
+        }
         path={path}
       />
     </div>

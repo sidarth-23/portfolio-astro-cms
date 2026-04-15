@@ -1,6 +1,5 @@
 import type { Field } from "payload";
-import { LINK_TYPE_OPTIONS } from "../lib/content";
-import { PAGE_ROUTE_OPTIONS } from "../lib/content";
+import { LINK_TYPE_OPTIONS, PAGE_ROUTE_OPTIONS } from "@/lib/content";
 import { iconPickerField } from "./iconPicker";
 
 export type LinkVariant = "link-only" | "icon-only" | "text-only" | "icon-with-text";
@@ -11,7 +10,9 @@ export type LinkFieldArgs = {
   variant?: LinkVariant;
 };
 
-export const linkFields = ({ variant = "link-only" }: Omit<LinkFieldArgs, "name" | "label"> = {}): Field[] => {
+export const linkFields = ({
+  variant = "link-only",
+}: Omit<LinkFieldArgs, "name" | "label"> = {}): Field[] => {
   const fields: Field[] = [];
 
   // 1. Icon field (if icon-only or icon-with-text)
@@ -82,7 +83,11 @@ export const linkFields = ({ variant = "link-only" }: Omit<LinkFieldArgs, "name"
   return fields;
 };
 
-export const linkField = ({ name = "link", label = "Link", variant = "link-only" }: LinkFieldArgs = {}): Field => {
+export const linkField = ({
+  name = "link",
+  label = "Link",
+  variant = "link-only",
+}: LinkFieldArgs = {}): Field => {
   return {
     name,
     label,

@@ -1,6 +1,6 @@
-'use client';
+"use client";
 
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import {
   FormSubmit,
   useForm,
@@ -14,24 +14,24 @@ import {
   useLocale,
   useModal,
   useDrawerSlug,
-} from '@payloadcms/ui';
-import { formatAdminURL } from 'payload/shared';
-import * as qs from 'qs-esm';
+} from "@payloadcms/ui";
+import { formatAdminURL } from "payload/shared";
+import * as qs from "qs-esm";
 
-import { computeSeoCheck, type SeoCheckResult } from '../../../lib/seo/computeSeoCheck';
-import { SeoConfirmModal } from './SeoConfirmModal';
+import { computeSeoCheck, type SeoCheckResult } from "@/lib/seo/computeSeoCheck";
+import { SeoConfirmModal } from "./SeoConfirmModal";
 
 // ---------------------------------------------------------------------------
 // Helpers
 // ---------------------------------------------------------------------------
 
 function extractChangedFields(
-  differences: SeoCheckResult['differences'],
-): Array<'title' | 'description' | 'image'> {
-  const fields: Array<'title' | 'description' | 'image'> = [];
-  if (differences.title) fields.push('title');
-  if (differences.description) fields.push('description');
-  if (differences.image) fields.push('image');
+  differences: SeoCheckResult["differences"],
+): Array<"title" | "description" | "image"> {
+  const fields: Array<"title" | "description" | "image"> = [];
+  if (differences.title) fields.push("title");
+  if (differences.description) fields.push("description");
+  if (differences.image) fields.push("image");
   return fields;
 }
 
@@ -49,13 +49,13 @@ export function SeoSaveButton() {
   const operation = useOperation();
   const { collectionSlug } = useDocumentInfo();
 
-  const drawerSlug = useDrawerSlug('seo-confirm-save');
+  const drawerSlug = useDrawerSlug("seo-confirm-save");
   const { openModal, closeModal, modalState } = useModal();
 
   const resolveRef = useRef<((confirmed: boolean) => void) | null>(null);
-  const [changedFields, setChangedFields] = useState<Array<'title' | 'description' | 'image'>>([]);
+  const [changedFields, setChangedFields] = useState<Array<"title" | "description" | "image">>([]);
 
-  const disabled = (operation === 'update' && !modified) || uploadStatus === 'uploading';
+  const disabled = (operation === "update" && !modified) || uploadStatus === "uploading";
 
   // If the user closes the drawer via X/ESC/backdrop, resolve the pending promise as "skip"
   useEffect(() => {
@@ -78,7 +78,7 @@ export function SeoSaveButton() {
   }, [closeModal, drawerSlug]);
 
   const handleSubmit = useCallback(async () => {
-    if (uploadStatus === 'uploading') {
+    if (uploadStatus === "uploading") {
       return;
     }
 
@@ -112,21 +112,18 @@ export function SeoSaveButton() {
     }
   }, [uploadStatus, getData, collectionSlug, openModal, drawerSlug, submit]);
 
-  useHotkey(
-    { cmdCtrlKey: true, editDepth, keyCodes: ['s'] },
-    (e) => {
-      if (disabled) {
-        e.preventDefault();
-        e.stopPropagation();
-        return;
-      }
+  useHotkey({ cmdCtrlKey: true, editDepth, keyCodes: ["s"] }, (e) => {
+    if (disabled) {
       e.preventDefault();
       e.stopPropagation();
-      if (ref?.current) {
-        ref.current.click();
-      }
-    },
-  );
+      return;
+    }
+    e.preventDefault();
+    e.stopPropagation();
+    if (ref?.current) {
+      ref.current.click();
+    }
+  });
 
   return (
     <>
@@ -138,7 +135,7 @@ export function SeoSaveButton() {
         size="medium"
         type="button"
       >
-        {t('general:save')}
+        {t("general:save")}
       </FormSubmit>
       <SeoConfirmModal
         slug={drawerSlug}
@@ -177,15 +174,17 @@ export function SeoPublishButton() {
   const { code: localeCode } = useLocale();
   const { t } = useTranslation();
 
-  const drawerSlug = useDrawerSlug('seo-confirm-publish');
+  const drawerSlug = useDrawerSlug("seo-confirm-publish");
   const { openModal, closeModal, modalState } = useModal();
 
   const resolveRef = useRef<((confirmed: boolean) => void) | null>(null);
-  const [changedFields, setChangedFields] = useState<Array<'title' | 'description' | 'image'>>([]);
+  const [changedFields, setChangedFields] = useState<Array<"title" | "description" | "image">>([]);
 
   const hasNewerVersions = unpublishedVersionCount > 0;
   const canPublish =
-    !!hasPublishPermission && (modified || hasNewerVersions || !hasPublishedDoc) && uploadStatus !== 'uploading';
+    !!hasPublishPermission &&
+    (modified || hasNewerVersions || !hasPublishedDoc) &&
+    uploadStatus !== "uploading";
 
   // If the user closes the drawer via X/ESC/backdrop, resolve the pending promise as "skip"
   useEffect(() => {
@@ -208,7 +207,7 @@ export function SeoPublishButton() {
   }, [closeModal, drawerSlug]);
 
   const handlePublish = useCallback(async () => {
-    if (uploadStatus === 'uploading') {
+    if (uploadStatus === "uploading") {
       return;
     }
 
@@ -232,7 +231,9 @@ export function SeoPublishButton() {
           meta: {
             ...existingMeta,
             ...(check.differences.title ? { title: check.proposedMeta.title } : {}),
-            ...(check.differences.description ? { description: check.proposedMeta.description } : {}),
+            ...(check.differences.description
+              ? { description: check.proposedMeta.description }
+              : {}),
             ...(check.differences.image ? { image: check.proposedMeta.image } : {}),
           },
         };
@@ -242,7 +243,7 @@ export function SeoPublishButton() {
     const params = qs.stringify({ depth: 0, locale: localeCode }, { addQueryPrefix: true });
     const pathSegment = globalSlug
       ? `/globals/${globalSlug}`
-      : `/${collectionSlug}${id ? `/${id}` : ''}`;
+      : `/${collectionSlug}${id ? `/${id}` : ""}`;
     const action = formatAdminURL({
       apiRoute: api,
       path: `${pathSegment}${params}` as `/${string}`,
@@ -251,7 +252,7 @@ export function SeoPublishButton() {
     const result = await submit({
       action,
       overrides: {
-        _status: 'published',
+        _status: "published",
         ...(seoOverrides || {}),
       },
     });
@@ -290,7 +291,7 @@ export function SeoPublishButton() {
         size="medium"
         type="button"
       >
-        {t('version:publishChanges')}
+        {t("version:publishChanges")}
       </FormSubmit>
       <SeoConfirmModal
         slug={drawerSlug}
@@ -312,13 +313,8 @@ export function SeoSaveDraftButton() {
       routes: { api },
     },
   } = useConfig();
-  const {
-    id,
-    collectionSlug,
-    globalSlug,
-    setUnpublishedVersionCount,
-    uploadStatus,
-  } = useDocumentInfo();
+  const { id, collectionSlug, globalSlug, setUnpublishedVersionCount, uploadStatus } =
+    useDocumentInfo();
   const modified = useFormModified();
   const { code: locale } = useLocale();
   const ref = useRef<HTMLButtonElement>(null);
@@ -327,13 +323,13 @@ export function SeoSaveDraftButton() {
   const { submit, getData } = useForm();
   const operation = useOperation();
 
-  const drawerSlug = useDrawerSlug('seo-confirm-draft');
+  const drawerSlug = useDrawerSlug("seo-confirm-draft");
   const { openModal, closeModal, modalState } = useModal();
 
   const resolveRef = useRef<((confirmed: boolean) => void) | null>(null);
-  const [changedFields, setChangedFields] = useState<Array<'title' | 'description' | 'image'>>([]);
+  const [changedFields, setChangedFields] = useState<Array<"title" | "description" | "image">>([]);
 
-  const disabled = (operation === 'update' && !modified) || uploadStatus === 'uploading';
+  const disabled = (operation === "update" && !modified) || uploadStatus === "uploading";
 
   // If the user closes the drawer via X/ESC/backdrop, resolve the pending promise as "skip"
   useEffect(() => {
@@ -380,7 +376,9 @@ export function SeoSaveDraftButton() {
           meta: {
             ...existingMeta,
             ...(check.differences.title ? { title: check.proposedMeta.title } : {}),
-            ...(check.differences.description ? { description: check.proposedMeta.description } : {}),
+            ...(check.differences.description
+              ? { description: check.proposedMeta.description }
+              : {}),
             ...(check.differences.image ? { image: check.proposedMeta.image } : {}),
           },
         };
@@ -389,15 +387,15 @@ export function SeoSaveDraftButton() {
 
     const search = `?locale=${locale}&depth=0&fallback-locale=null&draft=true`;
     let action: string | undefined;
-    let method: 'POST' | 'PATCH' = 'POST';
+    let method: "POST" | "PATCH" = "POST";
 
     if (collectionSlug) {
       action = formatAdminURL({
         apiRoute: api,
-        path: `/${collectionSlug}${id ? `/${id}` : ''}${search}`,
+        path: `/${collectionSlug}${id ? `/${id}` : ""}${search}`,
       });
       if (id) {
-        method = 'PATCH';
+        method = "PATCH";
       }
     }
 
@@ -412,7 +410,7 @@ export function SeoSaveDraftButton() {
       action,
       method,
       overrides: {
-        _status: 'draft',
+        _status: "draft",
         ...(seoOverrides || {}),
       },
       skipValidation: true,
@@ -433,21 +431,18 @@ export function SeoSaveDraftButton() {
     setUnpublishedVersionCount,
   ]);
 
-  useHotkey(
-    { cmdCtrlKey: true, editDepth, keyCodes: ['s'] },
-    (e) => {
-      if (disabled) {
-        e.preventDefault();
-        e.stopPropagation();
-        return;
-      }
+  useHotkey({ cmdCtrlKey: true, editDepth, keyCodes: ["s"] }, (e) => {
+    if (disabled) {
       e.preventDefault();
       e.stopPropagation();
-      if (ref?.current) {
-        ref.current.click();
-      }
-    },
-  );
+      return;
+    }
+    e.preventDefault();
+    e.stopPropagation();
+    if (ref?.current) {
+      ref.current.click();
+    }
+  });
 
   return (
     <>
@@ -461,7 +456,7 @@ export function SeoSaveDraftButton() {
         size="medium"
         type="button"
       >
-        {t('version:saveDraft')}
+        {t("version:saveDraft")}
       </FormSubmit>
       <SeoConfirmModal
         slug={drawerSlug}

@@ -10,17 +10,19 @@ import type {
   Series,
   SeriesPage,
   SiteSetting,
-} from "../../../payload-types";
+} from "@/payload-types";
 
 let _counter = 0;
 
 const makeMongoId = () => {
   // Generate a MongoDB-like ObjectId (24-character hex string)
   // Structure: 4 bytes timestamp + 5 bytes random + 3 bytes counter
-  const timestamp = Math.floor(Date.now() / 1000).toString(16).padStart(8, "0");
-  const random = Array.from({ length: 10 }, () =>
-    Math.floor(Math.random() * 16).toString(16)
-  ).join("");
+  const timestamp = Math.floor(Date.now() / 1000)
+    .toString(16)
+    .padStart(8, "0");
+  const random = Array.from({ length: 10 }, () => Math.floor(Math.random() * 16).toString(16)).join(
+    "",
+  );
   const counter = (_counter++ % 0xffffff).toString(16).padStart(6, "0");
   return (timestamp + random + counter).slice(0, 24);
 };
@@ -58,7 +60,13 @@ export const makeRichText = () => ({
 });
 
 export const makeCategory = (overrides: Partial<Category> = {}): Category => {
-  const name = faker.helpers.arrayElement(["Technology", "Engineering", "Design", "DevOps", "Science"]);
+  const name = faker.helpers.arrayElement([
+    "Technology",
+    "Engineering",
+    "Design",
+    "DevOps",
+    "Science",
+  ]);
   return {
     id: nextId(),
     name,
@@ -71,7 +79,10 @@ export const makeCategory = (overrides: Partial<Category> = {}): Category => {
 
 export const makePost = (category: Category, overrides: Partial<Post> = {}): Post => {
   const title = faker.lorem.words(4);
-  const slug = title.toLowerCase().replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, "");
+  const slug = title
+    .toLowerCase()
+    .replace(/\s+/g, "-")
+    .replace(/[^a-z0-9-]/g, "");
   const now = faker.date.past().toISOString();
   const post = {
     id: nextId(),
@@ -102,7 +113,10 @@ export const makePost = (category: Category, overrides: Partial<Post> = {}): Pos
 
 export const makeSeries = (posts: Post[], overrides: Partial<Series> = {}): Series => {
   const name = faker.lorem.words(3);
-  const slug = name.toLowerCase().replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, "");
+  const slug = name
+    .toLowerCase()
+    .replace(/\s+/g, "-")
+    .replace(/[^a-z0-9-]/g, "");
   return {
     id: nextId(),
     name,
@@ -120,7 +134,10 @@ export const makeSeries = (posts: Post[], overrides: Partial<Series> = {}): Seri
 
 export const makeProject = (overrides: Partial<Project> = {}): Project => {
   const title = faker.commerce.productName();
-  const slug = title.toLowerCase().replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, "");
+  const slug = title
+    .toLowerCase()
+    .replace(/\s+/g, "-")
+    .replace(/[^a-z0-9-]/g, "");
   return {
     id: nextId(),
     title,
@@ -218,10 +235,7 @@ export const makeCvPage = (overrides: Partial<CvPage> = {}): CvPage => ({
       badgeGroups: [
         {
           title: "Languages",
-          badges: [
-            { value: "TypeScript" },
-            { value: "Rust" },
-          ],
+          badges: [{ value: "TypeScript" }, { value: "Rust" }],
         },
       ],
     },
@@ -235,7 +249,10 @@ export const makeCvPage = (overrides: Partial<CvPage> = {}): CvPage => ({
   ...overrides,
 });
 
-export const makeProjectsPage = (projects: Project[], overrides: Partial<ProjectsPage> = {}): ProjectsPage => ({
+export const makeProjectsPage = (
+  projects: Project[],
+  overrides: Partial<ProjectsPage> = {},
+): ProjectsPage => ({
   id: nextId(),
   sections: [
     {
@@ -263,4 +280,3 @@ export const makeSeriesPage = (overrides: Partial<SeriesPage> = {}): SeriesPage 
   createdAt: new Date().toISOString(),
   ...overrides,
 });
-

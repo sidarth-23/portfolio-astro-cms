@@ -1,7 +1,5 @@
 import type { Endpoint } from "payload";
-
-import type { OgGenerationMode } from "../lib/og";
-import { generateOgImages } from "../lib/og";
+import { OgGenerationMode, generateOgImages } from "@/lib/og";
 
 export const generateOgImagesEndpoint = (siteUrl?: string): Endpoint => {
   return {

@@ -1,11 +1,8 @@
 import type { CollectionConfig } from "payload";
-
-import { readAccess } from "../access/readAccess";
-
-import { createSuggestMetadataAutoPopulationHook } from "../hooks/suggestMetadataAutoPopulation";
-import { slugField } from "../fields/slug";
-import { createPayloadDataSchemaHook } from "../lib/validation";
-import { seriesSchema } from "../lib/validation";
+import { readAccess } from "@/access/readAccess";
+import { createSuggestMetadataAutoPopulationHook } from "@/hooks/suggestMetadataAutoPopulation";
+import { slugField } from "@/fields/slug";
+import { createPayloadDataSchemaHook, seriesSchema } from "@/lib/validation";
 
 export const Series: CollectionConfig = {
   slug: "series",
@@ -24,7 +21,9 @@ export const Series: CollectionConfig = {
   },
   hooks: {
     beforeChange: [createSuggestMetadataAutoPopulationHook("series")],
-    beforeValidate: [createPayloadDataSchemaHook(seriesSchema, { errorPrefix: "Series validation failed:" })],
+    beforeValidate: [
+      createPayloadDataSchemaHook(seriesSchema, { errorPrefix: "Series validation failed:" }),
+    ],
   },
   fields: [
     {

@@ -13,7 +13,7 @@ import {
   siReact,
   type SimpleIcon,
 } from "simple-icons";
-import type { CodeProps } from "../types";
+import type { CodeProps } from "@/web/html/types";
 
 const LANGUAGE_ICONS: Record<string, SimpleIcon> = {
   javascript: siJavascript,
@@ -179,9 +179,7 @@ export function Code(props: CodeProps) {
             hasCaption ? "has-caption" : "no-caption"
           }`}
         >
-          {hasCaption && (
-            <span class="code-block-caption-text">{captionText}</span>
-          )}
+          {hasCaption && <span class="code-block-caption-text">{captionText}</span>}
         </figcaption>
       </figure>
     );
@@ -226,9 +224,7 @@ export function Code(props: CodeProps) {
           hasCaption ? "has-caption" : "no-caption"
         }`}
       >
-        {hasCaption && (
-          <span class="code-block-caption-text">{captionText}</span>
-        )}
+        {hasCaption && <span class="code-block-caption-text">{captionText}</span>}
       </figcaption>
     </figure>
   );

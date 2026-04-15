@@ -1,5 +1,5 @@
 import { PayloadSDK } from "@payloadcms/sdk";
-import type { Config } from "../../payload-types";
+import type { Config } from "@/payload-types";
 import { createCmsClient } from "./createCmsClient";
 
 type RestClientOptions = {

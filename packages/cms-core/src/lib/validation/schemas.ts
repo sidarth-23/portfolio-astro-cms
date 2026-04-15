@@ -1,10 +1,7 @@
 import { z } from "zod";
 
-import {
-  CV_SECTION_TYPE_OPTIONS,
-  HOME_CTA_VARIANT_OPTIONS,
-} from "../content";
-import { isPhosphorIconName, isSimpleIconSlug } from "../icons";
+import { CV_SECTION_TYPE_OPTIONS, HOME_CTA_VARIANT_OPTIONS } from "@/lib/content";
+import { isPhosphorIconName, isSimpleIconSlug } from "@/lib/icons";
 import {
   optionalHttpUrl,
   optionalLinkUrl,
@@ -85,14 +82,18 @@ const withSeoMeta = <T extends z.ZodRawShape>(shape: T) => {
 };
 
 export const siteSettingsSchema = withSeoMeta({
-  sidebarFooterItems: z.array(
-    z.object({
-      icon: optionalStrictIcon,
-      url: optionalLinkUrl,
-      newTab: z.boolean().optional(),
-      type: z.enum(["custom", "reference", "page"]).optional(),
-    }).passthrough()
-  ).optional(),
+  sidebarFooterItems: z
+    .array(
+      z
+        .object({
+          icon: optionalStrictIcon,
+          url: optionalLinkUrl,
+          newTab: z.boolean().optional(),
+          type: z.enum(["custom", "reference", "page"]).optional(),
+        })
+        .passthrough(),
+    )
+    .optional(),
 });
 
 export const homePageSchema = z
@@ -256,13 +257,17 @@ export const categoriesSchema = z
 export const usersSchema = z
   .object({
     name: requiredText.optional(),
-    links: z.array(
-      z.object({
-        icon: optionalStrictIcon,
-        url: optionalLinkUrl,
-        newTab: z.boolean().optional(),
-        type: z.enum(["custom", "reference", "page"]).optional(),
-      }).passthrough()
-    ).optional(),
+    links: z
+      .array(
+        z
+          .object({
+            icon: optionalStrictIcon,
+            url: optionalLinkUrl,
+            newTab: z.boolean().optional(),
+            type: z.enum(["custom", "reference", "page"]).optional(),
+          })
+          .passthrough(),
+      )
+      .optional(),
   })
   .passthrough();

@@ -1,11 +1,8 @@
 "use client";
 
 import { useRowLabel } from "@payloadcms/ui";
-
 import { formatRowLabel, getTrimmedString } from "./utils";
-import { parseIconValueStrict } from "../../../lib/icons";
-import { getSimpleIconCdnUrl } from "../../../lib/icons";
-import { getPhosphorIconSvgUrl } from "../../../lib/icons";
+import { parseIconValueStrict, getSimpleIconCdnUrl, getPhosphorIconSvgUrl } from "@/lib/icons";
 
 type BadgeRowData = {
   value?: unknown;

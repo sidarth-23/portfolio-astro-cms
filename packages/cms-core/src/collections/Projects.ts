@@ -1,13 +1,10 @@
 import type { CollectionConfig } from "payload";
-
-import { readAccess } from "../access/readAccess";
-
-import { createSuggestMetadataAutoPopulationHook } from "../hooks/suggestMetadataAutoPopulation";
-import { iconPickerField } from "../fields/iconPicker";
-import { linkFields } from "../fields/link";
-import { slugField } from "../fields/slug";
-import { createPayloadDataSchemaHook } from "../lib/validation";
-import { projectsSchema } from "../lib/validation";
+import { readAccess } from "@/access/readAccess";
+import { createSuggestMetadataAutoPopulationHook } from "@/hooks/suggestMetadataAutoPopulation";
+import { iconPickerField } from "@/fields/iconPicker";
+import { linkFields } from "@/fields/link";
+import { slugField } from "@/fields/slug";
+import { projectsSchema, createPayloadDataSchemaHook } from "@/lib/validation";
 
 export const Projects: CollectionConfig = {
   slug: "projects",

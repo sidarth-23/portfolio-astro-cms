@@ -1,14 +1,13 @@
 ---
-import BaseHead from "../components/BaseHead.astro";
-import Header from "../components/Header.astro";
-import SideBar from "../components/SideBar.astro";
-import ThemePreloadScript from "../components/ThemePreloadScript.astro";
-import ThemeSwitcher from "../components/ThemeSwitcher.astro";
+import BaseHead from "@/components/BaseHead.astro";
+import Header from "@/components/Header.astro";
+import SideBar from "@/components/SideBar.astro";
+import ThemePreloadScript from "@/components/ThemePreloadScript.astro";
+import ThemeSwitcher from "@/components/ThemeSwitcher.astro";
 import { ClientRouter } from "astro:transitions";
 import type { HomePage, SiteSetting } from "@sidshub/cms-core/payload-types";
-import { cmsClient } from "../lib/cms";
-
-import { TRANSITION_API } from "../consts";
+import { cmsClient } from "@/lib/cms";
+import { TRANSITION_API } from "@/consts";
 
 type Props = {
   image?: string;
@@ -45,9 +44,7 @@ if (!pageTitle) {
 }
 
 if (!pageDescription) {
-  throw new Error(
-    "BaseLayout requires a non-empty SEO description via `description`.",
-  );
+  throw new Error("BaseLayout requires a non-empty SEO description via `description`.");
 }
 
 const profileImage = cmsClient.mediaToUrl(siteSettings.profileImage);
@@ -75,9 +72,7 @@ const resumeDownloadUrl = siteSettings.resumeDownloadUrl || undefined;
       <div class="drawer-content bg-base-100">
         <Header name={homePage.name} />
         <div class="w-full px-6 pb-14 pt-6">
-          <div
-            class="mx-auto mb-4 hidden w-full max-w-5xl justify-end 2xl:max-w-6xl lg:flex"
-          >
+          <div class="mx-auto mb-4 hidden w-full max-w-5xl justify-end 2xl:max-w-6xl lg:flex">
             <ThemeSwitcher />
           </div>
           <main class="mx-auto w-full max-w-5xl 2xl:max-w-6xl">
@@ -95,6 +90,5 @@ const resumeDownloadUrl = siteSettings.resumeDownloadUrl || undefined;
         )
       }
     </div>
-
   </body>
 </html>

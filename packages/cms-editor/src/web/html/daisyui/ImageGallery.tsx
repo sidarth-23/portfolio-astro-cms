@@ -1,9 +1,8 @@
 /** @jsxImportSource preact */
-import { ImagePicture } from "../../util/image";
-import type { ImageGalleryProps } from "../types";
-
-const CHEVRON_LEFT_SVG = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 256 256" aria-hidden="true"><path fill="currentColor" d="M165.66 202.34a8 8 0 0 1-11.32 11.32l-80-80a8 8 0 0 1 0-11.32l80-80a8 8 0 0 1 11.32 11.32L91.31 128Z"/></svg>`;
-const CHEVRON_RIGHT_SVG = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 256 256" aria-hidden="true"><path fill="currentColor" d="M181.66 133.66l-80 80a8 8 0 0 1-11.32-11.32L164.69 128L90.34 53.66a8 8 0 0 1 11.32-11.32l80 80a8 8 0 0 1 0 11.32Z"/></svg>`;
+import caretLeftSvg from "@phosphor-icons/core/assets/regular/caret-left.svg?raw";
+import caretRightSvg from "@phosphor-icons/core/assets/regular/caret-right.svg?raw";
+import { ImagePicture } from "@/web/util/image";
+import type { ImageGalleryProps } from "@/web/html/types";
 
 export function ImageGallery({ images, mediaBaseUrl }: ImageGalleryProps) {
   const total = images.length;
@@ -52,7 +51,7 @@ export function ImageGallery({ images, mediaBaseUrl }: ImageGalleryProps) {
           data-gallery-prev
           class="btn btn-circle btn-ghost btn-sm absolute left-3 top-1/2 z-10 -translate-y-1/2 bg-base-300/80 shadow-md backdrop-blur-sm pointer-events-auto"
           aria-label="Previous slide"
-          dangerouslySetInnerHTML={{ __html: CHEVRON_LEFT_SVG }}
+          dangerouslySetInnerHTML={{ __html: caretLeftSvg }}
         />
 
         {/* Next button */}
@@ -61,7 +60,7 @@ export function ImageGallery({ images, mediaBaseUrl }: ImageGalleryProps) {
           data-gallery-next
           class="btn btn-circle btn-ghost btn-sm absolute right-3 top-1/2 z-10 -translate-y-1/2 bg-base-300/80 shadow-md backdrop-blur-sm pointer-events-auto"
           aria-label="Next slide"
-          dangerouslySetInnerHTML={{ __html: CHEVRON_RIGHT_SVG }}
+          dangerouslySetInnerHTML={{ __html: caretRightSvg }}
         />
 
         {/* Slide counter */}

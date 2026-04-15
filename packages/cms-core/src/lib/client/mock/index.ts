@@ -1,7 +1,7 @@
 import { faker } from "@faker-js/faker";
 import type { PayloadSDK } from "@payloadcms/sdk";
-import type { Config } from "../../../payload-types";
-import { createCmsClient } from "../createCmsClient";
+import type { Config } from "@/payload-types";
+import { createCmsClient } from "@/lib/client/createCmsClient";
 import {
   makeBlogPage,
   makeCategory,

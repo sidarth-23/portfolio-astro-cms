@@ -1,5 +1,5 @@
 /** @jsxImportSource preact */
-import type { CalloutProps } from "../types";
+import type { CalloutProps } from "@/web/html/types";
 
 const variantToAlertClass: Record<string, string> = {
   neutral: "alert",

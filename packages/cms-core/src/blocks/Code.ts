@@ -1,5 +1,5 @@
 import type { Block } from "payload";
-import { CODE_BLOCK_LANGUAGE_OPTIONS, CODE_BLOCK_MODE_OPTIONS } from "../lib/content";
+import { CODE_BLOCK_LANGUAGE_OPTIONS, CODE_BLOCK_MODE_OPTIONS } from "@/lib/content";
 
 export const CodeBlock: Block = {
   slug: "code",

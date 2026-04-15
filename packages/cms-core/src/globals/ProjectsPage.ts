@@ -1,9 +1,8 @@
 import type { GlobalConfig } from "payload";
 import { createBasicRichTextEditor } from "@/lib/editor";
 
-import { readAccess } from "../access/readAccess";
-import { createPayloadDataSchemaHook } from "../lib/validation";
-import { projectsPageSchema } from "../lib/validation";
+import { readAccess } from "@/access/readAccess";
+import { createPayloadDataSchemaHook, projectsPageSchema } from "@/lib/validation";
 
 type ProjectRelationValue = number | string | { id?: number | string | null } | null | undefined;
 

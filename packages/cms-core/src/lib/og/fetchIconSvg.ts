@@ -1,6 +1,11 @@
 import * as simpleIcons from "simple-icons";
 
-import { getPhosphorIconSvgUrl, isPhosphorIconName, isSimpleIconSlug, parseIconValueStrict } from "../icons";
+import {
+  getPhosphorIconSvgUrl,
+  isPhosphorIconName,
+  isSimpleIconSlug,
+  parseIconValueStrict,
+} from "@/lib/icons";
 
 type SimpleIconEntry = {
   slug: string;

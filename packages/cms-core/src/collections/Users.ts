@@ -1,10 +1,8 @@
 import type { CollectionConfig, Condition, PayloadRequest } from "payload";
 import { createBasicRichTextEditor } from "@/lib/editor";
-
-import { generateForgotPasswordEmailHTML, generateForgotPasswordEmailSubject } from "../lib/email";
-import { createPayloadDataSchemaHook } from "../lib/validation";
-import { usersSchema } from "../lib/validation";
-import { linkFields } from "../fields/link";
+import { generateForgotPasswordEmailHTML, generateForgotPasswordEmailSubject } from "@/lib/email";
+import { createPayloadDataSchemaHook, usersSchema } from "@/lib/validation";
+import { linkFields } from "@/fields/link";
 
 const showProfileFieldsAfterLogin: Condition = (_data, _siblingData, { user }) => {
   return Boolean(user);

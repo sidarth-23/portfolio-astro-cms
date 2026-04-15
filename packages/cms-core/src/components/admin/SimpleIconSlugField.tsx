@@ -12,11 +12,7 @@ import {
 import type { ReactSelectOption as Option } from "@payloadcms/ui";
 import type { TextFieldClientComponent } from "payload";
 
-import {
-  findSimpleIconOptions,
-  isSimpleIconSlug,
-  SIMPLE_ICON_OPTIONS,
-} from "../../lib/icons";
+import { findSimpleIconOptions, isSimpleIconSlug, SIMPLE_ICON_OPTIONS } from "@/lib/icons";
 
 const RESULT_LIMIT = 50;
 
@@ -25,10 +21,7 @@ const toSelectOption = (icon: { title: string; slug: string }): Option => ({
   value: icon.slug,
 });
 
-export const SimpleIconSlugField: TextFieldClientComponent = ({
-  field,
-  path,
-}) => {
+export const SimpleIconSlugField: TextFieldClientComponent = ({ field, path }) => {
   const { value, setValue } = useField<string>({ path });
   const selectedSlug = typeof value === "string" ? value.trim() : "";
   const [searchQuery, setSearchQuery] = useState("");

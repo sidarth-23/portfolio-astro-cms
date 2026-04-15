@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Pill } from "@payloadcms/ui";
 
-import type { HookType } from "../../lib/deployment/factory";
+import type { HookType } from "@/lib/deployment/factory";
 
 type DeploymentStatus = "deployed" | "building" | "failed" | "unknown";
 

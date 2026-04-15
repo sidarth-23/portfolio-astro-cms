@@ -13,7 +13,7 @@ import {
   siReact,
   type SimpleIcon,
 } from "simple-icons";
-import type { CodeProps } from "../types";
+import type { CodeProps } from "@/web/html/types";
 
 const LANGUAGE_ICONS: Record<string, SimpleIcon> = {
   javascript: siJavascript,
@@ -106,10 +106,7 @@ export function Code(props: CodeProps) {
           </div>
 
           {/* Overflow dropdown */}
-          <div
-            class="dropdown dropdown-end hidden self-center pr-1"
-            data-tabs-dropdown
-          >
+          <div class="dropdown dropdown-end hidden self-center pr-1" data-tabs-dropdown>
             <button
               type="button"
               tabIndex={0}
@@ -183,9 +180,7 @@ export function Code(props: CodeProps) {
             hasCaption ? "has-caption" : "no-caption"
           }`}
         >
-          {hasCaption && (
-            <span class="code-block-caption-text">{captionText}</span>
-          )}
+          {hasCaption && <span class="code-block-caption-text">{captionText}</span>}
         </figcaption>
       </figure>
     );
@@ -232,9 +227,7 @@ export function Code(props: CodeProps) {
           hasCaption ? "has-caption" : "no-caption"
         }`}
       >
-        {hasCaption && (
-          <span class="code-block-caption-text">{captionText}</span>
-        )}
+        {hasCaption && <span class="code-block-caption-text">{captionText}</span>}
       </figcaption>
     </figure>
   );

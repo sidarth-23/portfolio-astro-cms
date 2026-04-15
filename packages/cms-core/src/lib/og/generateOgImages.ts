@@ -1,12 +1,16 @@
 import type { Payload } from "payload";
 
-import type { Media } from "../../payload-types";
-import { collectReferencedMediaIds } from "../orphanedMedia";
+import type { Media } from "@/payload-types";
+import { collectReferencedMediaIds } from "@/lib/orphanedMedia";
 import type { IconFetchFailureReason } from "./fetchIconSvg";
 import { fetchIconSvg, svgToDataUri } from "./fetchIconSvg";
 import { ensureOgFolder } from "./ensureOgFolder";
 import type { SidebarIconDiagnostic } from "./fetchProfileImage";
-import { fetchProfileImageDataUri, fetchSidebarIcons, getSidebarIconDiagnostics } from "./fetchProfileImage";
+import {
+  fetchProfileImageDataUri,
+  fetchSidebarIcons,
+  getSidebarIconDiagnostics,
+} from "./fetchProfileImage";
 import type { OgTarget } from "./registry";
 import { OG_TARGETS } from "./registry";
 import { renderOgImage } from "./renderOgImage";
@@ -187,7 +191,8 @@ async function processDoc(
     return {
       generated: false,
       skipped: false,
-      error: "SEO title and description must be set before generating an OG image (fill in the SEO tab).",
+      error:
+        "SEO title and description must be set before generating an OG image (fill in the SEO tab).",
     };
   }
 
@@ -213,7 +218,14 @@ async function processDoc(
 
   // Always render and persist OG images into the media collection.
   const filename = getOgFilename(target, doc);
-  const imageId = await uploadOgImage(payload, ogTitle, ogDescription, filename, ogFolderId, assets);
+  const imageId = await uploadOgImage(
+    payload,
+    ogTitle,
+    ogDescription,
+    filename,
+    ogFolderId,
+    assets,
+  );
   const nextImageId = String(imageId);
 
   // Build update data — always include required SEO fields to satisfy Payload field validation
@@ -246,9 +258,10 @@ async function processDoc(
   return {
     generated: true,
     skipped: false,
-    replacedImage: previousImageId !== null && previousImageId !== nextImageId
-      ? { oldImageId: previousImageId, newImageId: nextImageId }
-      : undefined,
+    replacedImage:
+      previousImageId !== null && previousImageId !== nextImageId
+        ? { oldImageId: previousImageId, newImageId: nextImageId }
+        : undefined,
   };
 }
 
@@ -344,7 +357,10 @@ async function processTarget(
           result.errors.push({ entity: label, error: docResult.error });
         }
       } catch (error) {
-        result.errors.push({ entity: label, error: error instanceof Error ? error.message : String(error) });
+        result.errors.push({
+          entity: label,
+          error: error instanceof Error ? error.message : String(error),
+        });
       }
     }
 
@@ -353,7 +369,10 @@ async function processTarget(
 
   // Global
   try {
-    const doc = (await payload.findGlobal({ slug: target.slug as never, depth: 0 })) as unknown as ContentRecord;
+    const doc = (await payload.findGlobal({
+      slug: target.slug as never,
+      depth: 0,
+    })) as unknown as ContentRecord;
     const label = getEntityLabel(target, doc);
 
     const docResult = await processDoc(payload, target, doc, mode, ogFolderId, assets);
@@ -369,7 +388,10 @@ async function processTarget(
       }
     }
   } catch (error) {
-    result.errors.push({ entity: `global/${target.slug}`, error: error instanceof Error ? error.message : String(error) });
+    result.errors.push({
+      entity: `global/${target.slug}`,
+      error: error instanceof Error ? error.message : String(error),
+    });
   }
 
   return result;
@@ -393,20 +415,28 @@ export async function generateOgImages(
     })),
   );
 
-  const successfulIconSvgs = iconFetchResults.flatMap((item) => (item.result.ok ? [item.result.svg] : []));
+  const successfulIconSvgs = iconFetchResults.flatMap((item) =>
+    item.result.ok ? [item.result.svg] : [],
+  );
   const socialIconDataUris = await Promise.all(successfulIconSvgs.map((svg) => svgToDataUri(svg)));
 
-  const assets: SharedAssets = { profileImageDataUri, socialIconDataUris, siteUrl: options.siteUrl };
+  const assets: SharedAssets = {
+    profileImageDataUri,
+    socialIconDataUris,
+    siteUrl: options.siteUrl,
+  };
 
   const failedToLoad = iconFetchResults.flatMap((item) => {
     if (item.result.ok) return [];
 
-    return [{
-      index: item.entry.index,
-      iconValue: item.entry.iconValue,
-      reason: item.result.reason,
-      message: item.result.message,
-    }];
+    return [
+      {
+        index: item.entry.index,
+        iconValue: item.entry.iconValue,
+        reason: item.result.reason,
+        message: item.result.message,
+      },
+    ];
   });
 
   const totals: OgGenerationResult = {

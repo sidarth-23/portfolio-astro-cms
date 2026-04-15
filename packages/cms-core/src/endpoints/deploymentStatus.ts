@@ -1,6 +1,6 @@
 import type { Endpoint } from "payload";
 
-import { getDeploymentStatusAdapter, getDeploymentHookValid } from "../builder";
+import { getDeploymentStatusAdapter, getDeploymentHookValid } from "@/builder";
 
 export const deploymentStatusEndpoint: Endpoint = {
   path: "/deployment-status",

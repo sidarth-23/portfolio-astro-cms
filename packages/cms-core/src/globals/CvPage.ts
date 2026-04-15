@@ -1,15 +1,14 @@
 import type { Field, GlobalConfig } from "payload";
 import { createBasicRichTextEditor } from "@/lib/editor";
 
-import { readAccess } from "../access/readAccess";
-import { iconPickerField } from "../fields/iconPicker";
+import { readAccess } from "@/access/readAccess";
+import { iconPickerField } from "@/fields/iconPicker";
 import {
   CV_ITEMS_VARIANT_OPTIONS,
   CV_SECTION_ITEM_TYPE_OPTIONS,
   CV_SECTION_TYPE_OPTIONS,
-} from "../lib/content";
-import { createPayloadDataSchemaHook } from "../lib/validation";
-import { cvPageSchema } from "../lib/validation";
+} from "@/lib/content";
+import { createPayloadDataSchemaHook, cvPageSchema } from "@/lib/validation";
 
 const sectionItemFields: Field[] = [
   {

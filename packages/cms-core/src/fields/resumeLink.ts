@@ -1,7 +1,6 @@
 import type { Field } from "payload";
 
-import { RESUME_URL_TYPE_OPTIONS } from "../lib/content";
-import { resolveResumeUrl } from "../lib/content";
+import { RESUME_URL_TYPE_OPTIONS, resolveResumeUrl } from "@/lib/content";
 
 export const resumeLinkFields: Field[] = [
   {
@@ -10,7 +9,8 @@ export const resumeLinkFields: Field[] = [
     required: false,
     options: RESUME_URL_TYPE_OPTIONS,
     admin: {
-      description: "Select Google Drive to auto-convert a sharing URL into a download link. Select Custom Link for any direct download URL.",
+      description:
+        "Select Google Drive to auto-convert a sharing URL into a download link. Select Custom Link for any direct download URL.",
     },
   },
   {
@@ -27,7 +27,8 @@ export const resumeLinkFields: Field[] = [
     required: false,
     admin: {
       readOnly: true,
-      description: "Auto-generated downloadable link. For Google Drive: converted from the sharing URL above. For Custom: used as-is.",
+      description:
+        "Auto-generated downloadable link. For Google Drive: converted from the sharing URL above. For Custom: used as-is.",
     },
     hooks: {
       beforeValidate: [

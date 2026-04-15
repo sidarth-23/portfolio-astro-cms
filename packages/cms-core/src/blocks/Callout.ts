@@ -1,11 +1,10 @@
 import type { Block } from "payload";
-
 import { createBasicRichTextEditor } from "@/lib/editor";
 import {
   CALLOUT_DEFAULT_VARIANT_BY_PROFILE,
   CALLOUT_VARIANTS_BY_PROFILE,
   type CalloutVariantProfile,
-} from "../lib/content";
+} from "@/lib/content";
 
 export const createCalloutBlock = (profile: CalloutVariantProfile = "generic"): Block => {
   return {
