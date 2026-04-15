@@ -130,6 +130,7 @@ export const createCmsMockClient = () => {
 
   const collections: Record<string, unknown[]> = {
     posts,
+    projects,
     categories,
     series: seriesList,
   };

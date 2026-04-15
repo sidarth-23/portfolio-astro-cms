@@ -6,7 +6,7 @@ export type InternalDocHrefRouteMap = Partial<Record<string, DocRouteResolver>>;
 
 const DEFAULT_INTERNAL_DOC_ROUTES: Record<string, DocRouteResolver> = {
   posts: (slug) => `/blog/${slug}`,
-  projects: (slug) => `/projects#${slug}`,
+  projects: (slug) => `/projects/${slug}`,
 };
 
 const resolveLinkDoc = (linkNode: SerializedLinkNode): { relationTo?: string; slug?: string } => {

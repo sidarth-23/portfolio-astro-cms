@@ -425,7 +425,22 @@ export interface Project {
   id: string;
   title: string;
   description: string;
-  image?: (string | null) | Media;
+  coverImage: string | Media;
+  content: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  };
   badges?:
     | {
         value: string;
@@ -807,7 +822,8 @@ export interface PostsSelect<T extends boolean = true> {
 export interface ProjectsSelect<T extends boolean = true> {
   title?: T;
   description?: T;
-  image?: T;
+  coverImage?: T;
+  content?: T;
   badges?:
     | T
     | {
@@ -1483,7 +1499,7 @@ export interface LexicalCodeBlock {
  * via the `definition` "LexicalCalloutBlock".
  */
 export interface LexicalCalloutBlock {
-  variant: 'note' | 'tip' | 'warning' | 'danger';
+  variant: 'neutral' | 'info' | 'success' | 'warning' | 'danger';
   title?: string | null;
   content: {
     root: {

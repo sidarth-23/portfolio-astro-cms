@@ -138,18 +138,21 @@ export const makeProject = (overrides: Partial<Project> = {}): Project => {
     .toLowerCase()
     .replace(/\s+/g, "-")
     .replace(/[^a-z0-9-]/g, "");
+  const now = faker.date.past().toISOString();
   return {
     id: nextId(),
     title,
     slug,
     description: faker.lorem.sentence(),
+    coverImage: nextId(),
+    content: makeRichText(),
     _status: "published",
     meta: {
       title,
       description: faker.lorem.sentence(),
     },
-    updatedAt: faker.date.past().toISOString(),
-    createdAt: faker.date.past().toISOString(),
+    updatedAt: now,
+    createdAt: now,
     ...overrides,
   };
 };

@@ -40,9 +40,9 @@ function resolveId(value: unknown): string | null {
 }
 
 const getMappedOgFolderNames = (): string[] => {
-  const names = OG_TARGETS
-    .map((target) => target.folderName?.trim())
-    .filter((name): name is string => Boolean(name));
+  const names = OG_TARGETS.map((target) => target.folderName?.trim()).filter(
+    (name): name is string => Boolean(name),
+  );
 
   return [...new Set(names)];
 };
@@ -62,17 +62,11 @@ function walkLexicalNode(node: unknown, ids: Set<string>): void {
   const n = node as Record<string, unknown>;
 
   if (n.type === "upload" && n.relationTo === "media") {
-    const id = resolveId(
-      (n.value as Record<string, unknown> | undefined)?.id,
-    );
+    const id = resolveId((n.value as Record<string, unknown> | undefined)?.id);
     if (id !== null) ids.add(id);
   }
 
-  if (
-    n.type === "block" &&
-    typeof n.fields === "object" &&
-    n.fields !== null
-  ) {
+  if (n.type === "block" && typeof n.fields === "object" && n.fields !== null) {
     const fields = n.fields as Record<string, unknown>;
     if (fields.blockType === "imageGallery" && Array.isArray(fields.images)) {
       for (const imgEntry of fields.images as unknown[]) {
@@ -94,10 +88,7 @@ function walkLexicalNode(node: unknown, ids: Set<string>): void {
 /**
  * Walk the top-level Lexical root object (serialised rich-text JSON).
  */
-function extractMediaIdsFromLexical(
-  content: unknown,
-  ids: Set<string>,
-): void {
+function extractMediaIdsFromLexical(content: unknown, ids: Set<string>): void {
   if (content === null || typeof content !== "object") return;
   const root = content as Record<string, unknown>;
   // Lexical stores the tree under `root`
@@ -133,9 +124,7 @@ async function collectPaged<T>(query: PagedQuery<T>): Promise<T[]> {
  * Collect every media ID that is referenced anywhere in the database.
  * Exported for unit-testing.
  */
-export async function collectReferencedMediaIds(
-  payload: Payload,
-): Promise<Set<string>> {
+export async function collectReferencedMediaIds(payload: Payload): Promise<Set<string>> {
   const referencedIds = new Set<string>();
 
   // Helper: merge a partial Set into the shared referencedIds set
@@ -171,7 +160,7 @@ export async function collectReferencedMediaIds(
   });
 
   // ------------------------------------------------------------------
-  // 2. projects.image  (scan drafts too)
+  // 2. projects.coverImage  (scan drafts too)
   // ------------------------------------------------------------------
   const scanProjects = collectPaged((page) =>
     payload.find({
@@ -180,11 +169,11 @@ export async function collectReferencedMediaIds(
       draft: true,
       limit: 100,
       page,
-      select: { image: true },
+      select: { coverImage: true },
     }),
   ).then((docs) => {
     const ids = new Set<string>();
-    for (const doc of docs) addField(ids, doc, "image");
+    for (const doc of docs) addField(ids, doc, "coverImage");
     return ids;
   });
 
@@ -308,22 +297,24 @@ export async function collectReferencedMediaIds(
 
     if (folderIds.length > 0) {
       const folderMediaIds = await collectPaged((page) =>
-        payload.find({
-          collection: "media",
-          depth: 0,
-          limit: 100,
-          page,
-          where: {
-            folder: {
-              in: folderIds,
+        payload
+          .find({
+            collection: "media",
+            depth: 0,
+            limit: 100,
+            page,
+            where: {
+              folder: {
+                in: folderIds,
+              },
             },
-          },
-        }).then((result) => ({
-          docs: result.docs
-            .map((doc) => resolveId(doc.id))
-            .filter((id): id is string => id !== null),
-          totalPages: result.totalPages,
-        })),
+          })
+          .then((result) => ({
+            docs: result.docs
+              .map((doc) => resolveId(doc.id))
+              .filter((id): id is string => id !== null),
+            totalPages: result.totalPages,
+          })),
       );
 
       for (const id of folderMediaIds) {
@@ -342,9 +333,7 @@ export async function collectReferencedMediaIds(
 /**
  * Find all media documents that are not referenced anywhere in the database.
  */
-export async function findOrphanedMedia(
-  payload: Payload,
-): Promise<OrphanedMediaResult> {
+export async function findOrphanedMedia(payload: Payload): Promise<OrphanedMediaResult> {
   // Collect all media + referenced IDs in parallel
   const [allMediaDocs, referencedIds] = await Promise.all([
     collectPaged<{

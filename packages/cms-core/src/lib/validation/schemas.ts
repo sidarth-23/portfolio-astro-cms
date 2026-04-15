@@ -178,23 +178,7 @@ const cvItemSchema = z
     currentlyWorkingHere: z.boolean().optional(),
     url: optionalHttpUrl.nullish(),
   })
-  .passthrough()
-  .superRefine((value, ctx) => {
-    if (value.itemType !== "organizationRole") {
-      return;
-    }
-
-    const isCurrent = value.currentlyWorkingHere === true;
-    const hasEndMonth = Boolean(value.endMonth);
-
-    if (!isCurrent && !hasEndMonth) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        path: ["endMonth"],
-        message: "End month is required unless currently working here is enabled.",
-      });
-    }
-  });
+  .passthrough();
 
 export const cvPageSchema = withSeoMeta({
   sections: z

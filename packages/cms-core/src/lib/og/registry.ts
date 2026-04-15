@@ -101,7 +101,7 @@ export const OG_TARGETS: OgTarget[] = [
   }),
   collection<Project>("projects", {
     ogTitle: "title",
-    existingImage: "image",
+    existingImage: "coverImage",
     depth: 1,
     folderName: DEFAULT_OG_FOLDER_NAME,
   }),

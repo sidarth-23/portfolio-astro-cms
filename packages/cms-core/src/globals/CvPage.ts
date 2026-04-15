@@ -44,6 +44,24 @@ const sectionItemFields: Field[] = [
   {
     name: "endMonth",
     type: "date",
+    validate: (value, { siblingData }) => {
+      const item = siblingData as
+        | {
+            itemType?: string;
+            currentlyWorkingHere?: boolean;
+          }
+        | undefined;
+
+      if (item?.itemType !== "organizationRole") {
+        return true;
+      }
+
+      if (item?.currentlyWorkingHere === true) {
+        return true;
+      }
+
+      return value ? true : "End month is required unless currently working here is enabled.";
+    },
     admin: {
       condition: (_, siblingData) =>
         siblingData?.itemType === "organizationRole" && !siblingData?.currentlyWorkingHere,

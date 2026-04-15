@@ -33,7 +33,7 @@ export const SEO_FIELD_MAPPINGS: Record<string, SeoFieldMapping> = {
     slug: "projects",
     titleField: "title",
     descriptionField: "description",
-    imageField: "image",
+    imageField: "coverImage",
   },
   series: {
     slug: "series",

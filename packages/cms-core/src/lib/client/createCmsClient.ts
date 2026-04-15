@@ -71,6 +71,12 @@ const isPublishedPostRelation = (value: RelationID | Post | null | undefined): v
   return typeof value === "object" && value !== null && value._status !== "draft";
 };
 
+const isPublishedProjectRelation = (
+  value: RelationID | Project | null | undefined,
+): value is Project => {
+  return typeof value === "object" && value !== null && value._status !== "draft";
+};
+
 const isRelationID = (value: unknown): value is RelationID => {
   return typeof value === "number" || typeof value === "string";
 };
@@ -162,6 +168,25 @@ export const createCmsClient = ({ sdk, mediaBaseUrl, siteUrl }: CmsTransport) =>
       sort: options.sort ?? "-publishedAt",
       limit: options.limit ?? options.pageSize,
       page: options.page,
+    });
+  };
+
+  const fetchPublishedProjects = async ({
+    slug,
+    depth = 2,
+  }: { slug?: string; depth?: number } = {}) => {
+    const conditions: Where[] = [{ _status: { equals: "published" } }];
+
+    if (slug) {
+      conditions.push({ slug: { equals: slug } });
+    }
+
+    return sdk.find({
+      collection: "projects",
+      where: conditions.length === 1 ? conditions[0] : { and: conditions },
+      depth,
+      sort: "title",
+      limit: slug ? 1 : 200,
     });
   };
 
@@ -371,10 +396,7 @@ export const createCmsClient = ({ sdk, mediaBaseUrl, siteUrl }: CmsTransport) =>
         return [];
       }
 
-      return section.projects.filter(
-        (value): value is Project =>
-          typeof value === "object" && value !== null && (value as Project)._status !== "draft",
-      );
+      return section.projects.filter(isPublishedProjectRelation);
     },
 
     getAllPublishedPosts: async (
@@ -447,6 +469,17 @@ export const createCmsClient = ({ sdk, mediaBaseUrl, siteUrl }: CmsTransport) =>
       }
 
       return rawPost;
+    },
+
+    getProjectBySlug: async (slug: string): Promise<Project | null> => {
+      const response = await fetchPublishedProjects({ slug, depth: 3 });
+      const rawProject = response.docs[0];
+
+      if (!rawProject) {
+        return null;
+      }
+
+      return rawProject;
     },
 
     getCategorySlugs: async (): Promise<string[]> => {

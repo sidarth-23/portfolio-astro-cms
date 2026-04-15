@@ -40,7 +40,7 @@ const sections = projectSections.map((section) => ({
           <>
             <HorizontalCard
               title={project.title}
-              img={cmsClient.mediaToUrl(project.image)}
+              img={cmsClient.mediaToUrl(project.coverImage)}
               desc={project.description}
               badges={cmsClient.badgesFromProject(project)}
               tags={cmsClient.tagsFromProject(project)}

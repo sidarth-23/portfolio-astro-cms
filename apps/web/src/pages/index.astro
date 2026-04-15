@@ -99,7 +99,7 @@ const featuredSections = homePage.featuredSections ?? [];
                 <>
                   <HorizontalCard
                     title={project.title}
-                    img={cmsClient.mediaToUrl(project.image)}
+                    img={cmsClient.mediaToUrl(project.coverImage)}
                     desc={project.description}
                     url={"/projects/" + project.slug}
                     badges={cmsClient.badgesFromProject(project)}

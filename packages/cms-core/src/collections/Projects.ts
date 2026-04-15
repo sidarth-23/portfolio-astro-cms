@@ -1,4 +1,5 @@
 import type { CollectionConfig } from "payload";
+import { createDocumentRichTextEditor } from "@/lib/editor";
 import { readAccess } from "@/access/readAccess";
 import { createSuggestMetadataAutoPopulationHook } from "@/hooks/suggestMetadataAutoPopulation";
 import { iconPickerField } from "@/fields/iconPicker";
@@ -48,10 +49,21 @@ export const Projects: CollectionConfig = {
               required: true,
             },
             {
-              name: "image",
+              name: "coverImage",
               type: "upload",
               relationTo: "media",
-              required: false,
+              required: true,
+            },
+            {
+              name: "content",
+              type: "richText",
+              required: true,
+              editor: createDocumentRichTextEditor({
+                enabledHeadingSizes: ["h2", "h3", "h4"],
+                enableCallout: true,
+                enableImageGallery: true,
+                calloutVariantProfile: "generic",
+              }),
             },
             {
               name: "badges",
