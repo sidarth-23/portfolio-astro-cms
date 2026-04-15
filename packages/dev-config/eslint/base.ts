@@ -1,19 +1,16 @@
+import { defineConfig } from "eslint/config";
 import tseslint from "typescript-eslint";
 
-/** @type {import("eslint").Linter.Config[]} */
-const baseConfig = tseslint.config(
-  // Register the @typescript-eslint plugin globally (no parser — let each language config handle its own)
+const baseConfig = defineConfig(
   {
     plugins: { "@typescript-eslint": tseslint.plugin },
   },
-  // Apply TypeScript parser only to TS/TSX files
   {
     files: ["**/*.ts", "**/*.tsx", "**/*.mts", "**/*.cts"],
     languageOptions: {
       parser: tseslint.parser,
     },
   },
-  // Spread the rules portion of recommended (already scoped to TS files in object[1]) but skip object[0] which sets parser globally
   ...tseslint.configs.recommended.slice(1),
   {
     rules: {
@@ -55,4 +52,4 @@ const baseConfig = tseslint.config(
   },
 );
 
-export default baseConfig;
+export { baseConfig };

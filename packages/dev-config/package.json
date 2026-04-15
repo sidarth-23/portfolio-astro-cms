@@ -1,15 +1,23 @@
 {
-  "name": "@sidshub/eslint-config",
+  "name": "@sidshub/dev-config",
   "version": "0.0.1",
   "private": true,
   "type": "module",
+  "sideEffects": false,
+  "scripts": {
+    "build": "rm -rf dist && tsdown",
+    "dev": "tsdown --watch",
+    "clean": "rm -rf dist",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix"
+  },
   "exports": {
-    ".": "./base.mjs",
-    "./next": "./next.mjs",
-    "./astro": "./astro.mjs"
+    "./eslint": "./dist/eslint/index.mjs",
+    "./tsdown": "./dist/tsdown/index.mjs"
   },
   "dependencies": {
     "@eslint/eslintrc": "^3.3.1",
+    "@types/node": "^22.15.3",
     "@typescript-eslint/eslint-plugin": "^8.29.1",
     "@typescript-eslint/parser": "^8.29.1",
     "eslint-config-next": "^15.4.11",

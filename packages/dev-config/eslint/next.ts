@@ -1,17 +1,16 @@
 import { dirname } from "path";
 import { fileURLToPath } from "url";
+
 import { FlatCompat } from "@eslint/eslintrc";
-import baseConfig from "./base.mjs";
+import type { Linter } from "eslint";
 
-/**
- * @param {string} importMetaUrl - pass `import.meta.url` from the consuming config
- * @returns {import("eslint").Linter.Config[]}
- */
-export default function createNextConfig(importMetaUrl) {
-  const __filename = fileURLToPath(importMetaUrl);
-  const __dirname = dirname(__filename);
+import { baseConfig } from "./base";
 
-  const compat = new FlatCompat({ baseDirectory: __dirname });
+function createNextConfig(importMetaUrl: string): Linter.Config[] {
+  const filename = fileURLToPath(importMetaUrl);
+  const directory = dirname(filename);
+
+  const compat = new FlatCompat({ baseDirectory: directory });
 
   return [
     ...compat.extends("next/core-web-vitals", "next/typescript"),
@@ -26,3 +25,5 @@ export default function createNextConfig(importMetaUrl) {
     },
   ];
 }
+
+export { createNextConfig };

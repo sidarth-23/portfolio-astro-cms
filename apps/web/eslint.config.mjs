@@ -1,4 +1,4 @@
-import astroConfig from "@sidshub/eslint-config/astro";
+import { astroConfig } from "@sidshub/dev-config/eslint";
 
 export default [
   ...astroConfig,

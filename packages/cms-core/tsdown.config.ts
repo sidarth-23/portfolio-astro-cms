@@ -1,6 +1,9 @@
 import { defineConfig } from "tsdown";
+import { baseTsdownConfig } from "@sidshub/dev-config/tsdown";
 
 export default defineConfig({
+  ...baseTsdownConfig,
+  platform: "neutral",
   entry: [
     "src/payload-types.ts",
     "src/builder.ts",
@@ -14,14 +17,7 @@ export default defineConfig({
     "src/components/admin/**/*.{ts,tsx}",
     "src/plugin/markdown-paste/client.tsx",
   ],
-  format: "esm",
-  dts: true,
-  outDir: "dist",
-  unbundle: true,
-  fixedExtension: true,
-  platform: "neutral",
   external: ["node:path", "node:url", "path", "url", "fs/promises", "sharp", "qs-esm"],
-  skipNodeModulesBundle: true,
   copy: [
     {
       from: "src/styles/admin-overrides.css",

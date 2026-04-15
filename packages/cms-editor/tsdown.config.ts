@@ -1,6 +1,9 @@
 import { defineConfig } from "tsdown";
+import { baseTsdownConfig } from "@sidshub/dev-config/tsdown";
 
 export default defineConfig({
+  ...baseTsdownConfig,
+  platform: "neutral",
   entry: [
     "src/cms.ts",
     "src/web/html/index.ts",
@@ -9,13 +12,6 @@ export default defineConfig({
     "src/web/html/client/index.ts",
     "src/web/util/index.ts",
   ],
-  format: "esm",
-  dts: true,
-  outDir: "dist",
-  unbundle: true,
-  fixedExtension: true,
-  platform: "neutral",
-  skipNodeModulesBundle: true,
   copy: [
     {
       from: "src/web/html/styles.css",

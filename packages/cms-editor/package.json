@@ -3,6 +3,7 @@
   "version": "0.0.1",
   "private": true,
   "type": "module",
+  "sideEffects": false,
   "scripts": {
     "build": "rm -rf dist && tsdown",
     "dev": "tsdown --watch",
@@ -20,7 +21,7 @@
     "./web/util": "./dist/web/util/index.mjs"
   },
   "devDependencies": {
-    "@sidshub/eslint-config": "workspace:*",
+    "@sidshub/dev-config": "workspace:*",
     "eslint": "^9.24.0"
   },
   "dependencies": {

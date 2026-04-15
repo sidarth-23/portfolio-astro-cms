@@ -31,7 +31,7 @@
     "zod": "^3.24.1"
   },
   "devDependencies": {
-    "@sidshub/eslint-config": "workspace:*",
+    "@sidshub/dev-config": "workspace:*",
     "eslint": "^9.24.0",
     "typescript": "^5.7.2"
   }

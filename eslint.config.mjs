@@ -1,5 +1,4 @@
-import astroConfig from "@sidshub/eslint-config/astro";
-import baseConfig from "@sidshub/eslint-config";
+import { astroConfig, baseConfig } from "@sidshub/dev-config/eslint";
 
 /**
  * Root ESLint flat config for the monorepo.

@@ -1,0 +1,1 @@
+export { baseTsdownConfig } from "./base";

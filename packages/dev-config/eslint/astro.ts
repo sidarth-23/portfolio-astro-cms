@@ -1,8 +1,9 @@
 import eslintPluginAstro from "eslint-plugin-astro";
-import baseConfig from "./base.mjs";
+import type { Linter } from "eslint";
 
-/** @type {import("eslint").Linter.Config[]} */
-const astroConfig = [
+import { baseConfig } from "./base";
+
+const astroConfig: Linter.Config[] = [
   ...eslintPluginAstro.configs["flat/recommended"],
   ...baseConfig,
   {
@@ -10,4 +11,4 @@ const astroConfig = [
   },
 ];
 
-export default astroConfig;
+export { astroConfig };
