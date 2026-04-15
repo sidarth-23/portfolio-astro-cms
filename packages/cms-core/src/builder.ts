@@ -231,7 +231,8 @@ export function createCmsConfig(options: CmsConfigOptions) {
     db: options.db,
     secret: options.secret,
     typescript: {
-      outputFile: path.resolve(process.cwd(), "payload-types.ts"),
+      // Keep cms-core as the canonical owner of generated Payload types.
+      outputFile: path.resolve(dirname, "../src/payload-types.ts"),
     },
   });
 }
