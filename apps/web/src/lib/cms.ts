@@ -1,4 +1,5 @@
-const useMock = import.meta.env.ASTRO_MOCK_CMS === "true";
+const useMock =
+  String(import.meta.env.ASTRO_MOCK_CMS ?? process.env.ASTRO_MOCK_CMS ?? "") === "true";
 const siteUrl = typeof import.meta.env.SITE === "string" ? import.meta.env.SITE : undefined;
 
 const createClient = async () => {

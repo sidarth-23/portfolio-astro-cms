@@ -12,6 +12,7 @@ export default defineConfig({
     "src/lib/client/mock/index.ts",
     "src/lib/content/index.ts",
     "src/lib/icons/index.ts",
+    "src/lib/icons/parser.ts",
     "src/lib/deployment/index.ts",
     "src/lib/validation/index.ts",
     "src/components/admin/**/*.{ts,tsx}",

@@ -54,3 +54,6 @@ export type SiteFooterItem = {
 export type TagInfo = ReturnType<CmsClient["tagsFromPost"]>[number];
 export type CategoryInfo = NonNullable<ReturnType<CmsClient["categoryFromPost"]>>;
 export type SeriesInfo = NonNullable<ReturnType<CmsClient["seriesFromPost"]>>;
+export type SeriesStaticPathData = Awaited<
+  ReturnType<CmsClient["getSeriesStaticPathsData"]>
+>[number];

@@ -90,6 +90,41 @@ const visibleAuthors = authors.filter((author) => {
 
   return hasName || hasBio || hasAvatar || hasLinks;
 });
+const resolvedAuthorCards = await Promise.all(
+  visibleAuthors.map(async (author) => {
+    const avatarUrl = cmsClient.mediaToUrl(author.avatar);
+    const resolvedLinks = (
+      await Promise.all(
+        getAuthorLinks(author).map(async (link) => {
+          if (!link.icon || !link.url) {
+            return null;
+          }
+
+          const iconData = await resolveIcon(link.icon);
+          if (!iconData) {
+            return null;
+          }
+
+          return {
+            url: link.url,
+            newTab: link.newTab === true,
+            iconData,
+          };
+        }),
+      )
+    ).filter(
+      (
+        entry,
+      ): entry is {
+        url: string;
+        newTab: boolean;
+        iconData: NonNullable<Awaited<ReturnType<typeof resolveIcon>>>;
+      } => entry !== null,
+    );
+
+    return { author, avatarUrl, resolvedLinks };
+  }),
+);
 const toc = post ? extractTableOfContents(post.content) : [];
 const pubDate = post?.publishedAt || post?.createdAt || new Date().toISOString();
 ---
@@ -152,9 +187,7 @@ const pubDate = post?.publishedAt || post?.createdAt || new Date().toISOString()
               {visibleAuthors.length > 1 ? "Authors" : "Author"}
             </h2>
             <div class="flex flex-col gap-10">
-              {visibleAuthors.map((author) => {
-                const avatarUrl = cmsClient.mediaToUrl(author.avatar);
-
+              {resolvedAuthorCards.map(({ author, avatarUrl, resolvedLinks }) => {
                 return (
                   <article class="flex flex-col sm:flex-row gap-6 items-start bg-base-200/30 p-6 sm:p-8 rounded-2xl border border-base-content/20">
                     {avatarUrl ? (
@@ -189,39 +222,27 @@ const pubDate = post?.publishedAt || post?.createdAt || new Date().toISOString()
                           <RichTextRenderer data={author.bio} />
                         </div>
                       )}
-                      {getAuthorLinks(author).length > 0 && (
+                      {resolvedLinks.length > 0 && (
                         <div class="mt-5 flex gap-4 items-center">
-                          {getAuthorLinks(author).map((link) => {
-                            if (!link.icon || !link.url) return null;
-                            const iconData = resolveIcon(link.icon);
-                            if (!iconData) return null;
-
-                            const PhosphorIcon =
-                              iconData.source === "phosphor" ? iconData.component : null;
-                            const label =
-                              iconData.source === "simple-icons" ? iconData.title : iconData.name;
-
+                          {resolvedLinks.map((link) => {
+                            const { iconData } = link;
                             return (
                               <a
                                 href={link.url}
                                 target={link.newTab ? "_blank" : undefined}
                                 rel={link.newTab ? "noopener noreferrer" : undefined}
                                 class="text-base-content/50 hover:text-base-content transition-colors"
-                                aria-label={label}
-                                title={label}
+                                aria-label={iconData.label}
+                                title={iconData.label}
                               >
-                                {iconData.source === "simple-icons" && (
-                                  <svg
-                                    width={20}
-                                    height={20}
-                                    viewBox="0 0 24 24"
-                                    aria-hidden="true"
-                                    fill="currentColor"
-                                  >
-                                    <path d={iconData.path} />
-                                  </svg>
-                                )}
-                                {PhosphorIcon && <PhosphorIcon size={20} />}
+                                <svg
+                                  viewBox={iconData.viewBox}
+                                  width={20}
+                                  height={20}
+                                  aria-hidden="true"
+                                  class="h-5 w-5 fill-current stroke-current"
+                                  set:html={iconData.innerSvg}
+                                ></svg>
                               </a>
                             );
                           })}

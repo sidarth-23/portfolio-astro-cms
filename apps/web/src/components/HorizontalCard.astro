@@ -32,6 +32,30 @@ const {
 } = Astro.props;
 const contentClass = `hero-content flex-col ${reverse ? "md:flex-row-reverse" : "md:flex-row"} md:gap-8 lg:gap-10 relative z-20 pointer-events-none`;
 const contentBodyClass = "grow w-full space-y-1 relative";
+const resolvedLinks = (
+  await Promise.all(
+    links.map(async (link) => {
+      const iconData = await resolveIcon(link.icon);
+      if (!iconData) {
+        return null;
+      }
+
+      return {
+        ...link,
+        iconData,
+      };
+    }),
+  )
+).filter(
+  (
+    entry,
+  ): entry is {
+    icon: string;
+    url: string;
+    newTab: boolean;
+    iconData: NonNullable<Awaited<ReturnType<typeof resolveIcon>>>;
+  } => entry !== null,
+);
 ---
 
 <div
@@ -59,34 +83,27 @@ const contentBodyClass = "grow w-full space-y-1 relative";
           {badges.map((item) => <div class="badge badge-secondary badge-xs">{item}</div>)}
         </h1>
         {
-          links.length > 0 && (
+          resolvedLinks.length > 0 && (
             <div class="z-20 flex gap-1 pointer-events-auto sm:shrink-0">
-              {links.map((link) => {
-                const iconData = resolveIcon(link.icon);
-                if (!iconData) return null;
-                const label = iconData.source === "simple-icons" ? iconData.title : iconData.name;
+              {resolvedLinks.map((link) => {
+                const { iconData } = link;
                 return (
                   <a
                     href={link.url}
                     target={link.newTab ? "_blank" : undefined}
                     rel={link.newTab ? "noopener noreferrer" : undefined}
-                    title={label}
-                    aria-label={label}
+                    title={iconData.label}
+                    aria-label={iconData.label}
                     class="btn btn-circle btn-sm btn-ghost transition-all duration-300"
                   >
-                    {iconData.source === "simple-icons" ? (
-                      <svg
-                        width={20}
-                        height={20}
-                        viewBox="0 0 24 24"
-                        aria-hidden="true"
-                        fill="currentColor"
-                      >
-                        <path d={iconData.path} />
-                      </svg>
-                    ) : (
-                      <iconData.component size={20} weight="regular" />
-                    )}
+                    <svg
+                      viewBox={iconData.viewBox}
+                      width={20}
+                      height={20}
+                      aria-hidden="true"
+                      class="h-5 w-5 fill-current stroke-current"
+                      set:html={iconData.innerSvg}
+                    ></svg>
                   </a>
                 );
               })}

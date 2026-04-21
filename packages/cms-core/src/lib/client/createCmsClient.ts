@@ -104,6 +104,24 @@ type LinkShape = {
 };
 
 export const createCmsClient = ({ sdk, mediaBaseUrl, siteUrl }: CmsTransport) => {
+  const shouldCacheGlobals = process.env.ASTRO_BUILD_CACHE_GLOBALS === "true";
+  const memoizedGlobals = new Map<string, Promise<unknown>>();
+
+  const getCachedGlobal = <T>(cacheKey: string, loader: () => Promise<T>): Promise<T> => {
+    if (!shouldCacheGlobals) {
+      return loader();
+    }
+
+    const existing = memoizedGlobals.get(cacheKey);
+    if (existing) {
+      return existing as Promise<T>;
+    }
+
+    const next = loader();
+    memoizedGlobals.set(cacheKey, next as Promise<unknown>);
+    return next;
+  };
+
   const getTaxonomyDocBySlug = async <TDoc extends TaxonomyDoc>(
     collection: "categories" | "series",
     slug: string,
@@ -334,27 +352,39 @@ export const createCmsClient = ({ sdk, mediaBaseUrl, siteUrl }: CmsTransport) =>
 
   return {
     getSiteSettings: async (): Promise<SiteSetting> => {
-      return sdk.findGlobal({ slug: "site-settings", depth: 2 });
+      return getCachedGlobal("global:site-settings", () => {
+        return sdk.findGlobal({ slug: "site-settings", depth: 2 });
+      });
     },
 
     getHomePage: async (): Promise<HomePage> => {
-      return sdk.findGlobal({ slug: "home-page", depth: 3 });
+      return getCachedGlobal("global:home-page", () => {
+        return sdk.findGlobal({ slug: "home-page", depth: 3 });
+      });
     },
 
     getCvPage: async (): Promise<CvPage> => {
-      return sdk.findGlobal({ slug: "cv-page", depth: 2 });
+      return getCachedGlobal("global:cv-page", () => {
+        return sdk.findGlobal({ slug: "cv-page", depth: 2 });
+      });
     },
 
     getProjectsPage: async (): Promise<ProjectsPage> => {
-      return sdk.findGlobal({ slug: "projects-page", depth: 2 });
+      return getCachedGlobal("global:projects-page", () => {
+        return sdk.findGlobal({ slug: "projects-page", depth: 2 });
+      });
     },
 
     getSeriesPage: async (): Promise<SeriesPage> => {
-      return sdk.findGlobal({ slug: "series-page", depth: 2 });
+      return getCachedGlobal("global:series-page", () => {
+        return sdk.findGlobal({ slug: "series-page", depth: 2 });
+      });
     },
 
     getBlogPage: async (): Promise<BlogPage> => {
-      return sdk.findGlobal({ slug: "blog-page", depth: 2 });
+      return getCachedGlobal("global:blog-page", () => {
+        return sdk.findGlobal({ slug: "blog-page", depth: 2 });
+      });
     },
 
     homeCtaButtons: (homePage: HomePage): HomeCtaButton[] => {
@@ -534,6 +564,46 @@ export const createCmsClient = ({ sdk, mediaBaseUrl, siteUrl }: CmsTransport) =>
       });
 
       return response.docs[0] ?? null;
+    },
+
+    getSeriesStaticPathsData: async (): Promise<
+      Array<{ slug: string; series: Series; posts: Post[] }>
+    > => {
+      const limit = 200;
+      const firstPage = await sdk.find({
+        collection: "series",
+        page: 1,
+        limit,
+        sort: "slug",
+        depth: 3,
+      });
+
+      const docs = [...firstPage.docs];
+
+      for (let page = 2; page <= firstPage.totalPages; page += 1) {
+        const nextPage = await sdk.find({
+          collection: "series",
+          page,
+          limit,
+          sort: "slug",
+          depth: 3,
+        });
+        docs.push(...nextPage.docs);
+      }
+
+      return docs.flatMap((series) => {
+        const slug = toTrimmedString(series.slug);
+        if (!slug) {
+          return [];
+        }
+
+        const posts = (series.posts ?? []).filter(isPublishedPostRelation);
+        if (posts.length === 0) {
+          return [];
+        }
+
+        return [{ slug, series, posts }];
+      });
     },
 
     getAllCategories: async (): Promise<Category[]> => {

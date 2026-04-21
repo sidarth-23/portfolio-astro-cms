@@ -3,8 +3,6 @@ services:
     build:
       context: .
       dockerfile: apps/web/Dockerfile
-      no_cache: true
-      pull: true
       args:
         ASTRO_SITE_URL: ${ASTRO_SITE_URL}
         ASTRO_CMS_API_URL: ${ASTRO_CMS_API_URL}

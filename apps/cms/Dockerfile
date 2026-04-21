@@ -8,7 +8,7 @@ RUN bunx turbo prune @sidshub/cms --docker
 FROM base AS deps
 COPY --from=pruner /app/out/json/ .
 COPY --from=pruner /app/out/json/bun.lock ./bun.lock
-RUN bun install
+RUN bun install --frozen-lockfile
 
 FROM node:22-alpine AS builder
 WORKDIR /app

@@ -17,6 +17,7 @@
     "allowJs": true,
     "noEmit": true,
     "incremental": true,
+    "tsBuildInfoFile": "./.cache/tsconfig.tsbuildinfo",
     "jsx": "preserve",
     "plugins": [
       {

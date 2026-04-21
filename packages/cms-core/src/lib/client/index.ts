@@ -21,6 +21,7 @@ export type {
   PublishedPostsQueryOptions,
   RelationValue,
   SeriesInfo,
+  SeriesStaticPathData,
   SiteFooterItem,
   TagInfo,
 } from "./types";

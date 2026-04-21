@@ -8,19 +8,30 @@ type Props = {
 
 const { items = [] }: Props = Astro.props;
 
-const cleanItems = items
-  .flatMap((item) => {
-    if (!item?.icon || item.url.length === 0) {
-      return [];
-    }
+const cleanItems = (
+  await Promise.all(
+    items.map(async (item) => {
+      if (!item?.icon || item.url.length === 0) {
+        return null;
+      }
 
-    const iconData = resolveIcon(item.icon);
-    if (!iconData) {
-      return [];
-    }
+      const iconData = await resolveIcon(item.icon);
+      if (!iconData) {
+        return null;
+      }
 
-    return [{ item, iconData }];
-  })
+      return { item, iconData };
+    }),
+  )
+)
+  .filter(
+    (
+      entry,
+    ): entry is {
+      item: SiteFooterItem;
+      iconData: NonNullable<Awaited<ReturnType<typeof resolveIcon>>>;
+    } => entry !== null,
+  )
   .slice(0, 4);
 ---
 
@@ -33,30 +44,23 @@ const cleanItems = items
   cleanItems.length > 0 && (
     <div class="social-icons px-4 pb-5 pt-1 flex flex-wrap gap-4 self-center justify-center sticky bottom-0 bg-base-200 group-[.collapsed]:px-1">
       {cleanItems.map(({ item, iconData }) => {
-        const PhosphorIcon = iconData.source === "phosphor" ? iconData.component : null;
-
         return (
           <a
             href={item.url}
             target={item.newTab ? "_blank" : undefined}
             rel={item.newTab ? "noreferrer noopener" : undefined}
             class="mx-3 group-[.collapsed]:mx-1 hover:text-primary transition-colors"
-            aria-label={iconData.source === "simple-icons" ? iconData.title : iconData.name}
-            title={iconData.source === "simple-icons" ? iconData.title : iconData.name}
+            aria-label={iconData.label}
+            title={iconData.label}
           >
-            {iconData.source === "simple-icons" && (
-              <svg
-                width={24}
-                height={24}
-                viewBox="0 0 24 24"
-                aria-hidden="true"
-                fill="currentColor"
-              >
-                <title>{iconData.title}</title>
-                <path d={iconData.path} />
-              </svg>
-            )}
-            {PhosphorIcon && <PhosphorIcon size={24} weight="regular" />}
+            <svg
+              viewBox={iconData.viewBox}
+              width={24}
+              height={24}
+              aria-hidden="true"
+              class="h-6 w-6 fill-current stroke-current"
+              set:html={iconData.innerSvg}
+            ></svg>
           </a>
         );
       })}

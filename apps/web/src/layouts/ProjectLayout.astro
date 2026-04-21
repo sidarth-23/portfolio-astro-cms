@@ -53,6 +53,26 @@ const formattedUpdatedDate = new Intl.DateTimeFormat("en-US", {
   month: "short",
   day: "numeric",
 }).format(new Date(updatedAt));
+const resolvedLinks = (
+  await Promise.all(
+    links.map(async (link) => {
+      const iconData = await resolveIcon(link.icon);
+      if (!iconData) {
+        return null;
+      }
+
+      return {
+        ...link,
+        iconData,
+      };
+    }),
+  )
+).filter(
+  (
+    entry,
+  ): entry is ProjectLink & { iconData: NonNullable<Awaited<ReturnType<typeof resolveIcon>>> } =>
+    entry !== null,
+);
 ---
 
 <DetailLayout
@@ -81,34 +101,25 @@ const formattedUpdatedDate = new Intl.DateTimeFormat("en-US", {
 
     <Fragment slot="titleActions">
       {
-        links.map((link) => {
-          const iconData = resolveIcon(link.icon);
-          if (!iconData) return null;
-
-          const PhosphorIcon = iconData.source === "phosphor" ? iconData.component : null;
-          const label = iconData.source === "simple-icons" ? iconData.title : iconData.name;
-
+        resolvedLinks.map((link) => {
+          const { iconData } = link;
           return (
             <a
               href={link.url}
               target={link.newTab ? "_blank" : undefined}
               rel={link.newTab ? "noopener noreferrer" : undefined}
               class="inline-flex h-9 w-9 items-center justify-center rounded-full border border-base-content/15 bg-base-200/40 text-base-content/60 transition-colors hover:text-base-content"
-              aria-label={label}
-              title={label}
+              aria-label={iconData.label}
+              title={iconData.label}
             >
-              {iconData.source === "simple-icons" && (
-                <svg
-                  width={16}
-                  height={16}
-                  viewBox="0 0 24 24"
-                  aria-hidden="true"
-                  fill="currentColor"
-                >
-                  <path d={iconData.path} />
-                </svg>
-              )}
-              {PhosphorIcon && <PhosphorIcon size={16} />}
+              <svg
+                viewBox={iconData.viewBox}
+                width={16}
+                height={16}
+                aria-hidden="true"
+                class="h-4 w-4 fill-current stroke-current"
+                set:html={iconData.innerSvg}
+              ></svg>
             </a>
           );
         })

@@ -12,37 +12,25 @@ type SeriesPageProps = {
 };
 
 export async function getStaticPaths() {
-  const seriesSlugs = await cmsClient.getSeriesSlugs();
+  if (String(import.meta.env.ASTRO_MOCK_CMS ?? process.env.ASTRO_MOCK_CMS ?? "") === "true") {
+    return [];
+  }
 
-  const paths = await Promise.all(
-    seriesSlugs.map(async (slug) => {
-      const posts = await cmsClient.getPostsBySeries(slug);
-      const series = await cmsClient.getSeriesBySlug(slug);
-
-      if (posts.length === 0 || !series) {
-        return null;
-      }
-
-      return {
-        params: { slug },
-        props: {
-          series,
-          posts,
-        },
-      };
-    }),
-  );
-
-  return paths.filter(
-    (path): path is NonNullable<typeof path> => path !== null,
-  );
+  const entries = await cmsClient.getSeriesStaticPathsData();
+  return entries.map((entry) => {
+    return {
+      params: { slug: entry.slug },
+      props: {
+        series: entry.series,
+        posts: entry.posts,
+      },
+    };
+  });
 }
 
 const { series, posts } = Astro.props as SeriesPageProps;
-const {
-  meta: seriesPageMeta,
-  backToSeriesLabel = "Back to Series",
-} = await cmsClient.getSeriesPage();
+const { meta: seriesPageMeta, backToSeriesLabel = "Back to Series" } =
+  await cmsClient.getSeriesPage();
 
 if (!seriesPageMeta.title || !seriesPageMeta.description) {
   throw new Error("Series page requires SEO `meta.title` and `meta.description`.");
@@ -73,9 +61,7 @@ const seriesSeoDescription = series.meta?.description || seriesPageMeta.descript
       <h1 class="text-4xl font-bold">{series.name}</h1>
       {
         series.description && (
-          <p class="text-xl text-base-content/80 leading-relaxed">
-            {series.description}
-          </p>
+          <p class="text-xl text-base-content/80 leading-relaxed">{series.description}</p>
         )
       }
       <div>
@@ -106,9 +92,7 @@ const seriesSeoDescription = series.meta?.description || seriesPageMeta.descript
               series={cmsClient.seriesFromPost(post)}
               tags={cmsClient.tagsFromPost(post)}
             />
-            {index < posts.length - 1 && (
-              <div class="divider my-0 opacity-50" />
-            )}
+            {index < posts.length - 1 && <div class="divider my-0 opacity-50" />}
           </li>
         ))}
       </ul>

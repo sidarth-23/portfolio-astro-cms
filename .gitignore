@@ -4,6 +4,7 @@ dist/
 .astro/
 .next/
 .turbo/
+*.tsbuildinfo
 
 # dependencies
 node_modules/
@@ -28,5 +29,6 @@ pnpm-debug.log*
 
 # Dump files
 tmp/
+.cache/
 .codex
 settings.local.json

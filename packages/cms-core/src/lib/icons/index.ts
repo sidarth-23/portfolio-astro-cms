@@ -1,4 +1,4 @@
-export { parseIconValueStrict } from "./iconValue";
+export { parseIconValueStrict } from "./parser";
 
 export {
   PHOSPHOR_ICON_OPTIONS,
@@ -14,6 +14,6 @@ export {
   isSimpleIconSlug,
 } from "./simpleIconsCatalog";
 
-export type { ParsedIconValue } from "./iconValue";
+export type { ParsedIconValue } from "./parser";
 export type { PhosphorIconOption } from "./phosphorIconsCatalog";
 export type { SimpleIconOption } from "./simpleIconsCatalog";

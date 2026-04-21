@@ -11,7 +11,7 @@ if (!meta.title || !meta.description) {
   throw new Error("CV page requires SEO `meta.title` and `meta.description`.");
 }
 
-const formatMonth = (dateStr: string) => {
+const formatMonth = (dateStr: string | null | undefined) => {
   if (!dateStr) return null;
   const date = new Date(dateStr);
   if (Number.isNaN(date.getTime())) return dateStr;
@@ -21,21 +21,19 @@ const formatMonth = (dateStr: string) => {
   }).format(date);
 };
 
-const getSubtitle = (item: any) => {
+type CvItem = NonNullable<(typeof sections)[number]["items"]>[number];
+
+const getSubtitle = (item: CvItem) => {
   if (item.itemType === "organizationRole") {
     const start = formatMonth(item.startMonth);
     const end = item.currentlyWorkingHere ? "Current" : formatMonth(item.endMonth);
-    const generated = [
-      [start, end].filter(Boolean).join(" - "),
-      item.organization,
-      item.location,
-    ]
+    const generated = [[start, end].filter(Boolean).join(" - "), item.organization, item.location]
       .filter(Boolean)
       .join(" | ");
 
     return generated;
   }
-  
+
   if (item.itemType === "generic" || !item.itemType) {
     return item.subtitle || "";
   }
@@ -60,6 +58,34 @@ const getBadgeGroups = (section: unknown): CvBadgeGroup[] => {
 
   return (section.badgeGroups as CvBadgeGroup[] | null | undefined) || [];
 };
+const resolvedBadgeGroupsBySection = await Promise.all(
+  sections.map(async (section) => {
+    if (section.type !== "badges") {
+      return [];
+    }
+
+    return Promise.all(
+      getBadgeGroups(section).map(async (group) => {
+        const badges = (
+          await Promise.all(
+            (group.badges || []).map(async (badge) => {
+              const iconData = await resolveIcon(badge.icon);
+              return {
+                value: badge.value,
+                iconData,
+              };
+            }),
+          )
+        ).filter((badge) => Boolean(badge.value));
+
+        return {
+          title: group.title,
+          badges,
+        };
+      }),
+    );
+  }),
+);
 ---
 
 <BaseLayout
@@ -69,7 +95,7 @@ const getBadgeGroups = (section: unknown): CvBadgeGroup[] => {
   image={cmsClient.mediaToUrl(meta?.image)}
 >
   {
-    sections.map((section) => (
+    sections.map((section, sectionIndex) => (
       <section class="mb-10">
         <div class="mb-5">
           <h2 class="text-3xl w-full font-bold">{section.title}</h2>
@@ -84,11 +110,7 @@ const getBadgeGroups = (section: unknown): CvBadgeGroup[] => {
         {section.type === "items" && section.itemsVariant === "timeline" && (
           <div class="time-line-container grid gap-4">
             {(section.items || []).map((item) => (
-              <TimeLineElement
-                title={item.title}
-                subtitle={getSubtitle(item)}
-                url={item.url}
-              >
+              <TimeLineElement title={item.title} subtitle={getSubtitle(item)} url={item.url}>
                 {item.content && (
                   <div class="prose max-w-none">
                     <RichTextRenderer data={item.content} />
@@ -116,9 +138,7 @@ const getBadgeGroups = (section: unknown): CvBadgeGroup[] => {
                     </a>
                   )}
                 </div>
-                {getSubtitle(item) && (
-                  <div class="text-sm opacity-80">{getSubtitle(item)}</div>
-                )}
+                {getSubtitle(item) && <div class="text-sm opacity-80">{getSubtitle(item)}</div>}
                 {item.content && (
                   <div class="prose max-w-none">
                     <RichTextRenderer data={item.content} />
@@ -146,9 +166,7 @@ const getBadgeGroups = (section: unknown): CvBadgeGroup[] => {
                     </a>
                   )}
                 </div>
-                {getSubtitle(item) && (
-                  <div class="text-sm opacity-80">{getSubtitle(item)}</div>
-                )}
+                {getSubtitle(item) && <div class="text-sm opacity-80">{getSubtitle(item)}</div>}
                 {item.content && (
                   <div class="prose max-w-none">
                     <RichTextRenderer data={item.content} />
@@ -161,38 +179,25 @@ const getBadgeGroups = (section: unknown): CvBadgeGroup[] => {
 
         {section.type === "badges" && (
           <div class="grid gap-4">
-            {getBadgeGroups(section).map((group) => (
+            {resolvedBadgeGroupsBySection[sectionIndex].map((group) => (
               <div class="grid gap-2">
                 <h3 class="text-sm font-semibold tracking-wide text-base-content/70">
                   {group.title}
                 </h3>
                 <div class="flex flex-wrap gap-2">
                   {(group.badges || []).map((badge) => {
-                    const iconData = resolveIcon(badge.icon);
-                    const PhosphorBadgeIcon =
-                      iconData && iconData.source === "phosphor"
-                        ? iconData.component
-                        : null;
-
+                    const { iconData } = badge;
                     return (
                       <span class="badge badge-outline gap-1.5 text-base-content">
-                        {iconData && iconData.source === "simple-icons" && (
+                        {iconData && (
                           <svg
-                            class="h-[0.75em] w-[0.75em] shrink-0 fill-current"
-                            viewBox="0 0 24 24"
+                            viewBox={iconData.viewBox}
+                            width={12}
+                            height={12}
                             aria-hidden="true"
-                          >
-                            <title>{iconData.title}</title>
-                            <path d={iconData.path} />
-                          </svg>
-                        )}
-                        {PhosphorBadgeIcon && (
-                          <PhosphorBadgeIcon
-                            class="h-[0.75em] w-[0.75em] shrink-0"
-                            size="0.75em"
-                            weight="regular"
-                            aria-hidden="true"
-                          />
+                            class="h-[0.75em] w-[0.75em] shrink-0 fill-current stroke-current"
+                            set:html={iconData.innerSvg}
+                          ></svg>
                         )}
                         <span>{badge.value}</span>
                       </span>
