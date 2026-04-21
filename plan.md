@@ -1,4 +1,0 @@
-- Make the components with a build system
-- Add content to projects
-- Add fumadocs to explain deployment and the application
-- handle image with cdn (https://transloadit.com/devtips/creating-a-free-image-cdn-with-cloudflare-r2/)
