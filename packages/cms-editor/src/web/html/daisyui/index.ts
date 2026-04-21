@@ -1,4 +1,4 @@
-import { createRichTextRenderer } from "@/web/html/render";
+import { createRichTextRenderer } from "@/web/html/shared/render";
 import type { BlockComponents } from "@/web/html/types";
 import { Callout } from "./Callout";
 import { Code } from "./Code";
@@ -12,5 +12,5 @@ export const { renderRichTextToHTML, renderBlock, renderBlocks } =
 
 export { components as daisyuiComponents };
 
-export * from "@/web/html/render";
+export * from "@/web/html/shared/render";
 export * from "@/web/html/types";

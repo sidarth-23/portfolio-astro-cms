@@ -1,7 +1,7 @@
 /** @jsxImportSource preact */
 import EmblaCarousel, { type EmblaCarouselType } from "embla-carousel";
 
-const DEFAULT_TOC_ACTIVE_CLASSES = ["border-primary", "text-base-content", "opacity-100", "font-medium"] as const;
+const DEFAULT_TOC_ACTIVE_CLASSES = ["opacity-100", "font-medium"] as const;
 
 export type InitTableOfContentsOptions = {
   root?: ParentNode;
@@ -108,8 +108,16 @@ export const initCodeBlocks = (root: ParentNode = document): (() => void) => {
       });
     }
 
-    const activeClasses = (container.dataset.activeClasses ?? "font-medium text-base-content border-base-content").split(" ").filter(Boolean);
-    const inactiveClasses = (container.dataset.inactiveClasses ?? "font-normal text-base-content/60 border-transparent").split(" ").filter(Boolean);
+    const activeClasses = (
+      container.dataset.activeClasses ?? "font-medium text-base-content border-base-content"
+    )
+      .split(" ")
+      .filter(Boolean);
+    const inactiveClasses = (
+      container.dataset.inactiveClasses ?? "font-normal text-base-content/60 border-transparent"
+    )
+      .split(" ")
+      .filter(Boolean);
 
     const activateTab = (index: number) => {
       tabs.forEach((tab) => {
@@ -183,7 +191,9 @@ export const initCodeBlocks = (root: ParentNode = document): (() => void) => {
 
       tabs.forEach((tab, index) => {
         const width = tabWidths[index];
-        const dropdownItem = dropdownList?.querySelector(`[data-dropdown-index="${index}"]`)?.parentElement;
+        const dropdownItem = dropdownList?.querySelector(
+          `[data-dropdown-index="${index}"]`,
+        )?.parentElement;
         if (!(tab instanceof HTMLElement) || !(dropdownItem instanceof HTMLElement)) return;
 
         if (hasOverflow || currentWidth + width > availableWidth) {

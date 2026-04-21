@@ -13,15 +13,31 @@ import { renderToStaticMarkup } from "preact-render-to-string";
 
 import { highlightCode } from "@/web/util/shiki";
 import type { UploadDoc } from "@/web/util/image";
-import { createHeadingConverters } from "./headings";
-import { createInternalDocHrefResolver, type InternalDocHrefRouteMap } from "./linkResolver";
-import { ContentSection } from "./ContentSection";
+import { createHeadingConverters } from "../../util/headings";
+import {
+  createInternalDocHrefResolver,
+  type InternalDocHrefRouteMap,
+} from "../../util/linkResolver";
 import type {
   BlockComponents,
   CalloutVariantProfile,
   RichTextRenderOptions,
   RichTextValue,
-} from "./types";
+} from "../types";
+
+type Props = {
+  title?: string | null;
+  contentHtml: string;
+};
+
+function ContentSection({ title, contentHtml }: Props) {
+  return (
+    <section>
+      {title && <h2 class="text-3xl w-full font-bold mb-4">{title}</h2>}
+      <div class="prose prose-lg max-w-none" dangerouslySetInnerHTML={{ __html: contentHtml }} />
+    </section>
+  );
+}
 
 type PopulatedUploadValue = {
   alt?: string | null;

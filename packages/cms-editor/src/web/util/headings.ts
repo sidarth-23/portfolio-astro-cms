@@ -2,7 +2,6 @@ import type { DefaultNodeTypes } from "@payloadcms/richtext-lexical";
 import type { HTMLConvertersAsync } from "@payloadcms/richtext-lexical/html-async";
 
 import { slugify } from "@/web/util/slugify";
-import type { RichTextValue, TableOfContentsItem } from "./types";
 
 type HeadingTag = "h1" | "h2" | "h3" | "h4" | "h5" | "h6";
 
@@ -11,12 +10,6 @@ type SerializedNode = {
   tag?: HeadingTag;
   text?: string;
   type?: string;
-};
-
-type HeadingDescriptor = {
-  id: string;
-  tag: HeadingTag;
-  text: string;
 };
 
 const extractPlainText = (node: SerializedNode): string => {
@@ -52,39 +45,6 @@ const createHeadingIdFactory = () => {
   };
 };
 
-const collectHeadings = (data?: RichTextValue | null): HeadingDescriptor[] => {
-  const root = data?.root as SerializedNode | undefined;
-
-  if (!root || !Array.isArray(root.children)) {
-    return [];
-  }
-
-  const nextHeadingId = createHeadingIdFactory();
-  const headings: HeadingDescriptor[] = [];
-
-  const visit = (node: SerializedNode) => {
-    if (node.type === "heading" && node.tag) {
-      const text = extractPlainText(node).replace(/\s+/g, " ").trim();
-
-      if (text) {
-        headings.push({
-          id: nextHeadingId(text),
-          tag: node.tag,
-          text,
-        });
-      }
-    }
-
-    if (Array.isArray(node.children)) {
-      node.children.forEach(visit);
-    }
-  };
-
-  root.children.forEach(visit);
-
-  return headings;
-};
-
 export const createHeadingConverters = (): HTMLConvertersAsync<DefaultNodeTypes> => {
   const nextHeadingId = createHeadingIdFactory();
 
@@ -99,16 +59,4 @@ export const createHeadingConverters = (): HTMLConvertersAsync<DefaultNodeTypes>
       return `<${node.tag}${idAttribute}${providedStyleTag} class="scroll-mt-24">${children}</${node.tag}>`;
     },
   };
-};
-
-export const extractTableOfContents = (data?: RichTextValue | null): TableOfContentsItem[] => {
-  return collectHeadings(data)
-    .filter((heading): heading is HeadingDescriptor & { tag: "h2" | "h3" } => {
-      return heading.tag === "h2" || heading.tag === "h3";
-    })
-    .map((heading) => ({
-      depth: heading.tag === "h2" ? 2 : 3,
-      id: heading.id,
-      text: heading.text,
-    }));
 };

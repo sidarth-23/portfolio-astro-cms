@@ -2,12 +2,11 @@ version: "3"
 
 vars:
   COMPOSE_FILE: docker-compose.local.yml
-  POSTGRES_CONTAINER: portfolio-postgres-1
 
 tasks:
   # Docker Compose Operations
   up:
-    desc: Start local infrastructure (Postgres, MinIO)
+    desc: Start local infrastructure (MongoDB, MinIO)
     cmds:
       - docker compose -f {{.COMPOSE_FILE}} up -d
       - task: minio:ensure-bucket
@@ -57,10 +56,10 @@ tasks:
     cmds:
       - docker compose -f {{.COMPOSE_FILE}} logs -f
 
-  logs:postgres:
-    desc: Follow logs from Postgres
+  logs:mongodb:
+    desc: Follow logs from MongoDB
     cmds:
-      - docker compose -f {{.COMPOSE_FILE}} logs -f postgres
+      - docker compose -f {{.COMPOSE_FILE}} logs -f mongodb
 
   logs:minio:
     desc: Follow logs from MinIO
@@ -77,32 +76,36 @@ tasks:
       - rm -rf apps/web/node_modules
       - echo "Cleanup complete. Volumes and dependencies removed."
 
-  # Database Operations
+  # Database Operations (MongoDB)
   db:reset:
-    desc: Reset the database (drop and recreate)
+    desc: Reset the payload database
     prompt: This will delete all database data. Continue?
     cmds:
-      - docker compose -f {{.COMPOSE_FILE}} exec postgres psql -U postgres -c "DROP DATABASE IF EXISTS payload;"
-      - docker compose -f {{.COMPOSE_FILE}} exec postgres psql -U postgres -c "CREATE DATABASE payload;"
+      - docker compose -f {{.COMPOSE_FILE}} exec mongodb mongosh --quiet --eval "db.getSiblingDB('payload').dropDatabase()"
       - echo "Database reset complete."
 
   db:shell:
-    desc: Open psql shell to the database
+    desc: Open Mongo shell to the payload database
     cmds:
-      - docker compose -f {{.COMPOSE_FILE}} exec postgres psql -U postgres -d payload
+      - docker compose -f {{.COMPOSE_FILE}} exec mongodb mongosh payload
 
   db:backup:
-    desc: "Backup database to ./backups/payload-{timestamp}.sql"
+    desc: "Backup payload database to ./backups/payload-{timestamp}.archive"
     cmds:
       - mkdir -p backups
-      - docker compose -f {{.COMPOSE_FILE}} exec -T postgres pg_dump -U postgres payload > backups/payload-$(date +%Y%m%d_%H%M%S).sql
+      - docker compose -f {{.COMPOSE_FILE}} exec -T mongodb sh -lc "mongodump --db payload --archive" > backups/payload-$(date +%Y%m%d_%H%M%S).archive
       - echo "Backup created in backups/"
 
   db:restore:
-    desc: "Restore database from backup (usage: task db:restore -- backups/payload-20260214.sql)"
+    desc: "Restore database from backup (usage: task db:restore -- backups/payload-20260214.archive)"
     cmds:
-      - docker compose -f {{.COMPOSE_FILE}} exec -T postgres psql -U postgres payload < {{.CLI_ARGS}}
+      - docker compose -f {{.COMPOSE_FILE}} exec -T mongodb sh -lc "mongorestore --drop --db payload --archive" < {{.CLI_ARGS}}
       - echo "Database restored from {{.CLI_ARGS}}"
+
+  status:
+    desc: Show service status
+    cmds:
+      - docker compose -f {{.COMPOSE_FILE}} ps
 
   install:deps:
     desc: Install dependencies for all workspaces (bun install)

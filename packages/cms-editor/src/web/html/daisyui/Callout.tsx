@@ -1,7 +1,7 @@
 /** @jsxImportSource preact */
-import type { CalloutProps } from "@/web/html/types";
+import { createCallout } from "@/web/html/shared/createCallout";
 
-const variantToAlertClass: Record<string, string> = {
+const variantClasses: Record<string, string> = {
   neutral: "alert",
   info: "alert alert-info",
   success: "alert alert-success",
@@ -12,16 +12,7 @@ const variantToAlertClass: Record<string, string> = {
   tip: "alert alert-success",
 };
 
-export function Callout({ variant, title, contentHtml, wrapperClass }: CalloutProps) {
-  const alertClass = variantToAlertClass[variant] ?? "alert alert-info";
-  const outerClass = wrapperClass ? `${wrapperClass} ${alertClass}` : alertClass;
-
-  return (
-    <aside class={outerClass} role="note">
-      <div class="grid gap-2">
-        {title && <strong class="font-semibold">{title}</strong>}
-        <div dangerouslySetInnerHTML={{ __html: contentHtml }} />
-      </div>
-    </aside>
-  );
-}
+export const Callout = createCallout({
+  fallbackVariant: "info",
+  variantClasses,
+});

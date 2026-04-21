@@ -25,22 +25,18 @@
     "payload:types": "turbo run generate:types --filter=@sidshub/cms",
     "lint": "turbo run lint",
     "lint:fix": "turbo run lint:fix",
-    "precommit": "lint-staged",
     "commitlint": "commitlint",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "postinstall": "simple-git-hooks"
   },
   "simple-git-hooks": {
-    "pre-commit": "bash scripts/pre-commit.sh",
+    "pre-commit": "if git diff --cached --quiet --exit-code; then echo 'pre-commit: no staged changes, skipping lint-staged'; exit 0; fi; bunx lint-staged --allow-empty",
     "commit-msg": "bun run commitlint --edit $1"
   },
   "lint-staged": {
     "{apps,packages}/**/*.{js,jsx,ts,tsx,cjs,mjs,astro}": [
       "eslint --fix --max-warnings=0 --no-warn-ignored",
-      "prettier --write"
-    ],
-    "*.{js,jsx,ts,tsx,cjs,mjs}": [
       "prettier --write"
     ],
     "*.{json,md,mdx,yaml,yml,css,scss,html}": [

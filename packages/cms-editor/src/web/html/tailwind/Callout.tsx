@@ -1,7 +1,7 @@
 /** @jsxImportSource preact */
-import type { CalloutProps } from "@/web/html/types";
+import { createCallout } from "@/web/html/shared/createCallout";
 
-const variantStyles: Record<string, string> = {
+const variantClasses: Record<string, string> = {
   neutral: "border-l-4 border-gray-400 bg-gray-50 dark:bg-gray-800/50",
   info: "border-l-4 border-blue-500 bg-blue-50 dark:bg-blue-900/20",
   success: "border-l-4 border-green-500 bg-green-50 dark:bg-green-900/20",
@@ -12,16 +12,8 @@ const variantStyles: Record<string, string> = {
   tip: "border-l-4 border-green-500 bg-green-50 dark:bg-green-900/20",
 };
 
-export function Callout({ variant, title, contentHtml, wrapperClass }: CalloutProps) {
-  const style = variantStyles[variant] ?? variantStyles.info;
-  const outerClass = [wrapperClass, style, "rounded-lg p-4"].filter(Boolean).join(" ");
-
-  return (
-    <aside class={outerClass} role="note">
-      <div class="grid gap-2">
-        {title && <strong class="font-semibold">{title}</strong>}
-        <div dangerouslySetInnerHTML={{ __html: contentHtml }} />
-      </div>
-    </aside>
-  );
-}
+export const Callout = createCallout({
+  baseClass: "rounded-lg p-4",
+  fallbackVariant: "info",
+  variantClasses,
+});
