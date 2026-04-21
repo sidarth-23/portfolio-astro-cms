@@ -3,40 +3,35 @@ import TableOfContents from "@/components/TableOfContents.astro";
 import BaseLayout from "@/layouts/BaseLayout.astro";
 import { PhList, PhX } from "phosphor-icons-astro";
 import type { TableOfContentsItem } from "@sidshub/cms-editor/web/html";
-import type { TagInfo } from "@sidshub/cms-core/client";
 
 type Props = {
   title: string;
   seoTitle: string;
-  description: string;
+  seoDescription: string;
   image?: string;
   heroImage?: string;
   heroImageAlt?: string;
-  tags?: TagInfo[];
   toc?: TableOfContentsItem[];
   backHref?: string;
   backLabel?: string;
   ogType?: string;
   jsonLd?: unknown;
   articleClassName?: string;
-  showDescription?: boolean;
 };
 
 const {
   title,
   seoTitle,
-  description,
+  seoDescription,
   image,
   heroImage,
   heroImageAlt,
-  tags = [],
   toc = [],
   backHref,
   backLabel,
   ogType,
   jsonLd,
   articleClassName = "prose prose-lg min-w-0 max-w-none prose-img:mx-auto",
-  showDescription = true,
 }: Props = Astro.props;
 
 const tocDrawerId = "detail-toc-drawer";
@@ -45,7 +40,7 @@ const tocDrawerId = "detail-toc-drawer";
 <BaseLayout
   title={title}
   seoTitle={seoTitle}
-  description={description}
+  description={seoDescription}
   image={image ?? heroImage}
   ogType={ogType}
   jsonLd={jsonLd}
@@ -73,8 +68,6 @@ const tocDrawerId = "detail-toc-drawer";
                 )
               }
 
-              <slot name="headerStart" />
-
               {
                 heroImage && (
                   <figure class="mb-8 flex w-full items-center justify-center rounded-3xl bg-base-200/30 shadow-sm not-prose">
@@ -88,37 +81,7 @@ const tocDrawerId = "detail-toc-drawer";
                 )
               }
 
-              <header class="mb-6 not-prose">
-                <div class="flex flex-wrap items-start justify-between gap-3">
-                  <h1 class="title my-2 text-4xl font-bold">{title}</h1>
-                  <div class="flex flex-wrap items-center gap-2">
-                    <slot name="titleActions" />
-                  </div>
-                </div>
-
-                {
-                  showDescription && (
-                    <p class="mt-4 max-w-3xl text-lg leading-8 text-base-content/75">
-                      {description}
-                    </p>
-                  )
-                }
-
-                <slot name="headerMeta" />
-
-                {
-                  tags.length > 0 && (
-                    <div class="mt-3 flex flex-wrap items-center gap-2">
-                      {tags.map((tag) => (
-                        <span class="inline-flex items-center gap-1 rounded-full border border-base-content/12 bg-base-200/40 px-3 py-1 text-xs font-medium text-base-content/75">
-                          <span class="text-base-content/30">#</span>
-                          {tag.name}
-                        </span>
-                      ))}
-                    </div>
-                  )
-                }
-              </header>
+              <slot name="header" />
 
               <div class="divider my-3"></div>
 

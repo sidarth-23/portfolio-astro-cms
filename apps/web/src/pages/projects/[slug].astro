@@ -2,8 +2,7 @@
 import NotFoundState from "@/components/NotFoundState.astro";
 import ErrorLayout from "@/layouts/ErrorLayout.astro";
 import RichTextRenderer from "@/components/RichTextRenderer.astro";
-import DetailLayout from "@/layouts/DetailLayout.astro";
-import { resolveIcon } from "@/lib/resolveIcon";
+import ProjectLayout from "@/layouts/ProjectLayout.astro";
 import { cmsClient } from "@/lib/cms";
 import { getErrorPageSeo } from "@/lib/seo";
 import { extractTableOfContents } from "@sidshub/cms-editor/web/html";
@@ -43,61 +42,23 @@ const toc = project ? extractTableOfContents(project.content) : [];
     </ErrorLayout>
   ) : (
     project && (
-      <DetailLayout
+      <ProjectLayout
         title={project.title}
         seoTitle={project.meta.title}
-        description={project.description}
+        seoDescription={project.meta.description}
         image={cmsClient.mediaToUrl(project.meta.image) ?? coverImage}
         heroImage={coverImage}
+        createdAt={project.createdAt}
+        updatedAt={project.updatedAt}
+        badges={badges}
+        links={links}
         tags={tags}
         toc={toc}
         backHref="/projects"
         backLabel="Back to projects"
       >
-        <Fragment slot="headerStart">
-          <div class="mb-4 flex flex-wrap gap-2">
-            {badges.map((badge) => (
-              <span class="badge badge-accent badge-outline">{badge}</span>
-            ))}
-          </div>
-        </Fragment>
-
-        <Fragment slot="titleActions">
-          {links.map((link) => {
-            const iconData = resolveIcon(link.icon);
-            if (!iconData) return null;
-
-            const PhosphorIcon = iconData.source === "phosphor" ? iconData.component : null;
-            const label = iconData.source === "simple-icons" ? iconData.title : iconData.name;
-
-            return (
-              <a
-                href={link.url}
-                target={link.newTab ? "_blank" : undefined}
-                rel={link.newTab ? "noopener noreferrer" : undefined}
-                class="inline-flex h-10 w-10 items-center justify-center rounded-full border border-base-content/15 bg-base-200/40 text-base-content/60 transition-colors hover:text-base-content"
-                aria-label={label}
-                title={label}
-              >
-                {iconData.source === "simple-icons" && (
-                  <svg
-                    width={18}
-                    height={18}
-                    viewBox="0 0 24 24"
-                    aria-hidden="true"
-                    fill="currentColor"
-                  >
-                    <path d={iconData.path} />
-                  </svg>
-                )}
-                {PhosphorIcon && <PhosphorIcon size={18} />}
-              </a>
-            );
-          })}
-        </Fragment>
-
         <RichTextRenderer data={project.content} calloutVariantProfile="generic" />
-      </DetailLayout>
+      </ProjectLayout>
     )
   )
 }

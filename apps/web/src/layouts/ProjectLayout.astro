@@ -1,0 +1,140 @@
+---
+import EntryHeader from "@/components/EntryHeader.astro";
+import DetailLayout from "@/layouts/DetailLayout.astro";
+import { resolveIcon } from "@/lib/resolveIcon";
+import type { TableOfContentsItem } from "@sidshub/cms-editor/web/html";
+import type { ProjectLink, TagInfo } from "@sidshub/cms-core/client";
+
+type Props = {
+  title: string;
+  seoTitle: string;
+  seoDescription: string;
+  image?: string;
+  heroImage?: string;
+  heroImageAlt?: string;
+  tags?: TagInfo[];
+  badges?: string[];
+  links?: ProjectLink[];
+  toc?: TableOfContentsItem[];
+  backHref?: string;
+  backLabel?: string;
+  createdAt: string;
+  updatedAt: string;
+};
+
+const {
+  title,
+  seoTitle,
+  seoDescription,
+  image,
+  heroImage,
+  heroImageAlt,
+  tags = [],
+  badges = [],
+  links = [],
+  toc = [],
+  backHref,
+  backLabel,
+  createdAt,
+  updatedAt,
+}: Props = Astro.props;
+
+const displayDate = new Intl.DateTimeFormat("en-US", {
+  year: "numeric",
+  month: "short",
+  day: "numeric",
+}).format(new Date(createdAt));
+
+const createdDateOnly = new Date(createdAt).toDateString();
+const updatedDateOnly = new Date(updatedAt).toDateString();
+const showUpdatedDate = updatedDateOnly !== createdDateOnly;
+const formattedUpdatedDate = new Intl.DateTimeFormat("en-US", {
+  year: "numeric",
+  month: "short",
+  day: "numeric",
+}).format(new Date(updatedAt));
+---
+
+<DetailLayout
+  title={title}
+  seoTitle={seoTitle}
+  seoDescription={seoDescription}
+  image={image}
+  heroImage={heroImage}
+  heroImageAlt={heroImageAlt}
+  toc={toc}
+  backHref={backHref}
+  backLabel={backLabel}
+>
+  <EntryHeader slot="header" title={title} tags={tags}>
+    <Fragment slot="preTitle">
+      {
+        badges.length > 0 && (
+          <div class="mb-4 flex flex-wrap gap-2">
+            {badges.map((badge) => (
+              <span class="badge badge-accent badge-outline">{badge}</span>
+            ))}
+          </div>
+        )
+      }
+    </Fragment>
+
+    <Fragment slot="titleActions">
+      {
+        links.map((link) => {
+          const iconData = resolveIcon(link.icon);
+          if (!iconData) return null;
+
+          const PhosphorIcon = iconData.source === "phosphor" ? iconData.component : null;
+          const label = iconData.source === "simple-icons" ? iconData.title : iconData.name;
+
+          return (
+            <a
+              href={link.url}
+              target={link.newTab ? "_blank" : undefined}
+              rel={link.newTab ? "noopener noreferrer" : undefined}
+              class="inline-flex h-9 w-9 items-center justify-center rounded-full border border-base-content/15 bg-base-200/40 text-base-content/60 transition-colors hover:text-base-content"
+              aria-label={label}
+              title={label}
+            >
+              {iconData.source === "simple-icons" && (
+                <svg
+                  width={16}
+                  height={16}
+                  viewBox="0 0 24 24"
+                  aria-hidden="true"
+                  fill="currentColor"
+                >
+                  <path d={iconData.path} />
+                </svg>
+              )}
+              {PhosphorIcon && <PhosphorIcon size={16} />}
+            </a>
+          );
+        })
+      }
+    </Fragment>
+
+    <Fragment slot="meta">
+      <div class="mt-1 flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-base-content/60">
+        <span>
+          Published <time datetime={createdAt}>{displayDate}</time>
+        </span>
+        {
+          showUpdatedDate && (
+            <>
+              <span aria-hidden="true" class="text-base-content/35">
+                •
+              </span>
+              <span>
+                Updated <time datetime={updatedAt}>{formattedUpdatedDate}</time>
+              </span>
+            </>
+          )
+        }
+      </div>
+    </Fragment>
+  </EntryHeader>
+
+  <slot />
+</DetailLayout>

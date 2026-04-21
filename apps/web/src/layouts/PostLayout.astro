@@ -1,4 +1,5 @@
 ---
+import EntryHeader from "@/components/EntryHeader.astro";
 import DetailLayout from "@/layouts/DetailLayout.astro";
 import { generateFilterUrl } from "@/lib/utils";
 import type { TableOfContentsItem } from "@sidshub/cms-editor/web/html";
@@ -70,60 +71,62 @@ const jsonLd = {
 <DetailLayout
   title={title}
   seoTitle={seoTitle}
-  description={description}
+  seoDescription={description}
   heroImage={heroImage}
-  tags={tags}
   toc={toc}
   ogType="article"
   jsonLd={jsonLd}
-  showDescription={false}
 >
-  <Fragment slot="headerStart">
-    {
-      (category || series) && (
-        <div class="not-prose mb-4 flex flex-wrap gap-2">
-          {category && (
-            <a
-              href={generateFilterUrl(currentUrl, "category", category.slug)}
-              class="badge badge-accent no-underline"
-            >
-              {category.name}
-            </a>
-          )}
-          {series && (
-            <a href={`/blog/series/${series.slug}`} class="badge badge-secondary no-underline">
-              {series.name}
-            </a>
-          )}
-        </div>
-      )
-    }
-  </Fragment>
-
-  <Fragment slot="headerMeta">
-    {
-      authorNames.length > 0 && (
-        <div class="mt-1 text-sm font-medium text-base-content/80">By {authorNames.join(", ")}</div>
-      )
-    }
-    <div class="mt-1 flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-base-content/60">
-      <span>
-        Published <time datetime={pubDate}>{displayDate}</time>
-      </span>
+  <EntryHeader slot="header" title={title} tags={tags}>
+    <Fragment slot="preTitle">
       {
-        showUpdatedDate && (
-          <>
-            <span aria-hidden="true" class="text-base-content/35">
-              •
-            </span>
-            <span>
-              Updated <time datetime={updatedDate}>{formattedUpdatedDate}</time>
-            </span>
-          </>
+        (category || series) && (
+          <div class="not-prose mb-4 flex flex-wrap gap-2">
+            {category && (
+              <a
+                href={generateFilterUrl(currentUrl, "category", category.slug)}
+                class="badge badge-accent no-underline"
+              >
+                {category.name}
+              </a>
+            )}
+            {series && (
+              <a href={`/blog/series/${series.slug}`} class="badge badge-secondary no-underline">
+                {series.name}
+              </a>
+            )}
+          </div>
         )
       }
-    </div>
-  </Fragment>
+    </Fragment>
+
+    <Fragment slot="meta">
+      {
+        authorNames.length > 0 && (
+          <div class="mt-1 text-sm font-medium text-base-content/80">
+            By {authorNames.join(", ")}
+          </div>
+        )
+      }
+      <div class="mt-1 flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-base-content/60">
+        <span>
+          Published <time datetime={pubDate}>{displayDate}</time>
+        </span>
+        {
+          showUpdatedDate && (
+            <>
+              <span aria-hidden="true" class="text-base-content/35">
+                •
+              </span>
+              <span>
+                Updated <time datetime={updatedDate}>{formattedUpdatedDate}</time>
+              </span>
+            </>
+          )
+        }
+      </div>
+    </Fragment>
+  </EntryHeader>
 
   <slot />
 </DetailLayout>
