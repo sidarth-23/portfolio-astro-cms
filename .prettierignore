@@ -5,3 +5,4 @@ dist
 bun.lock
 **/payload-types.ts
 **/payload-generated-schema.ts
+apps/cms/src/app/(payload)/importMap.js

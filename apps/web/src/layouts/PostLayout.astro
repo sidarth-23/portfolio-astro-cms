@@ -1,8 +1,6 @@
 ---
-import TableOfContents from "@/components/TableOfContents.astro";
-import BaseLayout from "@/layouts/BaseLayout.astro";
+import DetailLayout from "@/layouts/DetailLayout.astro";
 import { generateFilterUrl } from "@/lib/utils";
-import { PhList, PhX } from "phosphor-icons-astro";
 import type { TableOfContentsItem } from "@sidshub/cms-editor/web/html";
 import type { TagInfo, CategoryInfo, SeriesInfo, PopulatedAuthor } from "@sidshub/cms-core/client";
 
@@ -36,7 +34,6 @@ const {
 }: Props = Astro.props;
 
 const currentUrl = Astro.url;
-const showTableOfContents = toc.length > 1;
 
 const displayDate = new Intl.DateTimeFormat("en-US", {
   year: "numeric",
@@ -48,9 +45,7 @@ const authorNames = authors
   .filter((name): name is string => Boolean(name));
 
 const pubDateOnly = new Date(pubDate).toDateString();
-const updatedDateOnly = updatedDate
-  ? new Date(updatedDate).toDateString()
-  : null;
+const updatedDateOnly = updatedDate ? new Date(updatedDate).toDateString() : null;
 const showUpdatedDate = Boolean(updatedDateOnly && updatedDateOnly !== pubDateOnly);
 const formattedUpdatedDate = updatedDate
   ? new Intl.DateTimeFormat("en-US", {
@@ -67,204 +62,68 @@ const jsonLd = {
   description,
   image: heroImage ? [new URL(heroImage, Astro.url).toString()] : undefined,
   datePublished: new Date(pubDate).toISOString(),
-  dateModified: updatedDate
-    ? new Date(updatedDate).toISOString()
-    : new Date(pubDate).toISOString(),
+  dateModified: updatedDate ? new Date(updatedDate).toISOString() : new Date(pubDate).toISOString(),
   mainEntityOfPage: Astro.url.toString(),
 };
 ---
 
-<BaseLayout
+<DetailLayout
   title={title}
   seoTitle={seoTitle}
   description={description}
-  image={heroImage}
+  heroImage={heroImage}
+  tags={tags}
+  toc={toc}
   ogType="article"
   jsonLd={jsonLd}
+  showDescription={false}
 >
-  <div class="w-full px-6 py-14">
-    <div class={`drawer drawer-end ${showTableOfContents ? "xl:drawer-open" : ""}`.trim()}>
-      {showTableOfContents && <input id="post-toc-drawer" type="checkbox" class="drawer-toggle" />}
-
-      <div class="drawer-content">
-        <div class="mx-auto w-full max-w-5xl 2xl:max-w-6xl">
-          <div class={`grid gap-12 ${showTableOfContents ? "xl:grid-cols-[minmax(0,1fr)_18rem] 2xl:grid-cols-[minmax(0,1fr)_20rem]" : ""}`.trim()}>
-            <article class="prose prose-lg min-w-0 max-w-none prose-img:mx-auto" data-toc-content>
-              {
-                (category || series) && (
-                  <div class="not-prose mb-4 flex flex-wrap gap-2">
-                    {category && (
-                      <a
-                        href={generateFilterUrl(currentUrl, "category", category.slug)}
-                        class="badge badge-accent no-underline"
-                      >
-                        {category.name}
-                      </a>
-                    )}
-                    {series && (
-                      <a
-                        href={`/blog/series/${series.slug}`}
-                        class="badge badge-secondary no-underline"
-                      >
-                        {series.name}
-                      </a>
-                    )}
-                  </div>
-                )
-              }
-              {
-                heroImage && (
-                  <img
-                    src={heroImage}
-                    alt={title}
-                    class="w-full mb-6 rounded-lg"
-                    loading="eager"
-                  />
-                )
-              }
-              <h1 class="title my-2 text-4xl font-bold">{title}</h1>
-              {
-                authorNames.length > 0 && (
-                  <div class="mt-1 text-sm font-medium text-base-content/80">By {authorNames.join(", ")}</div>
-                )
-              }
-              <div class="mt-1 flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-base-content/60">
-                <span>
-                  Published <time datetime={pubDate}>{displayDate}</time>
-                </span>
-                {
-                  showUpdatedDate && (
-                    <>
-                      <span aria-hidden="true" class="text-base-content/35">•</span>
-                      <span>
-                        Updated <time datetime={updatedDate}>{formattedUpdatedDate}</time>
-                      </span>
-                    </>
-                  )
-                }
-              </div>
-              {
-                tags.length > 0 && (
-                  <div class="mt-2 flex flex-wrap items-center gap-2 not-prose">
-                    {tags.map((tag) => (
-                      <span class="inline-flex items-center gap-1 rounded-full border border-base-content/12 bg-base-200/40 px-3 py-1 text-xs font-medium text-base-content/75">
-                        <span class="text-base-content/30">#</span>
-                        {tag.name}
-                      </span>
-                    ))}
-                  </div>
-                )
-              }
-              <div class="divider my-3"></div>
-              <slot />
-            </article>
-
-            {
-              showTableOfContents && (
-                <aside class="hidden xl:block">
-                  <div class="sticky top-24 max-h-[calc(100vh-8rem)] overflow-y-auto border-l border-base-content/20 pl-6 2xl:pl-8">
-                    <TableOfContents items={toc} />
-                  </div>
-                </aside>
-              )
-            }
-          </div>
+  <Fragment slot="headerStart">
+    {
+      (category || series) && (
+        <div class="not-prose mb-4 flex flex-wrap gap-2">
+          {category && (
+            <a
+              href={generateFilterUrl(currentUrl, "category", category.slug)}
+              class="badge badge-accent no-underline"
+            >
+              {category.name}
+            </a>
+          )}
+          {series && (
+            <a href={`/blog/series/${series.slug}`} class="badge badge-secondary no-underline">
+              {series.name}
+            </a>
+          )}
         </div>
-      </div>
+      )
+    }
+  </Fragment>
 
+  <Fragment slot="headerMeta">
+    {
+      authorNames.length > 0 && (
+        <div class="mt-1 text-sm font-medium text-base-content/80">By {authorNames.join(", ")}</div>
+      )
+    }
+    <div class="mt-1 flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-base-content/60">
+      <span>
+        Published <time datetime={pubDate}>{displayDate}</time>
+      </span>
       {
-        showTableOfContents && (
-          <div class="drawer-side z-50 xl:hidden" data-toc-drawer>
-            <label for="post-toc-drawer" aria-label="Close table of contents" class="drawer-overlay"></label>
-
-            <div class="min-h-full w-80 max-w-[85vw] border-l border-base-content/20 bg-base-200/95 p-4 backdrop-blur">
-              <div class="mb-4 flex items-center justify-between gap-4">
-                <div class="text-lg font-semibold">Table of contents</div>
-
-                <label for="post-toc-drawer" class="btn btn-square btn-ghost" aria-label="Close table of contents">
-                  <PhX size={18} />
-                </label>
-              </div>
-
-              <div class="border-l border-base-content/20 pl-5">
-                <TableOfContents items={toc} />
-              </div>
-            </div>
-          </div>
+        showUpdatedDate && (
+          <>
+            <span aria-hidden="true" class="text-base-content/35">
+              •
+            </span>
+            <span>
+              Updated <time datetime={updatedDate}>{formattedUpdatedDate}</time>
+            </span>
+          </>
         )
       }
     </div>
+  </Fragment>
 
-    {
-      showTableOfContents && (
-        <label
-          for="post-toc-drawer"
-          class="btn btn-circle btn-primary fixed bottom-6 right-6 z-40 shadow-lg xl:hidden"
-          aria-label="Open table of contents"
-        >
-          <PhList size={20} />
-        </label>
-      )
-    }
-  </div>
-
-  <script>
-    import { initCodeBlocks, initImageGallery } from "@sidshub/cms-editor/web/html/client";
-
-    let cleanupCodeBlocks = () => {};
-    let cleanupImageGallery = () => {};
-
-    const initializeCodeBlocks = () => {
-      cleanupCodeBlocks();
-      cleanupCodeBlocks = initCodeBlocks();
-    };
-
-    const initializeImageGallery = () => {
-      cleanupImageGallery();
-      cleanupImageGallery = initImageGallery();
-    };
-
-    initializeCodeBlocks();
-    initializeImageGallery();
-
-    if (!document.documentElement.dataset.codeBlockPageLoadBound) {
-      document.addEventListener("astro:page-load", initializeCodeBlocks);
-      document.documentElement.dataset.codeBlockPageLoadBound = "true";
-    }
-
-    if (!document.documentElement.dataset.imageGalleryPageLoadBound) {
-      document.addEventListener("astro:page-load", initializeImageGallery);
-      document.documentElement.dataset.imageGalleryPageLoadBound = "true";
-    }
-  </script>
-
-  {
-    showTableOfContents && (
-      <script>
-        import { initTableOfContents } from "@sidshub/cms-editor/web/html/client";
-
-        const POST_TOC_DRAWER_ID = "post-toc-drawer";
-        let cleanupPostTableOfContents = () => {};
-
-        const initializePostTableOfContents = () => {
-          cleanupPostTableOfContents();
-          cleanupPostTableOfContents = initTableOfContents({
-            onLinkClick: () => {
-              const drawer = document.getElementById(POST_TOC_DRAWER_ID);
-              if (drawer instanceof HTMLInputElement) {
-                drawer.checked = false;
-              }
-            },
-          });
-        };
-
-        initializePostTableOfContents();
-
-        if (!document.documentElement.dataset.postTocPageLoadBound) {
-          document.addEventListener("astro:page-load", initializePostTableOfContents);
-          document.documentElement.dataset.postTocPageLoadBound = "true";
-        }
-      </script>
-    )
-  }
-</BaseLayout>
+  <slot />
+</DetailLayout>
