@@ -62,6 +62,7 @@ This will start:
 - Payload CMS (port 3000)
 
 Taskfile local startup also runs `minio:ensure-bucket`, which uses `minio-init` to create `S3_BUCKET` idempotently.
+If you omit the S3 environment variables entirely, the CMS still starts and uses Payload's default local upload storage instead of MinIO.
 
 ## 3. Access Services
 

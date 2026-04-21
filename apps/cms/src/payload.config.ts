@@ -6,7 +6,28 @@ import { createDeploymentAdapter } from "@sidshub/cms-core/deployment";
 import type { HookConfig } from "@sidshub/cms-core/deployment";
 
 import { env } from "./env";
-import { ensureS3BucketExists } from "./lib/ensureS3Bucket";
+
+function buildStoragePlugins() {
+  if (!env.S3_BUCKET || !env.S3_REGION || !env.S3_ACCESS_KEY_ID || !env.S3_SECRET_ACCESS_KEY) {
+    return [];
+  }
+
+  return [
+    s3Storage({
+      collections: { media: true },
+      bucket: env.S3_BUCKET,
+      config: {
+        forcePathStyle: true,
+        credentials: {
+          accessKeyId: env.S3_ACCESS_KEY_ID,
+          secretAccessKey: env.S3_SECRET_ACCESS_KEY,
+        },
+        endpoint: env.S3_ENDPOINT,
+        region: env.S3_REGION,
+      },
+    }),
+  ];
+}
 
 function buildDeploymentAdapter(): ReturnType<typeof createDeploymentAdapter> | undefined {
   if (!env.SITE_BUILD_HOOK_TYPE) return undefined;
@@ -54,21 +75,7 @@ export default createCmsConfig({
     defaultFromAddress: env.EMAIL_FROM_ADDRESS,
     defaultFromName: env.EMAIL_FROM_NAME,
   }),
-  storagePlugins: [
-    s3Storage({
-      collections: { media: true },
-      bucket: env.S3_BUCKET,
-      config: {
-        forcePathStyle: true,
-        credentials: {
-          accessKeyId: env.S3_ACCESS_KEY_ID,
-          secretAccessKey: env.S3_SECRET_ACCESS_KEY,
-        },
-        endpoint: env.S3_ENDPOINT,
-        region: env.S3_REGION,
-      },
-    }),
-  ],
+  storagePlugins: buildStoragePlugins(),
   deployHook:
     env.WEB_DEPLOY_WEBHOOK_URL && env.WEB_DEPLOY_BRANCH
       ? { webhookUrl: env.WEB_DEPLOY_WEBHOOK_URL, branch: env.WEB_DEPLOY_BRANCH }
@@ -78,13 +85,4 @@ export default createCmsConfig({
   showDeploymentStatus: !!env.SITE_BUILD_HOOK_TYPE,
   deploymentHookType: env.SITE_BUILD_HOOK_TYPE,
   deploymentHookValid: isDeploymentHookValid(),
-  onInit: async () => {
-    await ensureS3BucketExists({
-      bucket: env.S3_BUCKET,
-      endpoint: env.S3_ENDPOINT,
-      region: env.S3_REGION,
-      accessKeyId: env.S3_ACCESS_KEY_ID,
-      secretAccessKey: env.S3_SECRET_ACCESS_KEY,
-    });
-  },
 });

@@ -229,6 +229,10 @@ export const projectsSchema = withSeoMeta({
 export const seriesSchema = withSeoMeta({
   name: requiredText.optional(),
   description: optionalText,
+  posts: z
+    .array(z.union([z.string(), z.number(), z.object({}).passthrough()]))
+    .min(2, "Series must have at least 2 posts.")
+    .optional(),
 });
 
 export const categoriesSchema = z

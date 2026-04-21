@@ -17,12 +17,12 @@
 - `RESEND_API_KEY`
 - `EMAIL_FROM_ADDRESS`
 - `EMAIL_FROM_NAME`
-- `S3_BUCKET`
-- `S3_REGION`
-- `S3_ENDPOINT`
+- `S3_BUCKET` (required only when using S3-compatible object storage)
+- `S3_REGION` (required only when using S3-compatible object storage)
+- `S3_ENDPOINT` (optional; required for MinIO and other custom S3-compatible endpoints)
 - `MINIO_CREATE_BUCKET_ON_STARTUP` (recommended: `false`; set `true` only when you want compose to provision bucket)
-- `S3_ACCESS_KEY_ID`
-- `S3_SECRET_ACCESS_KEY`
+- `S3_ACCESS_KEY_ID` (required only when using S3-compatible object storage)
+- `S3_SECRET_ACCESS_KEY` (required only when using S3-compatible object storage)
 - `WEB_DEPLOY_WEBHOOK_URL`
 - `WEB_DEPLOY_BRANCH`
 - `MEDIA_CLEANUP_DAYS` (optional, default `7`)
@@ -53,7 +53,8 @@
 
 - Bucket provisioning is infrastructure-owned.
 - `minio-init` in `docker-compose.cms.yml` provisions `S3_BUCKET` only when `MINIO_CREATE_BUCKET_ON_STARTUP=true`.
-- CMS no longer creates buckets at runtime; it validates bucket existence at startup and fails fast if missing.
+- CMS only enables the S3 storage adapter when the full S3 configuration is present.
+- Without S3 configuration, Payload falls back to its default local upload storage for the `media` collection.
 
 ## Domain Suggestion
 

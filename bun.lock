@@ -19,7 +19,6 @@
     "apps/cms": {
       "name": "@sidshub/cms",
       "dependencies": {
-        "@aws-sdk/client-s3": "^3.888.0",
         "@payloadcms/db-mongodb": "3.82.1",
         "@payloadcms/email-resend": "3.82.1",
         "@payloadcms/next": "3.82.1",
