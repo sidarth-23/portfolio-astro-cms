@@ -50,7 +50,7 @@ export function SeoSaveButton() {
   const { collectionSlug } = useDocumentInfo();
 
   const drawerSlug = useDrawerSlug("seo-confirm-save");
-  const { openModal, closeModal, modalState } = useModal();
+  const { openModal, modalState } = useModal();
 
   const resolveRef = useRef<((confirmed: boolean) => void) | null>(null);
   const [changedFields, setChangedFields] = useState<Array<"title" | "description" | "image">>([]);
@@ -66,16 +66,14 @@ export function SeoSaveButton() {
   }, [modalState, drawerSlug]);
 
   const handleConfirm = useCallback(() => {
-    closeModal(drawerSlug);
     resolveRef.current?.(true);
     resolveRef.current = null;
-  }, [closeModal, drawerSlug]);
+  }, []);
 
   const handleSkip = useCallback(() => {
-    closeModal(drawerSlug);
     resolveRef.current?.(false);
     resolveRef.current = null;
-  }, [closeModal, drawerSlug]);
+  }, []);
 
   const handleSubmit = useCallback(async () => {
     if (uploadStatus === "uploading") {
@@ -175,7 +173,7 @@ export function SeoPublishButton() {
   const { t } = useTranslation();
 
   const drawerSlug = useDrawerSlug("seo-confirm-publish");
-  const { openModal, closeModal, modalState } = useModal();
+  const { openModal, modalState } = useModal();
 
   const resolveRef = useRef<((confirmed: boolean) => void) | null>(null);
   const [changedFields, setChangedFields] = useState<Array<"title" | "description" | "image">>([]);
@@ -195,16 +193,14 @@ export function SeoPublishButton() {
   }, [modalState, drawerSlug]);
 
   const handleConfirm = useCallback(() => {
-    closeModal(drawerSlug);
     resolveRef.current?.(true);
     resolveRef.current = null;
-  }, [closeModal, drawerSlug]);
+  }, []);
 
   const handleSkip = useCallback(() => {
-    closeModal(drawerSlug);
     resolveRef.current?.(false);
     resolveRef.current = null;
-  }, [closeModal, drawerSlug]);
+  }, []);
 
   const handlePublish = useCallback(async () => {
     if (uploadStatus === "uploading") {
@@ -324,7 +320,7 @@ export function SeoSaveDraftButton() {
   const operation = useOperation();
 
   const drawerSlug = useDrawerSlug("seo-confirm-draft");
-  const { openModal, closeModal, modalState } = useModal();
+  const { openModal, modalState } = useModal();
 
   const resolveRef = useRef<((confirmed: boolean) => void) | null>(null);
   const [changedFields, setChangedFields] = useState<Array<"title" | "description" | "image">>([]);
@@ -340,16 +336,14 @@ export function SeoSaveDraftButton() {
   }, [modalState, drawerSlug]);
 
   const handleConfirm = useCallback(() => {
-    closeModal(drawerSlug);
     resolveRef.current?.(true);
     resolveRef.current = null;
-  }, [closeModal, drawerSlug]);
+  }, []);
 
   const handleSkip = useCallback(() => {
-    closeModal(drawerSlug);
     resolveRef.current?.(false);
     resolveRef.current = null;
-  }, [closeModal, drawerSlug]);
+  }, []);
 
   const saveDraft = useCallback(async () => {
     if (disabled) {
