@@ -10,7 +10,6 @@ import { siMarkdown } from "simple-icons";
 
 import { OPEN_MARKDOWN_IMPORT_COMMAND } from "@/plugin/markdown-paste/markdownImportCommand";
 import { MarkdownImportPlugin } from "@/plugin/markdown-paste/MarkdownImportPlugin";
-import { MarkdownPastePlugin } from "@/plugin/markdown-paste/MarkdownPastePlugin";
 
 function MarkdownImportIcon() {
   return (
@@ -72,10 +71,6 @@ export const MarkdownPasteFeatureClient = createClientFeature({
   plugins: [
     {
       Component: MarkdownImportPlugin,
-      position: "normal",
-    },
-    {
-      Component: MarkdownPastePlugin,
       position: "normal",
     },
   ],

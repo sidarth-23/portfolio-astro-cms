@@ -13,6 +13,7 @@ import { Series } from "@/collections/Series";
 import { Users } from "@/collections/Users";
 import { deploymentStatusEndpoint } from "@/endpoints/deploymentStatus";
 import { generateOgImagesEndpoint } from "@/endpoints/generateOgImages";
+import { importMediaFromUrlEndpoint } from "@/endpoints/importMediaFromUrl";
 import { orphanedMediaEndpoints } from "@/endpoints/orphanedMedia";
 import { BlogPage } from "@/globals/BlogPage";
 import { CvPage } from "@/globals/CvPage";
@@ -210,6 +211,7 @@ export function createCmsConfig(options: CmsConfigOptions) {
     endpoints: [
       generateOgImagesEndpoint(options.siteUrl),
       deploymentStatusEndpoint,
+      importMediaFromUrlEndpoint,
       ...orphanedMediaEndpoints,
     ],
     collections,

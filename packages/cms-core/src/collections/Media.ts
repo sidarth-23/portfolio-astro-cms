@@ -1,7 +1,7 @@
 import type { AllowList, CollectionConfig } from "payload";
 import { createMinimalRichTextEditor } from "@/lib/editor";
 
-const pasteUrlAllowList: AllowList = [
+export const mediaPasteUrlAllowList: AllowList = [
   { hostname: "sidshub.in", protocol: "https" },
   { hostname: "www.sidshub.in", protocol: "https" },
   { hostname: "cms-staging.sidshub.in", protocol: "https" },
@@ -22,6 +22,8 @@ const pasteUrlAllowList: AllowList = [
   { hostname: "raw.githubusercontent.com", protocol: "https" },
   { hostname: "user-images.githubusercontent.com", protocol: "https" },
   { hostname: "avatars.githubusercontent.com", protocol: "https" },
+  { hostname: "img.shields.io", protocol: "https" },
+  { hostname: "shields.io", protocol: "https" },
 ];
 
 export const Media: CollectionConfig = {
@@ -30,7 +32,7 @@ export const Media: CollectionConfig = {
   upload: {
     mimeTypes: ["image/*"],
     pasteURL: {
-      allowList: pasteUrlAllowList,
+      allowList: mediaPasteUrlAllowList,
     },
   },
   access: {

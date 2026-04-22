@@ -1,40 +1,23 @@
 "use client";
 
-import { type ReactElement, useCallback, useEffect, useMemo, useState } from "react";
-import type { InitialConfigType } from "@lexical/react/LexicalComposer";
-import { LexicalComposer } from "@lexical/react/LexicalComposer";
-import { ContentEditable } from "@lexical/react/LexicalContentEditable";
-import { LexicalErrorBoundary } from "@lexical/react/LexicalErrorBoundary";
+import type { ReactElement } from "react";
+import { useMemo } from "react";
 import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext";
-import { RichTextPlugin } from "@lexical/react/LexicalRichTextPlugin";
 import {
   Button,
   Drawer,
+  DrawerContentContainer,
   FieldDescription,
   FieldLabel,
-  fieldBaseClass,
   TextareaInput,
-  useModal,
+  UploadInput,
+  fieldBaseClass,
+  useConfig,
 } from "@payloadcms/ui";
-import { $convertFromMarkdownString, TRANSFORMERS } from "@lexical/markdown";
-import { useEditorConfigContext, getEnabledNodes } from "@payloadcms/richtext-lexical/client";
-import { createHeadlessEditor } from "@lexical/headless";
-import type { SerializedEditorState } from "lexical";
+import { useEditorConfigContext } from "@payloadcms/richtext-lexical/client";
 
-type PreviewStatePluginProps = {
-  previewState: SerializedEditorState;
-};
-
-function PreviewStatePlugin({ previewState }: PreviewStatePluginProps): null {
-  const [editor] = useLexicalComposerContext();
-
-  useEffect(() => {
-    const nextState = editor.parseEditorState(previewState);
-    editor.setEditorState(nextState);
-  }, [editor, previewState]);
-
-  return null;
-}
+import { deriveAltFromUrl } from "@/plugin/markdown-paste/markdownImageUtils";
+import { useMarkdownImportController } from "@/plugin/markdown-paste/useMarkdownImportController";
 
 type MarkdownImportSheetProps = {
   drawerSlug: string;
@@ -49,167 +32,232 @@ export function MarkdownImportSheet({
 }: MarkdownImportSheetProps): ReactElement {
   const [editor] = useLexicalComposerContext();
   const { editorConfig } = useEditorConfigContext();
-  const { closeModal, modalState } = useModal();
+  const {
+    config: { routes, serverURL },
+  } = useConfig();
 
-  const isOpen = modalState[drawerSlug]?.isOpen ?? false;
+  const {
+    error,
+    handleCancel,
+    handleInsert,
+    isImporting,
+    isPreparing,
+    markdown,
+    prepareAllImages,
+    prepareSingleImage,
+    preparedMediaByUrl,
+    setMarkdown,
+    setPreparedMedia,
+    uniqueImages,
+    unresolvedImageUrls,
+  } = useMarkdownImportController({
+    drawerSlug,
+    editor,
+    editorConfig,
+    initialMarkdown,
+    onClose,
+  });
 
-  const [markdown, setMarkdown] = useState(initialMarkdown);
-  const [previewState, setPreviewState] = useState<SerializedEditorState | null>(null);
-  const [previewError, setPreviewError] = useState<string | null>(null);
-  const [isRenderingPreview, setIsRenderingPreview] = useState(false);
+  const imageRows = useMemo(() => {
+    return uniqueImages.map((image, index) => {
+      const preparedMediaId = preparedMediaByUrl[image.url] ?? null;
 
-  useEffect(() => {
-    if (!isOpen) return;
-    setMarkdown(initialMarkdown);
-  }, [initialMarkdown, isOpen]);
-
-  const configuredTransformers = useMemo(() => {
-    const fromConfig = editorConfig.features.markdownTransformers ?? [];
-    return fromConfig.length > 0 ? fromConfig : TRANSFORMERS;
-  }, [editorConfig.features.markdownTransformers]);
-
-  useEffect(() => {
-    if (!isOpen) return;
-
-    if (!markdown.trim()) {
-      setPreviewState(null);
-      setPreviewError(null);
-      setIsRenderingPreview(false);
-      return;
-    }
-
-    setIsRenderingPreview(true);
-    setPreviewError(null);
-
-    try {
-      const previewEditor = createHeadlessEditor({
-        nodes: getEnabledNodes({ editorConfig }),
-      });
-
-      previewEditor.update(
-        () => {
-          $convertFromMarkdownString(markdown, configuredTransformers);
-        },
-        { discrete: true },
-      );
-
-      const lexicalJSON = previewEditor.getEditorState().toJSON();
-      setPreviewState(lexicalJSON);
-    } catch (error) {
-      setPreviewState(null);
-      setPreviewError(error instanceof Error ? error.message : "Failed to render preview.");
-    } finally {
-      setIsRenderingPreview(false);
-    }
-  }, [configuredTransformers, editorConfig, isOpen, markdown]);
-
-  const handleInsert = useCallback(() => {
-    if (!markdown.trim()) {
-      closeModal(drawerSlug);
-      onClose();
-      return;
-    }
-
-    editor.update(() => {
-      $convertFromMarkdownString(markdown, configuredTransformers);
+      return {
+        image,
+        index,
+        preparedMediaId,
+        title: image.alt?.trim() || deriveAltFromUrl(image.url),
+      };
     });
-
-    closeModal(drawerSlug);
-    onClose();
-  }, [closeModal, configuredTransformers, drawerSlug, editor, markdown, onClose]);
-
-  const handleCancel = useCallback(() => {
-    closeModal(drawerSlug);
-    onClose();
-  }, [closeModal, drawerSlug, onClose]);
-
-  const previewEditorConfig = useMemo<InitialConfigType>(
-    () => ({
-      editable: false,
-      editorState: null,
-      namespace: `${drawerSlug}-preview-editor`,
-      nodes: getEnabledNodes({ editorConfig }),
-      onError: (error) => {
-        throw error;
-      },
-      theme: editorConfig.lexical?.theme,
-    }),
-    [drawerSlug, editorConfig],
-  );
+  }, [preparedMediaByUrl, uniqueImages]);
 
   return (
     <Drawer slug={drawerSlug} title="Import Markdown">
-      <div style={{ display: "grid", gap: "1rem" }}>
+      <DrawerContentContainer>
         <div className={fieldBaseClass}>
-          <FieldLabel label="Markdown Source" path={`${drawerSlug}.markdown`} />
+          <FieldLabel label="Markdown" path={`${drawerSlug}.markdown`} />
           <TextareaInput
             path={`${drawerSlug}.markdown`}
+            placeholder="Paste markdown here..."
             value={markdown}
             onChange={(event) => setMarkdown(event.target.value)}
-            placeholder="Paste markdown here..."
           />
           <FieldDescription
-            description="Paste markdown content and review the converted preview before inserting."
+            description="Paste markdown and import directly into the active editor selection."
             path={`${drawerSlug}.markdown`}
           />
         </div>
 
-        <div className={fieldBaseClass}>
-          <div style={{ fontWeight: 600, marginBottom: "0.5rem" }}>Preview (read-only)</div>
+        {imageRows.length > 0 && (
           <div
             style={{
-              border: "1px solid var(--theme-elevation-150)",
-              borderRadius: "4px",
-              minHeight: "10rem",
-              overflowX: "auto",
+              display: "grid",
+              gap: "0.9rem",
+              marginTop: "1.25rem",
             }}
           >
-            {previewError ? (
-              <p style={{ color: "var(--theme-error-500)", padding: "0.75rem 1.25rem" }}>
-                {previewError}
-              </p>
-            ) : isRenderingPreview ? (
-              <p style={{ padding: "0.75rem 1.25rem" }}>Rendering preview...</p>
-            ) : previewState ? (
-              <div style={{ padding: "0.75rem 1.25rem" }}>
-                <LexicalComposer initialConfig={previewEditorConfig}>
-                  <PreviewStatePlugin previewState={previewState} />
-                  <RichTextPlugin
-                    contentEditable={
-                      <ContentEditable
-                        aria-readonly="true"
-                        style={{
-                          minHeight: "8rem",
-                          outline: "none",
-                        }}
-                      />
-                    }
-                    ErrorBoundary={LexicalErrorBoundary}
-                    placeholder={null}
-                  />
-                </LexicalComposer>
+            <div
+              style={{
+                alignItems: "center",
+                display: "flex",
+                gap: "0.75rem",
+                justifyContent: "space-between",
+                marginBottom: "0.35rem",
+              }}
+            >
+              <div>
+                <h3
+                  style={{
+                    fontSize: "1.15rem",
+                    fontWeight: 600,
+                    margin: 0,
+                  }}
+                >
+                  Image Imports
+                </h3>
+                <p
+                  style={{
+                    color: "var(--theme-elevation-700)",
+                    fontSize: "0.86rem",
+                    margin: "0.08rem 0 0",
+                  }}
+                >
+                  Import image URLs into Media, then use native edit/remove actions on each row.
+                </p>
               </div>
-            ) : (
-              <p style={{ color: "var(--theme-elevation-600)", padding: "0.75rem 1.25rem" }}>
-                Nothing to preview yet.
-              </p>
-            )}
-          </div>
-          <FieldDescription
-            description="Preview is read-only and mirrors how markdown will be imported."
-            path={`${drawerSlug}.preview`}
-          />
-        </div>
 
-        <div style={{ display: "flex", gap: "0.5rem", justifyContent: "flex-end" }}>
-          <Button buttonStyle="secondary" onClick={handleCancel} size="small" type="button">
+              <Button
+                buttonStyle="primary"
+                disabled={isImporting || isPreparing}
+                margin={false}
+                onClick={prepareAllImages}
+                size="small"
+                type="button"
+              >
+                {isPreparing ? "Preparing..." : "Prepare Images"}
+              </Button>
+            </div>
+
+            {imageRows.map(({ image, index, preparedMediaId, title }) => {
+              return (
+                <div
+                  key={image.url}
+                  style={{
+                    border: "1px solid var(--theme-elevation-150)",
+                    borderRadius: "4px",
+                    padding: "0.85rem 0.75rem",
+                  }}
+                >
+                  <div
+                    style={{
+                      alignItems: "flex-start",
+                      display: "flex",
+                      gap: "0.75rem",
+                      justifyContent: "space-between",
+                      marginBottom: "0.35rem",
+                    }}
+                  >
+                    <div style={{ minWidth: 0 }}>
+                      <div
+                        style={{
+                          fontSize: "0.98rem",
+                          fontWeight: 600,
+                          marginBottom: "0.08rem",
+                        }}
+                      >
+                        {title}
+                      </div>
+                      <div
+                        style={{
+                          color: "var(--theme-elevation-700)",
+                          fontSize: "0.82rem",
+                          overflow: "hidden",
+                          textOverflow: "ellipsis",
+                          whiteSpace: "nowrap",
+                        }}
+                        title={image.url}
+                      >
+                        {image.url}
+                      </div>
+                    </div>
+
+                    <div style={{ alignSelf: "center" }}>
+                      <Button
+                        buttonStyle="primary"
+                        disabled={isImporting || isPreparing}
+                        margin={false}
+                        onClick={() => prepareSingleImage(image.url)}
+                        size="small"
+                        type="button"
+                      >
+                        {preparedMediaId ? "Re-prepare URL" : "Prepare URL"}
+                      </Button>
+                    </div>
+                  </div>
+
+                  <UploadInput
+                    Description={null}
+                    Label={null}
+                    allowCreate={false}
+                    api={routes.api}
+                    path={`${drawerSlug}.images.${index}.media`}
+                    relationTo="media"
+                    serverURL={serverURL}
+                    style={{ margin: 0 }}
+                    value={preparedMediaId ?? undefined}
+                    onChange={(value) => {
+                      setPreparedMedia(image.url, value);
+                    }}
+                  />
+                </div>
+              );
+            })}
+          </div>
+        )}
+
+        {unresolvedImageUrls.length > 0 && (
+          <div className={fieldBaseClass}>
+            <FieldDescription
+              description={`Could not import ${unresolvedImageUrls.length} image URL${unresolvedImageUrls.length === 1 ? "" : "s"} in the previous attempt.`}
+              path={`${drawerSlug}.images.unresolved`}
+            />
+          </div>
+        )}
+
+        {error && (
+          <div className={fieldBaseClass}>
+            <FieldDescription description={error} path={`${drawerSlug}.error`} />
+          </div>
+        )}
+
+        <div
+          style={{
+            display: "flex",
+            gap: "0.5rem",
+            justifyContent: "flex-end",
+            marginTop: "1rem",
+          }}
+        >
+          <Button
+            buttonStyle="secondary"
+            disabled={isImporting || isPreparing}
+            onClick={handleCancel}
+            size="small"
+            type="button"
+          >
             Cancel
           </Button>
-          <Button buttonStyle="primary" onClick={handleInsert} size="small" type="button">
-            Insert Into Editor
+          <Button
+            buttonStyle="primary"
+            disabled={isImporting || isPreparing}
+            onClick={handleInsert}
+            size="small"
+            type="button"
+          >
+            {isImporting ? "Importing..." : "Import Into Editor"}
           </Button>
         </div>
-      </div>
+      </DrawerContentContainer>
     </Drawer>
   );
 }
