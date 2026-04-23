@@ -21,7 +21,7 @@ import { UnderlineFeatureClient as UnderlineFeatureClient_e70f5e05f09f93e00b997e
 import { BoldFeatureClient as BoldFeatureClient_e70f5e05f09f93e00b997edb1ef0c864 } from '@payloadcms/richtext-lexical/client'
 import { ItalicFeatureClient as ItalicFeatureClient_e70f5e05f09f93e00b997edb1ef0c864 } from '@payloadcms/richtext-lexical/client'
 import { ParagraphFeatureClient as ParagraphFeatureClient_e70f5e05f09f93e00b997edb1ef0c864 } from '@payloadcms/richtext-lexical/client'
-import { IconPickerField as IconPickerField_fce113047fd43dfbeedb5a0597d6ab52 } from '../../../../../packages/cms-core/dist/components/admin/IconPickerField'
+import { IconPickerField as IconPickerField_19925e6d369cf6a71deb3fb37e7f08e9 } from '@sidshub/cms-icons/ui'
 import { LinkRowLabel as LinkRowLabel_a526a8bf0b3e759cc2b71b6fa0e9f56c } from '../../../../../packages/cms-core/dist/components/admin/rowLabels/LinkRowLabel'
 import { FolderTableCell as FolderTableCell_f9c02e79a4aed9a3924487c0cd4cafb1 } from '@payloadcms/next/rsc'
 import { FolderField as FolderField_f9c02e79a4aed9a3924487c0cd4cafb1 } from '@payloadcms/next/rsc'
@@ -79,7 +79,7 @@ export const importMap = {
   "@payloadcms/richtext-lexical/client#BoldFeatureClient": BoldFeatureClient_e70f5e05f09f93e00b997edb1ef0c864,
   "@payloadcms/richtext-lexical/client#ItalicFeatureClient": ItalicFeatureClient_e70f5e05f09f93e00b997edb1ef0c864,
   "@payloadcms/richtext-lexical/client#ParagraphFeatureClient": ParagraphFeatureClient_e70f5e05f09f93e00b997edb1ef0c864,
-  "./components/admin/IconPickerField#IconPickerField": IconPickerField_fce113047fd43dfbeedb5a0597d6ab52,
+  "@sidshub/cms-icons/ui#IconPickerField": IconPickerField_19925e6d369cf6a71deb3fb37e7f08e9,
   "./components/admin/rowLabels/LinkRowLabel#LinkRowLabel": LinkRowLabel_a526a8bf0b3e759cc2b71b6fa0e9f56c,
   "@payloadcms/next/rsc#FolderTableCell": FolderTableCell_f9c02e79a4aed9a3924487c0cd4cafb1,
   "@payloadcms/next/rsc#FolderField": FolderField_f9c02e79a4aed9a3924487c0cd4cafb1,
