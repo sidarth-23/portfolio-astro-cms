@@ -44,6 +44,10 @@ export const lineRangeToOffsets = (
 ): { start: number; end: number } => {
   const lines = markdown.split("\n");
 
+  if (startLine >= lines.length) {
+    return { start: markdown.length, end: markdown.length };
+  }
+
   // Walk lines, accumulating cumulative byte positions (each line contributes
   // line.length + 1 bytes for the trailing '\n').
   let pos = 0;

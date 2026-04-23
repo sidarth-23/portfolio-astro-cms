@@ -28,21 +28,17 @@ const getFootnoteLineRange = (
 ): { startLine: number; endLine: number } | null => {
   let minStart: number | null = null;
   let maxEnd: number | null = null;
-  let depth = 0;
+  // Start at depth 1: we have already entered the footnote_open at footnoteOpenIdx.
+  let depth = 1;
 
-  for (let i = footnoteOpenIdx; i < tokens.length; i++) {
+  for (let i = footnoteOpenIdx + 1; i < tokens.length; i++) {
     const token = tokens[i]!;
-
-    if (i === footnoteOpenIdx) {
-      // The footnote_open itself — skip nesting tracking for this one.
-      continue;
-    }
 
     if (token.type === "footnote_open") {
       depth++;
     } else if (token.type === "footnote_close") {
-      if (depth === 0) break; // reached our matching close
       depth--;
+      if (depth === 0) break; // reached our matching close
     }
 
     if (token.map !== null && Array.isArray(token.map)) {
@@ -110,6 +106,8 @@ export const collectFootnoteReplacements: MarkdownPreprocessRule = ({
 
     // Derive the definition's line range from its child tokens.
     const lineRange = getFootnoteLineRange(tokens, i);
+    // Empty footnote body — no paragraph tokens found; skip silently.
+    // These produce no child content for FootnoteDefinitionNode.
     if (lineRange === null) continue;
 
     const { start, end } = lineRangeToOffsets(markdown, lineRange.startLine, lineRange.endLine);
