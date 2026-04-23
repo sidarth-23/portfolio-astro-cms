@@ -1,7 +1,7 @@
 import { z } from "zod";
 
 import { CV_SECTION_TYPE_OPTIONS, HOME_CTA_VARIANT_OPTIONS } from "@/lib/content";
-import { isPhosphorIconName, isSimpleIconSlug } from "@/lib/icons";
+import { isValidIconValue } from "@sidshub/cms-icons";
 import {
   optionalHttpUrl,
   optionalLinkUrl,
@@ -11,36 +11,12 @@ import {
 } from "./primitives";
 
 const strictIconSchema = z.string().superRefine((value, ctx) => {
-  if (value.startsWith("si:")) {
-    const slug = value.slice(3).trim();
-    if (isSimpleIconSlug(slug)) {
-      return;
-    }
-
+  if (!isValidIconValue(value)) {
     ctx.addIssue({
       code: z.ZodIssueCode.custom,
-      message: "Unknown Simple Icons slug.",
+      message: "Unknown or unsupported icon. Use the icon picker to select a valid value.",
     });
-    return;
   }
-
-  if (value.startsWith("ph:")) {
-    const name = value.slice(3).trim();
-    if (isPhosphorIconName(name)) {
-      return;
-    }
-
-    ctx.addIssue({
-      code: z.ZodIssueCode.custom,
-      message: "Unknown Phosphor icon name.",
-    });
-    return;
-  }
-
-  ctx.addIssue({
-    code: z.ZodIssueCode.custom,
-    message: "Icon must use canonical format (`si:<slug>` or `ph:<name>`).",
-  });
 });
 
 const optionalStrictIcon = z.preprocess((value: unknown) => {

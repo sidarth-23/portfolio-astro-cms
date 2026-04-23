@@ -21,10 +21,10 @@
     "@astrojs/tailwind": "6.0.2",
     "@sidshub/cms-core": "workspace:*",
     "@sidshub/cms-editor": "workspace:*",
+    "@sidshub/cms-icons": "workspace:*",
     "@tailwindcss/vite": "^4.1.4",
     "astro": "5.7.5",
     "phosphor-icons-astro": "^2.1.1-17042025",
-    "simple-icons": "^16.15.0",
     "tailwindcss": "^4.1.4",
     "typescript": "^5.5.4"
   },

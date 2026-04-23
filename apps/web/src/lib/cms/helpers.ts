@@ -1,5 +1,6 @@
 import type {
   HomePage,
+  Media,
   Post,
   Project,
   Series,
@@ -69,7 +70,7 @@ type LinkShape = {
 
 export function createCmsHelpers(
   { siteUrl }: CmsTransport,
-  mediaToUrl: (media: unknown) => string | undefined,
+  mediaToUrl: (media: Media) => string | undefined,
 ) {
   const toAbsolutePageUrl = (route: string): string => {
     if (!siteUrl) return route;

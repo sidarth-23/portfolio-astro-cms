@@ -69,7 +69,7 @@ const resolvedBadgeGroupsBySection = await Promise.all(
         const badges = (
           await Promise.all(
             (group.badges || []).map(async (badge) => {
-              const iconData = await resolveIcon(badge.icon);
+              const iconData = badge.icon ? resolveIcon(badge.icon) : null;
               return {
                 value: badge.value,
                 iconData,
@@ -197,7 +197,7 @@ const resolvedBadgeGroupsBySection = await Promise.all(
                             aria-hidden="true"
                             class="h-[0.75em] w-[0.75em] shrink-0 fill-current stroke-current"
                             set:html={iconData.innerSvg}
-                          ></svg>
+                          />
                         )}
                         <span>{badge.value}</span>
                       </span>

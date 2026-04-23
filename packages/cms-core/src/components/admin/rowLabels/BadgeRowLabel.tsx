@@ -2,7 +2,7 @@
 
 import { useRowLabel } from "@payloadcms/ui";
 import { formatRowLabel, getTrimmedString } from "./utils";
-import { parseIconValueStrict, getSimpleIconCdnUrl, getPhosphorIconSvgUrl } from "@/lib/icons";
+import { parseIconValue } from "@sidshub/cms-icons";
 
 type BadgeRowData = {
   value?: unknown;
@@ -12,19 +12,12 @@ type BadgeRowData = {
 export function BadgeRowLabel() {
   const { data, rowNumber } = useRowLabel<BadgeRowData>();
   const value = getTrimmedString(data?.value);
-  const iconValue = parseIconValueStrict(getTrimmedString(data?.icon));
-  let previewUrl: string | null = null;
-  let iconLabel: string | null = null;
-  let previewStyle: { filter: string; flexShrink: 0 } | undefined;
-
-  if (iconValue?.source === "simple-icons") {
-    previewUrl = getSimpleIconCdnUrl(iconValue.slug, { color: "ffffff", size: 16 });
-    iconLabel = iconValue.slug;
-  } else if (iconValue?.source === "phosphor") {
-    previewUrl = getPhosphorIconSvgUrl(iconValue.name);
-    iconLabel = iconValue.name;
-    previewStyle = { filter: "brightness(0) invert(1)", flexShrink: 0 };
-  }
+  const parsed = parseIconValue(getTrimmedString(data?.icon));
+  const previewUrl = parsed ? parsed.provider.getCdnPreviewUrl(parsed.key) : null;
+  const iconLabel = parsed?.key ?? null;
+  const previewStyle = parsed?.provider.previewImageStyle
+    ? { ...parsed.provider.previewImageStyle, flexShrink: 0 as const }
+    : undefined;
 
   const label = iconLabel ? `${value ?? "Badge"} (${iconLabel})` : value;
 

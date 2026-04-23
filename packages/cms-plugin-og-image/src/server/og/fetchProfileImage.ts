@@ -1,7 +1,7 @@
 import type { Payload } from "payload";
 
 import type { SidebarIconDiagnostic } from "../../types";
-import { parseIconValueStrict, isSimpleIconSlug, isPhosphorIconName } from "./iconUtils";
+import { parseIconValue, isValidIconValue } from "@sidshub/cms-icons";
 
 // ---- Types ----
 
@@ -71,33 +71,23 @@ export function getSidebarIconDiagnostics(entries: SidebarIconEntry[]): SidebarI
   const diagnostics: SidebarIconDiagnostic[] = [];
 
   for (const entry of entries) {
-    const parsed = parseIconValueStrict(entry.iconValue);
+    const parsed = parseIconValue(entry.iconValue);
     if (!parsed) {
       diagnostics.push({
         index: entry.index,
         iconValue: entry.iconValue,
         reason: "invalid-format",
-        message: `Icon must use canonical format ("si:<slug>" or "ph:<name>").`,
+        message: `Icon must use a recognised prefix format (e.g. "si:<slug>" or "ph:<name>").`,
       });
       continue;
     }
 
-    if (parsed.source === "simple-icons" && !isSimpleIconSlug(parsed.slug)) {
+    if (!isValidIconValue(entry.iconValue)) {
       diagnostics.push({
         index: entry.index,
         iconValue: entry.iconValue,
-        reason: "unknown-simple-icon",
-        message: `Unknown Simple Icons slug "${parsed.slug}".`,
-      });
-      continue;
-    }
-
-    if (parsed.source === "phosphor" && !isPhosphorIconName(parsed.name)) {
-      diagnostics.push({
-        index: entry.index,
-        iconValue: entry.iconValue,
-        reason: "unknown-phosphor-icon",
-        message: `Unknown Phosphor icon name "${parsed.name}".`,
+        reason: "unknown-icon",
+        message: `Unknown icon "${entry.iconValue}".`,
       });
     }
   }

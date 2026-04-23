@@ -2,7 +2,7 @@
 
 import { useRowLabel } from "@payloadcms/ui";
 
-import { parseIconValueStrict } from "@/lib/icons";
+import { parseIconValue } from "@sidshub/cms-icons";
 import { formatRowLabel, getTrimmedString } from "./utils";
 
 type LinkRowData = {
@@ -13,16 +13,8 @@ type LinkRowData = {
 export function LinkRowLabel() {
   const { data, rowNumber } = useRowLabel<LinkRowData>();
 
-  const iconValue = parseIconValueStrict(getTrimmedString(data?.icon));
-  let iconLabel: string | null = null;
-
-  if (iconValue?.source === "simple-icons") {
-    iconLabel = iconValue.slug;
-  } else if (iconValue?.source === "phosphor") {
-    iconLabel = iconValue.name;
-  }
-
-  const label = iconLabel ?? getTrimmedString(data?.label);
+  const parsed = parseIconValue(getTrimmedString(data?.icon));
+  const label = parsed?.key ?? getTrimmedString(data?.label);
 
   return formatRowLabel({
     label,

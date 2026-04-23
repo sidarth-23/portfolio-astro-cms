@@ -56,10 +56,10 @@
         "@astrojs/tailwind": "6.0.2",
         "@sidshub/cms-core": "workspace:*",
         "@sidshub/cms-editor": "workspace:*",
+        "@sidshub/cms-icons": "workspace:*",
         "@tailwindcss/vite": "^4.1.4",
         "astro": "5.7.5",
         "phosphor-icons-astro": "^2.1.1-17042025",
-        "simple-icons": "^16.15.0",
         "tailwindcss": "^4.1.4",
         "typescript": "^5.5.4",
       },
@@ -77,11 +77,11 @@
       "dependencies": {
         "@payloadcms/plugin-seo": "3.82.1",
         "@payloadcms/sdk": "3.82.1",
-        "@phosphor-icons/core": "^2.1.1",
         "@react-email/components": "^0.5.7",
         "@react-email/render": "^1.4.0",
         "@sidshub/cms-editor": "workspace:*",
         "@sidshub/cms-feature-footnotes": "workspace:*",
+        "@sidshub/cms-icons": "workspace:*",
         "@sidshub/cms-plugin-deployment-log-view": "workspace:*",
         "@sidshub/cms-plugin-markdown-paste": "workspace:*",
         "@sidshub/cms-plugin-og-image": "workspace:*",
@@ -137,6 +137,24 @@
         "eslint": "^9.24.0",
       },
     },
+    "packages/cms-icons": {
+      "name": "@sidshub/cms-icons",
+      "version": "0.0.1",
+      "dependencies": {
+        "@phosphor-icons/core": "^2.1.1",
+        "simple-icons": "^16.15.0",
+      },
+      "devDependencies": {
+        "@payloadcms/ui": "3.82.1",
+        "@sidshub/dev-config": "workspace:*",
+        "eslint": "^9.24.0",
+        "react-select": "5.9.0",
+      },
+      "peerDependencies": {
+        "payload": "*",
+        "react": "*",
+      },
+    },
     "packages/cms-plugin-deployment-log-view": {
       "name": "@sidshub/cms-plugin-deployment-log-view",
       "version": "0.0.1",
@@ -176,11 +194,10 @@
       "version": "0.0.1",
       "dependencies": {
         "@payloadcms/ui": "3.82.1",
-        "@phosphor-icons/core": "^2.1.1",
+        "@sidshub/cms-icons": "workspace:*",
         "payload": "3.82.1",
         "qs-esm": "^7.0.1",
         "satori": "^0.26.0",
-        "simple-icons": "^16.15.0",
       },
       "devDependencies": {
         "@sidshub/dev-config": "workspace:*",
@@ -864,6 +881,8 @@
     "@sidshub/cms-editor": ["@sidshub/cms-editor@workspace:packages/cms-editor"],
 
     "@sidshub/cms-feature-footnotes": ["@sidshub/cms-feature-footnotes@workspace:packages/cms-feature-footnotes"],
+
+    "@sidshub/cms-icons": ["@sidshub/cms-icons@workspace:packages/cms-icons"],
 
     "@sidshub/cms-plugin-deployment-log-view": ["@sidshub/cms-plugin-deployment-log-view@workspace:packages/cms-plugin-deployment-log-view"],
 

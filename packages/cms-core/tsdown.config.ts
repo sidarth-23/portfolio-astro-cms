@@ -12,8 +12,6 @@ export default defineConfig(
       "src/lib/client/transport.ts",
       "src/lib/client/media.ts",
       "src/lib/content/index.ts",
-      "src/lib/icons/index.ts",
-      "src/lib/icons/parser.ts",
       "src/lib/validation/index.ts",
       "src/components/admin/**/*.{ts,tsx}",
       "src/plugin/emoji-shortcodes/client.tsx",

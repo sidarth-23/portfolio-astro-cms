@@ -1,16 +1,11 @@
 // ---- Icon fetch types (moved from og/fetchIconSvg) ----
 
-export type IconFetchFailureReason =
-  | "invalid-format"
-  | "unknown-simple-icon"
-  | "unknown-phosphor-icon"
-  | "missing-phosphor-asset"
-  | "read-failed";
+export type IconFetchFailureReason = "invalid-format" | "unknown-icon";
 
 export type SidebarIconDiagnostic = {
   index: number;
   iconValue: string;
-  reason: "invalid-format" | "unknown-simple-icon" | "unknown-phosphor-icon";
+  reason: "invalid-format" | "unknown-icon";
   message: string;
 };
 

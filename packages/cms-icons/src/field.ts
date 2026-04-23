@@ -5,13 +5,16 @@ type IconPickerFieldArgs = {
   label?: string;
 };
 
-export const iconPickerField = ({ name = "icon", label = "Icon" }: IconPickerFieldArgs = {}): Field => ({
+export const iconPickerField = ({
+  name = "icon",
+  label = "Icon",
+}: IconPickerFieldArgs = {}): Field => ({
   name,
   label,
   type: "text",
   admin: {
     components: {
-      Field: "./components/admin/IconPickerField#IconPickerField",
+      Field: "@sidshub/cms-icons/ui#IconPickerField",
     },
   },
 });

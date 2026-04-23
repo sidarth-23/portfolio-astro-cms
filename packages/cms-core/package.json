@@ -18,8 +18,6 @@
     "./client/transport": "./dist/lib/client/transport.mjs",
     "./client/media": "./dist/lib/client/media.mjs",
     "./content": "./dist/lib/content/index.mjs",
-    "./icons": "./dist/lib/icons/index.mjs",
-    "./icons/parser": "./dist/lib/icons/parser.mjs",
     "./validation": "./dist/lib/validation/index.mjs",
     "./payload-types": "./dist/payload-types.mjs",
     "./admin/*": "./dist/components/admin/*.mjs"
@@ -37,9 +35,9 @@
   "dependencies": {
     "@payloadcms/plugin-seo": "3.82.1",
     "@payloadcms/sdk": "3.82.1",
-    "@phosphor-icons/core": "^2.1.1",
     "@react-email/components": "^0.5.7",
     "@react-email/render": "^1.4.0",
+    "@sidshub/cms-icons": "workspace:*",
     "@sidshub/cms-feature-footnotes": "workspace:*",
     "@sidshub/cms-plugin-deployment-log-view": "workspace:*",
     "@sidshub/cms-plugin-markdown-paste": "workspace:*",

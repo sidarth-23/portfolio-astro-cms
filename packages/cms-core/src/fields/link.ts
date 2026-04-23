@@ -1,6 +1,6 @@
 import type { Field } from "payload";
 import { LINK_TYPE_OPTIONS, PAGE_ROUTE_OPTIONS } from "@/lib/content";
-import { iconPickerField } from "./iconPicker";
+import { iconPickerField } from "@sidshub/cms-icons";
 
 export type LinkVariant = "link-only" | "icon-only" | "text-only" | "icon-with-text";
 

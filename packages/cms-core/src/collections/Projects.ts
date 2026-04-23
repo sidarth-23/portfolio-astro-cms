@@ -1,7 +1,7 @@
 import type { CollectionConfig } from "payload";
 import { createDocumentRichTextEditor } from "@/lib/editor";
 import { readAccess } from "@/access/readAccess";
-import { iconPickerField } from "@/fields/iconPicker";
+import { iconPickerField } from "@sidshub/cms-icons";
 import { linkFields } from "@/fields/link";
 import { slugField } from "@/fields/slug";
 import { projectsSchema, createPayloadDataSchemaHook } from "@/lib/validation";
