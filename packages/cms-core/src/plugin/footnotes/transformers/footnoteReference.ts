@@ -7,7 +7,7 @@ import {
 
 const FOOTNOTE_REF_REGEXP = /\[\^([^\]]+)\]/;
 
-const decodeHtmlEntities = (s: string): string => s.replace(/&quot;/g, '"').replace(/&amp;/g, "&");
+import { decodeHtmlEntities } from "../utils";
 
 export const FOOTNOTE_REFERENCE_TRANSFORMER: TextMatchTransformer = {
   type: "text-match",

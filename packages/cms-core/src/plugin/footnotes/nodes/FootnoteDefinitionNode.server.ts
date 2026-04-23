@@ -8,7 +8,7 @@ export type SerializedFootnoteDefinitionNode = SerializedElementNode & {
 };
 
 export class FootnoteDefinitionServerNode extends ElementNode {
-  __footnoteId: string;
+  declare __footnoteId: string;
 
   constructor(footnoteId: string, key?: NodeKey) {
     super(key);

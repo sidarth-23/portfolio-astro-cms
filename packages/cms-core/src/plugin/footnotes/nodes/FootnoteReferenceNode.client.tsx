@@ -19,10 +19,6 @@ export class FootnoteReferenceNode extends FootnoteReferenceServerNode {
   static importJSON(s: SerializedFootnoteReferenceNode): FootnoteReferenceNode {
     return $createFootnoteReferenceNode(s.footnoteId);
   }
-  exportJSON() {
-    return super.exportJSON();
-  }
-
   decorate(): React.ReactElement {
     return (
       <sup className="footnote-ref" data-footnote-id={this.__footnoteId}>

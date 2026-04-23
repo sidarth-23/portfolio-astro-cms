@@ -4,8 +4,7 @@ import {
   $isFootnoteDefinitionServerNode,
   FootnoteDefinitionServerNode,
 } from "../nodes/FootnoteDefinitionNode.server";
-
-const decodeHtmlEntities = (s: string): string => s.replace(/&quot;/g, '"').replace(/&amp;/g, "&");
+import { decodeHtmlEntities } from "../utils";
 
 export const FOOTNOTE_DEFINITION_TRANSFORMER: MultilineElementTransformer = {
   type: "multiline-element",
@@ -13,9 +12,8 @@ export const FOOTNOTE_DEFINITION_TRANSFORMER: MultilineElementTransformer = {
   regExpStart: /^<footnote-def\s+id="([^"]+)">/,
   regExpEnd: {
     regExp: /^<\/footnote-def>/,
-    optional: false,
   },
-  replace: (parentNode, children, match) => {
+  replace: (parentNode, children, match, _endMatch) => {
     const footnoteId = decodeHtmlEntities(match[1]!);
     const defNode = $createFootnoteDefinitionServerNode(footnoteId);
     if (children) {

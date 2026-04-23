@@ -7,8 +7,9 @@ export type SerializedFootnoteReferenceNode = SerializedLexicalNode & {
   version: 1;
 };
 
-export class FootnoteReferenceServerNode extends DecoratorNode<null> {
-  __footnoteId: string;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export class FootnoteReferenceServerNode extends DecoratorNode<any> {
+  declare __footnoteId: string;
 
   constructor(footnoteId: string, key?: NodeKey) {
     super(key);
@@ -26,7 +27,16 @@ export class FootnoteReferenceServerNode extends DecoratorNode<null> {
   }
 
   exportJSON(): SerializedFootnoteReferenceNode {
-    return { type: "footnote-reference", footnoteId: this.__footnoteId, version: 1 };
+    return {
+      ...super.exportJSON(),
+      type: "footnote-reference",
+      footnoteId: this.__footnoteId,
+      version: 1,
+    };
+  }
+
+  getTextContent(): string {
+    return `[^${this.__footnoteId}]`;
   }
 
   getFootnoteId(): string {
@@ -46,7 +56,7 @@ export class FootnoteReferenceServerNode extends DecoratorNode<null> {
     return true;
   }
   decorate(): null {
-    return null;
+    return null; // overridden in the client subclass to return a React element
   }
 }
 

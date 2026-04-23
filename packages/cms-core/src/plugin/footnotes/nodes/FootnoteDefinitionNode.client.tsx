@@ -22,10 +22,6 @@ export class FootnoteDefinitionNode extends FootnoteDefinitionServerNode {
     node.setDirection(s.direction);
     return node;
   }
-  exportJSON() {
-    return super.exportJSON();
-  }
-
   createDOM(): HTMLElement {
     const el = document.createElement("div");
     el.setAttribute("data-footnote-id", this.__footnoteId);
@@ -33,6 +29,11 @@ export class FootnoteDefinitionNode extends FootnoteDefinitionServerNode {
     // Show a small label for the editor UI
     el.setAttribute("data-footnote-label", `[^${this.__footnoteId}]:`);
     return el;
+  }
+
+  // footnoteId is immutable after construction — no attributes to patch on update.
+  updateDOM(): boolean {
+    return false;
   }
 }
 
