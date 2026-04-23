@@ -21,14 +21,6 @@ export class DefinitionDescriptionNode extends DefinitionDescriptionServerNode {
     node.setDirection(s.direction);
     return node;
   }
-
-  createDOM(): HTMLElement {
-    return document.createElement("dd");
-  }
-
-  updateDOM(): boolean {
-    return false;
-  }
 }
 
 export function $createDefinitionDescriptionNode(): DefinitionDescriptionNode {

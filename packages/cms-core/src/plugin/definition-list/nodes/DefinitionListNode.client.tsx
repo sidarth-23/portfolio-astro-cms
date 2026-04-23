@@ -21,14 +21,6 @@ export class DefinitionListNode extends DefinitionListServerNode {
     node.setDirection(s.direction);
     return node;
   }
-
-  createDOM(): HTMLElement {
-    return document.createElement("dl");
-  }
-
-  updateDOM(): boolean {
-    return false;
-  }
 }
 
 export function $createDefinitionListNode(): DefinitionListNode {

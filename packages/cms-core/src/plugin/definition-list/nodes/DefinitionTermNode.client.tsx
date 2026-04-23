@@ -21,14 +21,6 @@ export class DefinitionTermNode extends DefinitionTermServerNode {
     node.setDirection(s.direction);
     return node;
   }
-
-  createDOM(): HTMLElement {
-    return document.createElement("dt");
-  }
-
-  updateDOM(): boolean {
-    return false;
-  }
 }
 
 export function $createDefinitionTermNode(): DefinitionTermNode {
