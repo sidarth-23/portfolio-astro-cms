@@ -1,0 +1,140 @@
+import type { MarkdownPreprocessRule, MarkdownReplacement } from "@/lib/markdownPreprocess/types";
+import {
+  getMarkdownItInstance,
+  lineRangeToOffsets,
+} from "@/lib/markdownPreprocess/markdownItUtils";
+import { hasValidOffsets, pushReplacement } from "@/lib/markdownPreprocess/utils";
+
+// Matches the "[^label]: " prefix on the first line of a footnote definition.
+const FOOTNOTE_DEF_PREFIX_RE = /^\[\^[^\]]+\]:\s*/;
+
+// Matches leading 4-space or 1-tab indentation on continuation lines.
+const CONTINUATION_INDENT_RE = /^(?:    |\t)/;
+
+/**
+ * Walk a flat token array and collect the line range (0-indexed, endLine
+ * exclusive) spanned by the content of a single footnote definition.
+ *
+ * markdown-it's `footnote_open` token is synthesised by the `footnote_tail`
+ * core rule and therefore has no `map` of its own.  The child paragraph
+ * tokens (created during block parsing) do carry `map` data, so we derive
+ * the definition's extent from those.
+ *
+ * Returns `null` when no child token with valid map data is found.
+ */
+const getFootnoteLineRange = (
+  tokens: Array<{ type: string; map: [number, number] | null; meta: unknown }>,
+  footnoteOpenIdx: number,
+): { startLine: number; endLine: number } | null => {
+  let minStart: number | null = null;
+  let maxEnd: number | null = null;
+  let depth = 0;
+
+  for (let i = footnoteOpenIdx; i < tokens.length; i++) {
+    const token = tokens[i]!;
+
+    if (i === footnoteOpenIdx) {
+      // The footnote_open itself — skip nesting tracking for this one.
+      continue;
+    }
+
+    if (token.type === "footnote_open") {
+      depth++;
+    } else if (token.type === "footnote_close") {
+      if (depth === 0) break; // reached our matching close
+      depth--;
+    }
+
+    if (token.map !== null && Array.isArray(token.map)) {
+      const [lineStart, lineEnd] = token.map as [number, number];
+      if (minStart === null || lineStart < minStart) minStart = lineStart;
+      if (maxEnd === null || lineEnd > maxEnd) maxEnd = lineEnd;
+    }
+  }
+
+  if (minStart === null || maxEnd === null) return null;
+  return { startLine: minStart, endLine: maxEnd };
+};
+
+/**
+ * Strip leading 4-space or 1-tab indentation from a continuation line.
+ * Blank lines are left untouched.
+ */
+const stripContinuationIndent = (line: string): string => {
+  if (line.trim() === "") return line;
+  return line.replace(CONTINUATION_INDENT_RE, "");
+};
+
+/**
+ * Trim trailing blank lines from an array of lines (in-place).
+ */
+const trimTrailingBlankLines = (lines: string[]): string[] => {
+  let last = lines.length - 1;
+  while (last >= 0 && lines[last]!.trim() === "") last--;
+  return lines.slice(0, last + 1);
+};
+
+/**
+ * MarkdownPreprocessRule that rewrites footnote definitions from their native
+ * markdown syntax to a fenced intermediate form:
+ *
+ *   Input:
+ *     [^1]: This is the footnote content.
+ *
+ *         Second paragraph with 4-space indent.
+ *
+ *   Output:
+ *     <footnote-def id="1">
+ *     This is the footnote content.
+ *
+ *     Second paragraph with 4-space indent.
+ *     </footnote-def>
+ *
+ * Inline references ([^label]) are NOT touched — those are handled downstream
+ * by a Lexical TextMatchTransformer.
+ */
+export const collectFootnoteReplacements: MarkdownPreprocessRule = ({
+  markdown,
+}): MarkdownReplacement[] => {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const tokens: Array<any> = getMarkdownItInstance().parse(markdown, {});
+  const replacements: MarkdownReplacement[] = [];
+
+  for (let i = 0; i < tokens.length; i++) {
+    const token = tokens[i];
+
+    if (token.type !== "footnote_open") continue;
+
+    const label: string | undefined = token.meta?.label;
+    if (typeof label !== "string") continue;
+
+    // Derive the definition's line range from its child tokens.
+    const lineRange = getFootnoteLineRange(tokens, i);
+    if (lineRange === null) continue;
+
+    const { start, end } = lineRangeToOffsets(markdown, lineRange.startLine, lineRange.endLine);
+
+    if (!hasValidOffsets(start, end) || start === end) continue;
+
+    // Extract the raw source lines for this definition.
+    const raw = markdown.slice(start, end);
+    const rawLines = raw.split("\n");
+
+    // Strip the "[^label]: " prefix from the first line.
+    const [firstLine, ...restLines] = rawLines;
+    const firstContent = (firstLine ?? "").replace(FOOTNOTE_DEF_PREFIX_RE, "");
+
+    // Strip 4-space / tab indentation from continuation lines (not blank lines).
+    const processedRest = restLines.map(stripContinuationIndent);
+
+    // Reassemble and trim trailing blank lines.
+    const allLines = trimTrailingBlankLines([firstContent, ...processedRest]);
+    const content = allLines.join("\n");
+
+    const replacement = `<footnote-def id="${label}">\n${content}\n</footnote-def>`;
+
+    pushReplacement(replacements, { start, end, replacement });
+  }
+
+  return replacements;
+};
