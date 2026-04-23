@@ -42,6 +42,10 @@ export class DefinitionTermServerNode extends ElementNode {
   isInline(): boolean {
     return false;
   }
+
+  canBeEmpty(): boolean {
+    return false;
+  }
 }
 
 export function $createDefinitionTermServerNode(): DefinitionTermServerNode {

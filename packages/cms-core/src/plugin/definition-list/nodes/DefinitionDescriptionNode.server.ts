@@ -42,6 +42,10 @@ export class DefinitionDescriptionServerNode extends ElementNode {
   isInline(): boolean {
     return false;
   }
+
+  canBeEmpty(): boolean {
+    return false;
+  }
 }
 
 export function $createDefinitionDescriptionServerNode(): DefinitionDescriptionServerNode {

@@ -99,6 +99,46 @@ const fallbackVariantByProfile: Record<CalloutVariantProfile, string> = {
   blog: "note",
 };
 
+// ---------------------------------------------------------------------------
+// Definition-list helper
+// ---------------------------------------------------------------------------
+
+type RenderRichTextToHTML = (
+  opts: RichTextRenderOptions,
+  config?: RichTextRenderConfig,
+) => Promise<string>;
+
+type SerializedElementLike = {
+  children: RichTextValue["root"]["children"];
+  direction: "ltr" | "rtl" | null;
+};
+
+async function renderElementTag(
+  node: unknown,
+  tag: string,
+  renderRichTextToHTML: RenderRichTextToHTML,
+  config: RichTextRenderConfig | undefined,
+): Promise<string> {
+  const typedNode = node as unknown as SerializedElementLike;
+  const childrenHtml = await renderRichTextToHTML(
+    {
+      data: {
+        root: {
+          type: "root",
+          children: typedNode.children,
+          format: "",
+          indent: 0,
+          version: 1,
+          direction: typedNode.direction,
+        },
+      },
+      enableContainer: false,
+    },
+    config,
+  );
+  return `<${tag}>${childrenHtml}</${tag}>`;
+}
+
 export function createRichTextRenderer(components: BlockComponents) {
   const { Callout, Code, Upload, ImageGallery } = components;
 
@@ -156,75 +196,12 @@ export function createRichTextRenderer(components: BlockComponents) {
         // Definitions are rendered as a footnotes section after the main HTML (see post-processing below);
         // suppress inline output to avoid duplicating content.
         "footnote-definition": () => "",
-        "definition-list": async ({ node }) => {
-          const typedNode = node as unknown as {
-            children: RichTextValue["root"]["children"];
-            direction: "ltr" | "rtl" | null;
-          };
-          const childrenHtml = await renderRichTextToHTML(
-            {
-              data: {
-                root: {
-                  type: "root",
-                  children: typedNode.children,
-                  format: "",
-                  indent: 0,
-                  version: 1,
-                  direction: typedNode.direction,
-                },
-              },
-              enableContainer: false,
-            },
-            config,
-          );
-          return `<dl>${childrenHtml}</dl>`;
-        },
-        "definition-term": async ({ node }) => {
-          const typedNode = node as unknown as {
-            children: RichTextValue["root"]["children"];
-            direction: "ltr" | "rtl" | null;
-          };
-          const childrenHtml = await renderRichTextToHTML(
-            {
-              data: {
-                root: {
-                  type: "root",
-                  children: typedNode.children,
-                  format: "",
-                  indent: 0,
-                  version: 1,
-                  direction: typedNode.direction,
-                },
-              },
-              enableContainer: false,
-            },
-            config,
-          );
-          return `<dt>${childrenHtml}</dt>`;
-        },
-        "definition-description": async ({ node }) => {
-          const typedNode = node as unknown as {
-            children: RichTextValue["root"]["children"];
-            direction: "ltr" | "rtl" | null;
-          };
-          const childrenHtml = await renderRichTextToHTML(
-            {
-              data: {
-                root: {
-                  type: "root",
-                  children: typedNode.children,
-                  format: "",
-                  indent: 0,
-                  version: 1,
-                  direction: typedNode.direction,
-                },
-              },
-              enableContainer: false,
-            },
-            config,
-          );
-          return `<dd>${childrenHtml}</dd>`;
-        },
+        "definition-list": async ({ node }) =>
+          renderElementTag(node, "dl", renderRichTextToHTML, config),
+        "definition-term": async ({ node }) =>
+          renderElementTag(node, "dt", renderRichTextToHTML, config),
+        "definition-description": async ({ node }) =>
+          renderElementTag(node, "dd", renderRichTextToHTML, config),
         blocks: {
           ...(defaultConverters.blocks ?? {}),
           callout: async ({ node }: { node: SerializedBlockNode<Record<string, unknown>> }) => {

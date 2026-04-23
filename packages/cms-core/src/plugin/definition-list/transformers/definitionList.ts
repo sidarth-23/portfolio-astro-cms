@@ -1,5 +1,5 @@
 import type { MultilineElementTransformer } from "@payloadcms/richtext-lexical/lexical/markdown";
-import { $createTextNode } from "lexical";
+import { $createTextNode, type ElementNode } from "lexical";
 import {
   $createDefinitionListServerNode,
   $isDefinitionListServerNode,
@@ -64,18 +64,18 @@ export const DEFINITION_LIST_TRANSFORMER: MultilineElementTransformer = {
     parentNode.append(listNode);
   },
 
-  export: (node, _exportChildren) => {
+  export: (node, exportChildren) => {
     if (!$isDefinitionListServerNode(node)) return null;
 
     const lines: string[] = [];
     for (const child of node.getChildren()) {
       if ($isDefinitionTermServerNode(child)) {
-        lines.push(child.getTextContent());
+        lines.push(exportChildren(child as ElementNode));
       } else if ($isDefinitionDescriptionServerNode(child)) {
-        lines.push(`: ${child.getTextContent()}`);
+        lines.push(`: ${exportChildren(child as ElementNode)}`);
       }
     }
 
-    return lines.join("\n");
+    return lines.length > 0 ? lines.join("\n") : null;
   },
 };
