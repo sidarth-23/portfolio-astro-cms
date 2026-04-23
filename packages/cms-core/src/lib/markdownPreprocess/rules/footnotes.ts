@@ -88,6 +88,13 @@ const trimTrailingBlankLines = (lines: string[]): string[] => {
  *
  * Inline references ([^label]) are NOT touched — those are handled downstream
  * by a Lexical TextMatchTransformer.
+ *
+ * NOTE — orphan definitions: `markdown-it-footnote` only emits
+ * `footnote_open` tokens for definitions that have at least one corresponding
+ * inline reference (`[^label]`) elsewhere in the document. A definition whose
+ * label is never referenced (e.g. `[^x]: content` with no `[^x]` in the
+ * text) does NOT produce a token and is therefore NOT replaced here — it
+ * passes through as raw markdown text.
  */
 export const collectFootnoteReplacements: MarkdownPreprocessRule = ({
   markdown,
@@ -129,7 +136,8 @@ export const collectFootnoteReplacements: MarkdownPreprocessRule = ({
     const allLines = trimTrailingBlankLines([firstContent, ...processedRest]);
     const content = allLines.join("\n");
 
-    const replacement = `<footnote-def id="${label}">\n${content}\n</footnote-def>`;
+    const safeLabel = label.replace(/&/g, "&amp;").replace(/"/g, "&quot;");
+    const replacement = `<footnote-def id="${safeLabel}">\n${content}\n</footnote-def>`;
 
     pushReplacement(replacements, { start, end, replacement });
   }

@@ -31,6 +31,8 @@
   },
   "devDependencies": {
     "@sidshub/dev-config": "workspace:*",
+    "@types/markdown-it": "^14.1.2",
+    "@types/markdown-it-footnote": "^3.0.4",
     "eslint": "^9.24.0"
   },
   "dependencies": {

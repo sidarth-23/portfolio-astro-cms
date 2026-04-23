@@ -1,14 +1,6 @@
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-ignore — markdown-it ships no bundled type declarations
 import MarkdownIt from "markdown-it";
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-ignore
 import markdownItFootnote from "markdown-it-footnote";
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-ignore
 import markdownItDeflist from "markdown-it-deflist";
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-ignore
 import markdownItAbbr from "markdown-it-abbr";
 
 // Lazy-initialised singleton so the plugins are only registered once.
