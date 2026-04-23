@@ -39,7 +39,7 @@ type SerializedFootnoteReferenceNode = {
 type SerializedFootnoteDefinitionNode = {
   type: "footnote-definition";
   footnoteId: string;
-  children: unknown[];
+  children: RichTextValue["root"]["children"]; // same element type as Lexical's SerializedLexicalNode[]
   format: number;
   indent: number;
   direction: "ltr" | "rtl" | null;
@@ -54,6 +54,8 @@ const escapeHtml = (s: string): string =>
   s.replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 
 const collectFootnoteDefinitions = (data: RichTextValue): SerializedFootnoteDefinitionNode[] => {
+  // Only top-level root children are scanned: FootnoteDefinitionNode.isInline() is false
+  // and it extends ElementNode, so it can only appear at the document root level.
   if (!Array.isArray(data?.root?.children)) return [];
   return data.root.children.filter(
     (n): n is SerializedFootnoteDefinitionNode =>
@@ -145,8 +147,14 @@ export function createRichTextRenderer(components: BlockComponents) {
         "footnote-reference": ({ node }) => {
           const fn = node as unknown as SerializedFootnoteReferenceNode;
           const id = escapeHtml(fn.footnoteId);
-          return `<sup class="footnote-ref"><a href="#fn-${id}" id="fnref-${id}">${id}</a></sup>`;
+          const encodedId = encodeURIComponent(fn.footnoteId);
+          // NOTE: Multiple references to the same footnote ID will produce duplicate HTML id attributes.
+          // Supporting multiple backrefs (fnref-1, fnref-1-2, ...) requires stateful rendering
+          // and is deferred to a future enhancement.
+          return `<sup class="footnote-ref"><a href="#fn-${encodedId}" id="fnref-${encodedId}">${id}</a></sup>`;
         },
+        // Definitions are rendered as a footnotes section after the main HTML (see post-processing below);
+        // suppress inline output to avoid duplicating content.
         "footnote-definition": () => "",
         blocks: {
           ...(defaultConverters.blocks ?? {}),
@@ -268,14 +276,14 @@ export function createRichTextRenderer(components: BlockComponents) {
 
     const definitionItems = await Promise.all(
       footnoteDefs.map(async (fn) => {
-        const id = escapeHtml(fn.footnoteId);
+        const encodedId = encodeURIComponent(fn.footnoteId);
         // Render the definition body as rich text (re-uses the same config / converters).
         const bodyHtml = await renderRichTextToHTML(
           {
             data: {
               root: {
                 type: "root",
-                children: fn.children as RichTextValue["root"]["children"],
+                children: fn.children,
                 format: "",
                 indent: 0,
                 version: 1,
@@ -286,7 +294,7 @@ export function createRichTextRenderer(components: BlockComponents) {
           },
           config,
         );
-        return `<li id="fn-${id}" class="footnote-item">${bodyHtml}<span class="footnote-backrefs"><a href="#fnref-${id}" class="footnote-backref">↩</a></span></li>`;
+        return `<li id="fn-${encodedId}" class="footnote-item">${bodyHtml}<span class="footnote-backrefs"><a href="#fnref-${encodedId}" class="footnote-backref">↩</a></span></li>`;
       }),
     );
 
