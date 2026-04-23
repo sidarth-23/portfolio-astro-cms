@@ -21,11 +21,5 @@ export default defineConfig(
       "src/plugin/markdown-paste/client.tsx",
     ],
     external: ["node:path", "node:url", "path", "url", "fs/promises", "sharp", "qs-esm"],
-    copy: [
-      {
-        from: "src/styles/admin-overrides.css",
-        to: "dist/styles/admin-overrides.css",
-      },
-    ],
   }),
 );
