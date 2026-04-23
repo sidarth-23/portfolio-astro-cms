@@ -4,10 +4,9 @@ import {
   $isFootnoteReferenceServerNode,
   FootnoteReferenceServerNode,
 } from "../nodes/FootnoteReferenceNode.server";
+import { decodeHtmlEntities } from "../utils";
 
 const FOOTNOTE_REF_REGEXP = /\[\^([^\]]+)\]/;
-
-import { decodeHtmlEntities } from "../utils";
 
 export const FOOTNOTE_REFERENCE_TRANSFORMER: TextMatchTransformer = {
   type: "text-match",

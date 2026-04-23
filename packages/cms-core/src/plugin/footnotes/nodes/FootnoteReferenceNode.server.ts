@@ -1,5 +1,6 @@
 import { DecoratorNode, $applyNodeReplacement, type LexicalNode, type NodeKey } from "lexical";
 import type { SerializedLexicalNode } from "lexical";
+import type { ReactElement } from "react";
 
 export type SerializedFootnoteReferenceNode = SerializedLexicalNode & {
   type: "footnote-reference";
@@ -7,8 +8,7 @@ export type SerializedFootnoteReferenceNode = SerializedLexicalNode & {
   version: 1;
 };
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export class FootnoteReferenceServerNode extends DecoratorNode<any> {
+export class FootnoteReferenceServerNode extends DecoratorNode<ReactElement | null> {
   declare __footnoteId: string;
 
   constructor(footnoteId: string, key?: NodeKey) {
@@ -55,7 +55,7 @@ export class FootnoteReferenceServerNode extends DecoratorNode<any> {
   isInline(): boolean {
     return true;
   }
-  decorate(): null {
+  decorate(): ReactElement | null {
     return null; // overridden in the client subclass to return a React element
   }
 }
