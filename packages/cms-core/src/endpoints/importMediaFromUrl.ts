@@ -82,13 +82,11 @@ const getSafeFileStem = (rawUrl: string): string => {
   }
 };
 
-type MediaCaption = NonNullable<Media["caption"]>;
-
-const createLexicalPlainText = (text: string): MediaCaption | undefined => {
+const createLexicalPlainText = (text: string): Media["caption"] | undefined => {
   const value = text.trim();
   if (!value) return undefined;
 
-  return {
+  const lexicalValue: NonNullable<Media["caption"]> = {
     root: {
       type: "root",
       children: [
@@ -119,6 +117,8 @@ const createLexicalPlainText = (text: string): MediaCaption | undefined => {
       version: 1,
     },
   };
+
+  return lexicalValue;
 };
 
 export const importMediaFromUrlEndpoint: Endpoint = {
@@ -126,18 +126,18 @@ export const importMediaFromUrlEndpoint: Endpoint = {
   method: "post",
   handler: async (req) => {
     if (!req.user) {
-      return Response.json({ error: "Unauthorized" }, { status: 401 });
+      return Response.json({ error: "Unauthorized", ok: false }, { status: 401 });
     }
 
     let body: unknown;
     try {
       body = await req.json?.();
     } catch {
-      return Response.json({ error: "Invalid request body" }, { status: 400 });
+      return Response.json({ error: "Invalid request body", ok: false }, { status: 400 });
     }
 
     if (!isRecord(body)) {
-      return Response.json({ error: "Invalid request body" }, { status: 400 });
+      return Response.json({ error: "Invalid request body", ok: false }, { status: 400 });
     }
 
     const request = body as ImportMediaRequestBody;
@@ -146,27 +146,30 @@ export const importMediaFromUrlEndpoint: Endpoint = {
     const caption = readTrimmedString(request.caption);
     const folder = readFolderValue(request.folder);
     const updateExistingMetadata =
-      typeof request.updateExistingMetadata === "boolean" ? request.updateExistingMetadata : true;
+      typeof request.updateExistingMetadata === "boolean" ? request.updateExistingMetadata : false;
 
     if (!url) {
-      return Response.json({ error: "Image URL is required" }, { status: 400 });
+      return Response.json({ error: "Image URL is required", ok: false }, { status: 400 });
     }
 
     try {
       const parsed = new URL(url);
       if (parsed.protocol !== "http:" && parsed.protocol !== "https:") {
-        return Response.json({ error: "Image URL must use http or https" }, { status: 400 });
+        return Response.json(
+          { error: "Image URL must use http or https", ok: false },
+          { status: 400 },
+        );
       }
     } catch {
-      return Response.json({ error: "Image URL is invalid" }, { status: 400 });
+      return Response.json({ error: "Image URL is invalid", ok: false }, { status: 400 });
     }
 
     if (!alt) {
-      return Response.json({ error: "Image alt text is required" }, { status: 400 });
+      return Response.json({ error: "Image alt text is required", ok: false }, { status: 400 });
     }
 
     if (!isUrlAllowed(url)) {
-      return Response.json({ error: "Image URL host is not allowed" }, { status: 403 });
+      return Response.json({ error: "Image URL host is not allowed", ok: false }, { status: 403 });
     }
 
     try {
@@ -182,14 +185,8 @@ export const importMediaFromUrlEndpoint: Endpoint = {
         if (updateExistingMetadata) {
           const updateData: Record<string, unknown> = { alt };
           const captionValue = createLexicalPlainText(caption);
-
-          if (captionValue) {
-            updateData.caption = captionValue;
-          }
-
-          if (folder) {
-            updateData.folder = folder;
-          }
+          updateData.caption = captionValue ?? null;
+          updateData.folder = folder || null;
 
           await req.payload.update({
             collection: "media",
@@ -198,7 +195,12 @@ export const importMediaFromUrlEndpoint: Endpoint = {
           });
         }
 
-        return Response.json({ mediaId: existingDoc.id, reused: true, sourceUrl: url });
+        return Response.json({
+          mediaId: String(existingDoc.id),
+          ok: true,
+          reused: true,
+          sourceUrl: url,
+        });
       }
 
       const controller = new AbortController();
@@ -213,7 +215,7 @@ export const importMediaFromUrlEndpoint: Endpoint = {
 
       if (!response.ok) {
         return Response.json(
-          { error: `Failed to fetch image (${response.status})` },
+          { error: `Failed to fetch image (${response.status})`, ok: false },
           { status: 400 },
         );
       }
@@ -221,16 +223,19 @@ export const importMediaFromUrlEndpoint: Endpoint = {
       const mimeType =
         response.headers.get("content-type")?.split(";")[0]?.trim().toLowerCase() ?? "";
       if (!mimeType.startsWith("image/")) {
-        return Response.json({ error: "URL does not point to an image" }, { status: 400 });
+        return Response.json(
+          { error: "URL does not point to an image", ok: false },
+          { status: 400 },
+        );
       }
 
       const arrayBuffer = await response.arrayBuffer();
       if (arrayBuffer.byteLength === 0) {
-        return Response.json({ error: "Image response is empty" }, { status: 400 });
+        return Response.json({ error: "Image response is empty", ok: false }, { status: 400 });
       }
 
       if (arrayBuffer.byteLength > MAX_IMAGE_SIZE_BYTES) {
-        return Response.json({ error: "Image exceeds 5MB limit" }, { status: 413 });
+        return Response.json({ error: "Image exceeds 5MB limit", ok: false }, { status: 413 });
       }
 
       const extension = getExtensionForMime(mimeType);
@@ -243,7 +248,7 @@ export const importMediaFromUrlEndpoint: Endpoint = {
         collection: "media",
         data: {
           alt: altText,
-          ...(captionValue ? { caption: captionValue } : {}),
+          ...(captionValue ? { caption: captionValue } : { caption: null }),
           ...(folder ? { folder } : {}),
           sourceUrl: url,
         },
@@ -255,10 +260,15 @@ export const importMediaFromUrlEndpoint: Endpoint = {
         },
       });
 
-      return Response.json({ mediaId: created.id, reused: false, sourceUrl: url });
+      return Response.json({
+        mediaId: String(created.id),
+        ok: true,
+        reused: false,
+        sourceUrl: url,
+      });
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
-      return Response.json({ error: message }, { status: 500 });
+      return Response.json({ error: message, ok: false }, { status: 500 });
     }
   },
 };

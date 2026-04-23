@@ -15,9 +15,13 @@ import {
   useConfig,
 } from "@payloadcms/ui";
 import { useEditorConfigContext } from "@payloadcms/richtext-lexical/client";
+import { useDocumentInfo } from "@payloadcms/ui";
 
 import { deriveAltFromUrl } from "@/plugin/markdown-paste/markdownImageUtils";
-import { useMarkdownImportController } from "@/plugin/markdown-paste/useMarkdownImportController";
+import {
+  useMarkdownImportController,
+  type MarkdownImportControllerValue,
+} from "@/plugin/markdown-paste/useMarkdownImportController";
 
 type MarkdownImportSheetProps = {
   drawerSlug: string;
@@ -31,10 +35,16 @@ export function MarkdownImportSheet({
   onClose,
 }: MarkdownImportSheetProps): ReactElement {
   const [editor] = useLexicalComposerContext();
-  const { editorConfig } = useEditorConfigContext();
+  const { fieldProps } = useEditorConfigContext();
+  const { collectionSlug, globalSlug } = useDocumentInfo();
+
   const {
     config: { routes, serverURL },
   } = useConfig();
+
+  // fieldProps.path is the dotted field path (e.g. "content" or "seo.description")
+  // The server looks up by the leaf field name within flattenedFields
+  const fieldName = fieldProps.path.split(".").pop() ?? fieldProps.path;
 
   const {
     error,
@@ -50,10 +60,12 @@ export function MarkdownImportSheet({
     setPreparedMedia,
     uniqueImages,
     unresolvedImageUrls,
-  } = useMarkdownImportController({
+  }: MarkdownImportControllerValue = useMarkdownImportController({
+    collectionSlug,
     drawerSlug,
     editor,
-    editorConfig,
+    fieldName,
+    globalSlug,
     initialMarkdown,
     onClose,
   });
@@ -233,7 +245,7 @@ export function MarkdownImportSheet({
         <div
           style={{
             display: "flex",
-            gap: "0.5rem",
+            gap: "1rem",
             justifyContent: "flex-end",
             marginTop: "1rem",
           }}
@@ -242,7 +254,6 @@ export function MarkdownImportSheet({
             buttonStyle="secondary"
             disabled={isImporting || isPreparing}
             onClick={handleCancel}
-            size="small"
             type="button"
           >
             Cancel
@@ -251,7 +262,6 @@ export function MarkdownImportSheet({
             buttonStyle="primary"
             disabled={isImporting || isPreparing}
             onClick={handleInsert}
-            size="small"
             type="button"
           >
             {isImporting ? "Importing..." : "Import Into Editor"}

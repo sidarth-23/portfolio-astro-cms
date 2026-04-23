@@ -1,14 +1,17 @@
-import type { UserConfig } from "tsdown";
+import type { InlineConfig, UserConfig } from "tsdown";
 
-const baseTsdownConfig: UserConfig = {
-  format: "esm",
-  dts: true,
-  outDir: "dist",
-  unbundle: true,
-  minify: true,
-  fixedExtension: true,
-  platform: "neutral",
-  skipNodeModulesBundle: true,
-};
+function baseTsdownConfig(inlineConfig?: InlineConfig): UserConfig {
+  const isWatch = !!inlineConfig?.watch;
+  return {
+    format: "esm",
+    dts: !isWatch,
+    outDir: "dist",
+    unbundle: true,
+    minify: !isWatch,
+    fixedExtension: true,
+    platform: "neutral",
+    skipNodeModulesBundle: true,
+  };
+}
 
 export { baseTsdownConfig };

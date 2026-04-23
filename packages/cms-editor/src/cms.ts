@@ -4,6 +4,7 @@ import {
   BlockquoteFeature,
   BoldFeature,
   ChecklistFeature,
+  CodeBlock as PremadeCodeBlock,
   FixedToolbarFeature,
   type FeatureProviderServer,
   HeadingFeature,
@@ -196,6 +197,64 @@ const resolveCodeLanguage = (lang?: string): string => {
   return CODE_LANGUAGE_ALIASES[lower] ?? "plaintext";
 };
 
+const asNonEmptyString = (value: unknown): null | string => {
+  if (typeof value !== "string") {
+    return null;
+  }
+
+  const trimmed = value.trim();
+  return trimmed.length > 0 ? trimmed : null;
+};
+
+const resolveRelationID = (value: unknown): null | string => {
+  if (value === null || value === undefined) {
+    return null;
+  }
+
+  if (typeof value === "string" || typeof value === "number") {
+    const normalized = String(value).trim();
+    return normalized.length > 0 ? normalized : null;
+  }
+
+  if (typeof value === "object") {
+    const candidate = value as { id?: unknown; value?: unknown };
+    if (candidate.id !== undefined) {
+      return resolveRelationID(candidate.id);
+    }
+    if (candidate.value !== undefined) {
+      return resolveRelationID(candidate.value);
+    }
+  }
+
+  return null;
+};
+
+const collectUploadMediaIDs = (node: unknown, output: Set<string>) => {
+  if (!node || typeof node !== "object") {
+    return;
+  }
+
+  const typedNode = node as {
+    children?: unknown[];
+    relationTo?: unknown;
+    type?: unknown;
+    value?: unknown;
+  };
+
+  if (typedNode.type === "upload" && typedNode.relationTo === "media") {
+    const mediaID = resolveRelationID(typedNode.value);
+    if (mediaID) {
+      output.add(mediaID);
+    }
+  }
+
+  if (Array.isArray(typedNode.children)) {
+    for (const child of typedNode.children) {
+      collectUploadMediaIDs(child, output);
+    }
+  }
+};
+
 const createLinkFeature = ({ enabledCollections }: LinkSettings = {}) => {
   return LinkFeature({ enabledCollections: enabledCollections ?? DEFAULT_LINK_COLLECTIONS });
 };
@@ -228,9 +287,7 @@ const createCodeBlock = (): Block => ({
   interfaceName: "LexicalCodeBlock",
   labels: { singular: "Code", plural: "Code" },
   jsx: {
-    customStartRegex: /^[ \t]*```(\w+)?/,
-    customEndRegex: { optional: true, regExp: /[ \t]*```$/ },
-    doNotTrimChildren: true,
+    ...PremadeCodeBlock().jsx!,
     import: ({ children, openMatch }) => ({
       mode: "single",
       language: resolveCodeLanguage(openMatch?.[1]),
@@ -333,6 +390,40 @@ const createImageGalleryBlock = (): Block => ({
   slug: "imageGallery",
   interfaceName: "LexicalImageGalleryBlock",
   labels: { singular: "Image Gallery", plural: "Image Galleries" },
+  jsx: {
+    export: ({ fields }) => {
+      const imageRows = Array.isArray(fields.images)
+        ? (fields.images as Array<{ image?: unknown }>)
+        : [];
+      const imageIDs = imageRows
+        .map((row) => resolveRelationID(row?.image))
+        .filter((value): value is string => value !== null);
+
+      const children = imageIDs.map((id) => `![media:${id}]()`).join("\n");
+      const props: { caption?: string } = {};
+      const caption = asNonEmptyString(fields.caption);
+      if (caption) {
+        props.caption = caption;
+      }
+
+      return {
+        children,
+        props,
+      };
+    },
+    import: ({ children, markdownToLexical, props }) => {
+      const lexical = markdownToLexical({ markdown: children ?? "" }) as {
+        root?: { children?: unknown[] };
+      };
+      const mediaIDs = new Set<string>();
+      collectUploadMediaIDs(lexical.root, mediaIDs);
+
+      return {
+        caption: asNonEmptyString(props?.caption) ?? undefined,
+        images: Array.from(mediaIDs).map((id) => ({ image: id })),
+      };
+    },
+  },
   fields: [
     {
       name: "images",
@@ -362,6 +453,32 @@ const createCalloutBlock = (profile: CalloutVariantProfile): Block => {
   return {
     slug: "callout",
     interfaceName: "LexicalCalloutBlock",
+    jsx: {
+      export: ({ fields, lexicalToMarkdown }) => {
+        const props: { title?: string; variant?: string } = {};
+        const variant = asNonEmptyString(fields.variant);
+        if (variant) {
+          props.variant = variant;
+        }
+
+        const title = asNonEmptyString(fields.title);
+        if (title) {
+          props.title = title;
+        }
+
+        return {
+          children: lexicalToMarkdown({ editorState: fields.content }),
+          props,
+        };
+      },
+      import: ({ children, markdownToLexical, props }) => {
+        return {
+          content: markdownToLexical({ markdown: children ?? "" }),
+          title: asNonEmptyString(props?.title) ?? undefined,
+          variant: asNonEmptyString(props?.variant) ?? defaultCalloutVariantByProfile[profile],
+        };
+      },
+    },
     fields: [
       {
         name: "variant",

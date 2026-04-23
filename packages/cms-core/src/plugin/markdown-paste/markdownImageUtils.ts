@@ -1,26 +1,21 @@
 import { fromMarkdown } from "mdast-util-from-markdown";
-
-type MarkdownPosition = {
-  end?: {
-    offset?: number;
-  };
-  start?: {
-    offset?: number;
-  };
-};
+import { gfmFromMarkdown } from "mdast-util-gfm";
+import { gfm } from "micromark-extension-gfm";
+import type { Root } from "mdast";
 
 type MarkdownNode = {
   alt?: unknown;
   children?: MarkdownNode[];
-  position?: MarkdownPosition;
+  position?: {
+    end?: { offset?: number };
+    start?: { offset?: number };
+  };
   type: string;
   url?: unknown;
 };
 
 export type MarkdownImageMatch = {
   alt: string;
-  end: number;
-  start: number;
   url: string;
 };
 
@@ -28,6 +23,12 @@ export type UniqueMarkdownImage = {
   alt: string;
   url: string;
 };
+
+type ParentAwareVisitor = (args: {
+  index: number;
+  node: MarkdownNode;
+  parent: MarkdownNode;
+}) => void;
 
 export const deriveAltFromUrl = (url: string): string => {
   try {
@@ -42,10 +43,6 @@ export const deriveAltFromUrl = (url: string): string => {
   }
 };
 
-const isFiniteNumber = (value: unknown): value is number => {
-  return typeof value === "number" && Number.isFinite(value);
-};
-
 const isHttpUrl = (value: unknown): value is string => {
   if (typeof value !== "string") return false;
 
@@ -57,16 +54,39 @@ const isHttpUrl = (value: unknown): value is string => {
   }
 };
 
-const visitMarkdownNode = (node: MarkdownNode, callback: (node: MarkdownNode) => void): void => {
-  callback(node);
+const visitMarkdownNodeWithParent = (node: MarkdownNode, callback: ParentAwareVisitor): void => {
+  const traverse = (current: MarkdownNode, parent?: MarkdownNode, index?: number): void => {
+    if (parent && typeof index === "number") {
+      callback({ index, node: current, parent });
+    }
 
-  if (!Array.isArray(node.children)) {
-    return;
-  }
+    if (!Array.isArray(current.children)) {
+      return;
+    }
 
-  for (const child of node.children) {
-    visitMarkdownNode(child, callback);
-  }
+    for (const [childIndex, child] of current.children.entries()) {
+      traverse(child, current, childIndex);
+    }
+  };
+
+  traverse(node);
+};
+
+const isStandaloneHttpImageNode = ({
+  node,
+  parent,
+}: {
+  node: MarkdownNode;
+  parent?: MarkdownNode;
+}) => {
+  return node.type === "image" && isHttpUrl(node.url) && parent?.type !== "link";
+};
+
+const parseMarkdown = (markdown: string): Root => {
+  return fromMarkdown(markdown, {
+    extensions: [gfm()],
+    mdastExtensions: [gfmFromMarkdown()],
+  });
 };
 
 export const parseMarkdownImages = (markdown: string): MarkdownImageMatch[] => {
@@ -74,34 +94,21 @@ export const parseMarkdownImages = (markdown: string): MarkdownImageMatch[] => {
     return [];
   }
 
-  const root = fromMarkdown(markdown) as MarkdownNode;
+  const root = parseMarkdown(markdown);
   const matches: MarkdownImageMatch[] = [];
 
-  visitMarkdownNode(root, (node) => {
-    if (node.type !== "image") {
-      return;
-    }
-
-    if (!isHttpUrl(node.url)) {
-      return;
-    }
-
-    const startOffset = node.position?.start?.offset;
-    const endOffset = node.position?.end?.offset;
-
-    if (!isFiniteNumber(startOffset) || !isFiniteNumber(endOffset) || endOffset <= startOffset) {
+  visitMarkdownNodeWithParent(root as unknown as MarkdownNode, ({ node, parent }) => {
+    if (!isStandaloneHttpImageNode({ node, parent })) {
       return;
     }
 
     matches.push({
       alt: typeof node.alt === "string" ? node.alt.trim() : "",
-      end: endOffset,
-      start: startOffset,
-      url: node.url,
+      url: node.url as string,
     });
   });
 
-  return matches.sort((a, b) => a.start - b.start);
+  return matches;
 };
 
 export const getUniqueMarkdownImages = (matches: MarkdownImageMatch[]): UniqueMarkdownImage[] => {
@@ -119,30 +126,58 @@ export const getUniqueMarkdownImages = (matches: MarkdownImageMatch[]): UniqueMa
   return Array.from(uniqueByUrl.values());
 };
 
-export const replaceMarkdownRanges = (
-  sourceMarkdown: string,
-  replacements: Array<{ end: number; start: number; value: string }>,
-): string => {
-  if (replacements.length === 0) {
-    return sourceMarkdown;
+export const replaceMarkdownImageUrlsWithMediaReferences = ({
+  markdown,
+  mediaIdByUrl,
+}: {
+  markdown: string;
+  mediaIdByUrl: Map<string, string>;
+}): { markdown: string; replacedCount: number } => {
+  if (!markdown.trim() || mediaIdByUrl.size === 0) {
+    return { markdown, replacedCount: 0 };
   }
 
-  const sorted = [...replacements].sort((a, b) => a.start - b.start);
+  const root = parseMarkdown(markdown);
+  const replacements: Array<{ end: number; next: string; start: number }> = [];
 
-  let cursor = 0;
-  let output = "";
-
-  for (const replacement of sorted) {
-    if (replacement.start < cursor) {
-      continue;
+  visitMarkdownNodeWithParent(root as unknown as MarkdownNode, ({ node, parent }) => {
+    if (!isStandaloneHttpImageNode({ node, parent })) {
+      return;
     }
 
-    output += sourceMarkdown.slice(cursor, replacement.start);
-    output += replacement.value;
-    cursor = replacement.end;
+    const positionStart = node.position?.start?.offset;
+    const positionEnd = node.position?.end?.offset;
+
+    if (typeof positionStart !== "number" || typeof positionEnd !== "number") {
+      return;
+    }
+
+    const mediaId = mediaIdByUrl.get(node.url as string);
+    if (!mediaId) {
+      return;
+    }
+
+    replacements.push({
+      end: positionEnd,
+      next: `![media:${mediaId}]()`,
+      start: positionStart,
+    });
+  });
+
+  if (replacements.length === 0) {
+    return { markdown, replacedCount: 0 };
   }
 
-  output += sourceMarkdown.slice(cursor);
+  const patchedMarkdown = replacements
+    .sort((left, right) => right.start - left.start)
+    .reduce((current, replacement) => {
+      return (
+        current.slice(0, replacement.start) + replacement.next + current.slice(replacement.end)
+      );
+    }, markdown);
 
-  return output;
+  return {
+    markdown: patchedMarkdown,
+    replacedCount: replacements.length,
+  };
 };

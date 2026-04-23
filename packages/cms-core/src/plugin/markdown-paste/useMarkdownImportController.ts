@@ -1,9 +1,6 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useReducer } from "react";
-import { $convertFromMarkdownString } from "@lexical/markdown";
-import { createHeadlessEditor } from "@lexical/headless";
-import { getEnabledNodes } from "@payloadcms/richtext-lexical/client";
 import {
   $addUpdateTag,
   $getRoot,
@@ -23,7 +20,6 @@ import {
   deriveAltFromUrl,
   getUniqueMarkdownImages,
   parseMarkdownImages,
-  replaceMarkdownRanges,
 } from "@/plugin/markdown-paste/markdownImageUtils";
 
 type MarkdownImportState = {
@@ -46,9 +42,11 @@ type MarkdownImportAction =
   | { type: "mergePreparedMedia"; value: Record<string, string> };
 
 type UseMarkdownImportControllerArgs = {
+  collectionSlug?: string;
   drawerSlug: string;
   editor: LexicalEditor;
-  editorConfig: Parameters<typeof getEnabledNodes>[0]["editorConfig"];
+  fieldName: string;
+  globalSlug?: string;
   initialMarkdown: string;
   onClose: () => void;
 };
@@ -65,6 +63,22 @@ type ImportMediaResult =
       ok: false;
       url: string;
     };
+
+export type MarkdownImportControllerValue = {
+  error: string | null;
+  handleCancel: () => void;
+  handleInsert: () => void;
+  isImporting: boolean;
+  isPreparing: boolean;
+  markdown: string;
+  prepareAllImages: () => void;
+  prepareSingleImage: (url: string) => void;
+  preparedMediaByUrl: Record<string, string>;
+  setMarkdown: (value: string) => void;
+  setPreparedMedia: (url: string, inputValue: unknown) => void;
+  uniqueImages: Array<{ alt: string; url: string }>;
+  unresolvedImageUrls: string[];
+};
 
 const createInitialState = (initialMarkdown: string): MarkdownImportState => {
   return {
@@ -177,12 +191,14 @@ const resolveMediaId = (value: unknown): null | string => {
 };
 
 export const useMarkdownImportController = ({
+  collectionSlug,
   drawerSlug,
   editor,
-  editorConfig,
+  fieldName,
+  globalSlug,
   initialMarkdown,
   onClose,
-}: UseMarkdownImportControllerArgs) => {
+}: UseMarkdownImportControllerArgs): MarkdownImportControllerValue => {
   const {
     config: {
       routes: { api },
@@ -203,6 +219,10 @@ export const useMarkdownImportController = ({
 
   const mediaImportEndpoint = useMemo(() => {
     return formatAdminURL({ apiRoute: api, path: "/media-import-url" as `/${string}` });
+  }, [api]);
+
+  const convertMarkdownEndpoint = useMemo(() => {
+    return formatAdminURL({ apiRoute: api, path: "/convert-markdown" as `/${string}` });
   }, [api]);
 
   useEffect(() => {
@@ -239,7 +259,7 @@ export const useMarkdownImportController = ({
         const response = await fetch(mediaImportEndpoint, {
           body: JSON.stringify({
             alt,
-            updateExistingMetadata: true,
+            updateExistingMetadata: false,
             url,
           }),
           credentials: "include",
@@ -252,9 +272,15 @@ export const useMarkdownImportController = ({
         const payload = (await response.json().catch(() => ({}))) as {
           error?: string;
           mediaId?: number | string;
+          ok?: boolean;
         };
 
-        if (!response.ok || payload.mediaId === null || payload.mediaId === undefined) {
+        if (
+          !response.ok ||
+          payload.ok === false ||
+          payload.mediaId === null ||
+          payload.mediaId === undefined
+        ) {
           return {
             error:
               typeof payload.error === "string" && payload.error.trim().length > 0
@@ -352,10 +378,11 @@ export const useMarkdownImportController = ({
       dispatch({ type: "setUnresolved", value: [] });
 
       try {
+        // Import any images not yet prepared
         const mediaIdByUrl = new Map<string, string>();
 
         for (const [url, mediaId] of Object.entries(state.preparedMediaByUrl)) {
-          if (mediaId.trim().length > 0) {
+          if (typeof mediaId === "string" && mediaId.trim().length > 0) {
             mediaIdByUrl.set(url, mediaId);
           }
         }
@@ -384,41 +411,38 @@ export const useMarkdownImportController = ({
           dispatch({ type: "mergePreparedMedia", value: newlyPrepared });
         }
 
-        const replacements = imageMatches
-          .map((match) => {
-            const mediaId = mediaIdByUrl.get(match.url);
-            if (!mediaId) {
-              return null;
-            }
-
-            return {
-              end: match.end,
-              start: match.start,
-              value: `![media:${mediaId}]()`,
-            };
-          })
-          .filter(
-            (value): value is { end: number; start: number; value: string } => value !== null,
-          );
-
-        const preparedMarkdown = replaceMarkdownRanges(state.markdown, replacements);
-
-        const headlessEditor = createHeadlessEditor({
-          nodes: getEnabledNodes({ editorConfig }),
+        // Delegate conversion to the server — Payload handles all feature transformers
+        const response = await fetch(convertMarkdownEndpoint, {
+          body: JSON.stringify({
+            collectionSlug,
+            fieldName,
+            globalSlug,
+            markdown: state.markdown,
+            preparedMediaByUrl: Object.fromEntries(mediaIdByUrl),
+          }),
+          credentials: "include",
+          headers: { "Content-Type": "application/json" },
+          method: "POST",
         });
 
-        headlessEditor.update(
-          () => {
-            $convertFromMarkdownString(
-              preparedMarkdown,
-              editorConfig.features.markdownTransformers,
-            );
-          },
-          { discrete: true },
-        );
+        const responsePayload = (await response.json().catch(() => ({}))) as {
+          error?: string;
+          lexicalState?: { root?: { children?: unknown[] } };
+          ok?: boolean;
+        };
 
-        const lexicalJSON = headlessEditor.getEditorState().toJSON();
-        const serializedChildren = ((lexicalJSON.root as { children?: unknown }).children ??
+        if (!response.ok || responsePayload.ok === false) {
+          dispatch({
+            type: "setError",
+            value:
+              typeof responsePayload.error === "string" && responsePayload.error.trim()
+                ? responsePayload.error
+                : `Conversion failed with status ${response.status}`,
+          });
+          return;
+        }
+
+        const serializedChildren = (responsePayload.lexicalState?.root?.children ??
           []) as SerializedLexicalNode[];
 
         editor.update(() => {
@@ -439,10 +463,8 @@ export const useMarkdownImportController = ({
         const unresolvedUrls = Array.from(unresolved);
         dispatch({ type: "setUnresolved", value: unresolvedUrls });
 
-        if (replacements.length > 0) {
-          toast.success(
-            `Imported ${replacements.length} markdown image${replacements.length === 1 ? "" : "s"}.`,
-          );
+        if (serializedChildren.length > 0) {
+          toast.success("Markdown imported.");
         }
 
         if (unresolvedUrls.length > 0) {
@@ -463,9 +485,11 @@ export const useMarkdownImportController = ({
     })();
   }, [
     closeDrawer,
+    collectionSlug,
+    convertMarkdownEndpoint,
     editor,
-    editorConfig,
-    imageMatches,
+    fieldName,
+    globalSlug,
     importMediaFromUrl,
     state.markdown,
     state.preparedMediaByUrl,
@@ -477,7 +501,6 @@ export const useMarkdownImportController = ({
     handleCancel: closeDrawer,
     handleInsert,
     isImporting: state.isImporting,
-    isOpen,
     isPreparing: state.isPreparing,
     markdown: state.markdown,
     prepareAllImages,

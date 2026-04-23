@@ -6,7 +6,6 @@
   "sideEffects": false,
   "scripts": {
     "build": "rm -rf dist && tsdown",
-    "dev": "tsdown --watch",
     "clean": "rm -rf dist",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix"

@@ -11,6 +11,7 @@ import { Posts } from "@/collections/Posts";
 import { Projects } from "@/collections/Projects";
 import { Series } from "@/collections/Series";
 import { Users } from "@/collections/Users";
+import { convertMarkdownEndpoint } from "@/endpoints/convertMarkdown";
 import { deploymentStatusEndpoint } from "@/endpoints/deploymentStatus";
 import { generateOgImagesEndpoint } from "@/endpoints/generateOgImages";
 import { importMediaFromUrlEndpoint } from "@/endpoints/importMediaFromUrl";
@@ -184,6 +185,7 @@ export function createCmsConfig(options: CmsConfigOptions) {
   return buildConfig({
     // Experimental in Payload v3 — may change in minor versions until stable.
     folders: {},
+    debug: true,
     editor: createBasicRichTextEditor(),
     serverURL: options.serverURL,
     email: options.email,
@@ -212,6 +214,7 @@ export function createCmsConfig(options: CmsConfigOptions) {
       generateOgImagesEndpoint(options.siteUrl),
       deploymentStatusEndpoint,
       importMediaFromUrlEndpoint,
+      convertMarkdownEndpoint,
       ...orphanedMediaEndpoints,
     ],
     collections,
