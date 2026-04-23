@@ -518,6 +518,7 @@ const extendedMarkdownTransformersFeature = createServerFeature({
     markdownTransformers: [
       { type: "text-format", format: ["superscript"], tag: "^" },
       { type: "text-format", format: ["subscript"], tag: "~" },
+      { type: "text-format", format: ["underline"], tag: "++" },
       HIGHLIGHT,
     ],
   },
