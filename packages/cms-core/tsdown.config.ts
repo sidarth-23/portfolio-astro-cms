@@ -19,6 +19,7 @@ export default defineConfig(
       "src/components/admin/**/*.{ts,tsx}",
       "src/plugin/emoji-shortcodes/client.tsx",
       "src/plugin/markdown-paste/client.tsx",
+      "src/plugin/footnotes/client.tsx",
     ],
     external: ["node:path", "node:url", "path", "url", "fs/promises", "sharp", "qs-esm"],
   }),
