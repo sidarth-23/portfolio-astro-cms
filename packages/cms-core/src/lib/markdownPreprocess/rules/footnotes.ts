@@ -62,7 +62,7 @@ const stripContinuationIndent = (line: string): string => {
 };
 
 /**
- * Trim trailing blank lines from an array of lines (in-place).
+ * Returns a new array with trailing blank lines removed.
  */
 const trimTrailingBlankLines = (lines: string[]): string[] => {
   let last = lines.length - 1;

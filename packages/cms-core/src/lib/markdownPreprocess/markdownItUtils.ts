@@ -34,7 +34,7 @@ export const lineRangeToOffsets = (
   startLine: number,
   endLine: number,
 ): { start: number; end: number } => {
-  const lines = markdown.split("\n");
+  const lines = markdown.split("\n").map((l) => l.replace(/\r$/, ""));
 
   if (startLine >= lines.length) {
     return { start: markdown.length, end: markdown.length };
@@ -55,11 +55,6 @@ export const lineRangeToOffsets = (
       end = Math.min(pos + lines[i]!.length + 1, markdown.length);
     }
     pos += lines[i]!.length + 1; // +1 for '\n'
-  }
-
-  // Guard: if endLine === 0 or startLine >= lines.length, end may still be 0.
-  if (endLine === 0) {
-    end = 0;
   }
 
   return { start, end };
