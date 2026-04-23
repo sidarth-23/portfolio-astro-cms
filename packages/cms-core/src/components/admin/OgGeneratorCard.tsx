@@ -16,7 +16,7 @@ export function OgGeneratorCard() {
     setFatalError(null);
 
     try {
-      const response = await fetch("/api/og-generate", {
+      const response = await fetch("/api/og-image/generate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ mode, wipeOldImages: mode === "replace-all" && wipeOldImages }),

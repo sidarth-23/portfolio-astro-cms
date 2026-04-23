@@ -1,9 +1,8 @@
 import { mongooseAdapter } from "@payloadcms/db-mongodb";
 import { resendAdapter } from "@payloadcms/email-resend";
 import { s3Storage } from "@payloadcms/storage-s3";
+import { createDokployAdapter } from "@sidshub/cms-deployment-adapter-dokploy";
 import { createCmsConfig } from "@sidshub/cms-core/builder";
-import { createDeploymentAdapter } from "@sidshub/cms-core/deployment";
-import type { HookConfig } from "@sidshub/cms-core/deployment";
 
 import { env } from "./env";
 
@@ -29,7 +28,7 @@ function buildStoragePlugins() {
   ];
 }
 
-function buildDeploymentAdapter(): ReturnType<typeof createDeploymentAdapter> | undefined {
+function buildDeploymentAdapter(): ReturnType<typeof createDokployAdapter> | undefined {
   if (!env.SITE_BUILD_HOOK_TYPE) return undefined;
   switch (env.SITE_BUILD_HOOK_TYPE) {
     case "dokploy":
@@ -40,13 +39,12 @@ function buildDeploymentAdapter(): ReturnType<typeof createDeploymentAdapter> | 
       ) {
         return undefined;
       }
-      return createDeploymentAdapter({
-        type: "dokploy",
+      return createDokployAdapter({
         apiUrl: env.SITE_BUILD_HOOK_URL,
         apiKey: env.SITE_BUILD_HOOK_SECRET,
         applicationId: env.SITE_BUILD_HOOK_DOKPLOY_APP_ID,
         projectId: env.SITE_BUILD_HOOK_DOKPLOY_PROJECT_ID,
-      } satisfies HookConfig);
+      });
   }
 }
 

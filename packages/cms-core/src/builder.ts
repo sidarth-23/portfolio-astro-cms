@@ -1,4 +1,10 @@
 import { seoPlugin } from "@payloadcms/plugin-seo";
+import { createDeploymentStatusEndpoint } from "@sidshub/cms-plugin-deployment-log-view";
+import type { DeploymentStatusAdapter } from "@sidshub/cms-plugin-deployment-log-view";
+import {
+  convertMarkdownEndpoint,
+  importMediaFromUrlEndpoint,
+} from "@sidshub/cms-plugin-markdown-paste/endpoints";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { buildConfig } from "payload";
@@ -11,10 +17,7 @@ import { Posts } from "@/collections/Posts";
 import { Projects } from "@/collections/Projects";
 import { Series } from "@/collections/Series";
 import { Users } from "@/collections/Users";
-import { convertMarkdownEndpoint } from "@/endpoints/convertMarkdown";
-import { deploymentStatusEndpoint } from "@/endpoints/deploymentStatus";
 import { generateOgImagesEndpoint } from "@/endpoints/generateOgImages";
-import { importMediaFromUrlEndpoint } from "@/endpoints/importMediaFromUrl";
 import { orphanedMediaEndpoints } from "@/endpoints/orphanedMedia";
 import { BlogPage } from "@/globals/BlogPage";
 import { CvPage } from "@/globals/CvPage";
@@ -27,9 +30,8 @@ import { createTriggerDeployment } from "@/hooks/triggerDeployment";
 import { createTriggerDevRefresh } from "@/hooks/triggerDevRefresh";
 import { createGlobalRedeployHook } from "@/hooks/triggerGlobalRedeploy";
 import type { HookType } from "@/lib/deployment/factory";
-import type { DeploymentStatusAdapter } from "@/lib/deployment/types";
 import { createBasicRichTextEditor } from "@/lib/editor";
-import { SEO_COLLECTIONS, SEO_GLOBALS } from "@/lib/og/registry";
+import { SEO_COLLECTIONS, SEO_GLOBALS } from "@/registry";
 
 const dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -153,7 +155,7 @@ export function createCmsConfig(options: CmsConfigOptions) {
         components: {
           Field: {
             clientProps: { siteUrl },
-            path: "./components/admin/seo/SocialCardPreview#SocialCardPreview",
+            path: "@sidshub/cms-plugin-og-image/ui#SocialCardPreview",
           },
         },
       },
@@ -212,7 +214,10 @@ export function createCmsConfig(options: CmsConfigOptions) {
     },
     endpoints: [
       generateOgImagesEndpoint(options.siteUrl),
-      deploymentStatusEndpoint,
+      createDeploymentStatusEndpoint({
+        adapter: options.deploymentStatus,
+        hookValid: options.deploymentHookValid ?? false,
+      }),
       importMediaFromUrlEndpoint,
       convertMarkdownEndpoint,
       ...orphanedMediaEndpoints,

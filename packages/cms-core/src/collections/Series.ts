@@ -15,7 +15,7 @@ export const Series: CollectionConfig = {
     group: "Taxonomy",
     components: {
       edit: {
-        SaveButton: "./components/admin/seo/SeoAwareButtons#SeoSaveButton",
+        SaveButton: "@sidshub/cms-plugin-og-image/ui#SeoSaveButton",
       },
     },
   },

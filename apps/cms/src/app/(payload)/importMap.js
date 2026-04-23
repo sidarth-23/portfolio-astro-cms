@@ -1,10 +1,8 @@
 import { RscEntryLexicalCell as RscEntryLexicalCell_44fe37237e0ebf4470c9990d8cb7b07e } from '@payloadcms/richtext-lexical/rsc'
 import { RscEntryLexicalField as RscEntryLexicalField_44fe37237e0ebf4470c9990d8cb7b07e } from '@payloadcms/richtext-lexical/rsc'
 import { LexicalDiffComponent as LexicalDiffComponent_44fe37237e0ebf4470c9990d8cb7b07e } from '@payloadcms/richtext-lexical/rsc'
-import { AbbreviationsFeatureClient as AbbreviationsFeatureClient_ead680cf591245a4d5addcb2988c39bf } from '../../../../../packages/cms-core/dist/plugin/abbreviations/client'
-import { DefinitionListFeatureClient as DefinitionListFeatureClient_bfc2b04138ac545618d73ff8bbfa593d } from '../../../../../packages/cms-core/dist/plugin/definition-list/client'
-import { FootnotesFeatureClient as FootnotesFeatureClient_9b6558a56fc442740d63c7a32dc7afbd } from '../../../../../packages/cms-core/dist/plugin/footnotes/client'
-import { MarkdownPasteFeatureClient as MarkdownPasteFeatureClient_92632001a8c39848084fd97352373031 } from '../../../../../packages/cms-core/dist/plugin/markdown-paste/client'
+import { FootnotesFeatureClient as FootnotesFeatureClient_d98fd66331a6ba3867d9c6e3c0453344 } from '@sidshub/cms-feature-footnotes/client'
+import { MarkdownPasteFeatureClient as MarkdownPasteFeatureClient_b87ede84785a033cd20faf4974b5aa7b } from '@sidshub/cms-plugin-markdown-paste/feature/client'
 import { EmojiShortcodesFeatureClient as EmojiShortcodesFeatureClient_ea87c692df8339e760f603b87f3ee113 } from '../../../../../packages/cms-core/dist/plugin/emoji-shortcodes/client'
 import { SuperscriptFeatureClient as SuperscriptFeatureClient_e70f5e05f09f93e00b997edb1ef0c864 } from '@payloadcms/richtext-lexical/client'
 import { SubscriptFeatureClient as SubscriptFeatureClient_e70f5e05f09f93e00b997edb1ef0c864 } from '@payloadcms/richtext-lexical/client'
@@ -33,8 +31,8 @@ import { MetaTitleComponent as MetaTitleComponent_a8a977ebc872c5d5ea7ee689724c08
 import { MetaDescriptionComponent as MetaDescriptionComponent_a8a977ebc872c5d5ea7ee689724c0860 } from '@payloadcms/plugin-seo/client'
 import { MetaImageComponent as MetaImageComponent_a8a977ebc872c5d5ea7ee689724c0860 } from '@payloadcms/plugin-seo/client'
 import { PreviewComponent as PreviewComponent_a8a977ebc872c5d5ea7ee689724c0860 } from '@payloadcms/plugin-seo/client'
-import { SocialCardPreview as SocialCardPreview_21804267583b5024d08665aa8f21ce90 } from '../../../../../packages/cms-core/dist/components/admin/seo/SocialCardPreview'
-import { SeoSaveButton as SeoSaveButton_303a540b70799efbad1be57e466147dd } from '../../../../../packages/cms-core/dist/components/admin/seo/SeoAwareButtons'
+import { SocialCardPreview as SocialCardPreview_6b9e159fd20cb93b010762342f2391cf } from '@sidshub/cms-plugin-og-image/ui'
+import { SeoSaveButton as SeoSaveButton_6b9e159fd20cb93b010762342f2391cf } from '@sidshub/cms-plugin-og-image/ui'
 import { TableFeatureClient as TableFeatureClient_e70f5e05f09f93e00b997edb1ef0c864 } from '@payloadcms/richtext-lexical/client'
 import { HorizontalRuleFeatureClient as HorizontalRuleFeatureClient_e70f5e05f09f93e00b997edb1ef0c864 } from '@payloadcms/richtext-lexical/client'
 import { UploadFeatureClient as UploadFeatureClient_e70f5e05f09f93e00b997edb1ef0c864 } from '@payloadcms/richtext-lexical/client'
@@ -44,8 +42,8 @@ import { AlignFeatureClient as AlignFeatureClient_e70f5e05f09f93e00b997edb1ef0c8
 import { ChecklistFeatureClient as ChecklistFeatureClient_e70f5e05f09f93e00b997edb1ef0c864 } from '@payloadcms/richtext-lexical/client'
 import { HeadingFeatureClient as HeadingFeatureClient_e70f5e05f09f93e00b997edb1ef0c864 } from '@payloadcms/richtext-lexical/client'
 import { BadgeRowLabel as BadgeRowLabel_24238ecca7db753c46604b9d7cf93856 } from '../../../../../packages/cms-core/dist/components/admin/rowLabels/BadgeRowLabel'
-import { SeoPublishButton as SeoPublishButton_303a540b70799efbad1be57e466147dd } from '../../../../../packages/cms-core/dist/components/admin/seo/SeoAwareButtons'
-import { SeoSaveDraftButton as SeoSaveDraftButton_303a540b70799efbad1be57e466147dd } from '../../../../../packages/cms-core/dist/components/admin/seo/SeoAwareButtons'
+import { SeoPublishButton as SeoPublishButton_6b9e159fd20cb93b010762342f2391cf } from '@sidshub/cms-plugin-og-image/ui'
+import { SeoSaveDraftButton as SeoSaveDraftButton_6b9e159fd20cb93b010762342f2391cf } from '@sidshub/cms-plugin-og-image/ui'
 import { FolderTypeField as FolderTypeField_2b8867833a34864a02ddf429b0728a40 } from '@payloadcms/next/client'
 import { SectionRowLabel as SectionRowLabel_ec40328e4fa7e50be5521512430803ee } from '../../../../../packages/cms-core/dist/components/admin/rowLabels/SectionRowLabel'
 import { CtaButtonRowLabel as CtaButtonRowLabel_21f05950458c091161a962787a64c946 } from '../../../../../packages/cms-core/dist/components/admin/rowLabels/CtaButtonRowLabel'
@@ -61,10 +59,8 @@ export const importMap = {
   "@payloadcms/richtext-lexical/rsc#RscEntryLexicalCell": RscEntryLexicalCell_44fe37237e0ebf4470c9990d8cb7b07e,
   "@payloadcms/richtext-lexical/rsc#RscEntryLexicalField": RscEntryLexicalField_44fe37237e0ebf4470c9990d8cb7b07e,
   "@payloadcms/richtext-lexical/rsc#LexicalDiffComponent": LexicalDiffComponent_44fe37237e0ebf4470c9990d8cb7b07e,
-  "./plugin/abbreviations/client#AbbreviationsFeatureClient": AbbreviationsFeatureClient_ead680cf591245a4d5addcb2988c39bf,
-  "./plugin/definition-list/client#DefinitionListFeatureClient": DefinitionListFeatureClient_bfc2b04138ac545618d73ff8bbfa593d,
-  "./plugin/footnotes/client#FootnotesFeatureClient": FootnotesFeatureClient_9b6558a56fc442740d63c7a32dc7afbd,
-  "./plugin/markdown-paste/client#MarkdownPasteFeatureClient": MarkdownPasteFeatureClient_92632001a8c39848084fd97352373031,
+  "@sidshub/cms-feature-footnotes/client#FootnotesFeatureClient": FootnotesFeatureClient_d98fd66331a6ba3867d9c6e3c0453344,
+  "@sidshub/cms-plugin-markdown-paste/feature/client#MarkdownPasteFeatureClient": MarkdownPasteFeatureClient_b87ede84785a033cd20faf4974b5aa7b,
   "./plugin/emoji-shortcodes/client#EmojiShortcodesFeatureClient": EmojiShortcodesFeatureClient_ea87c692df8339e760f603b87f3ee113,
   "@payloadcms/richtext-lexical/client#SuperscriptFeatureClient": SuperscriptFeatureClient_e70f5e05f09f93e00b997edb1ef0c864,
   "@payloadcms/richtext-lexical/client#SubscriptFeatureClient": SubscriptFeatureClient_e70f5e05f09f93e00b997edb1ef0c864,
@@ -93,8 +89,8 @@ export const importMap = {
   "@payloadcms/plugin-seo/client#MetaDescriptionComponent": MetaDescriptionComponent_a8a977ebc872c5d5ea7ee689724c0860,
   "@payloadcms/plugin-seo/client#MetaImageComponent": MetaImageComponent_a8a977ebc872c5d5ea7ee689724c0860,
   "@payloadcms/plugin-seo/client#PreviewComponent": PreviewComponent_a8a977ebc872c5d5ea7ee689724c0860,
-  "./components/admin/seo/SocialCardPreview#SocialCardPreview": SocialCardPreview_21804267583b5024d08665aa8f21ce90,
-  "./components/admin/seo/SeoAwareButtons#SeoSaveButton": SeoSaveButton_303a540b70799efbad1be57e466147dd,
+  "@sidshub/cms-plugin-og-image/ui#SocialCardPreview": SocialCardPreview_6b9e159fd20cb93b010762342f2391cf,
+  "@sidshub/cms-plugin-og-image/ui#SeoSaveButton": SeoSaveButton_6b9e159fd20cb93b010762342f2391cf,
   "@payloadcms/richtext-lexical/client#TableFeatureClient": TableFeatureClient_e70f5e05f09f93e00b997edb1ef0c864,
   "@payloadcms/richtext-lexical/client#HorizontalRuleFeatureClient": HorizontalRuleFeatureClient_e70f5e05f09f93e00b997edb1ef0c864,
   "@payloadcms/richtext-lexical/client#UploadFeatureClient": UploadFeatureClient_e70f5e05f09f93e00b997edb1ef0c864,
@@ -104,8 +100,8 @@ export const importMap = {
   "@payloadcms/richtext-lexical/client#ChecklistFeatureClient": ChecklistFeatureClient_e70f5e05f09f93e00b997edb1ef0c864,
   "@payloadcms/richtext-lexical/client#HeadingFeatureClient": HeadingFeatureClient_e70f5e05f09f93e00b997edb1ef0c864,
   "./components/admin/rowLabels/BadgeRowLabel#BadgeRowLabel": BadgeRowLabel_24238ecca7db753c46604b9d7cf93856,
-  "./components/admin/seo/SeoAwareButtons#SeoPublishButton": SeoPublishButton_303a540b70799efbad1be57e466147dd,
-  "./components/admin/seo/SeoAwareButtons#SeoSaveDraftButton": SeoSaveDraftButton_303a540b70799efbad1be57e466147dd,
+  "@sidshub/cms-plugin-og-image/ui#SeoPublishButton": SeoPublishButton_6b9e159fd20cb93b010762342f2391cf,
+  "@sidshub/cms-plugin-og-image/ui#SeoSaveDraftButton": SeoSaveDraftButton_6b9e159fd20cb93b010762342f2391cf,
   "@payloadcms/next/client#FolderTypeField": FolderTypeField_2b8867833a34864a02ddf429b0728a40,
   "./components/admin/rowLabels/SectionRowLabel#SectionRowLabel": SectionRowLabel_ec40328e4fa7e50be5521512430803ee,
   "./components/admin/rowLabels/CtaButtonRowLabel#CtaButtonRowLabel": CtaButtonRowLabel_21f05950458c091161a962787a64c946,

@@ -62,7 +62,7 @@ export function DeploymentStatusCard({ hookType }: Props) {
     else setAutoRefreshing(true);
 
     try {
-      const res = await fetch("/api/deployment-status", { credentials: "include" });
+      const res = await fetch("/api/deployment-log-view/status", { credentials: "include" });
       if (res.ok) {
         const data = (await res.json()) as StatusResult;
         setResult(data);

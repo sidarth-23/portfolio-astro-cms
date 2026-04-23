@@ -3,12 +3,10 @@ import {
   createDocumentRichTextEditor as createEditorDocument,
   createMinimalRichTextEditor as createEditorMinimal,
 } from "@sidshub/cms-editor/cms";
+import { FootnotesFeature } from "@sidshub/cms-feature-footnotes/server";
+import { MarkdownPasteFeature } from "@sidshub/cms-plugin-markdown-paste/feature/server";
 
 import { EmojiShortcodesFeature } from "@/plugin/emoji-shortcodes/server";
-import { MarkdownPasteFeature } from "@/plugin/markdown-paste/server";
-import { FootnotesFeature } from "@/plugin/footnotes/server";
-import { DefinitionListFeature } from "@/plugin/definition-list/server";
-import { AbbreviationsFeature } from "@/plugin/abbreviations/server";
 
 type BasicOptions = Parameters<typeof createEditorBasic>[0];
 
@@ -20,8 +18,6 @@ const withMarkdownPaste = (options: BasicOptions = {}): BasicOptions => {
       EmojiShortcodesFeature(),
       MarkdownPasteFeature(),
       FootnotesFeature(),
-      DefinitionListFeature(),
-      AbbreviationsFeature(),
     ],
   };
 };

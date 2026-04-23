@@ -18,8 +18,8 @@ export const Projects: CollectionConfig = {
     group: "Content",
     components: {
       edit: {
-        PublishButton: "./components/admin/seo/SeoAwareButtons#SeoPublishButton",
-        SaveDraftButton: "./components/admin/seo/SeoAwareButtons#SeoSaveDraftButton",
+        PublishButton: "@sidshub/cms-plugin-og-image/ui#SeoPublishButton",
+        SaveDraftButton: "@sidshub/cms-plugin-og-image/ui#SeoSaveDraftButton",
       },
     },
   },

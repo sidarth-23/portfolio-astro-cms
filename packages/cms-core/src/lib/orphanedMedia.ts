@@ -1,5 +1,5 @@
 import type { Payload } from "payload";
-import { OG_TARGETS, SEO_COLLECTIONS, SEO_GLOBALS } from "./og/registry";
+import { OG_TARGETS, SEO_COLLECTIONS, SEO_GLOBALS } from "../registry";
 
 // ---------------------------------------------------------------------------
 // Public types

@@ -3,7 +3,7 @@ import { OgGenerationMode, generateOgImages } from "@/lib/og";
 
 export const generateOgImagesEndpoint = (siteUrl?: string): Endpoint => {
   return {
-    path: "/og-generate",
+    path: "/og-image/generate",
     method: "post",
     handler: async (req) => {
       if (!req.user) {

@@ -1,0 +1,33 @@
+{
+  "name": "@sidshub/cms-plugin-og-image",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "sideEffects": false,
+  "scripts": {
+    "build": "rm -rf dist && tsdown",
+    "dev": "tsdown --watch",
+    "clean": "rm -rf dist",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix"
+  },
+  "exports": {
+    ".": "./dist/index.mjs",
+    "./plugin": "./dist/plugin.mjs",
+    "./types": "./dist/types.mjs",
+    "./ui": "./dist/ui.mjs"
+  },
+  "dependencies": {
+    "@payloadcms/ui": "3.82.1",
+    "@sidshub/cms-core": "workspace:*",
+    "payload": "3.82.1",
+    "qs-esm": "^7.0.1"
+  },
+  "peerDependencies": {
+    "sharp": "*"
+  },
+  "devDependencies": {
+    "@sidshub/dev-config": "workspace:*",
+    "eslint": "^9.24.0"
+  }
+}
