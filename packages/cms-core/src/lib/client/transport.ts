@@ -1,6 +1,11 @@
 import { PayloadSDK } from "@payloadcms/sdk";
 import type { Config } from "@/payload-types";
-import { createCmsClient } from "./createCmsClient";
+
+export type CmsTransport = {
+  sdk: PayloadSDK<Config>;
+  mediaBaseUrl: string;
+  siteUrl?: string;
+};
 
 type RestClientOptions = {
   apiUrl: string;
@@ -9,12 +14,12 @@ type RestClientOptions = {
   fetchImpl?: typeof fetch;
 };
 
-export const createCmsRestClient = ({
+export const createCmsRestTransport = ({
   apiUrl,
   token,
   siteUrl,
   fetchImpl = fetch,
-}: RestClientOptions) => {
+}: RestClientOptions): CmsTransport => {
   const apiBase = apiUrl.replace(/\/$/, "");
   const mediaBaseUrl = apiBase.replace(/\/api$/, "");
 
@@ -48,5 +53,5 @@ export const createCmsRestClient = ({
 
   const sdk = new PayloadSDK<Config>({ baseURL: apiBase, fetch: authedFetch });
 
-  return createCmsClient({ sdk, mediaBaseUrl, siteUrl });
+  return { sdk, mediaBaseUrl, siteUrl };
 };

@@ -1,5 +1,6 @@
 /** @jsxImportSource preact */
 import {
+  TextHTMLConverterAsync,
   convertLexicalToHTMLAsync,
   type HTMLConvertersFunctionAsync,
   LinkHTMLConverterAsync,
@@ -72,124 +73,142 @@ export function createRichTextRenderer(components: BlockComponents) {
     const profile = config?.calloutVariantProfile ?? "generic";
     const fallbackVariant = fallbackVariantByProfile[profile];
 
-    const htmlConverters: HTMLConvertersFunctionAsync<NodeTypes> = ({ defaultConverters }) => ({
-      ...defaultConverters,
-      upload: async ({ node }: { node: SerializedUploadNode }) => {
-        if (typeof node.value !== "object" || !node.value) return "";
-        const alt =
-          ((node.fields as Record<string, unknown> | undefined)?.alt as string | undefined) ??
-          (node.value as PopulatedUploadValue).alt ??
-          "";
-        const mediaCaption = (node.value as PopulatedUploadValue).caption;
-        const captionHtml = mediaCaption
-          ? await renderRichTextToHTML({ data: mediaCaption, enableContainer: false }, config)
-          : null;
-        return renderToStaticMarkup(
-          <Upload
-            doc={node.value as UploadDoc}
-            alt={alt}
-            captionHtml={captionHtml}
-            mediaBaseUrl={config?.mediaBaseUrl}
-          />,
-        );
-      },
-      ...LinkHTMLConverterAsync({ internalDocToHref }),
-      ...createHeadingConverters(),
-      blocks: {
-        ...(defaultConverters.blocks ?? {}),
-        callout: async ({ node }: { node: SerializedBlockNode<Record<string, unknown>> }) => {
-          const fields = node.fields ?? {};
-          const variant = (fields.variant as string) || fallbackVariant;
-          const title = fields.title as string | undefined;
-          const contentHtml = await renderRichTextToHTML(
-            { data: fields.content as RichTextValue, enableContainer: false },
-            config,
-          );
+    const htmlConverters: HTMLConvertersFunctionAsync<NodeTypes> = ({ defaultConverters }) => {
+      return {
+        ...defaultConverters,
+        // Payload's default text converter handles bold/italic/strikethrough/underline/code/sub/sup
+        // but skips IS_HIGHLIGHT (bit 128). Wrap with <mark> when that bit is set.
+        text: (args) => {
+          const conv = defaultConverters.text ?? TextHTMLConverterAsync.text;
+          const html = (typeof conv === "function" ? conv(args) : (conv ?? "")) as string;
+          const format = (args.node as { format?: number }).format ?? 0;
+          return format & 128 ? `<mark>${html}</mark>` : html;
+        },
+        upload: async ({ node }: { node: SerializedUploadNode }) => {
+          if (typeof node.value !== "object" || !node.value) return "";
+          const alt =
+            ((node.fields as Record<string, unknown> | undefined)?.alt as string | undefined) ??
+            (node.value as PopulatedUploadValue).alt ??
+            "";
+          const mediaCaption = (node.value as PopulatedUploadValue).caption;
+          const captionHtml = mediaCaption
+            ? await renderRichTextToHTML({ data: mediaCaption, enableContainer: false }, config)
+            : null;
           return renderToStaticMarkup(
-            <Callout
-              variant={variant}
-              title={title}
-              contentHtml={contentHtml}
-              wrapperClass="my-6"
+            <Upload
+              doc={node.value as UploadDoc}
+              alt={alt}
+              captionHtml={captionHtml}
+              mediaBaseUrl={config?.mediaBaseUrl}
             />,
           );
         },
-        imageGallery: async ({ node }: { node: SerializedBlockNode<Record<string, unknown>> }) => {
-          const fields = node.fields ?? {};
-          const caption = (fields.caption as string | null | undefined) ?? null;
-          const rawImages =
-            (fields.images as
-              | Array<{ image: UploadDoc | string | number | null }>
-              | null
-              | undefined) ?? [];
-
-          const images = await Promise.all(
-            rawImages
-              .filter(
-                (entry): entry is { image: PopulatedUploadValue & UploadDoc } =>
-                  entry.image !== null &&
-                  typeof entry.image === "object" &&
-                  typeof (entry.image as UploadDoc).url === "string",
-              )
-              .map(async (entry) => {
-                const doc = entry.image;
-                const alt = (doc.alt as string) ?? "";
-                const mediaCaption = doc.caption;
-                const captionHtml = mediaCaption
-                  ? await renderRichTextToHTML(
-                      { data: mediaCaption, enableContainer: false },
-                      config,
-                    )
-                  : null;
-                return { doc, alt, captionHtml };
-              }),
-          );
-
-          if (images.length === 0) return "";
-
-          return renderToStaticMarkup(
-            <ImageGallery images={images} caption={caption} mediaBaseUrl={config?.mediaBaseUrl} />,
-          );
-        },
-        Code: async ({ node }: { node: SerializedBlockNode<Record<string, unknown>> }) => {
-          const fields = node.fields ?? {};
-          const mode = (fields.mode as string) || "single";
-          const caption = (fields.caption as string | null | undefined) ?? null;
-
-          if (mode === "multiple") {
-            type Entry = { name: string; language: string; code: string };
-            const rawEntries = (fields.entries as Entry[] | null | undefined) ?? [];
-            const entries = await Promise.all(
-              rawEntries.map(async (entry) => {
-                const lang = entry.language || "plaintext";
-                const highlightedHtml = await highlightCode(entry.code || "", lang).catch(
-                  () => `<pre><code>${entry.code}</code></pre>`,
-                );
-                return { name: entry.name || "", language: lang, highlightedHtml };
-              }),
+        ...LinkHTMLConverterAsync({ internalDocToHref }),
+        ...createHeadingConverters(),
+        blocks: {
+          ...(defaultConverters.blocks ?? {}),
+          callout: async ({ node }: { node: SerializedBlockNode<Record<string, unknown>> }) => {
+            const fields = node.fields ?? {};
+            const variant = (fields.variant as string) || fallbackVariant;
+            const title = fields.title as string | undefined;
+            const contentHtml = await renderRichTextToHTML(
+              { data: fields.content as RichTextValue, enableContainer: false },
+              config,
             );
             return renderToStaticMarkup(
-              <Code mode="multiple" entries={entries} caption={caption} />,
+              <Callout
+                variant={variant}
+                title={title}
+                contentHtml={contentHtml}
+                wrapperClass="my-6"
+              />,
             );
-          }
+          },
+          imageGallery: async ({
+            node,
+          }: {
+            node: SerializedBlockNode<Record<string, unknown>>;
+          }) => {
+            const fields = node.fields ?? {};
+            const caption = (fields.caption as string | null | undefined) ?? null;
+            const rawImages =
+              (fields.images as
+                | Array<{ image: UploadDoc | string | number | null }>
+                | null
+                | undefined) ?? [];
 
-          // Single mode
-          const language = (fields.language as string) || "plaintext";
-          const code = (fields.code as string) || "";
-          const highlightedHtml = await highlightCode(code, language).catch(
-            () => `<pre><code>${code}</code></pre>`,
-          );
-          return renderToStaticMarkup(
-            <Code
-              mode="single"
-              language={language}
-              highlightedHtml={highlightedHtml}
-              caption={caption}
-            />,
-          );
+            const images = await Promise.all(
+              rawImages
+                .filter(
+                  (entry): entry is { image: PopulatedUploadValue & UploadDoc } =>
+                    entry.image !== null &&
+                    typeof entry.image === "object" &&
+                    typeof (entry.image as UploadDoc).url === "string",
+                )
+                .map(async (entry) => {
+                  const doc = entry.image;
+                  const alt = (doc.alt as string) ?? "";
+                  const mediaCaption = doc.caption;
+                  const captionHtml = mediaCaption
+                    ? await renderRichTextToHTML(
+                        { data: mediaCaption, enableContainer: false },
+                        config,
+                      )
+                    : null;
+                  return { doc, alt, captionHtml };
+                }),
+            );
+
+            if (images.length === 0) return "";
+
+            return renderToStaticMarkup(
+              <ImageGallery
+                images={images}
+                caption={caption}
+                mediaBaseUrl={config?.mediaBaseUrl}
+              />,
+            );
+          },
+          Code: async ({ node }: { node: SerializedBlockNode<Record<string, unknown>> }) => {
+            const fields = node.fields ?? {};
+            const mode = (fields.mode as string) || "single";
+            const caption = (fields.caption as string | null | undefined) ?? null;
+
+            if (mode === "multiple") {
+              type Entry = { name: string; language: string; code: string };
+              const rawEntries = (fields.entries as Entry[] | null | undefined) ?? [];
+              const entries = await Promise.all(
+                rawEntries.map(async (entry) => {
+                  const lang = entry.language || "plaintext";
+                  const highlightedHtml = await highlightCode(entry.code || "", lang).catch(
+                    () => `<pre><code>${entry.code}</code></pre>`,
+                  );
+                  return { name: entry.name || "", language: lang, highlightedHtml };
+                }),
+              );
+              return renderToStaticMarkup(
+                <Code mode="multiple" entries={entries} caption={caption} />,
+              );
+            }
+
+            // Single mode
+            const language = (fields.language as string) || "plaintext";
+            const code = (fields.code as string) || "";
+            const highlightedHtml = await highlightCode(code, language).catch(
+              () => `<pre><code>${code}</code></pre>`,
+            );
+            return renderToStaticMarkup(
+              <Code
+                mode="single"
+                language={language}
+                highlightedHtml={highlightedHtml}
+                caption={caption}
+              />,
+            );
+          },
         },
-      },
-    });
+      };
+    };
 
     return convertLexicalToHTMLAsync({
       className,

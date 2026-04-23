@@ -10,7 +10,7 @@ import type {
   Series,
   SeriesPage,
   SiteSetting,
-} from "@/payload-types";
+} from "@sidshub/cms-core/payload-types";
 
 let _counter = 0;
 

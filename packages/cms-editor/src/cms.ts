@@ -5,6 +5,7 @@ import {
   BoldFeature,
   ChecklistFeature,
   CodeBlock as PremadeCodeBlock,
+  EXPERIMENTAL_TableFeature,
   FixedToolbarFeature,
   type FeatureProviderServer,
   HeadingFeature,
@@ -23,8 +24,10 @@ import {
   UnderlineFeature,
   UnorderedListFeature,
   UploadFeature,
+  createServerFeature,
   lexicalEditor,
 } from "@payloadcms/richtext-lexical";
+import { HIGHLIGHT } from "@payloadcms/richtext-lexical/lexical/markdown";
 import type { Block } from "payload";
 
 type HeadingSize = "h1" | "h2" | "h3" | "h4" | "h5" | "h6";
@@ -68,6 +71,7 @@ export type LexicalEditorOptions = {
   enableCallout?: boolean;
   calloutVariantProfile?: CalloutVariantProfile;
   enableImageGallery?: boolean;
+  enableTables?: boolean;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   extraFeatures?: FeatureProviderServer<any, any, any>[];
   link?: LinkSettings;
@@ -137,6 +141,7 @@ const DEFAULT_VARIANT_OPTIONS: Record<LexicalEditorVariant, VariantDefaults> = {
     enableCallout: false,
     calloutVariantProfile: "generic",
     enableImageGallery: true,
+    enableTables: true,
     enabledHeadingSizes: ["h2", "h3", "h4"],
   },
 };
@@ -505,6 +510,20 @@ const createCalloutBlock = (profile: CalloutVariantProfile): Block => {
   };
 };
 
+// Registers markdown transformers for text formats that Payload ships without them.
+// Superscript/SubscriptFeature handle the editor UI; this feature adds the markdown syntax.
+// HIGHLIGHT is built into @lexical/markdown — Payload just doesn't register it.
+const extendedMarkdownTransformersFeature = createServerFeature({
+  feature: {
+    markdownTransformers: [
+      { type: "text-format", format: ["superscript"], tag: "^" },
+      { type: "text-format", format: ["subscript"], tag: "~" },
+      HIGHLIGHT,
+    ],
+  },
+  key: "extended-markdown-transformers",
+});
+
 export const createLexicalEditor = ({
   variant,
   ...overrides
@@ -595,7 +614,15 @@ export const createLexicalEditor = ({
         );
       }
 
-      features.push(SubscriptFeature(), SuperscriptFeature());
+      if (options.enableTables) {
+        features.push(EXPERIMENTAL_TableFeature());
+      }
+
+      features.push(
+        SubscriptFeature(),
+        SuperscriptFeature(),
+        extendedMarkdownTransformersFeature(),
+      );
 
       if (options.extraFeatures?.length) {
         features.push(...options.extraFeatures);

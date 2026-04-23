@@ -3,7 +3,8 @@ import EntryHeader from "@/components/EntryHeader.astro";
 import DetailLayout from "@/layouts/DetailLayout.astro";
 import { resolveIcon } from "@/lib/resolveIcon";
 import type { TableOfContentsItem } from "@sidshub/cms-editor/web/html";
-import type { ProjectLink, TagInfo } from "@sidshub/cms-core/client";
+import type { ProjectLink } from "@sidshub/cms-core/client";
+import type { TagInfo } from "@/lib/cms";
 
 type Props = {
   title: string;
@@ -119,7 +120,7 @@ const resolvedLinks = (
                 aria-hidden="true"
                 class="h-4 w-4 fill-current stroke-current"
                 set:html={iconData.innerSvg}
-              ></svg>
+              />
             </a>
           );
         })

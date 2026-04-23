@@ -1,7 +1,7 @@
 import { faker } from "@faker-js/faker";
 import type { PayloadSDK } from "@payloadcms/sdk";
-import type { Config } from "@/payload-types";
-import { createCmsClient } from "@/lib/client/createCmsClient";
+import type { Config } from "@sidshub/cms-core/payload-types";
+import type { CmsTransport } from "@sidshub/cms-core/client";
 import {
   makeBlogPage,
   makeCategory,
@@ -70,7 +70,7 @@ const paginate = <T>(docs: T[], page: number, limit: number) => {
   };
 };
 
-export const createCmsMockClient = () => {
+export const createMockTransport = (): CmsTransport => {
   faker.seed(42);
 
   const cat1 = makeCategory({ id: nextId(), name: "Technology", slug: "technology" });
@@ -153,9 +153,9 @@ export const createCmsMockClient = () => {
     },
   };
 
-  return createCmsClient({
+  return {
     sdk: fakeSdk as unknown as PayloadSDK<Config>,
     mediaBaseUrl: "http://mock",
     siteUrl: "http://mock",
-  });
+  };
 };

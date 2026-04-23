@@ -4,7 +4,7 @@ function baseTsdownConfig(inlineConfig?: InlineConfig): UserConfig {
   const isWatch = !!inlineConfig?.watch;
   return {
     format: "esm",
-    dts: !isWatch,
+    dts: true,
     outDir: "dist",
     unbundle: true,
     minify: !isWatch,

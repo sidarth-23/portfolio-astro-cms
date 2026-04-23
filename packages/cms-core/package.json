@@ -15,8 +15,8 @@
     ".": "./dist/payload-types.mjs",
     "./builder": "./dist/builder.mjs",
     "./client": "./dist/lib/client/index.mjs",
-    "./client/rest": "./dist/lib/client/rest.mjs",
-    "./client/mock": "./dist/lib/client/mock/index.mjs",
+    "./client/transport": "./dist/lib/client/transport.mjs",
+    "./client/media": "./dist/lib/client/media.mjs",
     "./content": "./dist/lib/content/index.mjs",
     "./icons": "./dist/lib/icons/index.mjs",
     "./icons/parser": "./dist/lib/icons/parser.mjs",
@@ -31,7 +31,6 @@
     "sharp": "*"
   },
   "devDependencies": {
-    "@faker-js/faker": "^9.8.0",
     "@sidshub/dev-config": "workspace:*",
     "eslint": "^9.24.0"
   },

@@ -3,7 +3,8 @@ import EntryHeader from "@/components/EntryHeader.astro";
 import DetailLayout from "@/layouts/DetailLayout.astro";
 import { generateFilterUrl } from "@/lib/utils";
 import type { TableOfContentsItem } from "@sidshub/cms-editor/web/html";
-import type { TagInfo, CategoryInfo, SeriesInfo, PopulatedAuthor } from "@sidshub/cms-core/client";
+import type { PopulatedAuthor } from "@sidshub/cms-core/client";
+import type { TagInfo, CategoryInfo, SeriesInfo } from "@/lib/cms";
 
 type Props = {
   title: string;
