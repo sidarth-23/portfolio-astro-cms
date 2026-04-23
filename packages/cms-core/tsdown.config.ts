@@ -21,6 +21,7 @@ export default defineConfig(
       "src/plugin/markdown-paste/client.tsx",
       "src/plugin/footnotes/client.tsx",
       "src/plugin/definition-list/client.tsx",
+      "src/plugin/abbreviations/client.tsx",
     ],
     external: ["node:path", "node:url", "path", "url", "fs/promises", "sharp", "qs-esm"],
   }),

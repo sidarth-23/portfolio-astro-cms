@@ -30,6 +30,12 @@ import type {
 // Footnote node shapes (serialized from Lexical)
 // ---------------------------------------------------------------------------
 
+type SerializedAbbreviationRegistryNode = {
+  type: "abbreviation-registry";
+  abbreviations: Record<string, string>;
+  version: number;
+};
+
 type SerializedFootnoteReferenceNode = {
   type: "footnote-reference";
   footnoteId: string;
@@ -52,6 +58,42 @@ type SerializedFootnoteDefinitionNode = {
 
 const escapeHtml = (s: string): string =>
   s.replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+
+const collectAbbreviationRegistries = (
+  data: RichTextValue,
+): SerializedAbbreviationRegistryNode[] => {
+  if (!Array.isArray(data?.root?.children)) return [];
+  return (data.root.children as unknown[]).filter(
+    (n): n is SerializedAbbreviationRegistryNode =>
+      typeof n === "object" &&
+      n !== null &&
+      (n as { type?: string }).type === "abbreviation-registry",
+  );
+};
+
+const applyAbbreviations = (html: string, abbreviations: Record<string, string>): string => {
+  const keys = Object.keys(abbreviations).sort((a, b) => b.length - a.length);
+  if (keys.length === 0) return html;
+
+  // Split into alternating [text, tag, text, tag, ...] segments.
+  const parts = html.split(/(<[^>]+>)/);
+  return parts
+    .map((part, i) => {
+      if (i % 2 === 1) return part; // it's a tag — leave it alone
+      // Text content — apply abbreviation replacements
+      for (const key of keys) {
+        const escapedKey = key.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+        const title = escapeHtml(abbreviations[key]!);
+        const escapedDisplay = escapeHtml(key);
+        part = part.replace(
+          new RegExp(`\\b${escapedKey}\\b`, "g"),
+          `<abbr title="${title}">${escapedDisplay}</abbr>`,
+        );
+      }
+      return part;
+    })
+    .join("");
+};
 
 const collectFootnoteDefinitions = (data: RichTextValue): SerializedFootnoteDefinitionNode[] => {
   // Only top-level root children are scanned: FootnoteDefinitionNode.isInline() is false
@@ -196,6 +238,8 @@ export function createRichTextRenderer(components: BlockComponents) {
         // Definitions are rendered as a footnotes section after the main HTML (see post-processing below);
         // suppress inline output to avoid duplicating content.
         "footnote-definition": () => "",
+        // Registry is metadata only — invisible in rendered output; abbreviations are applied in post-processing.
+        "abbreviation-registry": () => "",
         "definition-list": async ({ node }) =>
           renderElementTag(node, "dl", renderRichTextToHTML, config),
         "definition-term": async ({ node }) =>
@@ -314,10 +358,21 @@ export function createRichTextRenderer(components: BlockComponents) {
       disableContainer: !enableContainer,
     });
 
+    // Collect abbreviation registries and apply to main HTML if any exist.
+    const abbrevRegistries = collectAbbreviationRegistries(data);
+    let processedHtml = mainHtml;
+    if (abbrevRegistries.length > 0) {
+      const mergedAbbreviations: Record<string, string> = {};
+      for (const registry of abbrevRegistries) {
+        Object.assign(mergedAbbreviations, registry.abbreviations);
+      }
+      processedHtml = applyAbbreviations(mainHtml, mergedAbbreviations);
+    }
+
     // Collect footnote definitions and append a footnotes section if any exist.
     const footnoteDefs = collectFootnoteDefinitions(data);
     if (footnoteDefs.length === 0) {
-      return mainHtml;
+      return processedHtml;
     }
 
     const definitionItems = await Promise.all(
@@ -346,7 +401,7 @@ export function createRichTextRenderer(components: BlockComponents) {
 
     const footnotesSection = `<section class="footnotes"><h2 class="footnotes-title">Footnotes</h2><ol>${definitionItems.join("")}</ol></section>`;
 
-    return mainHtml + footnotesSection;
+    return processedHtml + footnotesSection;
   };
 
   const renderBlock = async (
