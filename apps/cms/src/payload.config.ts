@@ -1,7 +1,6 @@
 import { mongooseAdapter } from "@payloadcms/db-mongodb";
 import { resendAdapter } from "@payloadcms/email-resend";
 import { s3Storage } from "@payloadcms/storage-s3";
-import { createDokployAdapter } from "@sidshub/cms-deployment-adapter-dokploy";
 import { createCmsConfig } from "@sidshub/cms-core/builder";
 
 import { env } from "./env";
@@ -28,35 +27,20 @@ function buildStoragePlugins() {
   ];
 }
 
-function buildDeploymentAdapter(): ReturnType<typeof createDokployAdapter> | undefined {
+function buildDeploymentLogView(): Parameters<typeof createCmsConfig>[0]["deploymentLogView"] {
   if (!env.SITE_BUILD_HOOK_TYPE) return undefined;
-  switch (env.SITE_BUILD_HOOK_TYPE) {
-    case "dokploy":
-      if (
-        !env.SITE_BUILD_HOOK_URL ||
-        !env.SITE_BUILD_HOOK_SECRET ||
-        !env.SITE_BUILD_HOOK_DOKPLOY_APP_ID
-      ) {
-        return undefined;
-      }
-      return createDokployAdapter({
-        apiUrl: env.SITE_BUILD_HOOK_URL,
-        apiKey: env.SITE_BUILD_HOOK_SECRET,
-        applicationId: env.SITE_BUILD_HOOK_DOKPLOY_APP_ID,
-        projectId: env.SITE_BUILD_HOOK_DOKPLOY_PROJECT_ID,
-      });
-  }
-}
 
-function isDeploymentHookValid(): boolean {
-  if (!env.SITE_BUILD_HOOK_TYPE) return false;
   switch (env.SITE_BUILD_HOOK_TYPE) {
     case "dokploy":
-      return !!(
-        env.SITE_BUILD_HOOK_URL &&
-        env.SITE_BUILD_HOOK_SECRET &&
-        env.SITE_BUILD_HOOK_DOKPLOY_APP_ID
-      );
+      return {
+        provider: "dokploy",
+        config: {
+          apiUrl: env.SITE_BUILD_HOOK_URL ?? "",
+          apiKey: env.SITE_BUILD_HOOK_SECRET ?? "",
+          applicationId: env.SITE_BUILD_HOOK_DOKPLOY_APP_ID ?? "",
+          projectId: env.SITE_BUILD_HOOK_DOKPLOY_PROJECT_ID,
+        },
+      };
   }
 }
 
@@ -79,8 +63,5 @@ export default createCmsConfig({
       ? { webhookUrl: env.WEB_DEPLOY_WEBHOOK_URL, branch: env.WEB_DEPLOY_BRANCH }
       : undefined,
   devRefreshUrl: env.WEB_DEV_REFRESH_URL,
-  deploymentStatus: buildDeploymentAdapter(),
-  showDeploymentStatus: !!env.SITE_BUILD_HOOK_TYPE,
-  deploymentHookType: env.SITE_BUILD_HOOK_TYPE,
-  deploymentHookValid: isDeploymentHookValid(),
+  deploymentLogView: buildDeploymentLogView(),
 });

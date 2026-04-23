@@ -1,13 +1,9 @@
 import type { AdminViewServerProps } from "payload";
+import { DeploymentStatusCard } from "@sidshub/cms-plugin-deployment-log-view/ui";
 
-import { getShowDeploymentStatusCard, getDeploymentHookType } from "@/builder";
-import { DeploymentStatusCard } from "./DeploymentStatusCard";
 import { OgGeneratorCard } from "./OgGeneratorCard";
 
 export function DashboardView(_props: AdminViewServerProps) {
-  const showDeployment = getShowDeploymentStatusCard();
-  const hookType = getDeploymentHookType();
-
   return (
     <div style={{ padding: "32px", maxWidth: "860px" }}>
       <h2
@@ -21,18 +17,14 @@ export function DashboardView(_props: AdminViewServerProps) {
         Dashboard
       </h2>
       <OgGeneratorCard />
-      {showDeployment && (
-        <>
-          <hr
-            style={{
-              border: "none",
-              borderTop: "1px solid var(--theme-elevation-150)",
-              margin: "28px 0",
-            }}
-          />
-          <DeploymentStatusCard hookType={hookType} />
-        </>
-      )}
+      <hr
+        style={{
+          border: "none",
+          borderTop: "1px solid var(--theme-elevation-150)",
+          margin: "28px 0",
+        }}
+      />
+      <DeploymentStatusCard />
     </div>
   );
 }

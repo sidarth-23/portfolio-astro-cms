@@ -3,17 +3,8 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Pill } from "@payloadcms/ui";
 
-import type { HookType } from "@/lib/deployment/factory";
-
-type DeploymentStatus = "deployed" | "building" | "failed" | "unknown";
-
-type StatusResult = {
-  configured: boolean;
-  misconfigured: boolean;
-  status: DeploymentStatus;
-  lastDeployedAt: string | null;
-  deployUrl: string | null;
-};
+import { DEPLOYMENT_STATUS_ENDPOINT_PATH } from "../adapters/registry";
+import type { DeploymentStatus, DeploymentStatusResponse } from "../types";
 
 const STATUS_LABELS: Record<DeploymentStatus, string> = {
   deployed: "Deployed",
@@ -30,15 +21,11 @@ const STATUS_PILL_STYLE: Record<DeploymentStatus, "success" | "warning" | "error
     unknown: "light-gray",
   };
 
-const HOOK_TYPE_LABELS: Record<HookType, string> = {
-  dokploy: "Dokploy",
-};
-
 function formatDate(iso: string | null): string {
-  if (!iso) return "—";
-  const d = new Date(iso);
-  if (isNaN(d.getTime())) return "—";
-  return d.toLocaleString(undefined, {
+  if (!iso) return "-";
+  const value = new Date(iso);
+  if (Number.isNaN(value.getTime())) return "-";
+  return value.toLocaleString(undefined, {
     year: "numeric",
     month: "short",
     day: "numeric",
@@ -47,30 +34,28 @@ function formatDate(iso: string | null): string {
   });
 }
 
-type Props = {
-  hookType?: HookType;
-};
-
-export function DeploymentStatusCard({ hookType }: Props) {
-  const [result, setResult] = useState<StatusResult | null>(null);
+export function DeploymentStatusCard() {
+  const [result, setResult] = useState<DeploymentStatusResponse | null>(null);
   const [manualLoading, setManualLoading] = useState(false);
   const [autoRefreshing, setAutoRefreshing] = useState(false);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
-  const fetchStatus = useCallback(async (isManual = false) => {
-    if (isManual) setManualLoading(true);
+  const fetchStatus = useCallback(async (manual = false) => {
+    if (manual) setManualLoading(true);
     else setAutoRefreshing(true);
 
     try {
-      const res = await fetch("/api/deployment-log-view/status", { credentials: "include" });
-      if (res.ok) {
-        const data = (await res.json()) as StatusResult;
-        setResult(data);
+      const response = await fetch(`/api${DEPLOYMENT_STATUS_ENDPOINT_PATH}`, {
+        credentials: "include",
+      });
+
+      if (response.ok) {
+        setResult((await response.json()) as DeploymentStatusResponse);
       }
     } catch {
-      // silently ignore — keep showing last known state
+      // Keep rendering the last known result.
     } finally {
-      if (isManual) setManualLoading(false);
+      if (manual) setManualLoading(false);
       else setAutoRefreshing(false);
     }
   }, []);
@@ -93,7 +78,7 @@ export function DeploymentStatusCard({ hookType }: Props) {
     startPolling();
   };
 
-  const serviceLabel = hookType ? (HOOK_TYPE_LABELS[hookType] ?? hookType) : "Web app";
+  const serviceLabel = result?.providerLabel ?? "Web app";
 
   return (
     <div style={{ marginTop: "8px", marginBottom: "32px" }}>
@@ -155,7 +140,7 @@ export function DeploymentStatusCard({ hookType }: Props) {
                 border: "2px solid var(--theme-elevation-400)",
                 borderTopColor: "var(--theme-elevation-700)",
                 borderRadius: "50%",
-                animation: "ds-spin 0.7s linear infinite",
+                animation: "deployment-log-view-spin 0.7s linear infinite",
               }}
             />
           )}
@@ -163,7 +148,7 @@ export function DeploymentStatusCard({ hookType }: Props) {
         </button>
       </div>
 
-      <style>{`@keyframes ds-spin { to { transform: rotate(360deg); } }`}</style>
+      <style>{`@keyframes deployment-log-view-spin { to { transform: rotate(360deg); } }`}</style>
 
       <div
         style={{
@@ -182,9 +167,9 @@ export function DeploymentStatusCard({ hookType }: Props) {
                 borderBottom: "1px solid var(--theme-elevation-150)",
               }}
             >
-              {["Service", "Status", "Last deployed", "Link"].map((h) => (
+              {["Service", "Status", "Last deployed", "Link"].map((heading) => (
                 <th
-                  key={h}
+                  key={heading}
                   style={{
                     padding: "8px 14px",
                     textAlign: "left",
@@ -195,7 +180,7 @@ export function DeploymentStatusCard({ hookType }: Props) {
                     letterSpacing: "0.06em",
                   }}
                 >
-                  {h}
+                  {heading}
                 </th>
               ))}
             </tr>
@@ -207,7 +192,9 @@ export function DeploymentStatusCard({ hookType }: Props) {
                   {serviceLabel}
                 </td>
                 <td style={{ padding: "12px 14px" }}>
-                  <Pill pillStyle="error">Misconfigured</Pill>
+                  <Pill pillStyle="error">
+                    {result.connectionOk === false ? "Connection failed" : "Misconfigured"}
+                  </Pill>
                 </td>
                 <td
                   colSpan={2}
@@ -217,8 +204,7 @@ export function DeploymentStatusCard({ hookType }: Props) {
                     fontSize: "12px",
                   }}
                 >
-                  SITE_BUILD_HOOK_URL, SITE_BUILD_HOOK_SECRET, or provider-specific vars are
-                  missing.
+                  {result.message ?? "Required deployment provider values are missing or invalid."}
                 </td>
               </tr>
             ) : result !== null && !result.configured ? (
@@ -237,7 +223,7 @@ export function DeploymentStatusCard({ hookType }: Props) {
                     fontSize: "12px",
                   }}
                 >
-                  Adapter not initialised. Check your deployment environment variables.
+                  {result.message ?? "Deployment log view plugin is not configured."}
                 </td>
               </tr>
             ) : (
@@ -257,7 +243,7 @@ export function DeploymentStatusCard({ hookType }: Props) {
                             border: "2px solid var(--theme-elevation-300)",
                             borderTopColor: "var(--theme-elevation-700)",
                             borderRadius: "50%",
-                            animation: "ds-spin 0.7s linear infinite",
+                            animation: "deployment-log-view-spin 0.7s linear infinite",
                           }}
                         />
                       )}
@@ -266,11 +252,11 @@ export function DeploymentStatusCard({ hookType }: Props) {
                       </Pill>
                     </span>
                   ) : (
-                    <Pill pillStyle="light-gray">—</Pill>
+                    <Pill pillStyle="light-gray">-</Pill>
                   )}
                 </td>
                 <td style={{ padding: "12px 14px", color: "var(--theme-elevation-700)" }}>
-                  {result ? formatDate(result.lastDeployedAt) : "—"}
+                  {result ? formatDate(result.lastDeployedAt) : "-"}
                 </td>
                 <td style={{ padding: "12px 14px" }}>
                   {result?.deployUrl ? (
@@ -287,7 +273,7 @@ export function DeploymentStatusCard({ hookType }: Props) {
                       Open
                     </a>
                   ) : (
-                    <span style={{ color: "var(--theme-elevation-400)" }}>—</span>
+                    <span style={{ color: "var(--theme-elevation-400)" }}>-</span>
                   )}
                 </td>
               </tr>

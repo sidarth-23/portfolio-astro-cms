@@ -1,6 +1,5 @@
 import { seoPlugin } from "@payloadcms/plugin-seo";
-import { createDeploymentStatusEndpoint } from "@sidshub/cms-plugin-deployment-log-view";
-import type { DeploymentStatusAdapter } from "@sidshub/cms-plugin-deployment-log-view";
+import { deploymentLogViewPlugin } from "@sidshub/cms-plugin-deployment-log-view/plugin";
 import {
   convertMarkdownEndpoint,
   importMediaFromUrlEndpoint,
@@ -29,48 +28,10 @@ import { createCollectionRedeployHook } from "@/hooks/triggerCollectionRedeploy"
 import { createTriggerDeployment } from "@/hooks/triggerDeployment";
 import { createTriggerDevRefresh } from "@/hooks/triggerDevRefresh";
 import { createGlobalRedeployHook } from "@/hooks/triggerGlobalRedeploy";
-import type { HookType } from "@/lib/deployment/factory";
 import { createBasicRichTextEditor } from "@/lib/editor";
 import { SEO_COLLECTIONS, SEO_GLOBALS } from "@/registry";
 
 const dirname = path.dirname(fileURLToPath(import.meta.url));
-
-let _deploymentStatusAdapter: DeploymentStatusAdapter | undefined;
-let _showDeploymentStatusCard = false;
-let _deploymentHookType: HookType | undefined;
-let _deploymentHookValid = false;
-
-export function setDeploymentStatusAdapter(adapter: DeploymentStatusAdapter | undefined) {
-  _deploymentStatusAdapter = adapter;
-}
-
-export function getDeploymentStatusAdapter(): DeploymentStatusAdapter | undefined {
-  return _deploymentStatusAdapter;
-}
-
-export function setShowDeploymentStatusCard(show: boolean) {
-  _showDeploymentStatusCard = show;
-}
-
-export function getShowDeploymentStatusCard(): boolean {
-  return _showDeploymentStatusCard;
-}
-
-export function setDeploymentHookType(type: HookType | undefined) {
-  _deploymentHookType = type;
-}
-
-export function getDeploymentHookType(): HookType | undefined {
-  return _deploymentHookType;
-}
-
-export function setDeploymentHookValid(valid: boolean) {
-  _deploymentHookValid = valid;
-}
-
-export function getDeploymentHookValid(): boolean {
-  return _deploymentHookValid;
-}
 
 export type CmsConfigOptions = {
   secret: string;
@@ -83,18 +44,11 @@ export type CmsConfigOptions = {
   deployHook?: { webhookUrl: string; branch: string };
   devRefreshUrl?: string;
   onInit?: () => Promise<void>;
-  deploymentStatus?: DeploymentStatusAdapter;
-  showDeploymentStatus?: boolean;
-  deploymentHookType?: HookType;
-  deploymentHookValid?: boolean;
+  deploymentLogView?: Parameters<typeof deploymentLogViewPlugin>[0];
 };
 
 export function createCmsConfig(options: CmsConfigOptions) {
   setReadAccessToken(options.readAccessToken);
-  setDeploymentStatusAdapter(options.deploymentStatus);
-  setShowDeploymentStatusCard(options.showDeploymentStatus ?? false);
-  setDeploymentHookType(options.deploymentHookType);
-  setDeploymentHookValid(options.deploymentHookValid ?? false);
 
   const triggerDeploy = createTriggerDeployment(options.deployHook);
   const triggerRefresh = createTriggerDevRefresh(options.devRefreshUrl);
@@ -214,10 +168,6 @@ export function createCmsConfig(options: CmsConfigOptions) {
     },
     endpoints: [
       generateOgImagesEndpoint(options.siteUrl),
-      createDeploymentStatusEndpoint({
-        adapter: options.deploymentStatus,
-        hookValid: options.deploymentHookValid ?? false,
-      }),
       importMediaFromUrlEndpoint,
       convertMarkdownEndpoint,
       ...orphanedMediaEndpoints,
@@ -236,6 +186,7 @@ export function createCmsConfig(options: CmsConfigOptions) {
         generateURL,
         fields: withSeoOverrides,
       }),
+      deploymentLogViewPlugin(options.deploymentLogView ?? { enabled: false }),
       ...(options.storagePlugins ?? []),
     ],
     db: options.db,

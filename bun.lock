@@ -26,7 +26,6 @@
         "@payloadcms/richtext-lexical": "3.82.1",
         "@payloadcms/storage-s3": "3.82.1",
         "@sidshub/cms-core": "workspace:*",
-        "@sidshub/cms-deployment-adapter-dokploy": "workspace:*",
         "@sidshub/cms-editor": "workspace:*",
         "@sidshub/cms-feature-footnotes": "workspace:*",
         "@sidshub/cms-plugin-deployment-log-view": "workspace:*",
@@ -108,17 +107,6 @@
       "peerDependencies": {
         "qs-esm": "*",
         "sharp": "*",
-      },
-    },
-    "packages/cms-deployment-adapter-dokploy": {
-      "name": "@sidshub/cms-deployment-adapter-dokploy",
-      "version": "0.0.1",
-      "dependencies": {
-        "@sidshub/cms-plugin-deployment-log-view": "workspace:*",
-      },
-      "devDependencies": {
-        "@sidshub/dev-config": "workspace:*",
-        "eslint": "^9.24.0",
       },
     },
     "packages/cms-editor": {
@@ -870,8 +858,6 @@
     "@sidshub/cms": ["@sidshub/cms@workspace:apps/cms"],
 
     "@sidshub/cms-core": ["@sidshub/cms-core@workspace:packages/cms-core"],
-
-    "@sidshub/cms-deployment-adapter-dokploy": ["@sidshub/cms-deployment-adapter-dokploy@workspace:packages/cms-deployment-adapter-dokploy"],
 
     "@sidshub/cms-editor": ["@sidshub/cms-editor@workspace:packages/cms-editor"],
 
