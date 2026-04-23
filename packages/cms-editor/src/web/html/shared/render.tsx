@@ -75,20 +75,31 @@ const applyAbbreviations = (html: string, abbreviations: Record<string, string>)
   const keys = Object.keys(abbreviations).sort((a, b) => b.length - a.length);
   if (keys.length === 0) return html;
 
-  // Split into alternating [text, tag, text, tag, ...] segments.
+  // Pre-compile all regexes once (not inside the parts.map loop).
+  // Uses lookbehind/lookahead instead of \b for keys that start/end with non-\w characters
+  // (e.g. C++, .NET, Node.js) so they are not silently skipped.
+  const compiled = keys
+    .filter((key) => key.length > 0) // guard against empty keys
+    .map((key) => {
+      const escapedKey = key.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+      const title = escapeHtml(abbreviations[key]!);
+      const escapedDisplay = escapeHtml(key);
+      const startBoundary = /^\w/.test(key) ? "\\b" : "(?<![\\w])";
+      const endBoundary = /\w$/.test(key) ? "\\b" : "(?![\\w])";
+      return {
+        re: new RegExp(`${startBoundary}${escapedKey}${endBoundary}`, "g"),
+        title,
+        escapedDisplay,
+      };
+    });
+
   const parts = html.split(/(<[^>]+>)/);
   return parts
     .map((part, i) => {
-      if (i % 2 === 1) return part; // it's a tag — leave it alone
-      // Text content — apply abbreviation replacements
-      for (const key of keys) {
-        const escapedKey = key.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-        const title = escapeHtml(abbreviations[key]!);
-        const escapedDisplay = escapeHtml(key);
-        part = part.replace(
-          new RegExp(`\\b${escapedKey}\\b`, "g"),
-          `<abbr title="${title}">${escapedDisplay}</abbr>`,
-        );
+      if (i % 2 === 1) return part; // tag segment — skip
+      for (const { re, title, escapedDisplay } of compiled) {
+        re.lastIndex = 0; // reset global regex state between segments
+        part = part.replace(re, `<abbr title="${title}">${escapedDisplay}</abbr>`);
       }
       return part;
     })

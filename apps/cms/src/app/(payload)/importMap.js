@@ -1,6 +1,9 @@
 import { RscEntryLexicalCell as RscEntryLexicalCell_44fe37237e0ebf4470c9990d8cb7b07e } from '@payloadcms/richtext-lexical/rsc'
 import { RscEntryLexicalField as RscEntryLexicalField_44fe37237e0ebf4470c9990d8cb7b07e } from '@payloadcms/richtext-lexical/rsc'
 import { LexicalDiffComponent as LexicalDiffComponent_44fe37237e0ebf4470c9990d8cb7b07e } from '@payloadcms/richtext-lexical/rsc'
+import { AbbreviationsFeatureClient as AbbreviationsFeatureClient_ead680cf591245a4d5addcb2988c39bf } from '../../../../../packages/cms-core/dist/plugin/abbreviations/client'
+import { DefinitionListFeatureClient as DefinitionListFeatureClient_bfc2b04138ac545618d73ff8bbfa593d } from '../../../../../packages/cms-core/dist/plugin/definition-list/client'
+import { FootnotesFeatureClient as FootnotesFeatureClient_9b6558a56fc442740d63c7a32dc7afbd } from '../../../../../packages/cms-core/dist/plugin/footnotes/client'
 import { MarkdownPasteFeatureClient as MarkdownPasteFeatureClient_92632001a8c39848084fd97352373031 } from '../../../../../packages/cms-core/dist/plugin/markdown-paste/client'
 import { EmojiShortcodesFeatureClient as EmojiShortcodesFeatureClient_ea87c692df8339e760f603b87f3ee113 } from '../../../../../packages/cms-core/dist/plugin/emoji-shortcodes/client'
 import { SuperscriptFeatureClient as SuperscriptFeatureClient_e70f5e05f09f93e00b997edb1ef0c864 } from '@payloadcms/richtext-lexical/client'
@@ -58,6 +61,9 @@ export const importMap = {
   "@payloadcms/richtext-lexical/rsc#RscEntryLexicalCell": RscEntryLexicalCell_44fe37237e0ebf4470c9990d8cb7b07e,
   "@payloadcms/richtext-lexical/rsc#RscEntryLexicalField": RscEntryLexicalField_44fe37237e0ebf4470c9990d8cb7b07e,
   "@payloadcms/richtext-lexical/rsc#LexicalDiffComponent": LexicalDiffComponent_44fe37237e0ebf4470c9990d8cb7b07e,
+  "./plugin/abbreviations/client#AbbreviationsFeatureClient": AbbreviationsFeatureClient_ead680cf591245a4d5addcb2988c39bf,
+  "./plugin/definition-list/client#DefinitionListFeatureClient": DefinitionListFeatureClient_bfc2b04138ac545618d73ff8bbfa593d,
+  "./plugin/footnotes/client#FootnotesFeatureClient": FootnotesFeatureClient_9b6558a56fc442740d63c7a32dc7afbd,
   "./plugin/markdown-paste/client#MarkdownPasteFeatureClient": MarkdownPasteFeatureClient_92632001a8c39848084fd97352373031,
   "./plugin/emoji-shortcodes/client#EmojiShortcodesFeatureClient": EmojiShortcodesFeatureClient_ea87c692df8339e760f603b87f3ee113,
   "@payloadcms/richtext-lexical/client#SuperscriptFeatureClient": SuperscriptFeatureClient_e70f5e05f09f93e00b997edb1ef0c864,

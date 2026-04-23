@@ -31,6 +31,7 @@ export const collectAbbreviationReplacements: MarkdownPreprocessRule = ({
 
   while ((match = ABBR_DEF_RE.exec(markdown)) !== null) {
     const abbr = match[1]!.trim();
+    if (!abbr) continue;
     const expansion = match[2]!.trim();
     abbreviations[abbr] = expansion;
 
