@@ -13,11 +13,10 @@
   },
   "exports": {
     ".": "./dist/index.mjs",
+    "./server": "./dist/server.mjs",
+    "./client": "./dist/client.mjs",
     "./plugin": "./dist/plugin.mjs",
-    "./types": "./dist/types.mjs",
-    "./endpoints": "./dist/endpoints.mjs",
-    "./feature/server": "./dist/feature/server.mjs",
-    "./feature/client": "./dist/feature/client.mjs"
+    "./endpoints": "./dist/endpoints/index.mjs"
   },
   "dependencies": {
     "@payloadcms/richtext-lexical": "3.82.1",

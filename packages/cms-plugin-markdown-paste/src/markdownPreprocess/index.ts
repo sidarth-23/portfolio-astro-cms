@@ -1,10 +1,6 @@
-import { MARKDOWN_PREPROCESS_RULES } from "./markdownPreprocess/rules";
-import type { MarkdownReplacement } from "./markdownPreprocess/types";
-import {
-  applyMarkdownReplacements,
-  parseMarkdown,
-  pushReplacement,
-} from "./markdownPreprocess/utils";
+import { MARKDOWN_PREPROCESS_RULES } from "./rules";
+import type { MarkdownReplacement } from "./types";
+import { applyMarkdownReplacements, parseMarkdown, pushReplacement } from "./utils";
 
 export const preprocessMarkdownForPayload = (markdown: string): string => {
   if (!markdown.trim()) {

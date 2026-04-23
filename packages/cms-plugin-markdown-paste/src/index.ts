@@ -1,5 +1,4 @@
 export { markdownPastePlugin } from "./plugin";
-export { MarkdownPasteFeature } from "./feature/server";
-export { MarkdownPasteFeatureClient } from "./feature/client";
-export { convertMarkdownEndpoint } from "./convertMarkdown";
-export { importMediaFromUrlEndpoint } from "./importMediaFromUrl";
+export { MarkdownPasteFeature } from "./server";
+export { MarkdownPasteFeatureClient } from "./client";
+export { convertMarkdownEndpoint, importMediaFromUrlEndpoint } from "./endpoints";

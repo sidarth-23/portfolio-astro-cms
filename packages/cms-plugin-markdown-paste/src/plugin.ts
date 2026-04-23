@@ -1,7 +1,7 @@
 import type { Config, Endpoint, Plugin } from "payload";
 
-import { convertMarkdownEndpoint } from "./convertMarkdown";
-import { importMediaFromUrlEndpoint } from "./importMediaFromUrl";
+import { convertMarkdownEndpoint } from "./endpoints/convertMarkdown";
+import { importMediaFromUrlEndpoint } from "./endpoints/importMediaFromUrl";
 
 export const markdownPastePlugin = (): Plugin => {
   return (incomingConfig: Config): Config => {

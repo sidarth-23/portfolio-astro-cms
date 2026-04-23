@@ -4,7 +4,7 @@ import {
   createMinimalRichTextEditor as createEditorMinimal,
 } from "@sidshub/cms-editor/cms";
 import { FootnotesFeature } from "@sidshub/cms-feature-footnotes/server";
-import { MarkdownPasteFeature } from "@sidshub/cms-plugin-markdown-paste/feature/server";
+import { MarkdownPasteFeature } from "@sidshub/cms-plugin-markdown-paste/server";
 
 import { EmojiShortcodesFeature } from "@/plugin/emoji-shortcodes/server";
 

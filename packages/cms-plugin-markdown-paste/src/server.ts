@@ -6,6 +6,6 @@ import "./client";
 export const MarkdownPasteFeature = createServerFeature({
   key: "markdownPaste",
   feature: {
-    ClientFeature: "@sidshub/cms-plugin-markdown-paste/feature/client#MarkdownPasteFeatureClient",
+    ClientFeature: "@sidshub/cms-plugin-markdown-paste/client#MarkdownPasteFeatureClient",
   },
 });

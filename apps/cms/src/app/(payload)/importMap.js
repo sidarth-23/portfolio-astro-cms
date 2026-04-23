@@ -2,7 +2,7 @@ import { RscEntryLexicalCell as RscEntryLexicalCell_44fe37237e0ebf4470c9990d8cb7
 import { RscEntryLexicalField as RscEntryLexicalField_44fe37237e0ebf4470c9990d8cb7b07e } from '@payloadcms/richtext-lexical/rsc'
 import { LexicalDiffComponent as LexicalDiffComponent_44fe37237e0ebf4470c9990d8cb7b07e } from '@payloadcms/richtext-lexical/rsc'
 import { FootnotesFeatureClient as FootnotesFeatureClient_d98fd66331a6ba3867d9c6e3c0453344 } from '@sidshub/cms-feature-footnotes/client'
-import { MarkdownPasteFeatureClient as MarkdownPasteFeatureClient_b87ede84785a033cd20faf4974b5aa7b } from '@sidshub/cms-plugin-markdown-paste/feature/client'
+import { MarkdownPasteFeatureClient as MarkdownPasteFeatureClient_4f45e25ed14d9e004c977c08a2e0ec54 } from '@sidshub/cms-plugin-markdown-paste/client'
 import { EmojiShortcodesFeatureClient as EmojiShortcodesFeatureClient_ea87c692df8339e760f603b87f3ee113 } from '../../../../../packages/cms-core/dist/plugin/emoji-shortcodes/client'
 import { SuperscriptFeatureClient as SuperscriptFeatureClient_e70f5e05f09f93e00b997edb1ef0c864 } from '@payloadcms/richtext-lexical/client'
 import { SubscriptFeatureClient as SubscriptFeatureClient_e70f5e05f09f93e00b997edb1ef0c864 } from '@payloadcms/richtext-lexical/client'
@@ -60,7 +60,7 @@ export const importMap = {
   "@payloadcms/richtext-lexical/rsc#RscEntryLexicalField": RscEntryLexicalField_44fe37237e0ebf4470c9990d8cb7b07e,
   "@payloadcms/richtext-lexical/rsc#LexicalDiffComponent": LexicalDiffComponent_44fe37237e0ebf4470c9990d8cb7b07e,
   "@sidshub/cms-feature-footnotes/client#FootnotesFeatureClient": FootnotesFeatureClient_d98fd66331a6ba3867d9c6e3c0453344,
-  "@sidshub/cms-plugin-markdown-paste/feature/client#MarkdownPasteFeatureClient": MarkdownPasteFeatureClient_b87ede84785a033cd20faf4974b5aa7b,
+  "@sidshub/cms-plugin-markdown-paste/client#MarkdownPasteFeatureClient": MarkdownPasteFeatureClient_4f45e25ed14d9e004c977c08a2e0ec54,
   "./plugin/emoji-shortcodes/client#EmojiShortcodesFeatureClient": EmojiShortcodesFeatureClient_ea87c692df8339e760f603b87f3ee113,
   "@payloadcms/richtext-lexical/client#SuperscriptFeatureClient": SuperscriptFeatureClient_e70f5e05f09f93e00b997edb1ef0c864,
   "@payloadcms/richtext-lexical/client#SubscriptFeatureClient": SubscriptFeatureClient_e70f5e05f09f93e00b997edb1ef0c864,

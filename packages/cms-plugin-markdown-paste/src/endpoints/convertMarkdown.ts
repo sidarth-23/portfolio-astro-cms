@@ -1,8 +1,8 @@
 import { convertMarkdownToLexical, editorConfigFactory } from "@payloadcms/richtext-lexical";
 import type { Endpoint, FlattenedField, RichTextField } from "payload";
 
-import { preprocessMarkdownForPayload } from "./markdownPreprocess";
-import { replaceMarkdownImageUrlsWithMediaReferences } from "./markdown-paste/markdownImageUtils";
+import { preprocessMarkdownForPayload } from "../markdownPreprocess";
+import { replaceMarkdownImageUrlsWithMediaReferences } from "../plugins/markdownImageUtils";
 
 type ConvertMarkdownRequestBody = {
   collectionSlug?: unknown;
