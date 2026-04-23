@@ -13,8 +13,8 @@
   },
   "scripts": {
     "dev": "bun run dev:web",
-    "dev:web": "turbo run dev --filter=@sidshub/web...",
-    "dev:cms": "turbo run dev --filter=@sidshub/cms...",
+    "dev:web": "turbo run dev --filter=@sidshub/web",
+    "dev:cms": "turbo run dev --filter=@sidshub/cms",
     "build": "turbo run build --filter=@sidshub/web --filter=@sidshub/cms",
     "build:web": "turbo run build --filter=@sidshub/web",
     "build:test:web": "turbo run build:test --filter=@sidshub/web",

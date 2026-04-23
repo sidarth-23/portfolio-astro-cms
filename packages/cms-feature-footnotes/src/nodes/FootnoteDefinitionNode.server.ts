@@ -46,6 +46,7 @@ export class FootnoteDefinitionServerNode extends ElementNode {
     const el = document.createElement("div");
     el.setAttribute("data-footnote-id", this.__footnoteId);
     el.classList.add("footnote-definition");
+    el.style.display = "none";
     return el;
   }
   updateDOM(): boolean {

@@ -26,8 +26,7 @@ export class FootnoteDefinitionNode extends FootnoteDefinitionServerNode {
     const el = document.createElement("div");
     el.setAttribute("data-footnote-id", this.__footnoteId);
     el.classList.add("footnote-definition");
-    // Show a small label for the editor UI
-    el.setAttribute("data-footnote-label", `[^${this.__footnoteId}]:`);
+    el.style.display = "none";
     return el;
   }
 

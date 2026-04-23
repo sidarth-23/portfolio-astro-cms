@@ -179,12 +179,13 @@
 }
 
 .footnote-backrefs {
+  display: inline-flex;
+  gap: 0.25rem;
   margin-left: 0.35rem;
   white-space: nowrap;
 }
 
 .footnote-backref {
-  margin-left: 0.2rem;
   font-size: 0.85em;
   text-decoration: none;
 }

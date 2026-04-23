@@ -20,9 +20,10 @@ export class FootnoteReferenceNode extends FootnoteReferenceServerNode {
     return $createFootnoteReferenceNode(s.footnoteId);
   }
   decorate(): React.ReactElement {
+    const encodedId = encodeURIComponent(this.__footnoteId);
     return (
       <sup className="footnote-ref" data-footnote-id={this.__footnoteId}>
-        <a href={`#fn-${this.__footnoteId}`} id={`fnref-${this.__footnoteId}`}>
+        <a data-footnote-id={this.__footnoteId} href={`#fn-${encodedId}`}>
           {this.__footnoteId}
         </a>
       </sup>
