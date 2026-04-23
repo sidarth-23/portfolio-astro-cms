@@ -1,4 +1,4 @@
-import type { SeoFieldMapping } from "../types";
+import type { SeoFieldMapping } from "../../types";
 
 export function extractFieldValue(data: Record<string, unknown>, fieldName: string): string {
   const parts = fieldName.split(".");

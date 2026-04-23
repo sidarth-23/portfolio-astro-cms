@@ -1,6 +1,6 @@
 import type { Payload } from "payload";
 
-import type { SidebarIconDiagnostic } from "../types";
+import type { SidebarIconDiagnostic } from "../../types";
 import { parseIconValueStrict, isSimpleIconSlug, isPhosphorIconName } from "./iconUtils";
 
 // ---- Types ----

@@ -13,9 +13,9 @@
   },
   "exports": {
     ".": "./dist/index.mjs",
-    "./plugin": "./dist/plugin.mjs",
-    "./types": "./dist/types.mjs",
-    "./ui": "./dist/ui.mjs"
+    "./plugin": "./dist/plugin/index.mjs",
+    "./types": "./dist/types/index.mjs",
+    "./ui": "./dist/ui/index.mjs"
   },
   "dependencies": {
     "@payloadcms/ui": "3.82.1",

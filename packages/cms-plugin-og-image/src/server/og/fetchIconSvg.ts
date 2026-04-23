@@ -1,4 +1,4 @@
-import type { IconFetchFailureReason } from "../types";
+import type { IconFetchFailureReason } from "../../types";
 import {
   parseIconValueStrict,
   isSimpleIconSlug,

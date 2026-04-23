@@ -5,7 +5,7 @@ import type {
   OgGenerationMode,
   OgGenerationResult,
   OgTarget,
-} from "../types";
+} from "../../types";
 import { fetchIconSvg, svgToDataUri } from "./fetchIconSvg";
 import { ensureOgFolder } from "./ensureOgFolder";
 import {

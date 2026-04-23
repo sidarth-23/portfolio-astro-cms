@@ -2,7 +2,7 @@ import { createElement } from "react";
 import satori from "satori";
 import sharp from "sharp";
 
-import type { OgTemplateProps } from "../types";
+import type { OgTemplateProps } from "../../types";
 import { OgTemplate } from "./ogTemplate";
 import { loadOgFonts } from "./loadFonts";
 

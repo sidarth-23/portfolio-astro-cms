@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import type { OgGenerationMode, OgGenerationResult } from "./types";
+import type { OgGenerationMode, OgGenerationResult } from "../../types";
 
 export function OgGeneratorCard() {
   const [mode, setMode] = useState<OgGenerationMode>("unset-only");

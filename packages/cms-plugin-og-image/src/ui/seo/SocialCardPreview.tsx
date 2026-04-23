@@ -54,6 +54,7 @@ export function SocialCardPreview({ siteUrl }: Props) {
 
   const [href, setHref] = useState<string | undefined>();
   const [imageUrl, setImageUrl] = useState<string | null>(null);
+  const slugValue = (fields as Record<string, { value: unknown }>)["slug"]?.value;
 
   // Track the last image ID we fetched so we don't re-fetch on unrelated field changes
   const lastFetchedImageId = useRef<string | number | null>(null);
@@ -86,7 +87,20 @@ export function SocialCardPreview({ siteUrl }: Props) {
 
     void fetchHref();
     // Re-fetch when the document slug changes (via form field changes)
-  }, [(fields as Record<string, { value: unknown }>)["slug"]?.value]);
+  }, [
+    api,
+    docInfo.collectionSlug,
+    docInfo.docPermissions,
+    docInfo.globalSlug,
+    docInfo.hasPublishPermission,
+    docInfo.hasSavePermission,
+    docInfo.id,
+    docInfo.initialData,
+    docInfo.initialState,
+    getData,
+    locale,
+    slugValue,
+  ]);
 
   // Resolve the OG image URL from the meta.image field
   useEffect(() => {
@@ -125,7 +139,7 @@ export function SocialCardPreview({ siteUrl }: Props) {
       setImageUrl(null);
       lastFetchedImageId.current = null;
     }
-  }, [metaImageValue, docInfo.initialData]);
+  }, [api, docInfo.initialData, metaImageValue, serverURL]);
 
   const displayHost = siteUrl ? toDisplayHost(siteUrl) : href ? toDisplayHost(href) : "";
   const displayTitle = metaTitle as string | undefined;

@@ -1,7 +1,7 @@
 import type { CollectionConfig, Field, GlobalConfig, GroupField, TabsField } from "payload";
 import type { CollectionBeforeChangeHook } from "payload";
 import type { SeoFieldMapping } from "../types";
-import { proposeSeoMetaValues } from "./seoFieldMapping";
+import { proposeSeoMetaValues } from "../ui/seo/seoFieldMapping";
 
 // ---- Social Card Preview injection ----
 

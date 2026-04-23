@@ -1,7 +1,7 @@
 import type { Config, Field, Plugin } from "payload";
 
-import type { CollectionOgTarget, GlobalOgTarget, OgImagePluginOptions, OgTarget } from "./types";
-import { detectSeoCollections, detectSeoGlobals, validateSeoPluginPresence } from "./lib/detectSeo";
+import type { CollectionOgTarget, GlobalOgTarget, OgImagePluginOptions, OgTarget } from "../types";
+import { detectSeoCollections, detectSeoGlobals, validateSeoPluginPresence } from "./detectSeo";
 import {
   injectAutoPopulationHook,
   injectSeoButtons,
@@ -10,8 +10,8 @@ import {
   makeSeoFieldsRequired,
   makeSeoFieldsRequiredGlobal,
   resolveButtonMode,
-} from "./lib/configTransforms";
-import { createGenerateOgImagesEndpoint } from "./endpoints/generate";
+} from "./configTransforms";
+import { createGenerateOgImagesEndpoint } from "../server/endpoints/generate";
 
 export function ogImagePlugin(options: OgImagePluginOptions): Plugin {
   return (incomingConfig: Config): Config => {

@@ -18,9 +18,9 @@ import {
 import { formatAdminURL } from "payload/shared";
 import * as qs from "qs-esm";
 
-import { computeSeoCheck, type SeoCheckResult } from "../lib/computeSeoCheck";
+import { computeSeoCheck, type SeoCheckResult } from "./computeSeoCheck";
 import { SeoConfirmModal } from "./SeoConfirmModal";
-import type { SeoFieldMapping } from "../types";
+import type { SeoFieldMapping } from "../../types";
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -108,7 +108,7 @@ export function SeoSaveButton({ mapping }: { mapping?: SeoFieldMapping | null } 
     } else {
       await submit();
     }
-  }, [uploadStatus, getData, openModal, drawerSlug, submit]);
+  }, [uploadStatus, getData, mapping, openModal, drawerSlug, submit]);
 
   useHotkey({ cmdCtrlKey: true, editDepth, keyCodes: ["s"] }, (e) => {
     if (disabled) {
@@ -272,6 +272,7 @@ export function SeoPublishButton({ mapping }: { mapping?: SeoFieldMapping | null
     setUnpublishedVersionCount,
     setMostRecentVersionIsAutosaved,
     setHasPublishedDoc,
+    mapping,
   ]);
 
   if (!hasPublishPermission) {
@@ -423,6 +424,7 @@ export function SeoSaveDraftButton({ mapping }: { mapping?: SeoFieldMapping | nu
     id,
     submit,
     setUnpublishedVersionCount,
+    mapping,
   ]);
 
   useHotkey({ cmdCtrlKey: true, editDepth, keyCodes: ["s"] }, (e) => {

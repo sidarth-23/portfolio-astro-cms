@@ -1,7 +1,7 @@
 import { readFile } from "fs/promises";
 import path from "path";
 import { fileURLToPath } from "url";
-import type { SatoriFont } from "../types";
+import type { SatoriFont } from "../../types";
 
 const dirname = path.dirname(fileURLToPath(import.meta.url));
 const FONTS_DIR = path.resolve(dirname, "fonts");

@@ -1,5 +1,5 @@
 import type { Endpoint } from "payload";
-import type { OgGenerationMode, OgTarget } from "../types";
+import type { OgGenerationMode, OgTarget } from "../../types";
 import { generateOgImages } from "../og";
 
 type EndpointOptions = {

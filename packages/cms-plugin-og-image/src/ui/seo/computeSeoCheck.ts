@@ -1,4 +1,4 @@
-import type { SeoFieldMapping } from "../types";
+import type { SeoFieldMapping } from "../../types";
 import { proposeSeoMetaValues, getMetaDifferences } from "./seoFieldMapping";
 
 export type SeoCheckResult = {

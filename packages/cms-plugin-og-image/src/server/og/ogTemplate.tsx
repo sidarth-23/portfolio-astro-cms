@@ -1,5 +1,5 @@
 import type { ReactElement } from "react";
-import type { OgTemplateProps } from "../types";
+import type { OgTemplateProps } from "../../types";
 
 export type { OgTemplateProps };
 
