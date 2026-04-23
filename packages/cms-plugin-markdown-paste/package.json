@@ -16,7 +16,9 @@
     "./server": "./dist/server.mjs",
     "./client": "./dist/client.mjs",
     "./plugin": "./dist/plugin.mjs",
-    "./endpoints": "./dist/endpoints/index.mjs"
+    "./endpoints": "./dist/endpoints/index.mjs",
+    "./contracts": "./dist/contracts.mjs",
+    "./options": "./dist/options.mjs"
   },
   "dependencies": {
     "@payloadcms/richtext-lexical": "3.82.1",

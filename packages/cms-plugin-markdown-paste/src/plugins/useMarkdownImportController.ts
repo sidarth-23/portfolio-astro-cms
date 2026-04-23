@@ -21,6 +21,7 @@ import {
   getUniqueMarkdownImages,
   parseMarkdownImages,
 } from "./markdownImageUtils";
+import { convertMarkdown, importMediaByUrl, type ImportMediaApiResult } from "./markdownImportApi";
 
 type MarkdownImportState = {
   error: string | null;
@@ -50,19 +51,6 @@ type UseMarkdownImportControllerArgs = {
   initialMarkdown: string;
   onClose: () => void;
 };
-
-type ImportMediaResult =
-  | {
-      error?: undefined;
-      mediaId: string;
-      ok: true;
-      url: string;
-    }
-  | {
-      error?: string;
-      ok: false;
-      url: string;
-    };
 
 export type MarkdownImportControllerValue = {
   error: string | null;
@@ -251,54 +239,19 @@ export const useMarkdownImportController = ({
   }, []);
 
   const importMediaFromUrl = useCallback(
-    async (url: string): Promise<ImportMediaResult> => {
+    async (url: string): Promise<ImportMediaApiResult> => {
       const image = imageByUrl.get(url);
       const alt = (image?.alt || deriveAltFromUrl(url)).trim();
 
-      try {
-        const response = await fetch(mediaImportEndpoint, {
-          body: JSON.stringify({
-            alt,
-            updateExistingMetadata: false,
-            url,
-          }),
-          credentials: "include",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          method: "POST",
-        });
-
-        const payload = (await response.json().catch(() => ({}))) as {
-          error?: string;
-          mediaId?: number | string;
-          ok?: boolean;
-        };
-
-        if (
-          !response.ok ||
-          payload.ok === false ||
-          payload.mediaId === null ||
-          payload.mediaId === undefined
-        ) {
-          return {
-            error:
-              typeof payload.error === "string" && payload.error.trim().length > 0
-                ? payload.error
-                : `Request failed with status ${response.status}`,
-            ok: false,
-            url,
-          };
-        }
-
-        return {
-          mediaId: String(payload.mediaId),
-          ok: true,
+      return importMediaByUrl({
+        endpoint: mediaImportEndpoint,
+        payload: {
+          alt,
+          updateExistingMetadata: false,
           url,
-        };
-      } catch {
-        return { error: "Network request failed.", ok: false, url };
-      }
+        },
+        url,
+      });
     },
     [imageByUrl, mediaImportEndpoint],
   );
@@ -412,38 +365,26 @@ export const useMarkdownImportController = ({
         }
 
         // Delegate conversion to the server — Payload handles all feature transformers
-        const response = await fetch(convertMarkdownEndpoint, {
-          body: JSON.stringify({
-            collectionSlug,
+        const conversion = await convertMarkdown({
+          endpoint: convertMarkdownEndpoint,
+          payload: {
+            ...(collectionSlug ? { collectionSlug } : {}),
             fieldName,
-            globalSlug,
+            ...(globalSlug ? { globalSlug } : {}),
             markdown: state.markdown,
             preparedMediaByUrl: Object.fromEntries(mediaIdByUrl),
-          }),
-          credentials: "include",
-          headers: { "Content-Type": "application/json" },
-          method: "POST",
+          },
         });
 
-        const responsePayload = (await response.json().catch(() => ({}))) as {
-          error?: string;
-          lexicalState?: { root?: { children?: unknown[] } };
-          ok?: boolean;
-        };
-
-        if (!response.ok || responsePayload.ok === false) {
+        if (!conversion.ok) {
           dispatch({
             type: "setError",
-            value:
-              typeof responsePayload.error === "string" && responsePayload.error.trim()
-                ? responsePayload.error
-                : `Conversion failed with status ${response.status}`,
+            value: conversion.error,
           });
           return;
         }
 
-        const serializedChildren = (responsePayload.lexicalState?.root?.children ??
-          []) as SerializedLexicalNode[];
+        const serializedChildren = conversion.lexicalChildren as SerializedLexicalNode[];
 
         editor.update(() => {
           const selection = $getSelection();
