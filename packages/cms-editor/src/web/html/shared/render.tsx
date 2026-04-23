@@ -26,6 +26,43 @@ import type {
   RichTextValue,
 } from "../types";
 
+// ---------------------------------------------------------------------------
+// Footnote node shapes (serialized from Lexical)
+// ---------------------------------------------------------------------------
+
+type SerializedFootnoteReferenceNode = {
+  type: "footnote-reference";
+  footnoteId: string;
+  version: number;
+};
+
+type SerializedFootnoteDefinitionNode = {
+  type: "footnote-definition";
+  footnoteId: string;
+  children: unknown[];
+  format: number;
+  indent: number;
+  direction: "ltr" | "rtl" | null;
+  version: number;
+};
+
+// ---------------------------------------------------------------------------
+// Helpers
+// ---------------------------------------------------------------------------
+
+const escapeHtml = (s: string): string =>
+  s.replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+
+const collectFootnoteDefinitions = (data: RichTextValue): SerializedFootnoteDefinitionNode[] => {
+  if (!Array.isArray(data?.root?.children)) return [];
+  return data.root.children.filter(
+    (n): n is SerializedFootnoteDefinitionNode =>
+      typeof n === "object" &&
+      n !== null &&
+      (n as { type?: string }).type === "footnote-definition",
+  );
+};
+
 type Props = {
   title?: string | null;
   contentHtml: string;
@@ -105,6 +142,12 @@ export function createRichTextRenderer(components: BlockComponents) {
         },
         ...LinkHTMLConverterAsync({ internalDocToHref }),
         ...createHeadingConverters(),
+        "footnote-reference": ({ node }) => {
+          const fn = node as unknown as SerializedFootnoteReferenceNode;
+          const id = escapeHtml(fn.footnoteId);
+          return `<sup class="footnote-ref"><a href="#fn-${id}" id="fnref-${id}">${id}</a></sup>`;
+        },
+        "footnote-definition": () => "",
         blocks: {
           ...(defaultConverters.blocks ?? {}),
           callout: async ({ node }: { node: SerializedBlockNode<Record<string, unknown>> }) => {
@@ -210,12 +253,46 @@ export function createRichTextRenderer(components: BlockComponents) {
       };
     };
 
-    return convertLexicalToHTMLAsync({
+    const mainHtml = await convertLexicalToHTMLAsync({
       className,
       converters: htmlConverters,
       data,
       disableContainer: !enableContainer,
     });
+
+    // Collect footnote definitions and append a footnotes section if any exist.
+    const footnoteDefs = collectFootnoteDefinitions(data);
+    if (footnoteDefs.length === 0) {
+      return mainHtml;
+    }
+
+    const definitionItems = await Promise.all(
+      footnoteDefs.map(async (fn) => {
+        const id = escapeHtml(fn.footnoteId);
+        // Render the definition body as rich text (re-uses the same config / converters).
+        const bodyHtml = await renderRichTextToHTML(
+          {
+            data: {
+              root: {
+                type: "root",
+                children: fn.children as RichTextValue["root"]["children"],
+                format: "",
+                indent: 0,
+                version: 1,
+                direction: fn.direction,
+              },
+            },
+            enableContainer: false,
+          },
+          config,
+        );
+        return `<li id="fn-${id}" class="footnote-item">${bodyHtml}<span class="footnote-backrefs"><a href="#fnref-${id}" class="footnote-backref">↩</a></span></li>`;
+      }),
+    );
+
+    const footnotesSection = `<section class="footnotes"><h2 class="footnotes-title">Footnotes</h2><ol>${definitionItems.join("")}</ol></section>`;
+
+    return mainHtml + footnotesSection;
   };
 
   const renderBlock = async (
