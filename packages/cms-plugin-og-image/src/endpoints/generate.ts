@@ -1,9 +1,15 @@
 import type { Endpoint } from "payload";
-import { OgGenerationMode, generateOgImages } from "@/lib/og";
+import type { OgGenerationMode, OgTarget } from "../types";
+import { generateOgImages } from "../og";
 
-export const generateOgImagesEndpoint = (siteUrl?: string): Endpoint => {
+type EndpointOptions = {
+  targets: OgTarget[];
+  siteUrl?: string;
+};
+
+export function createGenerateOgImagesEndpoint({ targets, siteUrl }: EndpointOptions): Endpoint {
   return {
-    path: "/og-image/generate",
+    path: "/og-image/v1/generate",
     method: "post",
     handler: async (req) => {
       if (!req.user) {
@@ -21,7 +27,10 @@ export const generateOgImagesEndpoint = (siteUrl?: string): Endpoint => {
       }
 
       try {
-        const result = await generateOgImages(req.payload, mode, { siteUrl, wipeOldImages });
+        const result = await generateOgImages(req.payload, targets, mode, {
+          siteUrl,
+          wipeOldImages,
+        });
         return Response.json(result);
       } catch (error) {
         const message = error instanceof Error ? error.message : String(error);
@@ -29,4 +38,4 @@ export const generateOgImagesEndpoint = (siteUrl?: string): Endpoint => {
       }
     },
   };
-};
+}

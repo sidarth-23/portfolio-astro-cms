@@ -1,5 +1,9 @@
 import type { Payload } from "payload";
-import { OG_TARGETS, SEO_COLLECTIONS, SEO_GLOBALS } from "../registry";
+import { SEO_COLLECTIONS, SEO_GLOBALS } from "../registry";
+
+// Folder names used by the OG image plugin for generated images.
+// Keep in sync with ogImagePlugin's defaultFolderName option in builder.ts.
+const OG_FOLDER_NAMES = ["Auto Generated"];
 
 // ---------------------------------------------------------------------------
 // Public types
@@ -39,13 +43,7 @@ function resolveId(value: unknown): string | null {
   return null;
 }
 
-const getMappedOgFolderNames = (): string[] => {
-  const names = OG_TARGETS.map((target) => target.folderName?.trim()).filter(
-    (name): name is string => Boolean(name),
-  );
-
-  return [...new Set(names)];
-};
+const getMappedOgFolderNames = (): string[] => OG_FOLDER_NAMES;
 
 /**
  * Recursively walk a Lexical JSON node tree and collect referenced media IDs.

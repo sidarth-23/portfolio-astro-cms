@@ -1,16 +1,5 @@
-/**
- * computeSeoCheck
- *
- * Pure utility (no React, no server-only code) that computes whether SEO
- * metadata differences exist between the current saved meta and the values
- * that would be proposed from the document's source fields.
- *
- * Returns null when there is nothing actionable (no mapping, no meta, empty
- * meta — the server hook handles that case — or no differences).
- * Returns a SeoCheckResult when the client should offer to update meta.
- */
-
-import { getSeoFieldMapping, proposeSeoMetaValues, getMetaDifferences } from "./seoFieldMapping";
+import type { SeoFieldMapping } from "../types";
+import { proposeSeoMetaValues, getMetaDifferences } from "./seoFieldMapping";
 
 export type SeoCheckResult = {
   differences: {
@@ -32,24 +21,18 @@ export type SeoCheckResult = {
 };
 
 /**
- * Compute an SEO check for the given collection + document data.
+ * Compute an SEO check for the given collection data and field mapping.
  *
- * @param collectionSlug - The Payload collection slug (e.g. "posts", "projects", "series")
- * @param data           - The full document data object
- * @returns SeoCheckResult when actionable differences exist, null otherwise
+ * Returns null when there is nothing actionable (no mapping, no meta, empty
+ * meta — the server hook handles that case — or no differences).
+ * Returns a SeoCheckResult when the client should offer to update meta.
  */
 export function computeSeoCheck(
-  collectionSlug: string | undefined,
+  mapping: SeoFieldMapping | undefined | null,
   data: Record<string, unknown>,
 ): SeoCheckResult | null {
-  // No slug — nothing to check
-  if (!collectionSlug) return null;
-
-  // No mapping for this collection
-  const mapping = getSeoFieldMapping(collectionSlug);
   if (!mapping) return null;
 
-  // No meta field at all
   if (!data.meta || typeof data.meta !== "object") return null;
 
   const existingMeta = data.meta as Record<string, unknown>;
@@ -62,7 +45,6 @@ export function computeSeoCheck(
   const proposedMeta = proposeSeoMetaValues(data, mapping);
   const differences = getMetaDifferences(existingMeta, proposedMeta);
 
-  // No actionable differences
   if (!differences.hasDifferences) return null;
 
   return {

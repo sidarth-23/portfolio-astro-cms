@@ -19,11 +19,14 @@
   },
   "dependencies": {
     "@payloadcms/ui": "3.82.1",
-    "@sidshub/cms-core": "workspace:*",
+    "@phosphor-icons/core": "^2.1.1",
     "payload": "3.82.1",
-    "qs-esm": "^7.0.1"
+    "qs-esm": "^7.0.1",
+    "satori": "^0.26.0",
+    "simple-icons": "^16.15.0"
   },
   "peerDependencies": {
+    "react": "*",
     "sharp": "*"
   },
   "devDependencies": {

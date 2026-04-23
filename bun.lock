@@ -84,6 +84,7 @@
         "@sidshub/cms-feature-footnotes": "workspace:*",
         "@sidshub/cms-plugin-deployment-log-view": "workspace:*",
         "@sidshub/cms-plugin-markdown-paste": "workspace:*",
+        "@sidshub/cms-plugin-og-image": "workspace:*",
         "gemoji": "^8.1.0",
         "markdown-it": "^14.1.1",
         "markdown-it-footnote": "^4.0.0",
@@ -94,8 +95,6 @@
         "payload": "3.82.1",
         "retext": "^9.0.0",
         "retext-smartypants": "^6.2.0",
-        "satori": "^0.26.0",
-        "simple-icons": "^16.15.0",
         "zod": "^3.24.1",
       },
       "devDependencies": {
@@ -177,15 +176,18 @@
       "version": "0.0.1",
       "dependencies": {
         "@payloadcms/ui": "3.82.1",
-        "@sidshub/cms-core": "workspace:*",
+        "@phosphor-icons/core": "^2.1.1",
         "payload": "3.82.1",
         "qs-esm": "^7.0.1",
+        "satori": "^0.26.0",
+        "simple-icons": "^16.15.0",
       },
       "devDependencies": {
         "@sidshub/dev-config": "workspace:*",
         "eslint": "^9.24.0",
       },
       "peerDependencies": {
+        "react": "*",
         "sharp": "*",
       },
     },

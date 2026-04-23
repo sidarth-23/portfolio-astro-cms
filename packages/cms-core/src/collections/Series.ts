@@ -1,6 +1,5 @@
 import type { CollectionConfig } from "payload";
 import { readAccess } from "@/access/readAccess";
-import { createSuggestMetadataAutoPopulationHook } from "@/hooks/suggestMetadataAutoPopulation";
 import { slugField } from "@/fields/slug";
 import { createPayloadDataSchemaHook, seriesSchema } from "@/lib/validation";
 
@@ -13,14 +12,8 @@ export const Series: CollectionConfig = {
     useAsTitle: "name",
     defaultColumns: ["name", "slug", "updatedAt"],
     group: "Taxonomy",
-    components: {
-      edit: {
-        SaveButton: "@sidshub/cms-plugin-og-image/ui#SeoSaveButton",
-      },
-    },
   },
   hooks: {
-    beforeChange: [createSuggestMetadataAutoPopulationHook("series")],
     beforeValidate: [
       createPayloadDataSchemaHook(seriesSchema, { errorPrefix: "Series validation failed:" }),
     ],

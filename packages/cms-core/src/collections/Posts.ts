@@ -3,7 +3,6 @@ import { createBasicRichTextEditor, createDocumentRichTextEditor } from "@/lib/e
 import { readAccess } from "@/access/readAccess";
 import { populateAuthors } from "@/hooks/populateAuthors";
 import { populateSeries } from "@/hooks/populateSeries";
-import { createSuggestMetadataAutoPopulationHook } from "@/hooks/suggestMetadataAutoPopulation";
 import { slugField } from "@/fields/slug";
 import { createPayloadDataSchemaHook, postsSchema } from "@/lib/validation";
 
@@ -16,15 +15,8 @@ export const Posts: CollectionConfig = {
     useAsTitle: "title",
     defaultColumns: ["title", "_status", "publishedAt", "updatedAt"],
     group: "Content",
-    components: {
-      edit: {
-        SaveDraftButton: "@sidshub/cms-plugin-og-image/ui#SeoSaveDraftButton",
-        PublishButton: "@sidshub/cms-plugin-og-image/ui#SeoPublishButton",
-      },
-    },
   },
   hooks: {
-    beforeChange: [createSuggestMetadataAutoPopulationHook("posts")],
     beforeValidate: [
       createPayloadDataSchemaHook(postsSchema, { errorPrefix: "Posts validation failed:" }),
     ],

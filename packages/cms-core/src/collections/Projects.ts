@@ -1,7 +1,6 @@
 import type { CollectionConfig } from "payload";
 import { createDocumentRichTextEditor } from "@/lib/editor";
 import { readAccess } from "@/access/readAccess";
-import { createSuggestMetadataAutoPopulationHook } from "@/hooks/suggestMetadataAutoPopulation";
 import { iconPickerField } from "@/fields/iconPicker";
 import { linkFields } from "@/fields/link";
 import { slugField } from "@/fields/slug";
@@ -16,15 +15,8 @@ export const Projects: CollectionConfig = {
     useAsTitle: "title",
     defaultColumns: ["title", "_status", "updatedAt"],
     group: "Content",
-    components: {
-      edit: {
-        PublishButton: "@sidshub/cms-plugin-og-image/ui#SeoPublishButton",
-        SaveDraftButton: "@sidshub/cms-plugin-og-image/ui#SeoSaveDraftButton",
-      },
-    },
   },
   hooks: {
-    beforeChange: [createSuggestMetadataAutoPopulationHook("projects")],
     beforeValidate: [
       createPayloadDataSchemaHook(projectsSchema, {
         errorPrefix: "Projects validation failed:",

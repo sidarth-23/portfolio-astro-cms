@@ -1,3 +1,13 @@
-export { createGenerateOgImagesEndpoint } from "./generateOgImages";
-export { OgGeneratorCard } from "./OgGeneratorCard";
-export { SocialCardPreview, SeoPublishButton, SeoSaveButton, SeoSaveDraftButton } from "./ui";
+export { ogImagePlugin } from "./plugin";
+export { collectionOverride, globalOverride } from "./types";
+export type {
+  OgImagePluginOptions,
+  CollectionOgOverride,
+  GlobalOgOverride,
+  SeoFieldMapping,
+  OgGenerationMode,
+  OgGenerationResult,
+  OgTarget,
+  CollectionOgTarget,
+  GlobalOgTarget,
+} from "./types";

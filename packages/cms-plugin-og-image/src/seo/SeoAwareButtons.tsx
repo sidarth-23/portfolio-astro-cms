@@ -18,8 +18,9 @@ import {
 import { formatAdminURL } from "payload/shared";
 import * as qs from "qs-esm";
 
-import { computeSeoCheck, type SeoCheckResult } from "../computeSeoCheck";
+import { computeSeoCheck, type SeoCheckResult } from "../lib/computeSeoCheck";
 import { SeoConfirmModal } from "./SeoConfirmModal";
+import type { SeoFieldMapping } from "../types";
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -39,7 +40,7 @@ function extractChangedFields(
 // SeoSaveButton — for Series (no drafts), replicates SaveButton
 // ---------------------------------------------------------------------------
 
-export function SeoSaveButton() {
+export function SeoSaveButton({ mapping }: { mapping?: SeoFieldMapping | null } = {}) {
   const { uploadStatus } = useDocumentInfo();
   const { t } = useTranslation();
   const { submit, getData } = useForm();
@@ -47,7 +48,6 @@ export function SeoSaveButton() {
   const ref = useRef<HTMLButtonElement>(null);
   const editDepth = useEditDepth();
   const operation = useOperation();
-  const { collectionSlug } = useDocumentInfo();
 
   const drawerSlug = useDrawerSlug("seo-confirm-save");
   const { openModal, modalState } = useModal();
@@ -81,7 +81,7 @@ export function SeoSaveButton() {
     }
 
     const data = getData();
-    const check = computeSeoCheck(collectionSlug, data as Record<string, unknown>);
+    const check = computeSeoCheck(mapping, data as Record<string, unknown>);
 
     if (!check) {
       await submit();
@@ -108,7 +108,7 @@ export function SeoSaveButton() {
     } else {
       await submit();
     }
-  }, [uploadStatus, getData, collectionSlug, openModal, drawerSlug, submit]);
+  }, [uploadStatus, getData, openModal, drawerSlug, submit]);
 
   useHotkey({ cmdCtrlKey: true, editDepth, keyCodes: ["s"] }, (e) => {
     if (disabled) {
@@ -149,7 +149,7 @@ export function SeoSaveButton() {
 // SeoPublishButton — for Posts/Projects (with drafts), replicates PublishButton
 // ---------------------------------------------------------------------------
 
-export function SeoPublishButton() {
+export function SeoPublishButton({ mapping }: { mapping?: SeoFieldMapping | null } = {}) {
   const {
     id,
     collectionSlug,
@@ -208,7 +208,7 @@ export function SeoPublishButton() {
     }
 
     const data = getData();
-    const check = computeSeoCheck(collectionSlug, data as Record<string, unknown>);
+    const check = computeSeoCheck(mapping, data as Record<string, unknown>);
 
     let seoOverrides: Record<string, unknown> | undefined;
 
@@ -303,7 +303,7 @@ export function SeoPublishButton() {
 // SeoSaveDraftButton — for Posts/Projects (with drafts), replicates SaveDraftButton
 // ---------------------------------------------------------------------------
 
-export function SeoSaveDraftButton() {
+export function SeoSaveDraftButton({ mapping }: { mapping?: SeoFieldMapping | null } = {}) {
   const {
     config: {
       routes: { api },
@@ -351,7 +351,7 @@ export function SeoSaveDraftButton() {
     }
 
     const data = getData();
-    const check = computeSeoCheck(collectionSlug, data as Record<string, unknown>);
+    const check = computeSeoCheck(mapping, data as Record<string, unknown>);
 
     let seoOverrides: Record<string, unknown> | undefined;
 

@@ -20,7 +20,6 @@
     "./content": "./dist/lib/content/index.mjs",
     "./icons": "./dist/lib/icons/index.mjs",
     "./icons/parser": "./dist/lib/icons/parser.mjs",
-    "./og": "./dist/lib/og/index.mjs",
     "./validation": "./dist/lib/validation/index.mjs",
     "./payload-types": "./dist/payload-types.mjs",
     "./admin/*": "./dist/components/admin/*.mjs"
@@ -44,6 +43,7 @@
     "@sidshub/cms-feature-footnotes": "workspace:*",
     "@sidshub/cms-plugin-deployment-log-view": "workspace:*",
     "@sidshub/cms-plugin-markdown-paste": "workspace:*",
+    "@sidshub/cms-plugin-og-image": "workspace:*",
     "@sidshub/cms-editor": "workspace:*",
     "gemoji": "^8.1.0",
     "markdown-it": "^14.1.1",
@@ -55,8 +55,6 @@
     "payload": "3.82.1",
     "retext": "^9.0.0",
     "retext-smartypants": "^6.2.0",
-    "satori": "^0.26.0",
-    "simple-icons": "^16.15.0",
     "zod": "^3.24.1"
   }
 }

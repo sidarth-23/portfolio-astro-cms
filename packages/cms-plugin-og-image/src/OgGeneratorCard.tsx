@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import type { OgGenerationMode, OgGenerationResult } from "@sidshub/cms-core/og";
+import type { OgGenerationMode, OgGenerationResult } from "./types";
 
 export function OgGeneratorCard() {
   const [mode, setMode] = useState<OgGenerationMode>("unset-only");
@@ -16,7 +16,7 @@ export function OgGeneratorCard() {
     setFatalError(null);
 
     try {
-      const response = await fetch("/api/og-image/generate", {
+      const response = await fetch("/api/og-image/v1/generate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ mode, wipeOldImages: mode === "replace-all" && wipeOldImages }),

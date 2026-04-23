@@ -4,10 +4,11 @@ import {
   convertMarkdownEndpoint,
   importMediaFromUrlEndpoint,
 } from "@sidshub/cms-plugin-markdown-paste/endpoints";
+import { ogImagePlugin, collectionOverride, globalOverride } from "@sidshub/cms-plugin-og-image";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { buildConfig } from "payload";
-import type { CollectionConfig, Config, EmailAdapter, Field, GlobalConfig, Plugin } from "payload";
+import type { CollectionConfig, Config, EmailAdapter, GlobalConfig, Plugin } from "payload";
 
 import { setReadAccessToken } from "@/access/readAccessConfig";
 import { Categories } from "@/collections/Categories";
@@ -16,7 +17,6 @@ import { Posts } from "@/collections/Posts";
 import { Projects } from "@/collections/Projects";
 import { Series } from "@/collections/Series";
 import { Users } from "@/collections/Users";
-import { generateOgImagesEndpoint } from "@/endpoints/generateOgImages";
 import { orphanedMediaEndpoints } from "@/endpoints/orphanedMedia";
 import { BlogPage } from "@/globals/BlogPage";
 import { CvPage } from "@/globals/CvPage";
@@ -30,6 +30,16 @@ import { createTriggerDevRefresh } from "@/hooks/triggerDevRefresh";
 import { createGlobalRedeployHook } from "@/hooks/triggerGlobalRedeploy";
 import { createBasicRichTextEditor } from "@/lib/editor";
 import { SEO_COLLECTIONS, SEO_GLOBALS } from "@/registry";
+import type {
+  Post,
+  Project,
+  Series as SeriesType,
+  BlogPage as BlogPageType,
+  CvPage as CvPageType,
+  ProjectsPage as ProjectsPageType,
+  SeriesPage as SeriesPageType,
+  SiteSetting,
+} from "@/payload-types";
 
 const dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -93,39 +103,6 @@ export function createCmsConfig(options: CmsConfigOptions) {
     return siteUrl;
   };
 
-  const withSeoOverrides = ({ defaultFields }: { defaultFields: Field[] }): Field[] => {
-    const fields = defaultFields.map((field) => {
-      if ("name" in field && (field.name === "title" || field.name === "description")) {
-        return { ...field, required: true };
-      }
-      return field;
-    });
-
-    // Insert social card preview immediately after the SERP preview field
-    const socialCardField: Field = {
-      name: "socialCardPreview",
-      type: "ui",
-      admin: {
-        components: {
-          Field: {
-            clientProps: { siteUrl },
-            path: "@sidshub/cms-plugin-og-image/ui#SocialCardPreview",
-          },
-        },
-      },
-      label: "Social Card Preview",
-    };
-
-    const previewIdx = fields.findIndex((f) => "name" in f && f.name === "preview");
-    if (previewIdx !== -1) {
-      fields.splice(previewIdx + 1, 0, socialCardField);
-    } else {
-      fields.push(socialCardField);
-    }
-
-    return fields;
-  };
-
   const collections: CollectionConfig[] = [Users, Media, Categories, Series, Posts, Projects].map(
     withCollectionAfterChangeHook,
   );
@@ -166,12 +143,7 @@ export function createCmsConfig(options: CmsConfigOptions) {
     routes: {
       admin: "/",
     },
-    endpoints: [
-      generateOgImagesEndpoint(options.siteUrl),
-      importMediaFromUrlEndpoint,
-      convertMarkdownEndpoint,
-      ...orphanedMediaEndpoints,
-    ],
+    endpoints: [importMediaFromUrlEndpoint, convertMarkdownEndpoint, ...orphanedMediaEndpoints],
     collections,
     globals,
     onInit: async () => {
@@ -184,7 +156,45 @@ export function createCmsConfig(options: CmsConfigOptions) {
         tabbedUI: true,
         uploadsCollection: "media",
         generateURL,
-        fields: withSeoOverrides,
+      }),
+      ogImagePlugin({
+        siteUrl,
+        collections: {
+          posts: collectionOverride<Post>({
+            ogTitle: "title",
+            existingImage: "coverImage",
+            depth: 1,
+            seoFieldMapping: {
+              titleField: "title",
+              descriptionField: "description",
+              imageField: "coverImage",
+            },
+          }),
+          projects: collectionOverride<Project>({
+            ogTitle: "title",
+            existingImage: "coverImage",
+            depth: 1,
+            seoFieldMapping: {
+              titleField: "title",
+              descriptionField: "description",
+              imageField: "coverImage",
+            },
+          }),
+          series: collectionOverride<SeriesType>({
+            seoFieldMapping: {
+              titleField: "name",
+              descriptionField: "description",
+              imageField: null,
+            },
+          }),
+        },
+        globals: {
+          "cv-page": globalOverride<CvPageType>({}),
+          "blog-page": globalOverride<BlogPageType>({}),
+          "series-page": globalOverride<SeriesPageType>({}),
+          "projects-page": globalOverride<ProjectsPageType>({}),
+          "site-settings": globalOverride<SiteSetting>({}),
+        },
       }),
       deploymentLogViewPlugin(options.deploymentLogView ?? { enabled: false }),
       ...(options.storagePlugins ?? []),

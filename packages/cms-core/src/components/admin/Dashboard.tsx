@@ -1,7 +1,6 @@
 import type { AdminViewServerProps } from "payload";
 import { DeploymentStatusCard } from "@sidshub/cms-plugin-deployment-log-view/ui";
-
-import { OgGeneratorCard } from "./OgGeneratorCard";
+import { OgGeneratorCard } from "@sidshub/cms-plugin-og-image/ui";
 
 export function DashboardView(_props: AdminViewServerProps) {
   return (
