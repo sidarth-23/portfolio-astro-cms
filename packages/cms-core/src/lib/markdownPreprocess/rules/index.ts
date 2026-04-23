@@ -11,7 +11,7 @@ import { collectThematicBreakReplacements } from "@/lib/markdownPreprocess/rules
  * ─────────────────────────────────────────────
  * All rules receive the *same* original markdown string and mdast AST; they do
  * not see each other's output. Each rule appends offset-based replacements via
- * `pushReplacement` (utils.ts). If two rules claim overlapping source ranges,
+ * `pushReplacement` (`@/lib/markdownPreprocess/utils`). If two rules claim overlapping source ranges,
  * the earlier rule's replacement wins — the later one is silently discarded.
  *
  * ORDERING TIERS (top → bottom in this array)
@@ -21,8 +21,8 @@ import { collectThematicBreakReplacements } from "@/lib/markdownPreprocess/rules
  *    their source ranges are claimed before any other rule can overlap them.
  *    *** INSERT NEW Phase 2+ rules HERE, before imageGallery ***
  *
- * 2. Structural rules      — block-level rewrites that don't produce inline
- *    markup (e.g. `collectImageGalleryReplacements`).
+ * 2. Structural rules      — block-level rewrites that transform complete block
+ *    nodes as a unit (e.g. `collectImageGalleryReplacements`).
  *
  * 3. Normalization rules   — syntactic cleanup with no content change
  *    (e.g. `collectThematicBreakReplacements`).
@@ -37,7 +37,15 @@ import { collectThematicBreakReplacements } from "@/lib/markdownPreprocess/rules
  * 2) Import it here and insert it at the correct tier above.
  */
 export const MARKDOWN_PREPROCESS_RULES: MarkdownPreprocessRule[] = [
+  // Tier 1: Complex-syntax rules (footnotes, definition lists, abbreviations, …)
+  // ← INSERT Phase 2+ rules here
+
+  // Tier 2: Structural rules
   collectImageGalleryReplacements,
+
+  // Tier 3: Normalization rules
   collectThematicBreakReplacements,
+
+  // Tier 4: Text-level rules
   collectSmartTypographyReplacements,
 ];
