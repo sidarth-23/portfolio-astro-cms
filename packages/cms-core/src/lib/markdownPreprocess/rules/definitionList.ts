@@ -33,8 +33,7 @@ import { hasValidOffsets, pushReplacement } from "@/lib/markdownPreprocess/utils
 export const collectDefinitionListReplacements: MarkdownPreprocessRule = ({
   markdown,
 }): MarkdownReplacement[] => {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const tokens: Array<any> = getMarkdownItInstance().parse(markdown, {});
+  const tokens = getMarkdownItInstance().parse(markdown, {});
   const replacements: MarkdownReplacement[] = [];
 
   for (let i = 0; i < tokens.length; i++) {
