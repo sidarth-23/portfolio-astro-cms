@@ -1,6 +1,7 @@
 import type { MarkdownPreprocessRule } from "@/lib/markdownPreprocess/types";
 
 import { collectFootnoteReplacements } from "@/lib/markdownPreprocess/rules/footnotes";
+import { collectDefinitionListReplacements } from "@/lib/markdownPreprocess/rules/definitionList";
 import { collectImageGalleryReplacements } from "@/lib/markdownPreprocess/rules/imageGallery";
 import { collectSmartTypographyReplacements } from "@/lib/markdownPreprocess/rules/smartTypography";
 import { collectThematicBreakReplacements } from "@/lib/markdownPreprocess/rules/thematicBreak";
@@ -40,7 +41,7 @@ import { collectThematicBreakReplacements } from "@/lib/markdownPreprocess/rules
 export const MARKDOWN_PREPROCESS_RULES: MarkdownPreprocessRule[] = [
   // Tier 1: Complex-syntax rules (footnotes, definition lists, abbreviations, …)
   collectFootnoteReplacements,
-  // ← INSERT Phase 2+ rules here
+  collectDefinitionListReplacements,
 
   // Tier 2: Structural rules
   collectImageGalleryReplacements,

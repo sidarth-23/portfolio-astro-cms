@@ -156,6 +156,75 @@ export function createRichTextRenderer(components: BlockComponents) {
         // Definitions are rendered as a footnotes section after the main HTML (see post-processing below);
         // suppress inline output to avoid duplicating content.
         "footnote-definition": () => "",
+        "definition-list": async ({ node }) => {
+          const typedNode = node as unknown as {
+            children: RichTextValue["root"]["children"];
+            direction: "ltr" | "rtl" | null;
+          };
+          const childrenHtml = await renderRichTextToHTML(
+            {
+              data: {
+                root: {
+                  type: "root",
+                  children: typedNode.children,
+                  format: "",
+                  indent: 0,
+                  version: 1,
+                  direction: typedNode.direction,
+                },
+              },
+              enableContainer: false,
+            },
+            config,
+          );
+          return `<dl>${childrenHtml}</dl>`;
+        },
+        "definition-term": async ({ node }) => {
+          const typedNode = node as unknown as {
+            children: RichTextValue["root"]["children"];
+            direction: "ltr" | "rtl" | null;
+          };
+          const childrenHtml = await renderRichTextToHTML(
+            {
+              data: {
+                root: {
+                  type: "root",
+                  children: typedNode.children,
+                  format: "",
+                  indent: 0,
+                  version: 1,
+                  direction: typedNode.direction,
+                },
+              },
+              enableContainer: false,
+            },
+            config,
+          );
+          return `<dt>${childrenHtml}</dt>`;
+        },
+        "definition-description": async ({ node }) => {
+          const typedNode = node as unknown as {
+            children: RichTextValue["root"]["children"];
+            direction: "ltr" | "rtl" | null;
+          };
+          const childrenHtml = await renderRichTextToHTML(
+            {
+              data: {
+                root: {
+                  type: "root",
+                  children: typedNode.children,
+                  format: "",
+                  indent: 0,
+                  version: 1,
+                  direction: typedNode.direction,
+                },
+              },
+              enableContainer: false,
+            },
+            config,
+          );
+          return `<dd>${childrenHtml}</dd>`;
+        },
         blocks: {
           ...(defaultConverters.blocks ?? {}),
           callout: async ({ node }: { node: SerializedBlockNode<Record<string, unknown>> }) => {

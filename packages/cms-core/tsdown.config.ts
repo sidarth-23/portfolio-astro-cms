@@ -20,6 +20,7 @@ export default defineConfig(
       "src/plugin/emoji-shortcodes/client.tsx",
       "src/plugin/markdown-paste/client.tsx",
       "src/plugin/footnotes/client.tsx",
+      "src/plugin/definition-list/client.tsx",
     ],
     external: ["node:path", "node:url", "path", "url", "fs/promises", "sharp", "qs-esm"],
   }),

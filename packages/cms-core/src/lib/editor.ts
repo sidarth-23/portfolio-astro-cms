@@ -7,6 +7,7 @@ import {
 import { EmojiShortcodesFeature } from "@/plugin/emoji-shortcodes/server";
 import { MarkdownPasteFeature } from "@/plugin/markdown-paste/server";
 import { FootnotesFeature } from "@/plugin/footnotes/server";
+import { DefinitionListFeature } from "@/plugin/definition-list/server";
 
 type BasicOptions = Parameters<typeof createEditorBasic>[0];
 
@@ -18,6 +19,7 @@ const withMarkdownPaste = (options: BasicOptions = {}): BasicOptions => {
       EmojiShortcodesFeature(),
       MarkdownPasteFeature(),
       FootnotesFeature(),
+      DefinitionListFeature(),
     ],
   };
 };
