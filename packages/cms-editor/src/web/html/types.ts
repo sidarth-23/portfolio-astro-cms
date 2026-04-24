@@ -61,9 +61,22 @@ export type UploadProps = {
   mediaBaseUrl?: string;
 };
 
+export type FootnoteListItem = {
+  id: string;
+  bodyHtml: string;
+  referenceHref?: string;
+  referenceLabel?: string;
+};
+
+export type FootnotesProps = {
+  title: string;
+  items: FootnoteListItem[];
+};
+
 export type BlockComponents = {
   Callout: ComponentType<CalloutProps>;
   Code: ComponentType<CodeProps>;
+  Footnotes: ComponentType<FootnotesProps>;
   ImageGallery: ComponentType<ImageGalleryProps>;
   Upload: ComponentType<UploadProps>;
 };

@@ -172,7 +172,7 @@ async function renderElementTag(
 }
 
 export function createRichTextRenderer(components: BlockComponents) {
-  const { Callout, Code, Upload, ImageGallery } = components;
+  const { Callout, Code, Footnotes, Upload, ImageGallery } = components;
 
   const renderRichTextToHTML = async (
     { className, data, enableContainer = false }: RichTextRenderOptions,
@@ -378,7 +378,7 @@ export function createRichTextRenderer(components: BlockComponents) {
         const fn: SerializedFootnoteDefinitionNode | undefined =
           footnoteIndex.definitionById.get(footnoteId);
         if (!fn) {
-          return "";
+          return null;
         }
 
         const encodedId = encodeURIComponent(footnoteId);
@@ -401,18 +401,19 @@ export function createRichTextRenderer(components: BlockComponents) {
         );
 
         const referenceAnchors = footnoteIndex.referenceAnchorIdsById.get(footnoteId) ?? [];
-        const backrefs = referenceAnchors
-          .map((anchorId, index) => {
-            const label = referenceAnchors.length > 1 ? `↩${index + 1}` : "↩";
-            return `<a href="#${anchorId}" class="footnote-backref" aria-label="Back to reference ${index + 1}">${label}</a>`;
-          })
-          .join("");
-        const backrefsHtml = backrefs ? `<span class="footnote-backrefs">${backrefs}</span>` : "";
-        return `<li id="fn-${encodedId}" class="footnote-item">${bodyHtml}${backrefsHtml}</li>`;
+        const firstReferenceAnchor = referenceAnchors[0];
+
+        return {
+          id: `fn-${encodedId}`,
+          bodyHtml,
+          referenceHref: firstReferenceAnchor ? `#${firstReferenceAnchor}` : undefined,
+          referenceLabel: "Back to reference",
+        };
       }),
     );
 
-    const footnotesSection = `<section class="footnotes"><h2 class="footnotes-title">Footnotes</h2><ol>${definitionItems.join("")}</ol></section>`;
+    const items = definitionItems.filter((item): item is NonNullable<typeof item> => item !== null);
+    const footnotesSection = renderToStaticMarkup(<Footnotes title="Footnotes" items={items} />);
 
     return processedHtml + footnotesSection;
   };
