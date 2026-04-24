@@ -8,6 +8,7 @@ import type { ViteDevServer } from "vite";
 const WORKSPACE_DIST_GLOBS = [
   fileURLToPath(new URL("../../../../../packages/cms-core/dist/**", import.meta.url)),
   fileURLToPath(new URL("../../../../../packages/cms-lib-editor/dist/**", import.meta.url)),
+  fileURLToPath(new URL("../../../../../packages/cms-lib-icons/dist/**", import.meta.url)),
 ];
 
 function invalidateAstroModules(server: ViteDevServer) {

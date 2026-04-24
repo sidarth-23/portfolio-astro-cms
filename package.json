@@ -13,8 +13,9 @@
   },
   "scripts": {
     "dev": "bun run dev:web",
-    "dev:web": "turbo run dev --filter=@sidshub/web",
-    "dev:cms": "turbo run dev --filter=@sidshub/cms",
+    "dev:web": "turbo run dev --filter=@sidshub/web...",
+    "dev:cms": "turbo run dev --filter=@sidshub/cms...",
+    "dev:all": "turbo run dev --filter=@sidshub/web... --filter=@sidshub/cms...",
     "build": "turbo run build --filter=@sidshub/web --filter=@sidshub/cms",
     "build:web": "turbo run build --filter=@sidshub/web",
     "build:test:web": "turbo run build:test --filter=@sidshub/web",
@@ -27,7 +28,7 @@
     "commitlint": "commitlint",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "postinstall": "simple-git-hooks"
+    "postinstall": "simple-git-hooks && bun run --filter @sidshub/dev-config build"
   },
   "simple-git-hooks": {
     "pre-commit": "if git diff --cached --quiet --exit-code; then echo 'pre-commit: no staged changes, skipping lint-staged'; exit 0; fi; bunx lint-staged --allow-empty",

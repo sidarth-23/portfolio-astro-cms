@@ -19,9 +19,13 @@
       "outputs": ["dist/**"]
     },
     "dev": {
-      "dependsOn": ["^build"],
+      "dependsOn": ["^dev"],
       "cache": false,
       "persistent": true
+    },
+    "@sidshub/dev-config#dev": {
+      "dependsOn": [],
+      "cache": false
     },
     "check": {
       "outputs": []
