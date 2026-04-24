@@ -10,17 +10,31 @@ export type SerializedFootnoteReferenceNode = SerializedLexicalNode & {
 
 export class FootnoteReferenceServerNode extends DecoratorNode<ReactElement | null> {
   declare __footnoteId: string;
+  declare __displayIndex: null | number;
+  declare __referenceCount: number;
 
-  constructor(footnoteId: string, key?: NodeKey) {
+  constructor(
+    footnoteId: string,
+    key?: NodeKey,
+    displayIndex: null | number = null,
+    referenceCount = 1,
+  ) {
     super(key);
     this.__footnoteId = footnoteId;
+    this.__displayIndex = displayIndex;
+    this.__referenceCount = referenceCount;
   }
 
   static getType(): string {
     return "footnote-reference";
   }
   static clone(node: FootnoteReferenceServerNode): FootnoteReferenceServerNode {
-    return new FootnoteReferenceServerNode(node.__footnoteId, node.__key);
+    return new FootnoteReferenceServerNode(
+      node.__footnoteId,
+      node.__key,
+      node.__displayIndex,
+      node.__referenceCount,
+    );
   }
   static importJSON(s: SerializedFootnoteReferenceNode): FootnoteReferenceServerNode {
     return $createFootnoteReferenceServerNode(s.footnoteId);
@@ -41,6 +55,26 @@ export class FootnoteReferenceServerNode extends DecoratorNode<ReactElement | nu
 
   getFootnoteId(): string {
     return this.getLatest().__footnoteId;
+  }
+
+  getDisplayIndex(): null | number {
+    return this.getLatest().__displayIndex;
+  }
+
+  setDisplayIndex(displayIndex: null | number): this {
+    const writable = this.getWritable() as FootnoteReferenceServerNode;
+    writable.__displayIndex = displayIndex;
+    return writable as this;
+  }
+
+  getReferenceCount(): number {
+    return this.getLatest().__referenceCount;
+  }
+
+  setReferenceCount(referenceCount: number): this {
+    const writable = this.getWritable() as FootnoteReferenceServerNode;
+    writable.__referenceCount = referenceCount;
+    return writable as this;
   }
 
   createDOM(): HTMLElement {

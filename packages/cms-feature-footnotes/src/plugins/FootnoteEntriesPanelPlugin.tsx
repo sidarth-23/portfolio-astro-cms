@@ -12,14 +12,16 @@ import {
 import { $addUpdateTag } from "lexical";
 
 import {
+  isReferencePresentationOutdated,
   normalizeFootnotes,
   readFootnoteSnapshot,
-  syncReferenceDom,
+  syncReferencePresentation,
   updateFootnoteDefinitionText,
   type FootnotePanelEntry,
 } from "./footnoteState";
 
 const FOOTNOTE_NORMALIZE_TAG = "footnotes:normalize";
+const FOOTNOTE_REFERENCE_SYNC_TAG = "footnotes:reference-sync";
 
 type PanelState = {
   displayIndexById: Record<string, number>;
@@ -36,14 +38,34 @@ export function FootnoteEntriesPanelPlugin() {
   const [panelState, setPanelState] = useState<PanelState>(emptyPanelState);
 
   useEffect(() => {
-    const initialState = editor.getEditorState().read(() => readFootnoteSnapshot());
+    const initialState = editor.getEditorState().read(() => {
+      const snapshot = readFootnoteSnapshot();
+      return {
+        ...snapshot,
+        shouldSyncReferences: isReferencePresentationOutdated(snapshot.displayIndexById),
+      };
+    });
+
     setPanelState({
       displayIndexById: initialState.displayIndexById,
       entries: initialState.entries,
     });
 
+    if (initialState.shouldSyncReferences) {
+      editor.update(() => {
+        syncReferencePresentation(initialState.displayIndexById);
+        $addUpdateTag(FOOTNOTE_REFERENCE_SYNC_TAG);
+      });
+    }
+
     return editor.registerUpdateListener(({ editorState, tags }) => {
-      const snapshot = editorState.read(() => readFootnoteSnapshot());
+      const snapshot = editorState.read(() => {
+        const nextSnapshot = readFootnoteSnapshot();
+        return {
+          ...nextSnapshot,
+          shouldSyncReferences: isReferencePresentationOutdated(nextSnapshot.displayIndexById),
+        };
+      });
 
       setPanelState({
         displayIndexById: snapshot.displayIndexById,
@@ -56,16 +78,15 @@ export function FootnoteEntriesPanelPlugin() {
           $addUpdateTag(FOOTNOTE_NORMALIZE_TAG);
         });
       }
+
+      if (snapshot.shouldSyncReferences && !tags.has(FOOTNOTE_REFERENCE_SYNC_TAG)) {
+        editor.update(() => {
+          syncReferencePresentation(snapshot.displayIndexById);
+          $addUpdateTag(FOOTNOTE_REFERENCE_SYNC_TAG);
+        });
+      }
     });
   }, [editor]);
-
-  useEffect(() => {
-    const frame = requestAnimationFrame(() => {
-      syncReferenceDom(editor, panelState.displayIndexById);
-    });
-
-    return () => cancelAnimationFrame(frame);
-  }, [editor, panelState.displayIndexById, panelState.entries]);
 
   const onChangeEntry = useCallback(
     (id: string, text: string) => {

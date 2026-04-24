@@ -6,7 +6,6 @@ import {
   $getRoot,
   $isElementNode,
   type ElementNode,
-  type LexicalEditor,
   type LexicalNode,
 } from "lexical";
 
@@ -16,10 +15,16 @@ import {
 } from "../nodes/FootnoteDefinitionNode.client";
 import { $isFootnoteReferenceNode } from "../nodes/FootnoteReferenceNode.client";
 
-const FOOTNOTE_ROOT_ID_PREFIX = "fn";
-
 type FootnoteDefinitionLike = ElementNode & {
   getFootnoteId: () => string;
+};
+
+type FootnoteReferenceLike = LexicalNode & {
+  getDisplayIndex: () => null | number;
+  getFootnoteId: () => string;
+  getReferenceCount: () => number;
+  setDisplayIndex: (displayIndex: null | number) => FootnoteReferenceLike;
+  setReferenceCount: (referenceCount: number) => FootnoteReferenceLike;
 };
 
 export type FootnotePanelEntry = {
@@ -75,6 +80,48 @@ const walkReferences = (node: LexicalNode, output: string[]): void => {
 
   for (const child of node.getChildren()) {
     walkReferences(child, output);
+  }
+};
+
+const toReferenceNode = (node: LexicalNode): FootnoteReferenceLike | null => {
+  if (!$isFootnoteReferenceNode(node)) {
+    return null;
+  }
+
+  const withMeta = node as unknown as FootnoteReferenceLike;
+  if (
+    typeof withMeta.getDisplayIndex !== "function" ||
+    typeof withMeta.getFootnoteId !== "function" ||
+    typeof withMeta.getReferenceCount !== "function" ||
+    typeof withMeta.setDisplayIndex !== "function" ||
+    typeof withMeta.setReferenceCount !== "function"
+  ) {
+    return null;
+  }
+
+  return withMeta;
+};
+
+const walkReferenceNodes = (
+  node: LexicalNode,
+  onReference: (node: FootnoteReferenceLike) => void,
+): void => {
+  const refNode = toReferenceNode(node);
+  if (refNode) {
+    onReference(refNode);
+    return;
+  }
+
+  if ($isFootnoteDefinitionNode(node)) {
+    return;
+  }
+
+  if (!$isElementNode(node)) {
+    return;
+  }
+
+  for (const child of node.getChildren()) {
+    walkReferenceNodes(child, onReference);
   }
 };
 
@@ -278,37 +325,58 @@ export const updateFootnoteDefinitionText = (id: string, text: string): void => 
   ensureDefinitionTextNode(definitionNode, text);
 };
 
-export const syncReferenceDom = (
-  editor: LexicalEditor,
+const iterateReferencesWithOrder = (
   displayIndexById: Record<string, number>,
+  onReference: (args: { count: number; displayIndex: number; node: FootnoteReferenceLike }) => void,
 ): void => {
-  const rootElement = editor.getRootElement();
-  if (!rootElement) {
-    return;
-  }
-
-  const refs = Array.from(rootElement.querySelectorAll<HTMLElement>("sup.footnote-ref"));
+  const root = $getRoot();
   const countsById = new Map<string, number>();
 
-  for (const ref of refs) {
-    const id = ref.dataset.footnoteId;
-    if (!id) {
-      continue;
-    }
+  for (const child of root.getChildren()) {
+    walkReferenceNodes(child, (node) => {
+      const id = node.getFootnoteId();
+      if (!id) {
+        return;
+      }
 
-    const count = (countsById.get(id) ?? 0) + 1;
-    countsById.set(id, count);
+      const count = (countsById.get(id) ?? 0) + 1;
+      countsById.set(id, count);
 
-    const encodedId = encodeURIComponent(id);
-    const anchor = ref.querySelector("a");
-    if (!anchor) {
-      continue;
-    }
-
-    const displayIndex = displayIndexById[id] ?? count;
-    anchor.id = `fnref-${encodedId}-${count}`;
-    anchor.setAttribute("href", `#${FOOTNOTE_ROOT_ID_PREFIX}-${encodedId}`);
-    anchor.setAttribute("data-footnote-id", id);
-    anchor.textContent = String(displayIndex);
+      onReference({
+        count,
+        displayIndex: displayIndexById[id] ?? count,
+        node,
+      });
+    });
   }
+};
+
+export const isReferencePresentationOutdated = (
+  displayIndexById: Record<string, number>,
+): boolean => {
+  let outdated = false;
+
+  iterateReferencesWithOrder(displayIndexById, ({ count, displayIndex, node }) => {
+    if (outdated) {
+      return;
+    }
+
+    if (node.getDisplayIndex() !== displayIndex || node.getReferenceCount() !== count) {
+      outdated = true;
+    }
+  });
+
+  return outdated;
+};
+
+export const syncReferencePresentation = (displayIndexById: Record<string, number>): void => {
+  iterateReferencesWithOrder(displayIndexById, ({ count, displayIndex, node }) => {
+    if (node.getReferenceCount() !== count) {
+      node.setReferenceCount(count);
+    }
+
+    if (node.getDisplayIndex() !== displayIndex) {
+      node.setDisplayIndex(displayIndex);
+    }
+  });
 };

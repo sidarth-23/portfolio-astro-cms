@@ -1,5 +1,4 @@
 import type { MarkdownPreprocessRule, MarkdownReplacement } from "../types";
-import { getMarkdownItInstance, lineRangeToOffsets } from "../markdownItUtils";
 import { hasValidOffsets, pushReplacement } from "../utils";
 
 // Matches the "[^label]: " prefix on the first line of a footnote definition.
@@ -8,45 +7,26 @@ const FOOTNOTE_DEF_PREFIX_RE = /^\[\^[^\]]+\]:\s*/;
 // Matches leading 4-space or 1-tab indentation on continuation lines.
 const CONTINUATION_INDENT_RE = /^(?:    |\t)/;
 
-/**
- * Walk a flat token array and collect the line range (0-indexed, endLine
- * exclusive) spanned by the content of a single footnote definition.
- *
- * markdown-it's `footnote_open` token is synthesised by the `footnote_tail`
- * core rule and therefore has no `map` of its own.  The child paragraph
- * tokens (created during block parsing) do carry `map` data, so we derive
- * the definition's extent from those.
- *
- * Returns `null` when no child token with valid map data is found.
- */
-const getFootnoteLineRange = (
-  tokens: Array<{ type: string; map: [number, number] | null; meta: unknown }>,
-  footnoteOpenIdx: number,
-): { startLine: number; endLine: number } | null => {
-  let minStart: number | null = null;
-  let maxEnd: number | null = null;
-  // Start at depth 1: we have already entered the footnote_open at footnoteOpenIdx.
-  let depth = 1;
+type FootnoteDefinitionNodeLike = {
+  type: "footnoteDefinition";
+  identifier?: string;
+  label?: string;
+  position?: {
+    start?: { offset?: number };
+    end?: { offset?: number };
+  };
+};
 
-  for (let i = footnoteOpenIdx + 1; i < tokens.length; i++) {
-    const token = tokens[i]!;
+const isRecord = (value: unknown): value is Record<string, unknown> => {
+  return typeof value === "object" && value !== null;
+};
 
-    if (token.type === "footnote_open") {
-      depth++;
-    } else if (token.type === "footnote_close") {
-      depth--;
-      if (depth === 0) break; // reached our matching close
-    }
-
-    if (token.map !== null && Array.isArray(token.map)) {
-      const [lineStart, lineEnd] = token.map as [number, number];
-      if (minStart === null || lineStart < minStart) minStart = lineStart;
-      if (maxEnd === null || lineEnd > maxEnd) maxEnd = lineEnd;
-    }
+const isFootnoteDefinitionNode = (value: unknown): value is FootnoteDefinitionNodeLike => {
+  if (!isRecord(value)) {
+    return false;
   }
 
-  if (minStart === null || maxEnd === null) return null;
-  return { startLine: minStart, endLine: maxEnd };
+  return value.type === "footnoteDefinition";
 };
 
 /**
@@ -86,34 +66,28 @@ const trimTrailingBlankLines = (lines: string[]): string[] => {
  * Inline references ([^label]) are NOT touched — those are handled downstream
  * by a Lexical TextMatchTransformer.
  *
- * NOTE — orphan definitions: `markdown-it-footnote` only emits
- * `footnote_open` tokens for definitions that have at least one corresponding
- * inline reference (`[^label]`) elsewhere in the document. A definition whose
- * label is never referenced (e.g. `[^x]: content` with no `[^x]` in the
- * text) does NOT produce a token and is therefore NOT replaced here — it
- * passes through as raw markdown text.
+ * Includes both referenced and unreferenced definitions because it relies on
+ * mdast's `footnoteDefinition` nodes instead of markdown-it-footnote tokens.
  */
 export const collectFootnoteReplacements: MarkdownPreprocessRule = ({
   markdown,
+  root,
 }): MarkdownReplacement[] => {
-  const tokens = getMarkdownItInstance().parse(markdown, {});
   const replacements: MarkdownReplacement[] = [];
 
-  for (let i = 0; i < tokens.length; i++) {
-    const token = tokens[i];
+  for (const node of root.children) {
+    if (!isFootnoteDefinitionNode(node)) continue;
 
-    if (token.type !== "footnote_open") continue;
+    const label =
+      typeof node.label === "string" && node.label.length > 0
+        ? node.label
+        : typeof node.identifier === "string"
+          ? node.identifier
+          : undefined;
+    if (!label) continue;
 
-    const label: string | undefined = token.meta?.label;
-    if (typeof label !== "string") continue;
-
-    // Derive the definition's line range from its child tokens.
-    const lineRange = getFootnoteLineRange(tokens, i);
-    // Empty footnote body — no paragraph tokens found; skip silently.
-    // These produce no child content for FootnoteDefinitionNode.
-    if (lineRange === null) continue;
-
-    const { start, end } = lineRangeToOffsets(markdown, lineRange.startLine, lineRange.endLine);
+    const start = node.position?.start?.offset;
+    const end = node.position?.end?.offset;
 
     if (!hasValidOffsets(start, end) || start === end) continue;
 
@@ -135,7 +109,7 @@ export const collectFootnoteReplacements: MarkdownPreprocessRule = ({
     const safeLabel = label.replace(/&/g, "&amp;").replace(/"/g, "&quot;");
     const replacement = `<footnote-def id="${safeLabel}">\n${content}\n</footnote-def>`;
 
-    pushReplacement(replacements, { start, end, replacement });
+    pushReplacement(replacements, { start: start as number, end: end as number, replacement });
   }
 
   return replacements;
