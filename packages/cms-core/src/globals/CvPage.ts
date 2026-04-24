@@ -2,7 +2,7 @@ import type { Field, GlobalConfig } from "payload";
 import { createBasicRichTextEditor } from "@/lib/editor";
 
 import { readAccess } from "@/access/readAccess";
-import { iconPickerField } from "@sidshub/cms-icons";
+import { iconPickerField } from "@sidshub/cms-lib-icons";
 import {
   CV_ITEMS_VARIANT_OPTIONS,
   CV_SECTION_ITEM_TYPE_OPTIONS,

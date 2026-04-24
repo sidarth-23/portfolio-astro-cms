@@ -19,7 +19,7 @@
   },
   "dependencies": {
     "@payloadcms/ui": "3.82.1",
-    "@sidshub/cms-icons": "workspace:*",
+    "@sidshub/cms-lib-icons": "workspace:*",
     "payload": "3.82.1",
     "qs-esm": "^7.0.1",
     "satori": "^0.26.0"

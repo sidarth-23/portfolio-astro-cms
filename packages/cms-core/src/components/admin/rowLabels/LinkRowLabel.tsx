@@ -2,7 +2,7 @@
 
 import { useRowLabel } from "@payloadcms/ui";
 
-import { parseIconValue } from "@sidshub/cms-icons";
+import { parseIconValue } from "@sidshub/cms-lib-icons";
 import { formatRowLabel, getTrimmedString } from "./utils";
 
 type LinkRowData = {

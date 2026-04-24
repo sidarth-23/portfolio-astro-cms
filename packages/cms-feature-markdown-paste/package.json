@@ -1,5 +1,5 @@
 {
-  "name": "@sidshub/cms-plugin-markdown-paste",
+  "name": "@sidshub/cms-feature-markdown-paste",
   "version": "0.0.1",
   "private": true,
   "type": "module",

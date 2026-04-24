@@ -9,7 +9,7 @@ This is a **public monorepo** for `https://www.sidshub.in`.
 - `apps/web`: Astro 5 portfolio + blog frontend (MDX)
 - `apps/cms`: Payload CMS backend
 - `packages/cms-core`: shared Payload config/types
-- `packages/cms-editor`: Lexical rich text editor integration (CMS + web)
+- `packages/cms-lib-editor`: Lexical rich text editor integration (CMS + web)
 
 Core stack: **Bun workspaces**, **TypeScript (strict)**, **Tailwind CSS v4**, **DaisyUI v5**, **Payload CMS**, **PostgreSQL**, **MinIO**.
 
@@ -78,7 +78,7 @@ apps/
 packages/
 ├── cms-core/
 │   └── src/payload-types.ts
-└── cms-editor/
+└── cms-lib-editor/
 ```
 
 ## Public Repo Safety Rules

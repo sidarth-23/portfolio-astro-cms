@@ -14,7 +14,7 @@ export const iconPickerField = ({
   type: "text",
   admin: {
     components: {
-      Field: "@sidshub/cms-icons/ui#IconPickerField",
+      Field: "@sidshub/cms-lib-icons/ui#IconPickerField",
     },
   },
 });

@@ -1,7 +1,7 @@
 import type { Payload } from "payload";
 
 import type { SidebarIconDiagnostic } from "../../types";
-import { parseIconValue, isValidIconValue } from "@sidshub/cms-icons";
+import { parseIconValue, isValidIconValue } from "@sidshub/cms-lib-icons";
 
 // ---- Types ----
 

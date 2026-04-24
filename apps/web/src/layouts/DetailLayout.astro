@@ -2,7 +2,7 @@
 import TableOfContents from "@/components/TableOfContents.astro";
 import BaseLayout from "@/layouts/BaseLayout.astro";
 import { PhList, PhX } from "phosphor-icons-astro";
-import type { TableOfContentsItem } from "@sidshub/cms-editor/web/html";
+import type { TableOfContentsItem } from "@sidshub/cms-lib-editor/web/html";
 
 type Props = {
   title: string;
@@ -141,7 +141,7 @@ const tocDrawerId = "detail-toc-drawer";
       initCodeBlocks,
       initImageGallery,
       initTableOfContents,
-    } from "@sidshub/cms-editor/web/html/client";
+    } from "@sidshub/cms-lib-editor/web/html/client";
 
     const DETAIL_TOC_DRAWER_ID = "detail-toc-drawer";
     let cleanupCodeBlocks = () => {};

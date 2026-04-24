@@ -6,7 +6,7 @@ const lexicalPath = require.resolve("lexical");
 
 /** @type {import("next").NextConfig} */
 const nextConfig = {
-  transpilePackages: ["@sidshub/cms-core", "@sidshub/cms-editor"],
+  transpilePackages: ["@sidshub/cms-core", "@sidshub/cms-lib-editor"],
   webpack: (config) => {
     config.resolve = config.resolve ?? {};
     config.resolve.alias = {

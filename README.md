@@ -34,7 +34,7 @@ This project started as a fork of [Astrofy](https://github.com/manuelernestog/as
 - Payload CMS with MongoDB, optional S3-compatible storage (MinIO), and publish-triggered web deploy webhook.
 - Shared packages:
   - `@sidshub/cms-core` for collections, fields, hooks, and generated types.
-  - `@sidshub/cms-editor` for Lexical editor and web-side rich text helpers.
+  - `@sidshub/cms-lib-editor` for Lexical editor and web-side rich text helpers.
 - Pre-commit quality gates with ESLint, Prettier, and Conventional Commit validation.
 
 ## Architecture
@@ -52,20 +52,20 @@ flowchart LR
 
   I[Shared package: cms-core] --> B
   I --> F
-  J[Shared package: cms-editor] --> B
+  J[Shared package: cms-lib-editor] --> B
   J --> F
 ```
 
 ## Monorepo At A Glance
 
-| Path                  | Purpose                                         |
-| --------------------- | ----------------------------------------------- |
-| `apps/web`            | Astro 5 portfolio + blog frontend               |
-| `apps/cms`            | Payload CMS backend (Next.js runtime)           |
-| `packages/cms-core`   | Shared Payload schema/config/access/hooks/types |
-| `packages/cms-editor` | Shared Lexical editor integration (CMS + web)   |
-| `docs/local-dev.md`   | Local infrastructure and developer workflow     |
-| `docs/deployment.md`  | Deployment order, env vars, publish flow        |
+| Path                      | Purpose                                         |
+| ------------------------- | ----------------------------------------------- |
+| `apps/web`                | Astro 5 portfolio + blog frontend               |
+| `apps/cms`                | Payload CMS backend (Next.js runtime)           |
+| `packages/cms-core`       | Shared Payload schema/config/access/hooks/types |
+| `packages/cms-lib-editor` | Shared Lexical editor integration (CMS + web)   |
+| `docs/local-dev.md`       | Local infrastructure and developer workflow     |
+| `docs/deployment.md`      | Deployment order, env vars, publish flow        |
 
 ## Quick Start
 
@@ -116,7 +116,7 @@ bun run format:check  # Prettier check
 - Web app internals: [apps/web/README.md](apps/web/README.md)
 - CMS internals: [apps/cms/README.md](apps/cms/README.md)
 - Shared CMS core package: [packages/cms-core/README.md](packages/cms-core/README.md)
-- Shared editor package: [packages/cms-editor/README.md](packages/cms-editor/README.md)
+- Shared editor package: [packages/cms-lib-editor/README.md](packages/cms-lib-editor/README.md)
 
 ## Quality And Standards
 

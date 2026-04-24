@@ -30,9 +30,18 @@ export function isUsableSize(s: ImageSize | null): s is Required<ImageSize> {
 
 // Shared inline style for the absolutely-positioned image — fills the
 // container while preserving the full image via object-contain.
-export const IMG_STYLE = "position:absolute;inset:0;width:100%;height:100%;object-fit:contain;display:block;";
+export const IMG_STYLE =
+  "position:absolute;inset:0;width:100%;height:100%;object-fit:contain;display:block;";
 
-export function ImagePicture({ doc, alt, mediaBaseUrl }: { doc: UploadDoc; alt: string; mediaBaseUrl?: string }) {
+export function ImagePicture({
+  doc,
+  alt,
+  mediaBaseUrl,
+}: {
+  doc: UploadDoc;
+  alt: string;
+  mediaBaseUrl?: string;
+}) {
   const url = resolveUrl(doc.url!, mediaBaseUrl);
   const usableSizes = Object.values(doc.sizes ?? {}).filter(isUsableSize);
 

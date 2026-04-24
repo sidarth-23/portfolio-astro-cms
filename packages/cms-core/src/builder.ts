@@ -3,7 +3,7 @@ import { deploymentLogViewPlugin } from "@sidshub/cms-plugin-deployment-log-view
 import {
   convertMarkdownEndpoint,
   importMediaFromUrlEndpoint,
-} from "@sidshub/cms-plugin-markdown-paste/endpoints";
+} from "@sidshub/cms-feature-markdown-paste/endpoints";
 import { ogImagePlugin, collectionOverride, globalOverride } from "@sidshub/cms-plugin-og-image";
 import path from "node:path";
 import { fileURLToPath } from "node:url";

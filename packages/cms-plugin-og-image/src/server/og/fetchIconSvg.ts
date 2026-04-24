@@ -1,4 +1,4 @@
-import { resolveIconSvg, svgToDataUri } from "@sidshub/cms-icons";
+import { resolveIconSvg, svgToDataUri } from "@sidshub/cms-lib-icons";
 import type { IconFetchFailureReason } from "../../types";
 
 export type { IconFetchFailureReason };

@@ -2,7 +2,7 @@ import { RscEntryLexicalCell as RscEntryLexicalCell_44fe37237e0ebf4470c9990d8cb7
 import { RscEntryLexicalField as RscEntryLexicalField_44fe37237e0ebf4470c9990d8cb7b07e } from '@payloadcms/richtext-lexical/rsc'
 import { LexicalDiffComponent as LexicalDiffComponent_44fe37237e0ebf4470c9990d8cb7b07e } from '@payloadcms/richtext-lexical/rsc'
 import { FootnotesFeatureClient as FootnotesFeatureClient_d98fd66331a6ba3867d9c6e3c0453344 } from '@sidshub/cms-feature-footnotes/client'
-import { MarkdownPasteFeatureClient as MarkdownPasteFeatureClient_4f45e25ed14d9e004c977c08a2e0ec54 } from '@sidshub/cms-plugin-markdown-paste/client'
+import { MarkdownPasteFeatureClient as MarkdownPasteFeatureClient_91efebed9e691334de332836d84ddba7 } from '@sidshub/cms-feature-markdown-paste/client'
 import { EmojiFeatureClient as EmojiFeatureClient_93844252220bd60ce351f2bb96daf3ba } from '@sidshub/cms-feature-emoji/client'
 import { SuperscriptFeatureClient as SuperscriptFeatureClient_e70f5e05f09f93e00b997edb1ef0c864 } from '@payloadcms/richtext-lexical/client'
 import { SubscriptFeatureClient as SubscriptFeatureClient_e70f5e05f09f93e00b997edb1ef0c864 } from '@payloadcms/richtext-lexical/client'
@@ -21,7 +21,7 @@ import { UnderlineFeatureClient as UnderlineFeatureClient_e70f5e05f09f93e00b997e
 import { BoldFeatureClient as BoldFeatureClient_e70f5e05f09f93e00b997edb1ef0c864 } from '@payloadcms/richtext-lexical/client'
 import { ItalicFeatureClient as ItalicFeatureClient_e70f5e05f09f93e00b997edb1ef0c864 } from '@payloadcms/richtext-lexical/client'
 import { ParagraphFeatureClient as ParagraphFeatureClient_e70f5e05f09f93e00b997edb1ef0c864 } from '@payloadcms/richtext-lexical/client'
-import { IconPickerField as IconPickerField_19925e6d369cf6a71deb3fb37e7f08e9 } from '@sidshub/cms-icons/ui'
+import { IconPickerField as IconPickerField_7efa9e5c0a7cc140f1394af1fe59bab0 } from '@sidshub/cms-lib-icons/ui'
 import { LinkRowLabel as LinkRowLabel_a526a8bf0b3e759cc2b71b6fa0e9f56c } from '../../../../../packages/cms-core/dist/components/admin/rowLabels/LinkRowLabel'
 import { FolderTableCell as FolderTableCell_f9c02e79a4aed9a3924487c0cd4cafb1 } from '@payloadcms/next/rsc'
 import { FolderField as FolderField_f9c02e79a4aed9a3924487c0cd4cafb1 } from '@payloadcms/next/rsc'
@@ -60,7 +60,7 @@ export const importMap = {
   "@payloadcms/richtext-lexical/rsc#RscEntryLexicalField": RscEntryLexicalField_44fe37237e0ebf4470c9990d8cb7b07e,
   "@payloadcms/richtext-lexical/rsc#LexicalDiffComponent": LexicalDiffComponent_44fe37237e0ebf4470c9990d8cb7b07e,
   "@sidshub/cms-feature-footnotes/client#FootnotesFeatureClient": FootnotesFeatureClient_d98fd66331a6ba3867d9c6e3c0453344,
-  "@sidshub/cms-plugin-markdown-paste/client#MarkdownPasteFeatureClient": MarkdownPasteFeatureClient_4f45e25ed14d9e004c977c08a2e0ec54,
+  "@sidshub/cms-feature-markdown-paste/client#MarkdownPasteFeatureClient": MarkdownPasteFeatureClient_91efebed9e691334de332836d84ddba7,
   "@sidshub/cms-feature-emoji/client#EmojiFeatureClient": EmojiFeatureClient_93844252220bd60ce351f2bb96daf3ba,
   "@payloadcms/richtext-lexical/client#SuperscriptFeatureClient": SuperscriptFeatureClient_e70f5e05f09f93e00b997edb1ef0c864,
   "@payloadcms/richtext-lexical/client#SubscriptFeatureClient": SubscriptFeatureClient_e70f5e05f09f93e00b997edb1ef0c864,
@@ -79,7 +79,7 @@ export const importMap = {
   "@payloadcms/richtext-lexical/client#BoldFeatureClient": BoldFeatureClient_e70f5e05f09f93e00b997edb1ef0c864,
   "@payloadcms/richtext-lexical/client#ItalicFeatureClient": ItalicFeatureClient_e70f5e05f09f93e00b997edb1ef0c864,
   "@payloadcms/richtext-lexical/client#ParagraphFeatureClient": ParagraphFeatureClient_e70f5e05f09f93e00b997edb1ef0c864,
-  "@sidshub/cms-icons/ui#IconPickerField": IconPickerField_19925e6d369cf6a71deb3fb37e7f08e9,
+  "@sidshub/cms-lib-icons/ui#IconPickerField": IconPickerField_7efa9e5c0a7cc140f1394af1fe59bab0,
   "./components/admin/rowLabels/LinkRowLabel#LinkRowLabel": LinkRowLabel_a526a8bf0b3e759cc2b71b6fa0e9f56c,
   "@payloadcms/next/rsc#FolderTableCell": FolderTableCell_f9c02e79a4aed9a3924487c0cd4cafb1,
   "@payloadcms/next/rsc#FolderField": FolderField_f9c02e79a4aed9a3924487c0cd4cafb1,

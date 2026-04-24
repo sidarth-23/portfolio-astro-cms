@@ -26,11 +26,11 @@
         "@payloadcms/richtext-lexical": "3.82.1",
         "@payloadcms/storage-s3": "3.82.1",
         "@sidshub/cms-core": "workspace:*",
-        "@sidshub/cms-editor": "workspace:*",
         "@sidshub/cms-feature-emoji": "workspace:*",
         "@sidshub/cms-feature-footnotes": "workspace:*",
+        "@sidshub/cms-feature-markdown-paste": "workspace:*",
+        "@sidshub/cms-lib-editor": "workspace:*",
         "@sidshub/cms-plugin-deployment-log-view": "workspace:*",
-        "@sidshub/cms-plugin-markdown-paste": "workspace:*",
         "@sidshub/cms-plugin-og-image": "workspace:*",
         "@t3-oss/env-core": "^0.13.4",
         "cross-env": "^7.0.3",
@@ -56,8 +56,8 @@
         "@astrojs/sitemap": "3.3.1",
         "@astrojs/tailwind": "6.0.2",
         "@sidshub/cms-core": "workspace:*",
-        "@sidshub/cms-editor": "workspace:*",
-        "@sidshub/cms-icons": "workspace:*",
+        "@sidshub/cms-lib-editor": "workspace:*",
+        "@sidshub/cms-lib-icons": "workspace:*",
         "@tailwindcss/vite": "^4.1.4",
         "astro": "5.7.5",
         "phosphor-icons-astro": "^2.1.1-17042025",
@@ -80,12 +80,12 @@
         "@payloadcms/sdk": "3.82.1",
         "@react-email/components": "^0.5.7",
         "@react-email/render": "^1.4.0",
-        "@sidshub/cms-editor": "workspace:*",
         "@sidshub/cms-feature-emoji": "workspace:*",
         "@sidshub/cms-feature-footnotes": "workspace:*",
-        "@sidshub/cms-icons": "workspace:*",
+        "@sidshub/cms-feature-markdown-paste": "workspace:*",
+        "@sidshub/cms-lib-editor": "workspace:*",
+        "@sidshub/cms-lib-icons": "workspace:*",
         "@sidshub/cms-plugin-deployment-log-view": "workspace:*",
-        "@sidshub/cms-plugin-markdown-paste": "workspace:*",
         "@sidshub/cms-plugin-og-image": "workspace:*",
         "payload": "3.82.1",
         "zod": "^3.24.1",
@@ -97,24 +97,6 @@
       "peerDependencies": {
         "qs-esm": "*",
         "sharp": "*",
-      },
-    },
-    "packages/cms-editor": {
-      "name": "@sidshub/cms-editor",
-      "version": "0.0.1",
-      "dependencies": {
-        "@payloadcms/richtext-lexical": "3.82.1",
-        "@phosphor-icons/core": "^2.1.1",
-        "embla-carousel": "^8.6.0",
-        "lexical": "0.41.0",
-        "preact": "^10.29.1",
-        "preact-render-to-string": "^6.6.7",
-        "shiki": "^4.0.2",
-        "simple-icons": "^16.16.0",
-      },
-      "devDependencies": {
-        "@sidshub/dev-config": "workspace:*",
-        "eslint": "^9.24.0",
       },
     },
     "packages/cms-feature-emoji": {
@@ -141,8 +123,48 @@
         "eslint": "^9.24.0",
       },
     },
-    "packages/cms-icons": {
-      "name": "@sidshub/cms-icons",
+    "packages/cms-feature-markdown-paste": {
+      "name": "@sidshub/cms-feature-markdown-paste",
+      "version": "0.0.1",
+      "dependencies": {
+        "@payloadcms/richtext-lexical": "3.82.1",
+        "@payloadcms/ui": "3.82.1",
+        "@sidshub/cms-feature-footnotes": "workspace:*",
+        "markdown-it": "^14.1.1",
+        "markdown-it-footnote": "^4.0.0",
+        "mdast-util-from-markdown": "^2.0.2",
+        "mdast-util-gfm": "^3.1.0",
+        "micromark-extension-gfm": "^3.0.0",
+        "payload": "3.82.1",
+        "retext": "^9.0.0",
+        "retext-smartypants": "^6.2.0",
+        "simple-icons": "^16.15.0",
+      },
+      "devDependencies": {
+        "@sidshub/dev-config": "workspace:*",
+        "eslint": "^9.24.0",
+      },
+    },
+    "packages/cms-lib-editor": {
+      "name": "@sidshub/cms-lib-editor",
+      "version": "0.0.1",
+      "dependencies": {
+        "@payloadcms/richtext-lexical": "3.82.1",
+        "@phosphor-icons/core": "^2.1.1",
+        "embla-carousel": "^8.6.0",
+        "lexical": "0.41.0",
+        "preact": "^10.29.1",
+        "preact-render-to-string": "^6.6.7",
+        "shiki": "^4.0.2",
+        "simple-icons": "^16.16.0",
+      },
+      "devDependencies": {
+        "@sidshub/dev-config": "workspace:*",
+        "eslint": "^9.24.0",
+      },
+    },
+    "packages/cms-lib-icons": {
+      "name": "@sidshub/cms-lib-icons",
       "version": "0.0.1",
       "dependencies": {
         "@phosphor-icons/core": "^2.1.1",
@@ -171,34 +193,12 @@
         "eslint": "^9.24.0",
       },
     },
-    "packages/cms-plugin-markdown-paste": {
-      "name": "@sidshub/cms-plugin-markdown-paste",
-      "version": "0.0.1",
-      "dependencies": {
-        "@payloadcms/richtext-lexical": "3.82.1",
-        "@payloadcms/ui": "3.82.1",
-        "@sidshub/cms-feature-footnotes": "workspace:*",
-        "markdown-it": "^14.1.1",
-        "markdown-it-footnote": "^4.0.0",
-        "mdast-util-from-markdown": "^2.0.2",
-        "mdast-util-gfm": "^3.1.0",
-        "micromark-extension-gfm": "^3.0.0",
-        "payload": "3.82.1",
-        "retext": "^9.0.0",
-        "retext-smartypants": "^6.2.0",
-        "simple-icons": "^16.15.0",
-      },
-      "devDependencies": {
-        "@sidshub/dev-config": "workspace:*",
-        "eslint": "^9.24.0",
-      },
-    },
     "packages/cms-plugin-og-image": {
       "name": "@sidshub/cms-plugin-og-image",
       "version": "0.0.1",
       "dependencies": {
         "@payloadcms/ui": "3.82.1",
-        "@sidshub/cms-icons": "workspace:*",
+        "@sidshub/cms-lib-icons": "workspace:*",
         "payload": "3.82.1",
         "qs-esm": "^7.0.1",
         "satori": "^0.26.0",
@@ -882,17 +882,17 @@
 
     "@sidshub/cms-core": ["@sidshub/cms-core@workspace:packages/cms-core"],
 
-    "@sidshub/cms-editor": ["@sidshub/cms-editor@workspace:packages/cms-editor"],
-
     "@sidshub/cms-feature-emoji": ["@sidshub/cms-feature-emoji@workspace:packages/cms-feature-emoji"],
 
     "@sidshub/cms-feature-footnotes": ["@sidshub/cms-feature-footnotes@workspace:packages/cms-feature-footnotes"],
 
-    "@sidshub/cms-icons": ["@sidshub/cms-icons@workspace:packages/cms-icons"],
+    "@sidshub/cms-feature-markdown-paste": ["@sidshub/cms-feature-markdown-paste@workspace:packages/cms-feature-markdown-paste"],
+
+    "@sidshub/cms-lib-editor": ["@sidshub/cms-lib-editor@workspace:packages/cms-lib-editor"],
+
+    "@sidshub/cms-lib-icons": ["@sidshub/cms-lib-icons@workspace:packages/cms-lib-icons"],
 
     "@sidshub/cms-plugin-deployment-log-view": ["@sidshub/cms-plugin-deployment-log-view@workspace:packages/cms-plugin-deployment-log-view"],
-
-    "@sidshub/cms-plugin-markdown-paste": ["@sidshub/cms-plugin-markdown-paste@workspace:packages/cms-plugin-markdown-paste"],
 
     "@sidshub/cms-plugin-og-image": ["@sidshub/cms-plugin-og-image@workspace:packages/cms-plugin-og-image"],
 

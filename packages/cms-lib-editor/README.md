@@ -1,4 +1,4 @@
-# @sidshub/cms-editor
+# @sidshub/cms-lib-editor
 
 Shared Payload rich-text editor helpers for CMS and web rendering.
 
@@ -11,7 +11,7 @@ import {
   renderRichTextToHTML,
   createThemeRichTextRenderer,
   getThemeComponents,
-} from "@sidshub/cms-editor/web/html";
+} from "@sidshub/cms-lib-editor/web/html";
 ```
 
 - `renderRichTextToHTML` uses the default `daisyui` theme.
@@ -22,21 +22,21 @@ import {
 
 Theme-specific import paths were removed:
 
-- Removed: `@sidshub/cms-editor/web/html/daisyui`
-- Removed: `@sidshub/cms-editor/web/html/tailwind`
+- Removed: `@sidshub/cms-lib-editor/web/html/daisyui`
+- Removed: `@sidshub/cms-lib-editor/web/html/tailwind`
 
-Use `@sidshub/cms-editor/web/html` and select theme through `createThemeRichTextRenderer` when needed.
+Use `@sidshub/cms-lib-editor/web/html` and select theme through `createThemeRichTextRenderer` when needed.
 
 ## Shared web runtime
 
-Import client initializers from `@sidshub/cms-editor/web/html/client`:
+Import client initializers from `@sidshub/cms-lib-editor/web/html/client`:
 
 ```ts
 import {
   initCodeBlocks,
   initImageGallery,
   initTableOfContents,
-} from "@sidshub/cms-editor/web/html/client";
+} from "@sidshub/cms-lib-editor/web/html/client";
 ```
 
 ### initCodeBlocks(root?)
@@ -61,7 +61,7 @@ import {
 Import shared structural rich-text styles:
 
 ```css
-@import "@sidshub/cms-editor/web/html/styles.css";
+@import "@sidshub/cms-lib-editor/web/html/styles.css";
 ```
 
 This stylesheet includes reusable lexical output styles for code blocks, captions, panels, and gallery structure.

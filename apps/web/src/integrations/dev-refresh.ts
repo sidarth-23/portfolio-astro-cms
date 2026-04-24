@@ -7,7 +7,7 @@ import type { ViteDevServer } from "vite";
 // invalidation because server-side imports bypass Vite's HMR pipeline.
 const WORKSPACE_DIST_GLOBS = [
   fileURLToPath(new URL("../../../../../packages/cms-core/dist/**", import.meta.url)),
-  fileURLToPath(new URL("../../../../../packages/cms-editor/dist/**", import.meta.url)),
+  fileURLToPath(new URL("../../../../../packages/cms-lib-editor/dist/**", import.meta.url)),
 ];
 
 function invalidateAstroModules(server: ViteDevServer) {

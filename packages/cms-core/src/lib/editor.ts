@@ -2,10 +2,10 @@ import {
   createBasicRichTextEditor as createEditorBasic,
   createDocumentRichTextEditor as createEditorDocument,
   createMinimalRichTextEditor as createEditorMinimal,
-} from "@sidshub/cms-editor/cms";
+} from "@sidshub/cms-lib-editor/cms";
 import { EmojiFeature } from "@sidshub/cms-feature-emoji/server";
 import { FootnotesFeature } from "@sidshub/cms-feature-footnotes/server";
-import { MarkdownPasteFeature } from "@sidshub/cms-plugin-markdown-paste/server";
+import { MarkdownPasteFeature } from "@sidshub/cms-feature-markdown-paste/server";
 
 type BasicOptions = Parameters<typeof createEditorBasic>[0];
 

@@ -2,7 +2,7 @@
 
 import { useRowLabel } from "@payloadcms/ui";
 import { formatRowLabel, getTrimmedString } from "./utils";
-import { parseIconValue } from "@sidshub/cms-icons";
+import { parseIconValue } from "@sidshub/cms-lib-icons";
 
 type BadgeRowData = {
   value?: unknown;

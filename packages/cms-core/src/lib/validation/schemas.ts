@@ -1,7 +1,7 @@
 import { z } from "zod";
 
 import { CV_SECTION_TYPE_OPTIONS, HOME_CTA_VARIANT_OPTIONS } from "@/lib/content";
-import { isValidIconValue } from "@sidshub/cms-icons";
+import { isValidIconValue } from "@sidshub/cms-lib-icons";
 import {
   optionalHttpUrl,
   optionalLinkUrl,
