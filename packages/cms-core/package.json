@@ -35,13 +35,13 @@
     "@payloadcms/sdk": "3.82.1",
     "@react-email/components": "^0.5.7",
     "@react-email/render": "^1.4.0",
+    "@sidshub/cms-feature-emoji": "workspace:*",
     "@sidshub/cms-icons": "workspace:*",
     "@sidshub/cms-feature-footnotes": "workspace:*",
     "@sidshub/cms-plugin-deployment-log-view": "workspace:*",
     "@sidshub/cms-plugin-markdown-paste": "workspace:*",
     "@sidshub/cms-plugin-og-image": "workspace:*",
     "@sidshub/cms-editor": "workspace:*",
-    "gemoji": "^8.1.0",
     "payload": "3.82.1",
     "zod": "^3.24.1"
   }

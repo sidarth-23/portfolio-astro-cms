@@ -27,6 +27,7 @@
         "@payloadcms/storage-s3": "3.82.1",
         "@sidshub/cms-core": "workspace:*",
         "@sidshub/cms-editor": "workspace:*",
+        "@sidshub/cms-feature-emoji": "workspace:*",
         "@sidshub/cms-feature-footnotes": "workspace:*",
         "@sidshub/cms-plugin-deployment-log-view": "workspace:*",
         "@sidshub/cms-plugin-markdown-paste": "workspace:*",
@@ -80,12 +81,12 @@
         "@react-email/components": "^0.5.7",
         "@react-email/render": "^1.4.0",
         "@sidshub/cms-editor": "workspace:*",
+        "@sidshub/cms-feature-emoji": "workspace:*",
         "@sidshub/cms-feature-footnotes": "workspace:*",
         "@sidshub/cms-icons": "workspace:*",
         "@sidshub/cms-plugin-deployment-log-view": "workspace:*",
         "@sidshub/cms-plugin-markdown-paste": "workspace:*",
         "@sidshub/cms-plugin-og-image": "workspace:*",
-        "gemoji": "^8.1.0",
         "payload": "3.82.1",
         "zod": "^3.24.1",
       },
@@ -110,6 +111,19 @@
         "preact-render-to-string": "^6.6.7",
         "shiki": "^4.0.2",
         "simple-icons": "^16.16.0",
+      },
+      "devDependencies": {
+        "@sidshub/dev-config": "workspace:*",
+        "eslint": "^9.24.0",
+      },
+    },
+    "packages/cms-feature-emoji": {
+      "name": "@sidshub/cms-feature-emoji",
+      "version": "0.0.1",
+      "dependencies": {
+        "@payloadcms/richtext-lexical": "3.82.1",
+        "@payloadcms/ui": "3.82.1",
+        "gemoji": "^8.1.0",
       },
       "devDependencies": {
         "@sidshub/dev-config": "workspace:*",
@@ -869,6 +883,8 @@
     "@sidshub/cms-core": ["@sidshub/cms-core@workspace:packages/cms-core"],
 
     "@sidshub/cms-editor": ["@sidshub/cms-editor@workspace:packages/cms-editor"],
+
+    "@sidshub/cms-feature-emoji": ["@sidshub/cms-feature-emoji@workspace:packages/cms-feature-emoji"],
 
     "@sidshub/cms-feature-footnotes": ["@sidshub/cms-feature-footnotes@workspace:packages/cms-feature-footnotes"],
 

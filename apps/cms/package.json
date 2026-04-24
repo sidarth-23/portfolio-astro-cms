@@ -24,6 +24,7 @@
     "@payloadcms/storage-s3": "3.82.1",
     "@sidshub/cms-core": "workspace:*",
     "@sidshub/cms-editor": "workspace:*",
+    "@sidshub/cms-feature-emoji": "workspace:*",
     "@sidshub/cms-feature-footnotes": "workspace:*",
     "@sidshub/cms-plugin-deployment-log-view": "workspace:*",
     "@sidshub/cms-plugin-markdown-paste": "workspace:*",

@@ -3,10 +3,9 @@ import {
   createDocumentRichTextEditor as createEditorDocument,
   createMinimalRichTextEditor as createEditorMinimal,
 } from "@sidshub/cms-editor/cms";
+import { EmojiFeature } from "@sidshub/cms-feature-emoji/server";
 import { FootnotesFeature } from "@sidshub/cms-feature-footnotes/server";
 import { MarkdownPasteFeature } from "@sidshub/cms-plugin-markdown-paste/server";
-
-import { EmojiShortcodesFeature } from "@/plugin/emoji-shortcodes/server";
 
 type BasicOptions = Parameters<typeof createEditorBasic>[0];
 
@@ -15,7 +14,7 @@ const withMarkdownPaste = (options: BasicOptions = {}): BasicOptions => {
     ...options,
     extraFeatures: [
       ...(options.extraFeatures ?? []),
-      EmojiShortcodesFeature(),
+      EmojiFeature(),
       MarkdownPasteFeature(),
       FootnotesFeature(),
     ],
