@@ -28,7 +28,7 @@ export async function ensureOgFolder(
       });
     }
 
-    return folder.id;
+    return String(folder.id);
   }
 
   const created = await payload.create({
@@ -36,5 +36,5 @@ export async function ensureOgFolder(
     data: { name: folderName, folderType: ["media"] } as never,
   });
 
-  return created.id;
+  return String(created.id);
 }

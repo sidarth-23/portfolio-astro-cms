@@ -1,16 +1,8 @@
+import { createSlug } from "@/lib/content";
 import type { Field } from "payload";
 
 type SlugFieldOptions = {
   fieldToUse: string;
-};
-
-const createSlug = (value: string): string => {
-  return value
-    .trim()
-    .toLowerCase()
-    .replace(/\s+/g, "-")
-    .replace(/[^\w-]/g, "")
-    .replace(/^-+|-+$/g, "");
 };
 
 export const slugField = ({ fieldToUse }: SlugFieldOptions): Field => ({

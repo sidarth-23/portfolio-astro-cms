@@ -5,7 +5,7 @@ import sitemap from "@astrojs/sitemap";
 import tailwindcss from "@tailwindcss/vite";
 import { devRefresh } from "./src/integrations/dev-refresh";
 
-const siteUrl = process.env.ASTRO_SITE_URL ?? "http://localhost:4321";
+const siteUrl = process.env.ASTRO_SITE_URL || "http://localhost:4321";
 
 export default defineConfig({
   site: siteUrl,

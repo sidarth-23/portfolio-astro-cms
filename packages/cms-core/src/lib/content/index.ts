@@ -1,3 +1,4 @@
+export { createSlug } from "./slug";
 export { CALLOUT_DEFAULT_VARIANT_BY_PROFILE, CALLOUT_VARIANTS_BY_PROFILE } from "./options/callout";
 export { CODE_BLOCK_LANGUAGE_OPTIONS, CODE_BLOCK_MODE_OPTIONS } from "./options/code";
 export {

@@ -17,6 +17,7 @@ FROM base AS builder
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY --from=pruner /app/out/full/ .
+COPY --from=pruner /app/out/json/bun.lock ./bun.lock
 ARG ASTRO_SITE_URL
 ARG ASTRO_CMS_API_URL
 ARG ASTRO_CMS_READ_TOKEN

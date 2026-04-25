@@ -12,11 +12,13 @@ COPY --from=pruner /app/out/json/ .
 COPY --from=pruner /app/out/json/bun.lock ./bun.lock
 RUN bun install --frozen-lockfile --ignore-scripts
 
-# App build stage (Node.js)
-FROM node:22-alpine AS builder
+# App build stage (Node.js + bun for turbo)
+FROM node:22-slim AS builder
 WORKDIR /app
+COPY --from=base /usr/local/bin/bun /usr/local/bin/bun
 COPY --from=deps /app/node_modules ./node_modules
 COPY --from=pruner /app/out/full/ .
+COPY --from=pruner /app/out/json/bun.lock ./bun.lock
 ENV NODE_ENV=production
 ARG PAYLOAD_SECRET
 ARG PAYLOAD_PUBLIC_SERVER_URL

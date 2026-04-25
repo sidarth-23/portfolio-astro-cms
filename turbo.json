@@ -54,6 +54,7 @@
       "cache": false
     },
     "check": {
+      "dependsOn": ["^build"],
       "outputs": []
     },
     "lint": {
