@@ -8,7 +8,8 @@ RUN bunx turbo prune @sidshub/cms --docker
 FROM base AS deps
 COPY --from=pruner /app/out/json/ .
 COPY --from=pruner /app/out/json/bun.lock ./bun.lock
-RUN bun install --frozen-lockfile
+# Install dependencies only, skip postinstall scripts (no hooks, no dev-config build)
+RUN bun install --frozen-lockfile --ignore-scripts
 
 FROM node:22-alpine AS builder
 WORKDIR /app
@@ -29,7 +30,10 @@ ENV PAYLOAD_PUBLIC_SERVER_URL=${PAYLOAD_PUBLIC_SERVER_URL}
 ENV RESEND_API_KEY=${RESEND_API_KEY}
 ENV EMAIL_FROM_ADDRESS=${EMAIL_FROM_ADDRESS}
 ENV EMAIL_FROM_NAME=${EMAIL_FROM_NAME}
-RUN npm run build
+# Build all workspace packages that export dist/* before building the app
+RUN bun run --filter @sidshub/cms-core build && \
+	bun run --filter @sidshub/cms-lib-editor build && \
+	npm run build
 
 FROM node:22-alpine AS runtime
 WORKDIR /app

@@ -28,5 +28,9 @@ COPY --from=installer /app/apps/web/dist ./apps/web/dist
 ENV NODE_ENV=production
 ENV HOST=0.0.0.0
 ENV PORT=4321
+# Add non-root user 'node' and set permissions
+RUN addgroup -g 1000 node && adduser -D -u 1000 -G node node
+RUN chown -R node:node /app
+USER node
 EXPOSE 4321
 CMD ["bun", "--no-install", "./apps/web/dist/server/entry.mjs"]
