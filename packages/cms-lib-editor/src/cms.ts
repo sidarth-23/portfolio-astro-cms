@@ -72,6 +72,9 @@ export type LexicalEditorOptions = {
   calloutVariantProfile?: CalloutVariantProfile;
   enableImageGallery?: boolean;
   enableTables?: boolean;
+  enableEmoji?: boolean;
+  enableFootnotes?: boolean;
+  enableMarkdownPaste?: boolean;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   extraFeatures?: FeatureProviderServer<any, any, any>[];
   link?: LinkSettings;
@@ -88,7 +91,7 @@ const DEFAULT_RELATIONSHIP_COLLECTIONS = [
 ] as RelationshipSettings["enabledCollections"];
 const DEFAULT_UPLOAD_COLLECTIONS = ["media"] as UploadSettings["enabledCollections"];
 
-const DEFAULT_VARIANT_OPTIONS: Record<LexicalEditorVariant, VariantDefaults> = {
+export const DEFAULT_VARIANT_OPTIONS: Record<LexicalEditorVariant, VariantDefaults> = {
   minimal: {
     enableFixedToolbar: true,
     enableInlineToolbar: true,
@@ -106,6 +109,9 @@ const DEFAULT_VARIANT_OPTIONS: Record<LexicalEditorVariant, VariantDefaults> = {
     calloutVariantProfile: "generic",
     enableImageGallery: false,
     enabledHeadingSizes: [],
+    enableEmoji: true,
+    enableFootnotes: false,
+    enableMarkdownPaste: false,
   },
   basic: {
     enableFixedToolbar: true,
@@ -124,6 +130,9 @@ const DEFAULT_VARIANT_OPTIONS: Record<LexicalEditorVariant, VariantDefaults> = {
     calloutVariantProfile: "generic",
     enableImageGallery: false,
     enabledHeadingSizes: [],
+    enableEmoji: true,
+    enableFootnotes: false,
+    enableMarkdownPaste: false,
   },
   document: {
     enableFixedToolbar: true,
@@ -143,6 +152,9 @@ const DEFAULT_VARIANT_OPTIONS: Record<LexicalEditorVariant, VariantDefaults> = {
     enableImageGallery: true,
     enableTables: true,
     enabledHeadingSizes: ["h2", "h3", "h4"],
+    enableEmoji: true,
+    enableFootnotes: true,
+    enableMarkdownPaste: true,
   },
 };
 

@@ -2,7 +2,7 @@
 import RichTextRenderer from "@/components/RichTextRenderer.astro";
 import TimeLineElement from "@/components/TimeLine.astro";
 import BaseLayout from "@/layouts/BaseLayout.astro";
-import { resolveIcon } from "@/lib/resolveIcon";
+import { resolveIconSvg } from "@sidshub/cms-lib-icons";
 import { PhLink } from "phosphor-icons-astro";
 import { cmsClient } from "@/lib/cms";
 const { meta, sections } = await cmsClient.getCvPage();
@@ -69,7 +69,7 @@ const resolvedBadgeGroupsBySection = await Promise.all(
         const badges = (
           await Promise.all(
             (group.badges || []).map(async (badge) => {
-              const iconData = badge.icon ? resolveIcon(badge.icon) : null;
+              const iconData = badge.icon ? resolveIconSvg(badge.icon) : null;
               return {
                 value: badge.value,
                 iconData,

@@ -1,5 +1,5 @@
 ---
-import { resolveIcon } from "@/lib/resolveIcon";
+import { resolveIconSvg } from "@sidshub/cms-lib-icons";
 import type { TagInfo, CategoryInfo, SeriesInfo } from "@/lib/cms";
 
 type Props = {
@@ -35,7 +35,7 @@ const contentBodyClass = "grow w-full space-y-1 relative";
 const resolvedLinks = (
   await Promise.all(
     links.map(async (link) => {
-      const iconData = await resolveIcon(link.icon);
+      const iconData = await resolveIconSvg(link.icon);
       if (!iconData) {
         return null;
       }
@@ -53,7 +53,7 @@ const resolvedLinks = (
     icon: string;
     url: string;
     newTab: boolean;
-    iconData: NonNullable<Awaited<ReturnType<typeof resolveIcon>>>;
+    iconData: NonNullable<Awaited<ReturnType<typeof resolveIconSvg>>>;
   } => entry !== null,
 );
 ---

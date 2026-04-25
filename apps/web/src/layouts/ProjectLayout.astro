@@ -1,7 +1,7 @@
 ---
 import EntryHeader from "@/components/EntryHeader.astro";
 import DetailLayout from "@/layouts/DetailLayout.astro";
-import { resolveIcon } from "@/lib/resolveIcon";
+import { resolveIconSvg } from "@sidshub/cms-lib-icons";
 import type { TableOfContentsItem } from "@sidshub/cms-lib-editor/web/html";
 import type { ProjectLink } from "@sidshub/cms-core/client";
 import type { TagInfo } from "@/lib/cms";
@@ -57,7 +57,7 @@ const formattedUpdatedDate = new Intl.DateTimeFormat("en-US", {
 const resolvedLinks = (
   await Promise.all(
     links.map(async (link) => {
-      const iconData = await resolveIcon(link.icon);
+      const iconData = resolveIconSvg(link.icon);
       if (!iconData) {
         return null;
       }
@@ -69,9 +69,7 @@ const resolvedLinks = (
     }),
   )
 ).filter(
-  (
-    entry,
-  ): entry is ProjectLink & { iconData: NonNullable<Awaited<ReturnType<typeof resolveIcon>>> } =>
+  (entry): entry is ProjectLink & { iconData: NonNullable<ReturnType<typeof resolveIconSvg>> } =>
     entry !== null,
 );
 ---

@@ -6,7 +6,7 @@ import SeriesNav from "@/components/SeriesNav.astro";
 import FloatingSeriesToolbar from "@/components/FloatingSeriesToolbar.astro";
 import PostLayout from "@/layouts/PostLayout.astro";
 import { extractTableOfContents } from "@sidshub/cms-lib-editor/web/html";
-import { resolveIcon } from "@/lib/resolveIcon";
+import { resolveIconSvg } from "@sidshub/cms-lib-icons";
 import { cmsClient } from "@/lib/cms";
 import { getErrorPageSeo } from "@/lib/seo";
 import { PhMagnifyingGlass } from "phosphor-icons-astro";
@@ -115,7 +115,7 @@ const resolvedAuthorCards = await Promise.all(
             return null;
           }
 
-          const iconData = await resolveIcon(link.icon);
+          const iconData = resolveIconSvg(link.icon);
           if (!iconData) {
             return null;
           }
@@ -133,7 +133,7 @@ const resolvedAuthorCards = await Promise.all(
       ): entry is {
         url: string;
         newTab: boolean;
-        iconData: NonNullable<Awaited<ReturnType<typeof resolveIcon>>>;
+        iconData: NonNullable<ReturnType<typeof resolveIconSvg>>;
       } => entry !== null,
     );
 

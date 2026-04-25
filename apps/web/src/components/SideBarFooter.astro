@@ -1,6 +1,6 @@
 ---
 import type { SiteFooterItem } from "@sidshub/cms-core/client";
-import { resolveIcon } from "@/lib/resolveIcon";
+import { resolveIconSvg } from "@sidshub/cms-lib-icons";
 
 type Props = {
   items?: SiteFooterItem[];
@@ -15,7 +15,7 @@ const cleanItems = (
         return null;
       }
 
-      const iconData = await resolveIcon(item.icon);
+      const iconData = resolveIconSvg(item.icon);
       if (!iconData) {
         return null;
       }
@@ -29,7 +29,7 @@ const cleanItems = (
       entry,
     ): entry is {
       item: SiteFooterItem;
-      iconData: NonNullable<Awaited<ReturnType<typeof resolveIcon>>>;
+      iconData: NonNullable<ReturnType<typeof resolveIconSvg>>;
     } => entry !== null,
   )
   .slice(0, 4);
@@ -60,7 +60,7 @@ const cleanItems = (
               aria-hidden="true"
               class="h-6 w-6 fill-current stroke-current"
               set:html={iconData.innerSvg}
-            ></svg>
+            />
           </a>
         );
       })}
