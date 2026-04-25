@@ -12,7 +12,7 @@ concurrency:
   cancel-in-progress: true
 
 permissions:
-  contents: read
+  contents: write # Required to push the tag back to the repo
   packages: write
 
 jobs:
@@ -22,35 +22,24 @@ jobs:
       cms: ${{ steps.filter.outputs.cms }}
     steps:
       - uses: actions/checkout@v4
-
       - id: filter
         uses: dorny/paths-filter@v3
         with:
           filters: |
             cms:
               - "apps/cms/**"
-              - "packages/cms-core/**"
-              - "packages/cms-lib-editor/**"
-              - "packages/cms-lib-icons/**"
-              - "packages/cms-feature-emoji/**"
-              - "packages/cms-feature-footnotes/**"
-              - "packages/cms-feature-markdown-paste/**"
-              - "packages/cms-plugin-deployment-log-view/**"
-              - "packages/cms-plugin-og-image/**"
-              - "packages/dev-config/**"
-              - "package.json"
-              - "bun.lock"
-              - "turbo.json"
-              - ".dockerignore"
+              - "packages/cms-*/**"
               - "apps/cms/Dockerfile"
               - ".github/workflows/publish-images.yml"
 
   publish-cms:
     needs: changes
-    if: github.event_name == 'workflow_dispatch' || needs.changes.outputs.cms == 'true'
+    if: needs.changes.outputs.cms == 'true' || github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # Required for automated tagging
 
       - id: prep
         shell: bash
@@ -66,13 +55,22 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
+      # We generate a unique version number here to use as the Tag
+      - name: Generate Version
+        id: versioning
+        run: |
+          VERSION="v1.0.${{ github.run_number }}"
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+
       - id: meta
         uses: docker/metadata-action@v5
         with:
           images: ${{ steps.prep.outputs.image }}
           tags: |
-            type=sha
+            type=raw,value=${{ steps.versioning.outputs.version }}
+            type=raw,value=latest,enable=${{ github.ref == 'refs/heads/main' }}
             type=ref,event=branch
+            type=sha
 
       - uses: docker/build-push-action@v6
         with:
@@ -81,5 +79,13 @@ jobs:
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
-          cache-from: type=registry,ref=${{ steps.prep.outputs.image }}:buildcache
-          cache-to: type=registry,ref=${{ steps.prep.outputs.image }}:buildcache,mode=max
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      # ONLY PUSH THE TAG IF THE BUILD SUCCEEDED
+      - name: Push Git Tag
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git tag ${{ steps.versioning.outputs.version }}
+          git push origin ${{ steps.versioning.outputs.version }}
