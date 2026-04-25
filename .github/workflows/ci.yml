@@ -117,14 +117,7 @@ jobs:
     if: needs.changes.outputs.cms == 'true'
     runs-on: ubuntu-latest
     env:
-      PAYLOAD_SECRET: ci-payload-secret
-      CMS_READ_TOKEN: ci-cms-read-token
-      PAYLOAD_PUBLIC_SERVER_URL: https://cms.example.com
-      ASTRO_SITE_URL: https://www.example.com
-      DATABASE_URI: mongodb://localhost:27017/payload
-      RESEND_API_KEY: ci-resend-api-key
-      EMAIL_FROM_ADDRESS: noreply@example.com
-      EMAIL_FROM_NAME: Sid's Hub CI
+      SKIP_ENV_VALIDATION: "1"
       NODE_ENV: production
     steps:
       - uses: actions/checkout@v4
