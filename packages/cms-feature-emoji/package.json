@@ -17,9 +17,10 @@
     "./client": "./dist/client.mjs"
   },
   "dependencies": {
+    "@emoji-mart/data": "^1.2.1",
+    "@emoji-mart/react": "^1.1.1",
     "@payloadcms/richtext-lexical": "3.82.1",
-    "@payloadcms/ui": "3.82.1",
-    "gemoji": "^8.1.0"
+    "@payloadcms/ui": "3.82.1"
   },
   "devDependencies": {
     "@sidshub/dev-config": "workspace:*",

@@ -1,28 +1,26 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { COMMAND_PRIORITY_EDITOR } from "@payloadcms/richtext-lexical/lexical";
 import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext";
-import { useDrawerSlug, useModal } from "@payloadcms/ui";
 
 import { OPEN_EMOJI_PICKER_COMMAND } from "./emojiPickerCommand";
-import { EmojiPickerDrawer } from "./EmojiPickerDrawer";
+import { EmojiPickerPopover } from "./EmojiPickerPopover";
 
 export function EmojiPickerPlugin() {
   const [editor] = useLexicalComposerContext();
-  const drawerSlug = useDrawerSlug("emoji-picker");
-  const { openModal } = useModal();
+  const [isOpen, setIsOpen] = useState(false);
 
   useEffect(() => {
     return editor.registerCommand(
       OPEN_EMOJI_PICKER_COMMAND,
       () => {
-        openModal(drawerSlug);
+        setIsOpen(true);
         return true;
       },
       COMMAND_PRIORITY_EDITOR,
     );
-  }, [drawerSlug, editor, openModal]);
+  }, [editor]);
 
-  return <EmojiPickerDrawer drawerSlug={drawerSlug} editor={editor} />;
+  return <EmojiPickerPopover editor={editor} isOpen={isOpen} onClose={() => setIsOpen(false)} />;
 }

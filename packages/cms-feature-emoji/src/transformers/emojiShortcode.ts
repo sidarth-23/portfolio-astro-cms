@@ -1,5 +1,5 @@
 import { type TextMatchTransformer } from "@payloadcms/richtext-lexical/lexical/markdown";
-import { nameToEmoji } from "gemoji";
+import { shortcodeToEmoji } from "../data/shortcodeMap";
 
 export const EMOJI_SHORTCODE_TRANSFORMER: TextMatchTransformer = {
   dependencies: [],
@@ -13,7 +13,7 @@ export const EMOJI_SHORTCODE_TRANSFORMER: TextMatchTransformer = {
       return;
     }
 
-    const emoji = nameToEmoji[shortcode];
+    const emoji = shortcodeToEmoji[shortcode];
 
     if (!emoji) {
       return;
