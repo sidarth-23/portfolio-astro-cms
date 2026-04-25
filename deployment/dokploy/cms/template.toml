@@ -11,8 +11,8 @@ port = 3000
 host = "${cms_domain}"
 
 [config.env]
-# Image tag — branch name (main, staging) or a specific SHA for pinned deploys.
-IMAGE_TAG = "main"
+# Image tag — "latest" (stable release), "staging" (staging branch), a semver like "1.2.3", or a SHA for pinned deploys.
+IMAGE_TAG = "latest"
 
 # CMS (Payload)
 PAYLOAD_SECRET = "${payload_secret}"
