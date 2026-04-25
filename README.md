@@ -59,14 +59,14 @@ flowchart LR
 
 ## Monorepo At A Glance
 
-| Path                      | Purpose                                         |
-| ------------------------- | ----------------------------------------------- |
-| `apps/web`                | Astro 5 portfolio + blog frontend               |
-| `apps/cms`                | Payload CMS backend (Next.js runtime)           |
-| `packages/cms-core`       | Shared Payload schema/config/access/hooks/types |
-| `packages/cms-lib-editor` | Shared Lexical editor integration (CMS + web)   |
-| `docs/local-dev.md`       | Local infrastructure and developer workflow     |
-| `docs/deployment.md`      | Deployment order, env vars, publish flow        |
+| Path                          | Purpose                                         |
+| ----------------------------- | ----------------------------------------------- |
+| `apps/web`                    | Astro 5 portfolio + blog frontend               |
+| `apps/cms`                    | Payload CMS backend (Next.js runtime)           |
+| `packages/cms-core`           | Shared Payload schema/config/access/hooks/types |
+| `packages/cms-lib-editor`     | Shared Lexical editor integration (CMS + web)   |
+| `docs/deployment/local/`      | Local infrastructure and developer workflow     |
+| `docs/deployment/production/` | Production stack, env vars, publish flow        |
 
 ## Quick Start
 
@@ -114,8 +114,9 @@ bun run format:check  # Prettier check
 
 ## Documentation Map
 
-- Local setup and service orchestration: [docs/local-dev.md](docs/local-dev.md)
-- Deployment model and publish flow: [docs/deployment.md](docs/deployment.md)
+- Local setup and service orchestration: [docs/deployment/local/setup.md](docs/deployment/local/setup.md)
+- Production deployment overview: [docs/deployment/production/overview.md](docs/deployment/production/overview.md)
+- Dokploy setup: [docs/deployment/production/dokploy/setup.md](docs/deployment/production/dokploy/setup.md)
 - Web app internals: [apps/web/README.md](apps/web/README.md)
 - CMS internals: [apps/cms/README.md](apps/cms/README.md)
 - Shared CMS core package: [packages/cms-core/README.md](packages/cms-core/README.md)
