@@ -3,6 +3,7 @@ import NotFoundState from "@/components/NotFoundState.astro";
 import ErrorLayout from "@/layouts/ErrorLayout.astro";
 import RichTextRenderer from "@/components/RichTextRenderer.astro";
 import SeriesNav from "@/components/SeriesNav.astro";
+import FloatingSeriesToolbar from "@/components/FloatingSeriesToolbar.astro";
 import PostLayout from "@/layouts/PostLayout.astro";
 import { extractTableOfContents } from "@sidshub/cms-lib-editor/web/html";
 import { resolveIcon } from "@/lib/resolveIcon";
@@ -20,10 +21,12 @@ type SeriesNavProps = {
   prevPost?: {
     slug: string;
     title: string;
+    coverImage?: string;
   };
   nextPost?: {
     slug: string;
     title: string;
+    coverImage?: string;
   };
 };
 
@@ -65,8 +68,20 @@ if (post) {
         seriesSlug: series.slug,
         currentPart: currentIndex + 1,
         totalParts: seriesPosts.length,
-        prevPost: prevPost ? { slug: prevPost.slug, title: prevPost.title } : undefined,
-        nextPost: nextPost ? { slug: nextPost.slug, title: nextPost.title } : undefined,
+        prevPost: prevPost
+          ? {
+              slug: prevPost.slug,
+              title: prevPost.title,
+              coverImage: cmsClient.mediaToUrl(prevPost.coverImage),
+            }
+          : undefined,
+        nextPost: nextPost
+          ? {
+              slug: nextPost.slug,
+              title: nextPost.title,
+              coverImage: cmsClient.mediaToUrl(nextPost.coverImage),
+            }
+          : undefined,
       };
     }
   }
@@ -154,10 +169,15 @@ const pubDate = post?.publishedAt || post?.createdAt || new Date().toISOString()
         series={series}
         authors={visibleAuthors}
         toc={toc}
+        tocContinuation={
+          seriesNav ? { prevPost: seriesNav.prevPost, nextPost: seriesNav.nextPost } : undefined
+        }
       >
         {seriesNav && (
           <SeriesNav
+            slot="heroTop"
             position="top"
+            className="mt-0"
             seriesName={seriesNav.seriesName}
             seriesSlug={seriesNav.seriesSlug}
             currentPart={seriesNav.currentPart}
@@ -170,19 +190,15 @@ const pubDate = post?.publishedAt || post?.createdAt || new Date().toISOString()
         <RichTextRenderer data={post.content} calloutVariantProfile="blog" />
 
         {seriesNav && (
-          <SeriesNav
-            position="bottom"
-            seriesName={seriesNav.seriesName}
+          <FloatingSeriesToolbar
             seriesSlug={seriesNav.seriesSlug}
-            currentPart={seriesNav.currentPart}
-            totalParts={seriesNav.totalParts}
             prevPost={seriesNav.prevPost}
             nextPost={seriesNav.nextPost}
           />
         )}
 
         {visibleAuthors.length > 0 && (
-          <section class="mt-16 sm:mt-24 pt-10 border-t border-base-content/20">
+          <section class="mt-16 pt-4 border-t border-base-content/20">
             <h2 class="text-base font-bold uppercase tracking-wider text-base-content mb-8">
               {visibleAuthors.length > 1 ? "Authors" : "Author"}
             </h2>

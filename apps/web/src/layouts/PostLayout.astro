@@ -19,6 +19,18 @@ type Props = {
   series?: SeriesInfo;
   authors?: PopulatedAuthor[];
   toc?: TableOfContentsItem[];
+  tocContinuation?: {
+    prevPost?: {
+      slug: string;
+      title: string;
+      coverImage?: string;
+    };
+    nextPost?: {
+      slug: string;
+      title: string;
+      coverImage?: string;
+    };
+  };
 };
 
 const {
@@ -33,6 +45,7 @@ const {
   series,
   authors = [],
   toc = [],
+  tocContinuation,
 }: Props = Astro.props;
 
 const currentUrl = Astro.url;
@@ -75,9 +88,14 @@ const jsonLd = {
   seoDescription={description}
   heroImage={heroImage}
   toc={toc}
+  tocContinuation={tocContinuation}
   ogType="article"
   jsonLd={jsonLd}
 >
+  <Fragment slot="heroTop">
+    <slot name="heroTop" />
+  </Fragment>
+
   <EntryHeader slot="header" title={title} tags={tags}>
     <Fragment slot="preTitle">
       {

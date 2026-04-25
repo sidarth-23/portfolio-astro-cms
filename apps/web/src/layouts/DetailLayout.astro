@@ -12,6 +12,18 @@ type Props = {
   heroImage?: string;
   heroImageAlt?: string;
   toc?: TableOfContentsItem[];
+  tocContinuation?: {
+    prevPost?: {
+      slug: string;
+      title: string;
+      coverImage?: string;
+    };
+    nextPost?: {
+      slug: string;
+      title: string;
+      coverImage?: string;
+    };
+  };
   backHref?: string;
   backLabel?: string;
   ogType?: string;
@@ -27,6 +39,7 @@ const {
   heroImage,
   heroImageAlt,
   toc = [],
+  tocContinuation,
   backHref,
   backLabel,
   ogType,
@@ -35,6 +48,7 @@ const {
 }: Props = Astro.props;
 
 const tocDrawerId = "detail-toc-drawer";
+const hasHeroTopSlot = Astro.slots.has("heroTop");
 ---
 
 <BaseLayout
@@ -54,7 +68,7 @@ const tocDrawerId = "detail-toc-drawer";
           <div
             class="grid gap-12 xl:grid-cols-[minmax(0,1fr)_18rem] 2xl:grid-cols-[minmax(0,1fr)_20rem]"
           >
-            <article class="min-w-0">
+            <article class="min-w-0" data-series-toolbar-anchor>
               {
                 backHref && backLabel && (
                   <div class="mb-6 not-prose">
@@ -70,14 +84,21 @@ const tocDrawerId = "detail-toc-drawer";
 
               {
                 heroImage && (
-                  <figure class="mb-8 flex w-full items-center justify-center rounded-3xl bg-base-200/30 shadow-sm not-prose">
-                    <img
-                      src={heroImage}
-                      alt={heroImageAlt ?? title}
-                      class="h-auto w-full rounded-2xl object-contain"
-                      loading="eager"
-                    />
-                  </figure>
+                  <>
+                    {hasHeroTopSlot && (
+                      <div class="mb-4 not-prose">
+                        <slot name="heroTop" />
+                      </div>
+                    )}
+                    <figure class="mb-8 flex w-full items-center justify-center rounded-3xl bg-base-200/30 shadow-sm not-prose">
+                      <img
+                        src={heroImage}
+                        alt={heroImageAlt ?? title}
+                        class="h-auto w-full rounded-2xl object-contain"
+                        loading="eager"
+                      />
+                    </figure>
+                  </>
                 )
               }
 
@@ -92,9 +113,9 @@ const tocDrawerId = "detail-toc-drawer";
 
             <aside class="hidden xl:block">
               <div
-                class="sticky top-24 max-h-[calc(100vh-8rem)] overflow-y-auto border-l border-base-content/20 pl-6 2xl:pl-8"
+                class="sticky top-24 max-h-[calc(100vh-8rem)] overflow-y-auto border-l border-base-content/20 pl-6 2xl:pl-8 pr-2"
               >
-                <TableOfContents items={toc} />
+                <TableOfContents items={toc} continuation={tocContinuation} />
               </div>
             </aside>
           </div>
@@ -105,9 +126,7 @@ const tocDrawerId = "detail-toc-drawer";
         <label for={tocDrawerId} aria-label="Close table of contents" class="drawer-overlay"
         ></label>
 
-        <div
-          class="min-h-full w-80 max-w-[85vw] border-l border-base-content/20 bg-base-200/95 p-4 backdrop-blur"
-        >
+        <div class="min-h-full w-80 max-w-[85vw] bg-base-200 p-4">
           <div class="mb-4 flex items-center justify-between gap-4">
             <div class="text-lg font-semibold">Table of contents</div>
 
@@ -121,7 +140,7 @@ const tocDrawerId = "detail-toc-drawer";
           </div>
 
           <div class="pl-5">
-            <TableOfContents items={toc} />
+            <TableOfContents items={toc} continuation={tocContinuation} />
           </div>
         </div>
       </div>

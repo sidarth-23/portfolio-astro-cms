@@ -61,7 +61,7 @@ export const createHeadingConverters = (): HTMLConvertersAsync<DefaultNodeTypes>
         .trim();
       const idAttribute = text ? ` id="${nextHeadingId(text)}"` : "";
 
-      return `<${node.tag}${idAttribute}${providedStyleTag} class="scroll-mt-24">${children}</${node.tag}>`;
+      return `<${node.tag}${idAttribute}${providedStyleTag} class="scroll-mt-24 first:mt-6">${children}</${node.tag}>`;
     },
   };
 };

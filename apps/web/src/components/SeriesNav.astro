@@ -7,6 +7,7 @@ type Props = {
   currentPart: number;
   totalParts: number;
   position?: "top" | "bottom";
+  className?: string;
   prevPost?: {
     slug: string;
     title: string;
@@ -25,12 +26,13 @@ const {
   prevPost,
   nextPost,
   position = "top",
+  className = "",
 } = Astro.props;
 ---
 
 {
   position === "bottom" && !prevPost && !nextPost ? null : (
-    <div class="bg-base-200 rounded-lg p-4 mt-6">
+    <div class={`bg-neutral rounded-lg p-4 ${className}`.trim()}>
       {position === "top" && (
         <div class="flex items-center justify-between gap-4">
           <a

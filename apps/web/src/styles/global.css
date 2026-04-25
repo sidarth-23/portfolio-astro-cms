@@ -10,6 +10,10 @@
   logs: false;
 }
 
+:root {
+  scrollbar-gutter: stable;
+}
+
 [data-theme="night"] .code-panel .shiki,
 [data-theme="night"] .code-panel .shiki span {
   color: var(--shiki-dark) !important;

@@ -1,12 +1,25 @@
 ---
+import TocSeriesContinuation from "@/components/TocSeriesContinuation.astro";
 import type { TableOfContentsItem } from "@sidshub/cms-lib-editor/web/html";
 
 type Props = {
   className?: string;
   items: TableOfContentsItem[];
+  continuation?: {
+    prevPost?: {
+      slug: string;
+      title: string;
+      coverImage?: string;
+    };
+    nextPost?: {
+      slug: string;
+      title: string;
+      coverImage?: string;
+    };
+  };
 };
 
-const { className = "", items }: Props = Astro.props;
+const { className = "", items, continuation }: Props = Astro.props;
 ---
 
 <nav aria-label="Table of contents" class={`text-sm ${className}`.trim()} data-toc-root>
@@ -38,4 +51,6 @@ const { className = "", items }: Props = Astro.props;
       </ul>
     )
   }
+
+  <TocSeriesContinuation prevPost={continuation?.prevPost} nextPost={continuation?.nextPost} />
 </nav>
