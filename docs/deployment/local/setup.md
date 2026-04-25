@@ -45,7 +45,7 @@ task logs:minio
 ### Using Docker Compose directly
 
 ```bash
-docker compose -f docker-compose.local.yml up --build
+docker compose -f deployment/docker-compose.local.yml up --build
 ```
 
 This starts MongoDB (port 27017) and MinIO (ports 9000, 9001). Taskfile also
@@ -81,7 +81,7 @@ task restart    # Restart all services
 task clean      # Stop and remove volumes (deletes data!)
 
 # or directly:
-docker compose -f docker-compose.local.yml down
+docker compose -f deployment/docker-compose.local.yml down
 ```
 
 ## 6. Common Tasks

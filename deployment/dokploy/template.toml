@@ -1,0 +1,46 @@
+[variables]
+cms_domain = "${domain}"
+web_domain = "${domain}"
+payload_secret = "${base64:32}"
+cms_read_token = "${base64:32}"
+s3_access_key = "${password:20}"
+s3_secret_key = "${password:40}"
+
+[[config.domains]]
+serviceName = "payload-cms"
+port = 3000
+host = "${cms_domain}"
+
+[[config.domains]]
+serviceName = "astro-web"
+port = 4321
+host = "${web_domain}"
+
+[config.env]
+# Image tag — branch name (main, staging) or a specific SHA for pinned deploys.
+IMAGE_TAG = "main"
+
+# CMS (Payload)
+PAYLOAD_SECRET = "${payload_secret}"
+CMS_READ_TOKEN = "${cms_read_token}"
+PAYLOAD_PUBLIC_SERVER_URL = "http://${cms_domain}"
+ASTRO_SITE_URL = "http://${web_domain}"
+
+# Email (Resend) — required, fill before deploying.
+RESEND_API_KEY = ""
+EMAIL_FROM_ADDRESS = ""
+EMAIL_FROM_NAME = ""
+
+# S3 / MinIO
+S3_BUCKET = "sidshub-media"
+S3_REGION = "us-east-1"
+S3_ACCESS_KEY_ID = "${s3_access_key}"
+S3_SECRET_ACCESS_KEY = "${s3_secret_key}"
+
+# Web App (Astro)
+ASTRO_CMS_API_URL = "http://${cms_domain}/api"
+ASTRO_CMS_READ_TOKEN = "${cms_read_token}"
+
+# Deploy webhook — set after enabling Auto Deploy in Dokploy.
+WEB_DEPLOY_WEBHOOK_URL = ""
+WEB_DEPLOY_BRANCH = "main"

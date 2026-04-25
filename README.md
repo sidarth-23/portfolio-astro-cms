@@ -88,7 +88,7 @@ cp .env.web.example apps/web/.env
 
 # 3) Start local infrastructure
 task up:build
-# or: docker compose -f docker-compose.local.yml up -d --build
+# or: docker compose -f deployment/docker-compose.local.yml up -d --build
 
 # 4) Start app dev server and workspace package watchers
 bun run dev:web

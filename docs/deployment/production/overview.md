@@ -10,14 +10,14 @@
 
 ## Compose Files
 
-| File                       | Purpose                                        |
-| -------------------------- | ---------------------------------------------- |
-| `docker-compose.local.yml` | Local dev infrastructure (MongoDB, MinIO only) |
-| `docker-compose.prod.yml`  | **Production** — pulls prebuilt GHCR images    |
+| File                                  | Purpose                                        |
+| ------------------------------------- | ---------------------------------------------- |
+| `deployment/docker-compose.local.yml` | Local dev infrastructure (MongoDB, MinIO only) |
+| `deployment/docker-compose.prod.yml`  | **Production** — pulls prebuilt GHCR images    |
 
 ## Production Stack
 
-`docker-compose.prod.yml` defines five services:
+`deployment/docker-compose.prod.yml` defines five services:
 
 | Service       | Image                                        | Role                                   |
 | ------------- | -------------------------------------------- | -------------------------------------- |
@@ -31,7 +31,7 @@
 `astro-web` is fully independent — it has no `depends_on` and its failure never
 blocks the CMS stack.
 
-The following values are hardcoded in `docker-compose.prod.yml` and must not be
+The following values are hardcoded in `deployment/docker-compose.prod.yml` and must not be
 overridden via environment variables:
 
 | Variable        | Value                             |
@@ -43,10 +43,10 @@ overridden via environment variables:
 
 ## Platform Guides
 
-| Platform                       | Guide                                  |
-| ------------------------------ | -------------------------------------- |
-| Custom (manual Docker Compose) | [`custom/setup.md`](custom/setup.md)   |
-| Dokploy                        | [`dokploy/setup.md`](dokploy/setup.md) |
+| Platform                       | Guide                                                                      |
+| ------------------------------ | -------------------------------------------------------------------------- |
+| Custom (manual Docker Compose) | [`custom/setup.md`](custom/setup.md)                                       |
+| Dokploy (template recommended) | [`dokploy/setup.md`](dokploy/setup.md) — template in `deployment/dokploy/` |
 
 ## First Deployment (Bootstrap)
 
@@ -171,7 +171,7 @@ are immutable and published for every push to `main` and `staging` by CI.
 ## MinIO Bucket Provisioning
 
 - `minio-init` provisions `S3_BUCKET` on every compose startup when
-  `MINIO_CREATE_BUCKET_ON_STARTUP=true` (default in `docker-compose.prod.yml`).
+  `MINIO_CREATE_BUCKET_ON_STARTUP=true` (default in `deployment/docker-compose.prod.yml`).
 - `mc mb --ignore-existing` makes re-provisioning on restarts safe.
 - CMS only enables S3 storage when the full S3 configuration is present;
   otherwise it falls back to Payload's local upload storage for `media`.

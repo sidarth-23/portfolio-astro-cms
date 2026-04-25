@@ -1,14 +1,13 @@
 # Dokploy Setup
 
-This guide covers configuring Dokploy to run the production stack defined in
-`docker-compose.prod.yml`.
+This guide covers deploying the production stack on Dokploy using the included
+template, which auto-generates secrets and assigns Traefik domains.
 
 ## Prerequisites
 
 - Dokploy installed on a VPS (see [Dokploy docs](https://docs.dokploy.com))
 - DNS A records pointing to the server IP — see [`../overview.md`](../overview.md)
 - GitHub Personal Access Token with `read:packages` scope (for GHCR pulls)
-- All secrets and env values from `.env.prod.example` ready to fill in
 
 ## 1. Add GHCR Registry
 
@@ -27,59 +26,77 @@ Settings → Registry → New Registry:
 1. New Project → name it (e.g. `sidshub`)
 2. Add Service → **Docker Compose**
 3. Source → GitHub, select this repository
-4. Compose file path: `docker-compose.prod.yml`
+4. Compose file path: `deployment/dokploy/docker-compose.yml`
 
-## 3. Set Environment Variables
+## 3. Apply the Template
 
 Open the **Environment** tab of the compose service.
 
-Copy `.env.prod.example`, fill in all values, and paste the contents in.
+Paste the contents of `deployment/dokploy/template.toml` into the template
+field (or use Dokploy's blueprint import if available). Dokploy resolves all
+`${...}` generators and writes the result to the service's environment:
 
-The following variables are **not required** — they are hardcoded in
-`docker-compose.prod.yml` because they are determined by the compose topology:
+| Variable                    | How it's set                            |
+| --------------------------- | --------------------------------------- |
+| `PAYLOAD_SECRET`            | Auto — `openssl rand -base64 32`        |
+| `CMS_READ_TOKEN`            | Auto — `openssl rand -base64 32`        |
+| `ASTRO_CMS_READ_TOKEN`      | Auto — same value as `CMS_READ_TOKEN`   |
+| `S3_ACCESS_KEY_ID`          | Auto — random 20-char alphanumeric      |
+| `S3_SECRET_ACCESS_KEY`      | Auto — random 40-char alphanumeric      |
+| `PAYLOAD_PUBLIC_SERVER_URL` | Auto — derived from CMS domain          |
+| `ASTRO_SITE_URL`            | Auto — derived from web domain          |
+| `ASTRO_CMS_API_URL`         | Auto — derived from CMS domain + `/api` |
+| `RESEND_API_KEY`            | **Manual — fill before deploying**      |
+| `EMAIL_FROM_ADDRESS`        | **Manual — fill before deploying**      |
+| `EMAIL_FROM_NAME`           | **Manual — fill before deploying**      |
 
-| Variable       | Hardcoded value                   |
-| -------------- | --------------------------------- |
-| `DATABASE_URI` | `mongodb://mongodb:27017/payload` |
-| `S3_ENDPOINT`  | `http://minio:9000`               |
-| `NODE_ENV`     | `production`                      |
-| `HOST`         | `0.0.0.0`                         |
-| `PORT`         | `4321`                            |
+The CMS will refuse to start if the three manual values are left empty — fill
+them in the Environment tab before clicking Deploy.
 
 ## 4. Configure Domains
 
-Open the **Domains** tab and add:
+Open the **Domains** tab. The template pre-configures two Traefik entries:
 
-| Domain           | Service       | Container Port | HTTPS         |
-| ---------------- | ------------- | -------------- | ------------- |
-| `cms.sidshub.in` | `payload-cms` | `3000`         | Let's Encrypt |
-| `www.sidshub.in` | `astro-web`   | `4321`         | Let's Encrypt |
-| `sidshub.in`     | `astro-web`   | `4321`         | Let's Encrypt |
+| Service       | Container Port | Domain                       |
+| ------------- | -------------- | ---------------------------- |
+| `payload-cms` | `3000`         | auto-assigned `*.traefik.me` |
+| `astro-web`   | `4321`         | auto-assigned `*.traefik.me` |
 
 Dokploy injects Traefik labels automatically — nothing to add in
-`docker-compose.prod.yml`.
+`deployment/dokploy/docker-compose.yml`.
 
-After saving, **redeploy** the compose service for domain changes to take effect.
+### Using Custom Domains
 
-## 5. Enable Auto Deploy
+To use real domains instead of the auto-assigned `*.traefik.me` ones:
 
-Enable **Auto Deploy** on the compose service. Copy the generated webhook URL and
-set it as `WEB_DEPLOY_WEBHOOK_URL` in the environment variables from step 3.
+1. Replace the domain entries in the **Domains** tab with your real hostnames
+   and enable HTTPS via Let's Encrypt.
+2. Update the corresponding environment variables:
+   - `PAYLOAD_PUBLIC_SERVER_URL` → `https://cms.yourdomain.com`
+   - `ASTRO_SITE_URL` → `https://www.yourdomain.com`
+   - `ASTRO_CMS_API_URL` → `https://cms.yourdomain.com/api`
 
-This webhook is called by the CMS `afterChange` hook whenever content is
-published, triggering a redeploy that picks up the latest web image.
+After saving domain changes, **redeploy** for them to take effect.
 
-## 6. Deploy
+## 5. Deploy
 
 Click **Deploy**. On the first deployment `astro-web` will fail to start — the
 web image does not exist in GHCR yet. This is expected and does not affect the
 CMS. Follow the **Bootstrap** section in [`../overview.md`](../overview.md) to
 complete the initial setup.
 
+## 6. Enable Auto Deploy
+
+Enable **Auto Deploy** on the compose service. Copy the generated webhook URL
+and set it as `WEB_DEPLOY_WEBHOOK_URL` in the Environment tab, then redeploy.
+
+This webhook is called by the CMS `afterChange` hook whenever content is
+published, triggering a redeploy that picks up the latest web image.
+
 ## Rollback
 
 Change `IMAGE_TAG` in the Environment tab to a SHA tag (e.g. `sha-abc1234`) and
-redeploy. SHA tags are immutable; they are published for every push to `main` and
+redeploy. SHA tags are immutable and published for every push to `main` and
 `staging` by the CI pipeline.
 
 ## Scheduled Media Cleanup
