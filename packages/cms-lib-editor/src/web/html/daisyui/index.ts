@@ -1,5 +1,6 @@
 import { createRichTextRenderer } from "@/web/html/shared/render";
 import type { BlockComponents } from "@/web/html/types";
+import type { TableClassConfig } from "@/web/util/table";
 import { Callout } from "./Callout";
 import { Code } from "./Code";
 import { Footnotes } from "./Footnotes";
@@ -8,8 +9,14 @@ import { Upload } from "./Upload";
 
 const components: BlockComponents = { Callout, Code, Footnotes, ImageGallery, Upload };
 
-export const { renderRichTextToHTML, renderBlock, renderBlocks } =
-  createRichTextRenderer(components);
+export const tableClasses: TableClassConfig = {
+  table: "table not-prose",
+};
+
+export const { renderRichTextToHTML, renderBlock, renderBlocks } = createRichTextRenderer(
+  components,
+  { tableClasses },
+);
 
 export { components as daisyuiComponents };
 

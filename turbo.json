@@ -1,5 +1,6 @@
 {
   "$schema": "https://turbo.build/schema.json",
+  "concurrency": "20",
   "tasks": {
     "build": {
       "dependsOn": ["^build"],
@@ -19,7 +20,31 @@
       "outputs": ["dist/**"]
     },
     "dev": {
-      "dependsOn": ["^dev"],
+      "cache": false,
+      "persistent": true
+    },
+    "@sidshub/web#dev": {
+      "dependsOn": ["^build"],
+      "with": [
+        "@sidshub/cms-core#dev",
+        "@sidshub/cms-lib-editor#dev",
+        "@sidshub/cms-lib-icons#dev"
+      ],
+      "cache": false,
+      "persistent": true
+    },
+    "@sidshub/cms#dev": {
+      "dependsOn": ["^build"],
+      "with": [
+        "@sidshub/cms-core#dev",
+        "@sidshub/cms-feature-emoji#dev",
+        "@sidshub/cms-feature-footnotes#dev",
+        "@sidshub/cms-feature-markdown-paste#dev",
+        "@sidshub/cms-lib-editor#dev",
+        "@sidshub/cms-lib-icons#dev",
+        "@sidshub/cms-plugin-deployment-log-view#dev",
+        "@sidshub/cms-plugin-og-image#dev"
+      ],
       "cache": false,
       "persistent": true
     },

@@ -15,6 +15,7 @@ import { renderToStaticMarkup } from "preact-render-to-string";
 import { highlightCode } from "@/web/util/shiki";
 import type { UploadDoc } from "@/web/util/image";
 import { createHeadingConverters } from "../../util/headings";
+import { createTableConverters, type TableClassConfig } from "../../util/table";
 import {
   createInternalDocHrefResolver,
   type InternalDocHrefRouteMap,
@@ -171,7 +172,10 @@ async function renderElementTag(
   return `<${tag}>${childrenHtml}</${tag}>`;
 }
 
-export function createRichTextRenderer(components: BlockComponents) {
+export function createRichTextRenderer(
+  components: BlockComponents,
+  options?: { tableClasses?: TableClassConfig },
+) {
   const { Callout, Code, Footnotes, Upload, ImageGallery } = components;
 
   const renderRichTextToHTML = async (
@@ -222,6 +226,7 @@ export function createRichTextRenderer(components: BlockComponents) {
         },
         ...LinkHTMLConverterAsync({ internalDocToHref }),
         ...createHeadingConverters(),
+        ...createTableConverters(options?.tableClasses),
         "footnote-reference": ({ node }) => {
           const fn = node as unknown as SerializedFootnoteReferenceNode;
           const referenceCount = (renderedRefCountById.get(fn.footnoteId) ?? 0) + 1;
@@ -413,7 +418,7 @@ export function createRichTextRenderer(components: BlockComponents) {
     );
 
     const items = definitionItems.filter((item): item is NonNullable<typeof item> => item !== null);
-    const footnotesSection = renderToStaticMarkup(<Footnotes title="Footnotes" items={items} />);
+    const footnotesSection = renderToStaticMarkup(<Footnotes title="References" items={items} />);
 
     return processedHtml + footnotesSection;
   };

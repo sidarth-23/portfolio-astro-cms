@@ -39,7 +39,8 @@ Required for auth email delivery via Resend:
 ## Database Workflow
 
 - Development:
-  - `bun run dev:cms` starts the CMS directly with MongoDB adapter configuration.
+  - `task up` or `task up:build` starts local MongoDB and MinIO.
+  - `bun run dev:cms` runs the CMS locally with MongoDB adapter configuration; Turbo prebuilds shared package dependencies and starts package watchers from `turbo.json`.
 - Production:
   - Start CMS directly (`bun run build:cms` and `bun run --filter @sidshub/cms start`).
   - No migration sidecar/job is required.

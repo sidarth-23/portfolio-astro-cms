@@ -29,7 +29,7 @@ export default defineConfig({
   vite: {
     plugins: [tailwindcss()],
     optimizeDeps: {
-      exclude: ["@sidshub/cms-core", "@sidshub/cms-lib-editor"],
+      exclude: ["@sidshub/cms-core", "@sidshub/cms-lib-editor", "@sidshub/cms-lib-icons"],
     },
     resolve: {
       alias: {

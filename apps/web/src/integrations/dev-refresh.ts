@@ -11,12 +11,20 @@ const WORKSPACE_DIST_GLOBS = [
   fileURLToPath(new URL("../../../../../packages/cms-lib-icons/dist/**", import.meta.url)),
 ];
 
-function invalidateAstroModules(server: ViteDevServer) {
+/**
+ * Directly invalidate all .astro modules in the SSR module graph without
+ * emitting watcher events (avoids [watch] log spam). Returns the count of
+ * invalidated modules. Callers must send a browser reload separately.
+ */
+function invalidateAstroModules(server: ViteDevServer): number {
+  let count = 0;
   for (const mod of server.moduleGraph.idToModuleMap.values()) {
     if (mod.file?.endsWith(".astro")) {
-      server.watcher.emit("change", mod.file);
+      server.moduleGraph.invalidateModule(mod);
+      count++;
     }
   }
+  return count;
 }
 
 export function devRefresh(): AstroIntegration {
@@ -24,19 +32,36 @@ export function devRefresh(): AstroIntegration {
     name: "sidshub:dev-refresh",
     hooks: {
       "astro:server:setup": ({ server, logger }) => {
-        // Watch workspace package dist dirs so SSR modules invalidate when
-        // tsdown rebuilds a package in watch mode.
+        // --- Workspace dist watcher (debounced) ---
+        // Real dist file changes already trigger Astro's rebuildManifest
+        // (route cache clearing) via its own watcher handler, so no synthetic
+        // change events are needed here — just quiet module invalidation.
+        let debounceTimer: ReturnType<typeof setTimeout> | null = null;
+        let pendingChanges: string[] = [];
+
         server.watcher.add(WORKSPACE_DIST_GLOBS);
         server.watcher.on("change", (changedPath) => {
-          const isWorkspaceDist = WORKSPACE_DIST_GLOBS.some(
-            () => changedPath.includes("/packages/") && changedPath.includes("/dist/"),
-          );
-          if (isWorkspaceDist) {
-            logger.info(`Package changed: ${changedPath} — invalidating modules`);
-            invalidateAstroModules(server);
-          }
+          const isWorkspaceDist =
+            changedPath.includes("/packages/") && changedPath.includes("/dist/");
+          if (!isWorkspaceDist) return;
+
+          pendingChanges.push(changedPath);
+
+          if (debounceTimer) clearTimeout(debounceTimer);
+          debounceTimer = setTimeout(() => {
+            const fileCount = pendingChanges.length;
+            pendingChanges = [];
+            debounceTimer = null;
+
+            const modCount = invalidateAstroModules(server);
+            logger.info(
+              `Package rebuild (${fileCount} file${fileCount !== 1 ? "s" : ""}) — invalidated ${modCount} module${modCount !== 1 ? "s" : ""}`,
+            );
+            server.ws.send({ type: "full-reload", path: "*" });
+          }, 300);
         });
 
+        // --- CMS content refresh endpoint ---
         server.middlewares.use("/_dev/refresh", (req, res) => {
           if (req.method !== "POST") {
             res.writeHead(405);
@@ -44,12 +69,21 @@ export function devRefresh(): AstroIntegration {
             return;
           }
 
-          // Emit file-change events on .astro pages to trigger Astro's
-          // full HMR pipeline — this clears the route cache (getStaticPaths
-          // results) which plain module-graph invalidation does not reach.
-          invalidateAstroModules(server);
+          // Invalidate all .astro modules quietly (no [watch] log per module).
+          const modCount = invalidateAstroModules(server);
 
-          logger.info("CMS content changed — reloading browser");
+          // Emit ONE synthetic change event to trigger Astro's rebuildManifest,
+          // which clears the route cache (getStaticPaths results). A real file
+          // change event is the only external way to reach that code path.
+          for (const mod of server.moduleGraph.idToModuleMap.values()) {
+            if (mod.file?.endsWith(".astro")) {
+              server.watcher.emit("change", mod.file);
+              break;
+            }
+          }
+
+          server.ws.send({ type: "full-reload", path: "*" });
+          logger.info(`CMS content changed — invalidated ${modCount} modules, reloading browser`);
 
           res.writeHead(200, { "Content-Type": "application/json" });
           res.end(JSON.stringify({ success: true }));

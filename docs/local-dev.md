@@ -16,7 +16,7 @@ If you have [Task](https://taskfile.dev/) installed:
 # Install dependencies
 task install
 
-# Start all services
+# Start local infrastructure
 task up:build
 
 # View all available commands
@@ -39,14 +39,15 @@ For auth emails, set these before starting CMS:
 - `EMAIL_FROM_ADDRESS`
 - `EMAIL_FROM_NAME`
 
-## 2. Start All Services
+## 2. Start Local Infrastructure
 
 ### Using Taskfile (Recommended)
 
 ```bash
-task up:build   # Build and start all services in background
-task logs       # Follow logs from all services
-task logs:cms   # Follow CMS logs only
+task up:build   # Build and start MongoDB and MinIO in background
+task logs       # Follow logs from local infrastructure
+task logs:mongodb
+task logs:minio
 ```
 
 ### Using Docker Compose directly
@@ -59,18 +60,28 @@ This will start:
 
 - MongoDB (port 27017)
 - MinIO (ports 9000, 9001)
-- Payload CMS (port 3000)
 
 Taskfile local startup also runs `minio:ensure-bucket`, which uses `minio-init` to create `S3_BUCKET` idempotently.
 If you omit the S3 environment variables entirely, the CMS still starts and uses Payload's default local upload storage instead of MinIO.
 
-## 3. Access Services
+## 3. Start App Dev Servers
+
+Run app servers on the host so workspace package rebuilds trigger fast HMR/recompilation:
+
+```bash
+bun run dev:web   # Astro web + direct web package watchers
+bun run dev:cms   # Payload/Next CMS + CMS package watchers
+bun run dev:all   # Web, CMS, and all selected package watchers
+```
+
+## 4. Access Services
 
 - **Payload Admin:** http://localhost:3000/admin
+- **Astro Web:** http://localhost:4321
 - **MinIO Console:** http://localhost:9001
 - **MongoDB:** localhost:27017
 
-## 4. Stopping Services
+## 5. Stopping Services
 
 ### Using Taskfile
 
@@ -86,7 +97,7 @@ task clean      # Stop and remove volumes (deletes data!)
 docker compose -f docker-compose.local.yml down
 ```
 
-## 5. Common Tasks
+## 6. Common Tasks
 
 ### Database Management
 
@@ -100,9 +111,10 @@ task db:restore   # Restore from backup (if configured)
 ### Development Workflow
 
 ```bash
-task cms:dev      # Run CMS locally (outside Docker)
-task web:dev      # Run Astro web locally
-task cms:types    # Generate Payload TypeScript types
+bun run dev:web       # Run Astro locally with package watchers
+bun run dev:cms       # Run CMS locally with package watchers
+bun run dev:all       # Run both apps locally with package watchers
+bun run payload:types # Generate Payload TypeScript types
 ```
 
 ### Web Build Requirement
@@ -111,11 +123,10 @@ task cms:types    # Generate Payload TypeScript types
 - Build preflight checks `ASTRO_CMS_API_URL` (default `http://localhost:3000/api`) via `/health` with bearer token auth before Astro build starts.
 - If CMS is down, unauthorized, timing out, or unhealthy, the web build fails immediately.
 
-### Health Checks
+### Service Status
 
 ```bash
 task status       # Show container status
-task health       # Check service health endpoints
 ```
 
 For a full list of available commands, run:
@@ -124,7 +135,7 @@ For a full list of available commands, run:
 task --list
 ```
 
-## 6. Notes
+## 7. Notes
 
 - Data is persisted in Docker volumes (`mongodb_data`, `minio_data`).
 - Local bucket provisioning is automatic when using `task up` or `task up:build`.

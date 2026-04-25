@@ -85,20 +85,22 @@ bun install
 cp .env.cms.example apps/cms/.env
 cp .env.web.example apps/web/.env
 
-# 3) Start infrastructure + CMS
+# 3) Start local infrastructure
 task up:build
 # or: docker compose -f docker-compose.local.yml up -d --build
 
-# 4) Start web app
+# 4) Start app dev server and workspace package watchers
 bun run dev:web
+# or: bun run dev:cms / bun run dev:all
 ```
 
 ## Common Commands
 
 ```bash
 bun run dev           # Alias to dev:web
-bun run dev:web       # Astro web dev
-bun run dev:cms       # Payload CMS dev
+bun run dev:web       # Run Astro with Turbo-managed package builds/watchers
+bun run dev:cms       # Run Payload/Next with Turbo-managed package builds/watchers
+bun run dev:all       # Run web, CMS, and shared package watchers together
 bun run build         # Build web + cms
 bun run build:web     # Build web only
 bun run build:cms     # Build cms only
