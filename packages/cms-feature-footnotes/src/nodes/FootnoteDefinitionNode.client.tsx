@@ -26,7 +26,10 @@ export class FootnoteDefinitionNode extends FootnoteDefinitionServerNode {
     const el = document.createElement("div");
     el.setAttribute("data-footnote-id", this.__footnoteId);
     el.classList.add("footnote-definition");
-    el.style.display = "none";
+    el.style.display = "list-item";
+    el.style.listStyleType = "decimal";
+    el.style.listStylePosition = "outside";
+    el.style.marginLeft = "1.5em";
     return el;
   }
 

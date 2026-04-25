@@ -55,7 +55,7 @@ export function FootnoteModal({ controller, drawerSlug }: FootnoteModalProps): R
           <div className={fieldBaseClass}>
             <FieldDescription
               path={`${drawerSlug}.description`}
-              description="Create a new footnote definition or reuse an existing entry."
+              description="Create a new footnote or reuse an existing one. After inserting, edit the definition's rich text directly in the content editor above."
             />
           </div>
 
@@ -78,10 +78,10 @@ export function FootnoteModal({ controller, drawerSlug }: FootnoteModalProps): R
 
           {mode === "new" ? (
             <TextareaInput
-              label="Footnote text"
+              label="Initial footnote text (optional)"
               path={`${drawerSlug}.text`}
-              placeholder="Type footnote content..."
-              rows={6}
+              placeholder="Leave blank to start with an empty footnote…"
+              rows={3}
               value={text}
               onChange={(event) => {
                 setText(event.target.value);

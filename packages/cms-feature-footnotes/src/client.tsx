@@ -3,8 +3,8 @@ import { createClientFeature } from "@payloadcms/richtext-lexical/client";
 
 import { FootnoteReferenceNode } from "./nodes/FootnoteReferenceNode.client";
 import { FootnoteDefinitionNode } from "./nodes/FootnoteDefinitionNode.client";
+import { FootnoteSeparatorNode } from "./nodes/FootnoteSeparatorNode.client";
 import { FootnotePlugin } from "./plugins/FootnotePlugin";
-import { FootnoteEntriesPanelPlugin } from "./plugins/FootnoteEntriesPanelPlugin";
 import { FOOTNOTE_REFERENCE_TRANSFORMER } from "./transformers/footnoteReference";
 import { FOOTNOTE_DEFINITION_TRANSFORMER } from "./transformers/footnoteDefinition";
 import { OPEN_FOOTNOTE_MODAL_COMMAND } from "./plugins/footnoteCommand";
@@ -31,7 +31,7 @@ function FootnoteIcon() {
 
 export const FootnotesFeatureClient = createClientFeature({
   markdownTransformers: [FOOTNOTE_REFERENCE_TRANSFORMER, FOOTNOTE_DEFINITION_TRANSFORMER],
-  nodes: [FootnoteReferenceNode, FootnoteDefinitionNode],
+  nodes: [FootnoteReferenceNode, FootnoteDefinitionNode, FootnoteSeparatorNode],
   toolbarFixed: {
     groups: [
       {
@@ -75,10 +75,6 @@ export const FootnotesFeatureClient = createClientFeature({
     {
       Component: FootnotePlugin,
       position: "normal",
-    },
-    {
-      Component: FootnoteEntriesPanelPlugin,
-      position: "belowContainer",
     },
   ],
 });

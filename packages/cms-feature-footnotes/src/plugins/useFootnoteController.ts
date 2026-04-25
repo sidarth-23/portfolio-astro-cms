@@ -14,7 +14,7 @@ import { useModal } from "@payloadcms/ui";
 
 import { $createFootnoteDefinitionNode } from "../nodes/FootnoteDefinitionNode.client";
 import { $createFootnoteReferenceNode } from "../nodes/FootnoteReferenceNode.client";
-import { readFootnoteSnapshot } from "./footnoteState";
+import { extractTextFromSerializedChildren, readFootnoteSnapshot } from "./footnoteState";
 
 type FootnoteEntry = {
   id: string;
@@ -129,9 +129,10 @@ const getFootnoteEntries = (editor: LexicalEditor): FootnoteEntry[] => {
   return editor.getEditorState().read(() => {
     const snapshot = readFootnoteSnapshot();
     return snapshot.entries.map((entry) => {
+      const plainText = extractTextFromSerializedChildren(entry.serializedChildren);
       return {
         id: entry.id,
-        preview: `#${entry.displayIndex} ${formatPreview(entry.text)}`,
+        preview: `#${entry.displayIndex} ${formatPreview(plainText)}`,
       };
     });
   });
@@ -185,52 +186,69 @@ export const useFootnoteController = ({
   const handleSubmit = useCallback(() => {
     const text = state.text.trim();
 
-    if (state.mode === "new" && text.length === 0) {
-      dispatch({ type: "setError", value: "Footnote text is required for a new footnote." });
-      return;
-    }
-
     if (state.mode === "reuse" && state.selectedId.length === 0) {
       dispatch({ type: "setError", value: "Select an existing footnote to reuse." });
       return;
     }
 
-    editor.update(() => {
-      const root = $getRoot();
-      const existingIds = new Set<string>();
+    // For "new" mode, capture the next footnote ID before the update so we
+    // can scroll to its definition once the DOM has settled.
+    let newFootnoteId: null | string = null;
 
-      for (const node of root.getChildren()) {
-        if (node.getType() !== "footnote-definition") {
-          continue;
+    editor.update(
+      () => {
+        const root = $getRoot();
+        const existingIds = new Set<string>();
+
+        for (const node of root.getChildren()) {
+          if (node.getType() !== "footnote-definition") {
+            continue;
+          }
+
+          const withFootnote = node as unknown as { getFootnoteId?: () => string };
+          const id = withFootnote.getFootnoteId?.();
+          if (id) {
+            existingIds.add(id);
+          }
         }
 
-        const withFootnote = node as unknown as { getFootnoteId?: () => string };
-        const id = withFootnote.getFootnoteId?.();
-        if (id) {
-          existingIds.add(id);
+        let footnoteId = state.selectedId;
+
+        if (state.mode === "new") {
+          footnoteId = buildNextFootnoteId(existingIds);
+          newFootnoteId = footnoteId;
+          const definitionNode = $createFootnoteDefinitionNode(footnoteId);
+          const paragraph = $createParagraphNode();
+          if (text) {
+            paragraph.append($createTextNode(text));
+          }
+          definitionNode.append(paragraph);
+          root.append(definitionNode);
         }
-      }
 
-      let footnoteId = state.selectedId;
+        const selection = $getSelection();
+        const refNode = $createFootnoteReferenceNode(footnoteId);
 
-      if (state.mode === "new") {
-        footnoteId = buildNextFootnoteId(existingIds);
-        const definitionNode = $createFootnoteDefinitionNode(footnoteId);
-        const paragraph = $createParagraphNode();
-        paragraph.append($createTextNode(text));
-        definitionNode.append(paragraph);
-        root.append(definitionNode);
-      }
-
-      const selection = $getSelection();
-      const refNode = $createFootnoteReferenceNode(footnoteId);
-
-      if ($isRangeSelection(selection)) {
-        $insertNodes([refNode]);
-      } else {
-        root.append($createParagraphNode().append(refNode));
-      }
-    });
+        if ($isRangeSelection(selection)) {
+          $insertNodes([refNode]);
+        } else {
+          root.append($createParagraphNode().append(refNode));
+        }
+      },
+      {
+        onUpdate: () => {
+          // Fires after the DOM update; scroll to the new definition.
+          if (!newFootnoteId) return;
+          const encodedId = encodeURIComponent(newFootnoteId);
+          const el = document.querySelector(
+            `[data-footnote-id="${encodedId}"]`,
+          ) as HTMLElement | null;
+          if (el) {
+            el.scrollIntoView({ behavior: "smooth", block: "center" });
+          }
+        },
+      },
+    );
 
     closeModal(drawerSlug);
     resetFromEditorState();

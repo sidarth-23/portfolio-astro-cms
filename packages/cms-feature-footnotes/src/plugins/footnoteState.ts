@@ -7,6 +7,7 @@ import {
   $isElementNode,
   type ElementNode,
   type LexicalNode,
+  type SerializedLexicalNode,
 } from "lexical";
 
 import {
@@ -14,6 +15,10 @@ import {
   $isFootnoteDefinitionNode,
 } from "../nodes/FootnoteDefinitionNode.client";
 import { $isFootnoteReferenceNode } from "../nodes/FootnoteReferenceNode.client";
+import {
+  $createFootnoteSeparatorNode,
+  $isFootnoteSeparatorNode,
+} from "../nodes/FootnoteSeparatorNode.client";
 
 type FootnoteDefinitionLike = ElementNode & {
   getFootnoteId: () => string;
@@ -30,7 +35,7 @@ type FootnoteReferenceLike = LexicalNode & {
 export type FootnotePanelEntry = {
   displayIndex: number;
   id: string;
-  text: string;
+  serializedChildren: SerializedLexicalNode[];
 };
 
 export type FootnoteSnapshot = {
@@ -52,13 +57,28 @@ const toDefinitionNode = (node: LexicalNode): FootnoteDefinitionLike | null => {
   return withId;
 };
 
-const serializeDefinitionText = (definitionNode: FootnoteDefinitionLike): string => {
-  const paragraphs = definitionNode
-    .getChildren()
-    .map((child) => child.getTextContent())
-    .join("\n");
+const serializeDefinitionChildren = (
+  definitionNode: FootnoteDefinitionLike,
+): SerializedLexicalNode[] => {
+  return definitionNode.getChildren().map((child) => child.exportJSON());
+};
 
-  return paragraphs;
+/**
+ * Extracts plain text from a serialized Lexical node tree. Used for preview
+ * strings in the footnote controller (reuse dropdown labels).
+ */
+export const extractTextFromSerializedChildren = (nodes: SerializedLexicalNode[]): string => {
+  const parts: string[] = [];
+  const walk = (n: SerializedLexicalNode) => {
+    if ("text" in n && typeof n.text === "string") {
+      parts.push(n.text);
+    }
+    if ("children" in n && Array.isArray(n.children)) {
+      (n.children as SerializedLexicalNode[]).forEach(walk);
+    }
+  };
+  nodes.forEach(walk);
+  return parts.join(" ");
 };
 
 const walkReferences = (node: LexicalNode, output: string[]): void => {
@@ -151,13 +171,25 @@ const getPanelEntries = (
       return {
         displayIndex,
         id,
-        text: definitionsById.has(id)
-          ? serializeDefinitionText(definitionsById.get(id) as FootnoteDefinitionLike)
-          : "",
+        serializedChildren: definitionsById.has(id)
+          ? serializeDefinitionChildren(definitionsById.get(id) as FootnoteDefinitionLike)
+          : [],
       };
     });
 };
 
+const ensureAtLeastOneParagraph = (definitionNode: FootnoteDefinitionLike): void => {
+  if (definitionNode.getChildrenSize() === 0) {
+    const paragraph = $createParagraphNode();
+    paragraph.append($createTextNode(""));
+    definitionNode.append(paragraph);
+  }
+};
+
+/**
+ * Creates a definition with a plain-text paragraph.
+ * Used by the footnote modal when inserting a new footnote via the toolbar button.
+ */
 const ensureDefinitionTextNode = (definitionNode: FootnoteDefinitionLike, text: string): void => {
   for (const child of definitionNode.getChildren()) {
     child.remove();
@@ -179,11 +211,7 @@ const ensureDefinitionTextNode = (definitionNode: FootnoteDefinitionLike, text: 
     definitionNode.append(paragraph);
   }
 
-  if (definitionNode.getChildrenSize() === 0) {
-    const paragraph = $createParagraphNode();
-    paragraph.append($createTextNode(""));
-    definitionNode.append(paragraph);
-  }
+  ensureAtLeastOneParagraph(definitionNode);
 };
 
 export const readFootnoteSnapshot = (): FootnoteSnapshot => {
@@ -192,8 +220,18 @@ export const readFootnoteSnapshot = (): FootnoteSnapshot => {
   const duplicateDefinitionIds: string[] = [];
   let hasNonDefinitionAfterDefinition = false;
   let hasSeenDefinition = false;
+  let separatorCount = 0;
+  let separatorBeforeFirstDefinition = false;
 
   for (const child of root.getChildren()) {
+    if ($isFootnoteSeparatorNode(child)) {
+      separatorCount += 1;
+      if (!hasSeenDefinition) {
+        separatorBeforeFirstDefinition = true;
+      }
+      continue;
+    }
+
     const definitionNode = toDefinitionNode(child);
 
     if (definitionNode) {
@@ -235,6 +273,11 @@ export const readFootnoteSnapshot = (): FootnoteSnapshot => {
     rootDefinitionOrder.length !== expectedDefinitionOrder.length ||
     rootDefinitionOrder.some((id, index) => expectedDefinitionOrder[index] !== id);
 
+  const hasDefinitions = definitionsById.size > 0;
+  const separatorMissing = hasDefinitions && !separatorBeforeFirstDefinition;
+  const separatorOrphan = !hasDefinitions && separatorCount > 0;
+  const separatorDuplicate = separatorCount > 1;
+
   return {
     displayIndexById,
     entries: panelEntries,
@@ -243,7 +286,10 @@ export const readFootnoteSnapshot = (): FootnoteSnapshot => {
       orphanDefinitionExists ||
       missingDefinitionExists ||
       isOrderMismatched ||
-      hasNonDefinitionAfterDefinition,
+      hasNonDefinitionAfterDefinition ||
+      separatorMissing ||
+      separatorOrphan ||
+      separatorDuplicate,
   };
 };
 
@@ -253,6 +299,13 @@ export const normalizeFootnotes = (): void => {
   const orderedReferencedIds = snapshot.entries.map((entry) => entry.id);
   const referencedIdSet = new Set(orderedReferencedIds);
   const definitionsById = new Map<string, FootnoteDefinitionLike>();
+
+  // Remove all existing separators — we'll re-insert a single one if needed.
+  for (const child of root.getChildren()) {
+    if ($isFootnoteSeparatorNode(child)) {
+      child.remove();
+    }
+  }
 
   for (const child of root.getChildren()) {
     const definitionNode = toDefinitionNode(child);
@@ -286,6 +339,7 @@ export const normalizeFootnotes = (): void => {
     root.append(definitionNode);
   }
 
+  // Re-append definitions in reference order (moves them to the end of root).
   for (const id of orderedReferencedIds) {
     const definitionNode = definitionsById.get(id);
     if (!definitionNode) {
@@ -298,8 +352,22 @@ export const normalizeFootnotes = (): void => {
 
     root.append(definitionNode);
   }
+
+  // Insert a single separator before the first definition if any exist.
+  if (orderedReferencedIds.length > 0) {
+    const firstId = orderedReferencedIds[0]!;
+    const firstDef = definitionsById.get(firstId);
+    if (firstDef) {
+      const separator = $createFootnoteSeparatorNode();
+      firstDef.insertBefore(separator);
+    }
+  }
 };
 
+/**
+ * Updates footnote definition content from a plain text string.
+ * Used by the footnote modal when creating a new footnote.
+ */
 export const updateFootnoteDefinitionText = (id: string, text: string): void => {
   const root = $getRoot();
   let definitionNode: FootnoteDefinitionLike | null = null;

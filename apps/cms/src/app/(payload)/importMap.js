@@ -1,8 +1,6 @@
 import { RscEntryLexicalCell as RscEntryLexicalCell_44fe37237e0ebf4470c9990d8cb7b07e } from '@payloadcms/richtext-lexical/rsc'
 import { RscEntryLexicalField as RscEntryLexicalField_44fe37237e0ebf4470c9990d8cb7b07e } from '@payloadcms/richtext-lexical/rsc'
 import { LexicalDiffComponent as LexicalDiffComponent_44fe37237e0ebf4470c9990d8cb7b07e } from '@payloadcms/richtext-lexical/rsc'
-import { FootnotesFeatureClient as FootnotesFeatureClient_d98fd66331a6ba3867d9c6e3c0453344 } from '@sidshub/cms-feature-footnotes/client'
-import { MarkdownPasteFeatureClient as MarkdownPasteFeatureClient_91efebed9e691334de332836d84ddba7 } from '@sidshub/cms-feature-markdown-paste/client'
 import { EmojiFeatureClient as EmojiFeatureClient_93844252220bd60ce351f2bb96daf3ba } from '@sidshub/cms-feature-emoji/client'
 import { SuperscriptFeatureClient as SuperscriptFeatureClient_e70f5e05f09f93e00b997edb1ef0c864 } from '@payloadcms/richtext-lexical/client'
 import { SubscriptFeatureClient as SubscriptFeatureClient_e70f5e05f09f93e00b997edb1ef0c864 } from '@payloadcms/richtext-lexical/client'
@@ -33,6 +31,8 @@ import { MetaImageComponent as MetaImageComponent_a8a977ebc872c5d5ea7ee689724c08
 import { PreviewComponent as PreviewComponent_a8a977ebc872c5d5ea7ee689724c0860 } from '@payloadcms/plugin-seo/client'
 import { SocialCardPreview as SocialCardPreview_6b9e159fd20cb93b010762342f2391cf } from '@sidshub/cms-plugin-og-image/ui'
 import { SeoSaveButton as SeoSaveButton_6b9e159fd20cb93b010762342f2391cf } from '@sidshub/cms-plugin-og-image/ui'
+import { MarkdownPasteFeatureClient as MarkdownPasteFeatureClient_91efebed9e691334de332836d84ddba7 } from '@sidshub/cms-feature-markdown-paste/client'
+import { FootnotesFeatureClient as FootnotesFeatureClient_d98fd66331a6ba3867d9c6e3c0453344 } from '@sidshub/cms-feature-footnotes/client'
 import { TableFeatureClient as TableFeatureClient_e70f5e05f09f93e00b997edb1ef0c864 } from '@payloadcms/richtext-lexical/client'
 import { HorizontalRuleFeatureClient as HorizontalRuleFeatureClient_e70f5e05f09f93e00b997edb1ef0c864 } from '@payloadcms/richtext-lexical/client'
 import { UploadFeatureClient as UploadFeatureClient_e70f5e05f09f93e00b997edb1ef0c864 } from '@payloadcms/richtext-lexical/client'
@@ -59,8 +59,6 @@ export const importMap = {
   "@payloadcms/richtext-lexical/rsc#RscEntryLexicalCell": RscEntryLexicalCell_44fe37237e0ebf4470c9990d8cb7b07e,
   "@payloadcms/richtext-lexical/rsc#RscEntryLexicalField": RscEntryLexicalField_44fe37237e0ebf4470c9990d8cb7b07e,
   "@payloadcms/richtext-lexical/rsc#LexicalDiffComponent": LexicalDiffComponent_44fe37237e0ebf4470c9990d8cb7b07e,
-  "@sidshub/cms-feature-footnotes/client#FootnotesFeatureClient": FootnotesFeatureClient_d98fd66331a6ba3867d9c6e3c0453344,
-  "@sidshub/cms-feature-markdown-paste/client#MarkdownPasteFeatureClient": MarkdownPasteFeatureClient_91efebed9e691334de332836d84ddba7,
   "@sidshub/cms-feature-emoji/client#EmojiFeatureClient": EmojiFeatureClient_93844252220bd60ce351f2bb96daf3ba,
   "@payloadcms/richtext-lexical/client#SuperscriptFeatureClient": SuperscriptFeatureClient_e70f5e05f09f93e00b997edb1ef0c864,
   "@payloadcms/richtext-lexical/client#SubscriptFeatureClient": SubscriptFeatureClient_e70f5e05f09f93e00b997edb1ef0c864,
@@ -91,6 +89,8 @@ export const importMap = {
   "@payloadcms/plugin-seo/client#PreviewComponent": PreviewComponent_a8a977ebc872c5d5ea7ee689724c0860,
   "@sidshub/cms-plugin-og-image/ui#SocialCardPreview": SocialCardPreview_6b9e159fd20cb93b010762342f2391cf,
   "@sidshub/cms-plugin-og-image/ui#SeoSaveButton": SeoSaveButton_6b9e159fd20cb93b010762342f2391cf,
+  "@sidshub/cms-feature-markdown-paste/client#MarkdownPasteFeatureClient": MarkdownPasteFeatureClient_91efebed9e691334de332836d84ddba7,
+  "@sidshub/cms-feature-footnotes/client#FootnotesFeatureClient": FootnotesFeatureClient_d98fd66331a6ba3867d9c6e3c0453344,
   "@payloadcms/richtext-lexical/client#TableFeatureClient": TableFeatureClient_e70f5e05f09f93e00b997edb1ef0c864,
   "@payloadcms/richtext-lexical/client#HorizontalRuleFeatureClient": HorizontalRuleFeatureClient_e70f5e05f09f93e00b997edb1ef0c864,
   "@payloadcms/richtext-lexical/client#UploadFeatureClient": UploadFeatureClient_e70f5e05f09f93e00b997edb1ef0c864,

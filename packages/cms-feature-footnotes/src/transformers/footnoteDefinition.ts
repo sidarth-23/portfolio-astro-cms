@@ -1,4 +1,15 @@
 import type { MultilineElementTransformer } from "@payloadcms/richtext-lexical/lexical/markdown";
+import {
+  $convertFromMarkdownString,
+  BOLD_ITALIC_STAR,
+  BOLD_ITALIC_UNDERSCORE,
+  BOLD_STAR,
+  BOLD_UNDERSCORE,
+  INLINE_CODE,
+  ITALIC_STAR,
+  ITALIC_UNDERSCORE,
+  STRIKETHROUGH,
+} from "@payloadcms/richtext-lexical/lexical/markdown";
 import { $createParagraphNode, $createTextNode } from "lexical";
 import {
   $createFootnoteDefinitionServerNode,
@@ -6,6 +17,21 @@ import {
   FootnoteDefinitionServerNode,
 } from "../nodes/FootnoteDefinitionNode.server";
 import { decodeHtmlEntities } from "../utils";
+
+// Inline markdown transformers used when importing footnote definition content.
+// LINK is intentionally excluded: using @lexical/markdown's LinkNode directly
+// can produce node-class conflicts with the PayloadCMS Lexical registry.
+// Bold, italic, code and strikethrough round-trip correctly.
+const FOOTNOTE_INLINE_TRANSFORMERS = [
+  BOLD_STAR,
+  BOLD_UNDERSCORE,
+  BOLD_ITALIC_STAR,
+  BOLD_ITALIC_UNDERSCORE,
+  ITALIC_STAR,
+  ITALIC_UNDERSCORE,
+  STRIKETHROUGH,
+  INLINE_CODE,
+];
 
 export const FOOTNOTE_DEFINITION_TRANSFORMER: MultilineElementTransformer = {
   type: "multiline-element",
@@ -19,33 +45,19 @@ export const FOOTNOTE_DEFINITION_TRANSFORMER: MultilineElementTransformer = {
     const defNode = $createFootnoteDefinitionServerNode(footnoteId);
 
     if (children && children.length > 0) {
-      // Shortcut transform path (typing in editor): children nodes are provided directly
+      // Shortcut transform path (typing in editor): children nodes provided directly.
       for (const child of children) {
         defNode.append(child);
       }
-    } else if (linesInBetween) {
-      // Import path: content comes as raw text lines between the start/end markers.
-      // Group consecutive non-empty lines into paragraphs (separated by blank lines).
-      const groups: string[][] = [[]];
-      for (const line of linesInBetween) {
-        if (line.trim() === "") {
-          if (groups[groups.length - 1]!.length > 0) {
-            groups.push([]);
-          }
-        } else {
-          groups[groups.length - 1]!.push(line);
-        }
-      }
-
-      for (const group of groups) {
-        if (group.length === 0) continue;
-        const paragraph = $createParagraphNode();
-        paragraph.append($createTextNode(group.join("\n")));
-        defNode.append(paragraph);
-      }
+    } else if (linesInBetween && linesInBetween.length > 0) {
+      // Import path: content comes as raw markdown text lines.
+      // $convertFromMarkdownString uses defNode as its root so paragraphs are
+      // appended directly to the definition, not to the main editor root.
+      const markdownContent = linesInBetween.join("\n");
+      $convertFromMarkdownString(markdownContent, FOOTNOTE_INLINE_TRANSFORMERS, defNode);
     }
 
-    // canBeEmpty() returns false, so always ensure at least one paragraph
+    // canBeEmpty() returns false — ensure at least one paragraph.
     if (defNode.getChildrenSize() === 0) {
       const paragraph = $createParagraphNode();
       paragraph.append($createTextNode(""));
@@ -58,7 +70,7 @@ export const FOOTNOTE_DEFINITION_TRANSFORMER: MultilineElementTransformer = {
     if (!$isFootnoteDefinitionServerNode(node)) return null;
     const id = node.getFootnoteId();
     const content = exportChildren(node);
-    // Indent continuation lines with 4 spaces
+    // Indent continuation lines with 4 spaces (standard markdown footnote format)
     const lines = content.split("\n");
     const firstLine = lines[0] ?? "";
     const rest = lines
