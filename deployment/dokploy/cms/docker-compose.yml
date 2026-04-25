@@ -56,7 +56,7 @@ services:
     restart: "no"
 
   payload-cms:
-    image: ghcr.io/sidarth-g/sidshub-cms:${IMAGE_TAG:-main}
+    image: ghcr.io/sidarth-23/sidshub-cms:${IMAGE_TAG:-latest}
     env_file:
       - path: .env
         required: false
