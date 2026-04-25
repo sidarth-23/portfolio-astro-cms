@@ -3,7 +3,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "prepare:admin-artifacts": "cross-env NODE_OPTIONS=--no-deprecation payload generate:importmap",
+    "prepare:admin-artifacts": "cross-env NODE_OPTIONS=--no-deprecation SKIP_ENV_VALIDATION=1 payload generate:importmap",
     "predev": "npm run prepare:admin-artifacts",
     "prebuild": "npm run prepare:admin-artifacts",
     "clean:next": "rm -rf .next",

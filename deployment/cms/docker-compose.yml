@@ -80,21 +80,14 @@ services:
       timeout: 5s
       retries: 15
       start_period: 90s
-
-  astro-web:
-    image: ghcr.io/sidarth-g/sidshub-web:${IMAGE_TAG:-main}
-    env_file:
-      - path: .env
-        required: false
-    environment:
-      # Compose-determined values — always the same in this deployment topology.
-      HOST: "0.0.0.0"
-      PORT: "4321"
-    # NO depends_on — astro-web is fully independent of the CMS stack.
-    # On first deployment the web image will not exist in GHCR yet (the web
-    # build requires a seeded CMS). This service will fail to start until the
-    # web image is published; that failure must never block the CMS from running.
+    networks:
+      - default
+      - webproxy
 
 volumes:
   mongodb_data:
   minio_data:
+
+networks:
+  webproxy:
+    external: true

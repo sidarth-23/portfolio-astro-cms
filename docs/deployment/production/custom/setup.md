@@ -13,7 +13,7 @@ certificates, and deploy automation.
 
 ## 1. Prepare the Server
 
-Clone the repository (or copy the relevant files):
+Clone the repository:
 
 ```bash
 git clone https://github.com/sidarth-g/sidshub.git
@@ -22,19 +22,44 @@ cd sidshub
 
 ## 2. Configure Environment Variables
 
+The CMS and Web stacks each read their own `.env` file. Create both from the example:
+
 ```bash
-cp .env.prod.example .env
+# CMS stack — fill in the CMS section of .env.prod.example
+cp .env.prod.example deployment/cms/.env
+
+# Web stack — fill in the Web section of .env.prod.example
+cp .env.prod.example deployment/web/.env
 ```
 
-Fill in all values. The `.env` file is loaded by `deployment/docker-compose.prod.yml` via
-`env_file`. Compose-determined values (`DATABASE_URI`, `S3_ENDPOINT`,
-`NODE_ENV`, `HOST`, `PORT`) are hardcoded in the compose file — leave them out
-of `.env`.
+Edit each file and remove the variables that don't belong to it
+(see `.env.prod.example` for the section labels).
 
-## 3. Configure the Reverse Proxy
+**Key notes:**
 
-`deployment/docker-compose.prod.yml` does not include any Traefik labels or exposed ports.
-You need to route traffic to the containers yourself.
+- `ASTRO_CMS_READ_TOKEN` in `deployment/web/.env` must match `CMS_READ_TOKEN` in `deployment/cms/.env`.
+- `ASTRO_CMS_API_URL` must be the externally-reachable URL of the CMS
+  (e.g. `https://cms.sidshub.in/api`). The web image build runs on the host and cannot
+  reach Docker-internal service names.
+- Compose-determined values (`DATABASE_URI`, `S3_ENDPOINT`, `NODE_ENV`, `HOST`, `PORT`)
+  are hardcoded in the compose files — leave them out of `.env`.
+
+## 3. Create the Shared Docker Network
+
+The CMS and Web stacks run in separate compose projects. Your reverse proxy needs to
+reach both `payload-cms` and `astro-web`. Create a shared external network once:
+
+```bash
+docker network create webproxy
+```
+
+Both compose files already declare `webproxy` as an external network and attach the
+app services to it. Attach your reverse proxy container to the same network.
+
+## 4. Configure the Reverse Proxy
+
+`deployment/cms/docker-compose.yml` and `deployment/web/docker-compose.yml` do not include
+any Traefik labels or exposed ports. Route traffic to the containers via your reverse proxy.
 
 **Container names and ports**:
 
@@ -55,65 +80,76 @@ www.sidshub.in, sidshub.in {
 }
 ```
 
-Caddy handles HTTPS automatically via Let's Encrypt. Attach it to the same
-Docker network as the compose stack (see step 4).
-
-**Example: nginx + Certbot** — configure a server block per domain pointing to
-the container's host port, or join the proxy to the compose network and proxy by
-service name.
-
-## 4. Shared Docker Network
-
-If your reverse proxy runs as a separate container, create a shared network and
-attach both the proxy and the compose services to it:
-
-```bash
-docker network create webproxy
-```
-
-Then in your proxy's compose file:
+Caddy handles HTTPS automatically via Let's Encrypt. Add the `webproxy` network to
+your Caddy compose service:
 
 ```yaml
+# caddy/docker-compose.yml
 networks:
   webproxy:
     external: true
 ```
 
-And update `deployment/docker-compose.prod.yml` to add that network to `payload-cms` and
-`astro-web`, alongside the existing internal network.
+## 5. Bootstrap (First Deployment)
 
-## 5. Deploy
+The web app fetches all page content from the CMS at build time (SSG). The CMS must be
+running and seeded before the web image can be built successfully.
+
+**Step 1 — Start the CMS stack:**
 
 ```bash
-docker compose -f deployment/docker-compose.prod.yml up -d
+docker compose -f deployment/cms/docker-compose.yml up -d
 ```
 
-On first deployment `astro-web` will fail to start — the web image does not yet
-exist in GHCR. This is expected. Follow the **Bootstrap** section in
-[`../overview.md`](../overview.md) to seed the CMS and trigger the first web
-image build.
+**Step 2 — Seed the CMS.** Access the CMS admin URL, create an admin account, and add
+content for all pages (home, projects, blog, CV, site-settings).
+
+**Step 3 — Build and start the web app:**
+
+```bash
+docker compose -f deployment/web/docker-compose.yml build
+docker compose -f deployment/web/docker-compose.yml up -d
+```
+
+`ASTRO_CMS_READ_TOKEN` is passed as a Docker build arg and used only during the build
+step. It is not stored in the resulting image or any registry.
 
 ## 6. Keeping Up to Date
 
-Pull the latest images and restart:
+**CMS** — pull the latest GHCR image and restart:
 
 ```bash
-docker compose -f deployment/docker-compose.prod.yml pull
-docker compose -f deployment/docker-compose.prod.yml up -d
+docker compose -f deployment/cms/docker-compose.yml pull payload-cms
+docker compose -f deployment/cms/docker-compose.yml up -d payload-cms
 ```
 
-Automate this by wiring `WEB_DEPLOY_WEBHOOK_URL` to a script on the server, or
-set up a cron job to pull and restart on a schedule.
+**Web** — rebuild from source (fetches the latest content from the CMS):
+
+```bash
+docker compose -f deployment/web/docker-compose.yml build
+docker compose -f deployment/web/docker-compose.yml up -d
+```
+
+Automate web rebuilds by wiring `WEB_DEPLOY_WEBHOOK_URL` (in `deployment/cms/.env`) to
+a script on the server that runs the commands above.
 
 ## 7. Rollback
 
-Set `IMAGE_TAG` in `.env` to a specific SHA tag and redeploy:
+**CMS:** Set `IMAGE_TAG` in `deployment/cms/.env` to a specific SHA tag and redeploy:
 
 ```bash
-# .env
+# deployment/cms/.env
 IMAGE_TAG=sha-abc1234
 
-docker compose -f deployment/docker-compose.prod.yml up -d
+docker compose -f deployment/cms/docker-compose.yml up -d payload-cms
+```
+
+**Web:** Check out the previous commit and rebuild:
+
+```bash
+git checkout <previous-commit>
+docker compose -f deployment/web/docker-compose.yml build
+docker compose -f deployment/web/docker-compose.yml up -d
 ```
 
 ## 8. Scheduled Media Cleanup
@@ -122,10 +158,10 @@ Add a cron job on the host or run it manually inside the CMS container:
 
 ```bash
 # Dry run first
-docker compose -f deployment/docker-compose.prod.yml exec payload-cms \
+docker compose -f deployment/cms/docker-compose.yml exec payload-cms \
   sh -c "MEDIA_CLEANUP_DRY_RUN=true bun run --filter @sidshub/cms cleanup:media"
 
 # Live run (daily at 3 AM via cron)
-# 0 3 * * * docker compose -f /path/to/deployment/docker-compose.prod.yml exec -T payload-cms \
+# 0 3 * * * docker compose -f /path/to/deployment/cms/docker-compose.yml exec -T payload-cms \
 #   bun run --filter @sidshub/cms cleanup:media
 ```

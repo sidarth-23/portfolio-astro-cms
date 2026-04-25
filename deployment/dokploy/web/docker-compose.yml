@@ -1,0 +1,18 @@
+# Dokploy template compose file for the web app.
+# Env vars are managed via deployment/dokploy/web/template.toml.
+
+services:
+  astro-web:
+    build:
+      context: ../../..
+      dockerfile: apps/web/Dockerfile
+      args:
+        ASTRO_SITE_URL: ${ASTRO_SITE_URL}
+        ASTRO_CMS_API_URL: ${ASTRO_CMS_API_URL}
+        ASTRO_CMS_READ_TOKEN: ${ASTRO_CMS_READ_TOKEN}
+    environment:
+      # Compose-determined values — always the same in this deployment topology.
+      HOST: "0.0.0.0"
+      PORT: "4321"
+    # Fully independent of the CMS stack at runtime.
+    # The image BUILD requires a running CMS (fetches content for SSG via external URL).
