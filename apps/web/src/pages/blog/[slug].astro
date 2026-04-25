@@ -1,14 +1,17 @@
 ---
+import NotFoundState from "@/components/NotFoundState.astro";
+import ErrorLayout from "@/layouts/ErrorLayout.astro";
 import RichTextRenderer from "@/components/RichTextRenderer.astro";
 import SeriesNav from "@/components/SeriesNav.astro";
+import FloatingSeriesToolbar from "@/components/FloatingSeriesToolbar.astro";
 import PostLayout from "@/layouts/PostLayout.astro";
-import { ASTRO_CMS_API_URL, ASTRO_CMS_READ_TOKEN } from "astro:env/server";
-import { extractTableOfContents } from "@sidshub/lexical/web";
-import { createCmsRestClient } from "@sidshub/cms-config/rest-client";
-import type { Post } from "@sidshub/cms-config/payload-types";
-import { PhGithubLogo, PhLinkedinLogo } from "phosphor-icons-astro";
+import { extractTableOfContents } from "@sidshub/cms-lib-editor/web/html";
+import { resolveIcon } from "@/lib/resolveIcon";
+import { cmsClient } from "@/lib/cms";
+import { getErrorPageSeo } from "@/lib/seo";
+import { PhMagnifyingGlass } from "phosphor-icons-astro";
 
-const cmsClient = createCmsRestClient({ apiUrl: ASTRO_CMS_API_URL, token: ASTRO_CMS_READ_TOKEN });
+export const prerender = false;
 
 type SeriesNavProps = {
   seriesName: string;
@@ -18,180 +21,257 @@ type SeriesNavProps = {
   prevPost?: {
     slug: string;
     title: string;
+    coverImage?: string;
   };
   nextPost?: {
     slug: string;
     title: string;
+    coverImage?: string;
   };
 };
 
-export async function getStaticPaths() {
-  const staticPathsCmsClient = createCmsRestClient({
-    apiUrl: ASTRO_CMS_API_URL,
-    token: ASTRO_CMS_READ_TOKEN,
-  });
+type AuthorLink = {
+  icon?: string | null;
+  url?: string | null;
+  newTab?: boolean | null;
+};
 
-  const posts = await staticPathsCmsClient.getAllPublishedPosts();
-  const seriesSlugs = Array.from(
-    new Set(
-      posts
-        .map((post) => staticPathsCmsClient.seriesFromPost(post)?.slug)
-        .filter((slug): slug is string => Boolean(slug)),
-    ),
-  );
+const getAuthorLinks = (author: unknown): AuthorLink[] => {
+  if (!author || typeof author !== "object") {
+    return [];
+  }
 
-  // Build a map of series slug to posts ordered in CMS.
-  const seriesMap = new Map<string, Post[]>();
-  const orderedSeriesPosts = await Promise.all(
-    seriesSlugs.map(async (slug) => ({
-      slug,
-      posts: await staticPathsCmsClient.getPostsBySeries(slug),
-    })),
-  );
-  orderedSeriesPosts.forEach((item) => {
-    seriesMap.set(item.slug, item.posts);
-  });
+  const links = (author as { links?: unknown }).links;
+  return Array.isArray(links) ? (links as AuthorLink[]) : [];
+};
 
-  return posts.map((post) => {
-    let seriesNav: SeriesNavProps | undefined;
+const slug = Astro.params.slug;
+const post = slug ? await cmsClient.getPostBySlug(slug) : null;
+const missingPost = !slug || !post;
 
-    const series = staticPathsCmsClient.seriesFromPost(post);
-    if (series?.slug) {
-      const seriesPosts = seriesMap.get(series.slug) || [];
-      const currentIndex = seriesPosts.findIndex((p) => p.slug === post.slug);
+let seriesNav: SeriesNavProps | undefined;
 
-      if (currentIndex !== -1) {
-        const prevPost = currentIndex > 0 ? seriesPosts[currentIndex - 1] : undefined;
-        const nextPost = currentIndex < seriesPosts.length - 1 ? seriesPosts[currentIndex + 1] : undefined;
+if (post) {
+  const series = cmsClient.seriesFromPost(post);
 
-        seriesNav = {
-          seriesName: series.name,
-          seriesSlug: series.slug,
-          currentPart: currentIndex + 1,
-          totalParts: seriesPosts.length,
-          prevPost: prevPost ? { slug: prevPost.slug, title: prevPost.title } : undefined,
-          nextPost: nextPost ? { slug: nextPost.slug, title: nextPost.title } : undefined,
-        };
-      }
+  if (series?.slug) {
+    const seriesPosts = await cmsClient.getPostsBySeries(series.slug);
+    const currentIndex = seriesPosts.findIndex((entry) => entry.slug === post.slug);
+
+    if (currentIndex !== -1) {
+      const prevPost = currentIndex > 0 ? seriesPosts[currentIndex - 1] : undefined;
+      const nextPost =
+        currentIndex < seriesPosts.length - 1 ? seriesPosts[currentIndex + 1] : undefined;
+
+      seriesNav = {
+        seriesName: series.name,
+        seriesSlug: series.slug,
+        currentPart: currentIndex + 1,
+        totalParts: seriesPosts.length,
+        prevPost: prevPost
+          ? {
+              slug: prevPost.slug,
+              title: prevPost.title,
+              coverImage: cmsClient.mediaToUrl(prevPost.coverImage),
+            }
+          : undefined,
+        nextPost: nextPost
+          ? {
+              slug: nextPost.slug,
+              title: nextPost.title,
+              coverImage: cmsClient.mediaToUrl(nextPost.coverImage),
+            }
+          : undefined,
+      };
     }
-
-    return {
-      params: { slug: post.slug },
-      props: { post, seriesNav },
-    };
-  });
+  }
 }
 
-interface Props {
-  post: Post;
-  seriesNav?: SeriesNavProps;
-}
+const errorSeo = missingPost ? await getErrorPageSeo() : null;
 
-const { post, seriesNav } = Astro.props;
-const category = cmsClient.categoryFromPost(post);
-const series = cmsClient.seriesFromPost(post);
-const tags = cmsClient.tagsFromPost(post);
-const authors = cmsClient.authorsFromPost(post);
-const toc = extractTableOfContents(post.content);
-const pubDate = post.publishedAt || post.createdAt || new Date().toISOString();
-const postSeoTitle = post.meta?.title?.trim();
-const postSeoDescription = post.meta?.description?.trim();
-
-if (!postSeoTitle || !postSeoDescription) {
+if (post?.meta && (!post.meta.title || !post.meta.description)) {
   throw new Error(`Post "${post.slug}" requires SEO \`meta.title\` and \`meta.description\`.`);
 }
+
+const category = post ? cmsClient.categoryFromPost(post) : undefined;
+const series = post ? cmsClient.seriesFromPost(post) : undefined;
+const tags = post ? cmsClient.tagsFromPost(post) : [];
+const authors = post ? cmsClient.authorsFromPost(post) : [];
+const visibleAuthors = authors.filter((author) => {
+  const hasName = Boolean(author.name?.trim());
+  const hasBio = Boolean(author.bio);
+  const hasAvatar = Boolean(cmsClient.mediaToUrl(author.avatar));
+  const hasLinks = getAuthorLinks(author).length > 0;
+
+  return hasName || hasBio || hasAvatar || hasLinks;
+});
+const resolvedAuthorCards = await Promise.all(
+  visibleAuthors.map(async (author) => {
+    const avatarUrl = cmsClient.mediaToUrl(author.avatar);
+    const resolvedLinks = (
+      await Promise.all(
+        getAuthorLinks(author).map(async (link) => {
+          if (!link.icon || !link.url) {
+            return null;
+          }
+
+          const iconData = await resolveIcon(link.icon);
+          if (!iconData) {
+            return null;
+          }
+
+          return {
+            url: link.url,
+            newTab: link.newTab === true,
+            iconData,
+          };
+        }),
+      )
+    ).filter(
+      (
+        entry,
+      ): entry is {
+        url: string;
+        newTab: boolean;
+        iconData: NonNullable<Awaited<ReturnType<typeof resolveIcon>>>;
+      } => entry !== null,
+    );
+
+    return { author, avatarUrl, resolvedLinks };
+  }),
+);
+const toc = post ? extractTableOfContents(post.content) : [];
+const pubDate = post?.publishedAt || post?.createdAt || new Date().toISOString();
 ---
 
-<PostLayout
-  title={post.title}
-  seoTitle={postSeoTitle}
-  description={postSeoDescription}
-  pubDate={pubDate}
-  updatedDate={post.updatedAt}
-  heroImage={cmsClient.mediaToUrl(post.coverImage)}
-  tags={tags}
-  category={category}
-  series={series}
-  authors={authors}
-  toc={toc}
->
-  {seriesNav && (
-    <SeriesNav
-      position="top"
-      seriesName={seriesNav.seriesName}
-      seriesSlug={seriesNav.seriesSlug}
-      currentPart={seriesNav.currentPart}
-      totalParts={seriesNav.totalParts}
-      prevPost={seriesNav.prevPost}
-      nextPost={seriesNav.nextPost}
-    />
-  )}
+{
+  missingPost && errorSeo ? (
+    <ErrorLayout title={errorSeo.title} description={errorSeo.description} image={errorSeo.image}>
+      <NotFoundState
+        title="404"
+        description="The page you're looking for couldn't be found."
+        ctaLabel="Home"
+        ctaHref="/"
+        icon={PhMagnifyingGlass}
+      />
+    </ErrorLayout>
+  ) : (
+    post && (
+      <PostLayout
+        title={post.title}
+        seoTitle={post.meta.title}
+        description={post.meta.description}
+        pubDate={pubDate}
+        updatedDate={post.updatedAt}
+        heroImage={cmsClient.mediaToUrl(post.coverImage)}
+        tags={tags}
+        category={category}
+        series={series}
+        authors={visibleAuthors}
+        toc={toc}
+        tocContinuation={
+          seriesNav ? { prevPost: seriesNav.prevPost, nextPost: seriesNav.nextPost } : undefined
+        }
+      >
+        {seriesNav && (
+          <SeriesNav
+            slot="heroTop"
+            position="top"
+            className="mt-0"
+            seriesName={seriesNav.seriesName}
+            seriesSlug={seriesNav.seriesSlug}
+            currentPart={seriesNav.currentPart}
+            totalParts={seriesNav.totalParts}
+            prevPost={seriesNav.prevPost}
+            nextPost={seriesNav.nextPost}
+          />
+        )}
 
-  <RichTextRenderer data={post.content} />
+        <RichTextRenderer data={post.content} calloutVariantProfile="blog" />
 
-  {seriesNav && (
-    <SeriesNav
-      position="bottom"
-      seriesName={seriesNav.seriesName}
-      seriesSlug={seriesNav.seriesSlug}
-      currentPart={seriesNav.currentPart}
-      totalParts={seriesNav.totalParts}
-      prevPost={seriesNav.prevPost}
-      nextPost={seriesNav.nextPost}
-    />
-  )}
+        {seriesNav && (
+          <FloatingSeriesToolbar
+            seriesSlug={seriesNav.seriesSlug}
+            prevPost={seriesNav.prevPost}
+            nextPost={seriesNav.nextPost}
+          />
+        )}
 
-  {
-    authors.length > 0 && (
-      <section class="mt-16 sm:mt-24 pt-10 border-t border-base-200/50">
-        <h2 class="text-base font-bold uppercase tracking-wider text-base-content mb-8">
-          {authors.length > 1 ? "Authors" : "Author"}
-        </h2>
-        <div class="flex flex-col gap-10">
-          {authors.map((author) => {
-            const avatarUrl = cmsClient.mediaToUrl(author.avatar);
-
-            return (
-              <article class="flex flex-col sm:flex-row gap-6 items-start bg-base-200/30 p-6 sm:p-8 rounded-2xl">
-                {avatarUrl ? (
-                  <img
-                    src={avatarUrl}
-                    alt={author.name || "Author avatar"}
-                    class="w-16 h-16 sm:w-20 sm:h-20 rounded-full object-cover shrink-0 ring-1 ring-base-content/10"
-                    loading="lazy"
-                  />
-                ) : (
-                  <div class="w-16 h-16 sm:w-20 sm:h-20 rounded-full shrink-0 bg-base-300/50 flex items-center justify-center text-base-content/40 ring-1 ring-base-content/10">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-                  </div>
-                )}
-                <div class="flex-1">
-                  <h3 class="text-lg font-semibold">{author.name || "Unknown Author"}</h3>
-                  {author.bio && (
-                    <div class="mt-3 text-sm sm:text-base leading-relaxed text-base-content/70 prose prose-sm max-w-none prose-p:last:mb-0">
-                      <RichTextRenderer data={author.bio} />
-                    </div>
-                  )}
-                  {((author as any).linkedInUrl || (author as any).githubUrl) && (
-                    <div class="mt-5 flex gap-4 items-center">
-                      {(author as any).githubUrl && (
-                        <a href={(author as any).githubUrl} target="_blank" rel="noopener noreferrer" class="text-base-content/50 hover:text-base-content transition-colors" aria-label="GitHub">
-                          <PhGithubLogo size={20} />
-                        </a>
+        {visibleAuthors.length > 0 && (
+          <section class="mt-16 pt-4 border-t border-base-content/20">
+            <h2 class="text-base font-bold uppercase tracking-wider text-base-content mb-8">
+              {visibleAuthors.length > 1 ? "Authors" : "Author"}
+            </h2>
+            <div class="flex flex-col gap-10">
+              {resolvedAuthorCards.map(({ author, avatarUrl, resolvedLinks }) => {
+                return (
+                  <article class="flex flex-col sm:flex-row gap-6 items-start bg-base-200/30 p-6 sm:p-8 rounded-2xl border border-base-content/20">
+                    {avatarUrl ? (
+                      <img
+                        src={avatarUrl}
+                        alt={author.name || "Author avatar"}
+                        class="w-16 h-16 sm:w-20 sm:h-20 rounded-full object-cover shrink-0 ring-1 ring-base-content/10"
+                        loading="lazy"
+                      />
+                    ) : (
+                      <div class="w-16 h-16 sm:w-20 sm:h-20 rounded-full shrink-0 bg-base-300/50 flex items-center justify-center text-base-content/40 ring-1 ring-base-content/10">
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          width="24"
+                          height="24"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          stroke-width="2"
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                        >
+                          <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" />
+                          <circle cx="12" cy="7" r="4" />
+                        </svg>
+                      </div>
+                    )}
+                    <div class="flex-1">
+                      <h3 class="text-lg font-semibold">{author.name || "Unknown Author"}</h3>
+                      {author.bio && (
+                        <div class="mt-3 text-sm sm:text-base leading-relaxed text-base-content/70 prose prose-sm max-w-none prose-p:last:mb-0">
+                          <RichTextRenderer data={author.bio} />
+                        </div>
                       )}
-                      {(author as any).linkedInUrl && (
-                        <a href={(author as any).linkedInUrl} target="_blank" rel="noopener noreferrer" class="text-base-content/50 hover:text-base-content transition-colors" aria-label="LinkedIn">
-                          <PhLinkedinLogo size={20} />
-                        </a>
+                      {resolvedLinks.length > 0 && (
+                        <div class="mt-5 flex gap-4 items-center">
+                          {resolvedLinks.map((link) => {
+                            const { iconData } = link;
+                            return (
+                              <a
+                                href={link.url}
+                                target={link.newTab ? "_blank" : undefined}
+                                rel={link.newTab ? "noopener noreferrer" : undefined}
+                                class="text-base-content/50 hover:text-base-content transition-colors"
+                                aria-label={iconData.label}
+                                title={iconData.label}
+                              >
+                                <svg
+                                  viewBox={iconData.viewBox}
+                                  width={20}
+                                  height={20}
+                                  aria-hidden="true"
+                                  class="h-5 w-5 fill-current stroke-current"
+                                  set:html={iconData.innerSvg}
+                                />
+                              </a>
+                            );
+                          })}
+                        </div>
                       )}
                     </div>
-                  )}
-                </div>
-              </article>
-            );
-          })}
-        </div>
-      </section>
+                  </article>
+                );
+              })}
+            </div>
+          </section>
+        )}
+      </PostLayout>
     )
-  }
-</PostLayout>
+  )
+}

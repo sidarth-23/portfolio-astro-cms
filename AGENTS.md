@@ -8,7 +8,8 @@ This is a **public monorepo** for `https://www.sidshub.in`.
 
 - `apps/web`: Astro 5 portfolio + blog frontend (MDX)
 - `apps/cms`: Payload CMS backend
-- `packages/cms-config`: shared Payload config/types
+- `packages/cms-core`: shared Payload config/types
+- `packages/cms-lib-editor`: Lexical rich text editor integration (CMS + web)
 
 Core stack: **Bun workspaces**, **TypeScript (strict)**, **Tailwind CSS v4**, **DaisyUI v5**, **Payload CMS**, **PostgreSQL**, **MinIO**.
 
@@ -45,11 +46,13 @@ Add a `vitest.config.ts` and a `"test"` script in `package.json`.
 
 ### Linting / Formatting
 
-No ESLint or Prettier config file. `prettier-plugin-astro` is a devDependency. To format:
+ESLint is configured via `@sidshub/dev-config` (shared package). Prettier is configured at the root (`.prettierrc`).
 
 ```bash
-bunx prettier --write --plugin prettier-plugin-astro "apps/web/src/**/*.{astro,ts,tsx,js,mjs,css,md,mdx}"
-bunx prettier --write "apps/cms/src/**/*.{ts,js}"
+bun run lint          # Run ESLint across all workspaces
+bun run lint:fix      # Auto-fix ESLint issues
+bun run format        # Format all files with Prettier
+bun run format:check  # Check formatting without writing
 ```
 
 ## Project Structure
@@ -73,8 +76,9 @@ apps/
 │   ├── package.json
 │   └── ...
 packages/
-└── cms-config/
-    └── src/payload-types.ts
+├── cms-core/
+│   └── src/payload-types.ts
+└── cms-lib-editor/
 ```
 
 ## Public Repo Safety Rules
@@ -113,14 +117,14 @@ For CMS code, follow existing import style in `apps/cms` and prefer local consis
 
 ### Naming Conventions
 
-| Item             | Convention          | Example                    |
-|------------------|---------------------|----------------------------|
-| Astro components | PascalCase `.astro` | `HorizontalCard.astro`     |
-| React components | PascalCase `.tsx`   | `Counter.tsx`              |
-| Utility files    | camelCase `.ts`     | `createSlug.ts`            |
+| Item             | Convention          | Example                      |
+| ---------------- | ------------------- | ---------------------------- |
+| Astro components | PascalCase `.astro` | `HorizontalCard.astro`       |
+| React components | PascalCase `.tsx`   | `Counter.tsx`                |
+| Utility files    | camelCase `.ts`     | `createSlug.ts`              |
 | Page routes      | lowercase `.astro`  | `projects.astro`, `cv.astro` |
-| Global constants | SCREAMING_SNAKE     | `SITE_TITLE`               |
-| Local variables  | camelCase           | `sideBarActiveItemID`      |
+| Global constants | SCREAMING_SNAKE     | `SITE_TITLE`                 |
+| Local variables  | camelCase           | `sideBarActiveItemID`        |
 
 ### Component Props & Structure
 
@@ -145,13 +149,14 @@ Astro component order: **frontmatter** (`---`) → **template** (HTML + `<slot /
 ### Content Collections (Blog)
 
 Posts go in `apps/web/src/content/blog/` as `.mdx` files. Schema in `apps/web/src/content/config.ts`:
+
 - **Required**: `title`, `description`, `pubDate`.
 - **Optional**: `updatedDate`, `heroImage`, `badge`, `tags` (unique array).
 - Slugs auto-generated from titles via `apps/web/src/lib/createSlug.ts`.
 
 ### Payload / CMS
 
-- Prefer updating schema/config in `packages/cms-config` when change should be shared.
+- Prefer updating schema/config in `packages/cms-core` when change should be shared.
 - After CMS schema changes, regenerate types with `bun run payload:types`.
 - Keep migration behavior aligned with the existing environment strategy in `apps/cms/README.md`.
 
@@ -164,14 +169,14 @@ Posts go in `apps/web/src/content/blog/` as `.mdx` files. Schema in `apps/web/sr
 
 ## Key Configuration
 
-| Config           | Value / Location                                   |
-|------------------|----------------------------------------------------|
-| Site URL         | `https://www.sidshub.in` (`apps/web/astro.config.mjs`) |
-| TypeScript       | strict mode in app-level configs                   |
-| Tailwind         | `apps/web/src/styles/global.css` (v4 CSS config)  |
-| DaisyUI themes   | `light` (default), `dark` (prefers-dark), `abyss`  |
-| Integrations     | MDX, Sitemap (web app)                             |
-| Tailwind plugin  | `@tailwindcss/vite` via Vite config (web app)      |
+| Config          | Value / Location                                       |
+| --------------- | ------------------------------------------------------ |
+| Site URL        | `https://www.sidshub.in` (`apps/web/astro.config.mjs`) |
+| TypeScript      | strict mode in app-level configs                       |
+| Tailwind        | `apps/web/src/styles/global.css` (v4 CSS config)       |
+| DaisyUI themes  | `light` (default), `dark` (prefers-dark), `abyss`      |
+| Integrations    | MDX, Sitemap (web app)                                 |
+| Tailwind plugin | `@tailwindcss/vite` via Vite config (web app)          |
 
 ## Common Tasks
 
@@ -187,6 +192,7 @@ pubDate: "2026-02-14"
 heroImage: "/blog/my-image.jpg"
 tags: ["astro", "web"]
 ---
+
 Content here...
 ```
 
@@ -196,6 +202,7 @@ Content here...
 ---
 import BaseLayout from "@/layouts/BaseLayout.astro";
 ---
+
 <BaseLayout title="Page Title" sideBarActiveItemID="pagename">
   <!-- content -->
 </BaseLayout>

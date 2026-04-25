@@ -1,122 +1,117 @@
 ---
-import RichTextRenderer from "@/components/RichTextRenderer.astro";
-import { PhGithubLogo } from "phosphor-icons-astro";
-import { type RichTextValue } from "@sidshub/lexical/web";
-
-type Tag = {
-  name: string;
-  slug: string;
-};
-
-type Category = {
-  name: string;
-  slug: string;
-};
-
-type Series = {
-  name: string;
-  slug: string;
-};
+import { resolveIcon } from "@/lib/resolveIcon";
+import type { TagInfo, CategoryInfo, SeriesInfo } from "@/lib/cms";
 
 type Props = {
   title: string;
   img?: string;
   desc?: string;
-  descRich?: RichTextValue | null;
   url: string;
   badge?: string;
   badges?: string[];
-  tags?: Tag[];
-  category?: Category;
-  series?: Series;
+  tags?: TagInfo[];
+  category?: CategoryInfo;
+  series?: SeriesInfo;
   target?: string;
   reverse?: boolean;
-  githubUrl?: string;
+  links?: Array<{ icon: string; url: string; newTab: boolean }>;
 };
 
 const {
   title,
   img,
   desc = "",
-  descRich,
   url,
   badges = [],
   tags = [],
   category,
   series,
-  target = "_blank",
+  target = "_self",
   reverse = false,
-  githubUrl,
+  links = [],
 } = Astro.props;
-const contentClass = `hero-content flex-col ${reverse ? "md:flex-row-reverse" : "md:flex-row"} md:gap-8 lg:gap-10`;
+const contentClass = `hero-content flex-col ${reverse ? "md:flex-row-reverse" : "md:flex-row"} md:gap-8 lg:gap-10 relative z-20 pointer-events-none`;
+const contentBodyClass = "grow w-full space-y-1 relative";
+const resolvedLinks = (
+  await Promise.all(
+    links.map(async (link) => {
+      const iconData = await resolveIcon(link.icon);
+      if (!iconData) {
+        return null;
+      }
+
+      return {
+        ...link,
+        iconData,
+      };
+    }),
+  )
+).filter(
+  (
+    entry,
+  ): entry is {
+    icon: string;
+    url: string;
+    newTab: boolean;
+    iconData: NonNullable<Awaited<ReturnType<typeof resolveIcon>>>;
+  } => entry !== null,
+);
 ---
 
 <div
-  class="card bg-base-100 transition-colors duration-300 ease-in-out rounded-xl block hover:bg-base-200/20 group relative"
+  class="card transition-colors duration-300 ease-in-out rounded-xl block hover:bg-base-content/5 group relative z-0"
 >
-  <a href={url} target={target} class="absolute inset-0 z-10" aria-label={title}
-  ></a>
-  {
-    githubUrl && (
-      <a
-        href={githubUrl}
-        target="_blank"
-        rel="noopener noreferrer"
-        title={`View ${title} on GitHub`}
-        aria-label={`View ${title} on GitHub`}
-        class="absolute top-4 right-4 z-20 btn btn-circle btn-sm btn-ghost bg-base-100/40 hover:bg-accent transition-all duration-300"
-      >
-        <PhGithubLogo size={22} />
-      </a>
-    )
-  }
+  <a href={url} target={target} class="absolute inset-0 z-10" aria-label={title}></a>
   <div class={contentClass}>
     {
       img && (
         <div class="w-full md:w-56 h-40 md:h-40 flex-shrink-0 overflow-hidden rounded-lg">
-          <img
-            src={img}
-            loading="lazy"
-            alt={title}
-            class="w-full h-full object-cover"
-          />
+          <img src={img} loading="lazy" alt={title} class="w-full h-full object-cover" />
         </div>
       )
     }
-    <div class="grow w-full space-y-1">
+    <div class={contentBodyClass}>
       <div>
+        {category && <span class="badge badge-primary badge-sm mb-1">{category.name}</span>}
+        {series && <span class="badge badge-secondary badge-sm mb-1 ml-1">{series.name}</span>}
+      </div>
+      <div class="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+        <h1
+          class="min-w-0 text-xl font-bold decoration-2 underline-offset-4 flex items-center gap-1.5 flex-wrap"
+        >
+          <span class="group-hover:underline">{title}</span>
+          {badges.map((item) => <div class="badge badge-secondary badge-xs">{item}</div>)}
+        </h1>
         {
-          category && (
-            <span class="badge badge-primary badge-sm mb-1">
-              {category.name}
-            </span>
-          )
-        }
-        {
-          series && (
-            <span class="badge badge-secondary badge-sm mb-1 ml-1">
-              {series.name}
-            </span>
+          resolvedLinks.length > 0 && (
+            <div class="z-20 flex gap-1 pointer-events-auto sm:shrink-0">
+              {resolvedLinks.map((link) => {
+                const { iconData } = link;
+                return (
+                  <a
+                    href={link.url}
+                    target={link.newTab ? "_blank" : undefined}
+                    rel={link.newTab ? "noopener noreferrer" : undefined}
+                    title={iconData.label}
+                    aria-label={iconData.label}
+                    class="btn btn-circle btn-sm btn-ghost transition-all duration-300"
+                  >
+                    <svg
+                      viewBox={iconData.viewBox}
+                      width={20}
+                      height={20}
+                      aria-hidden="true"
+                      class="h-5 w-5 fill-current stroke-current"
+                      set:html={iconData.innerSvg}
+                    />
+                  </a>
+                );
+              })}
+            </div>
           )
         }
       </div>
-      <h1 class="text-xl font-bold decoration-2 underline-offset-4 flex items-center gap-2">
-        <span class="group-hover:underline">{title}</span>
-        {
-          badges.map((item) => (
-            <div class="badge badge-secondary mx-2">{item}</div>
-          ))
-        }
-      </h1>
-      {
-        descRich ? (
-          <div class="py-1 text-1xl">
-            <RichTextRenderer data={descRich} />
-          </div>
-        ) : (
-          <p class="py-1 text-1xl">{desc}</p>
-        )
-      }
+      {desc && <p class="py-1 text-1xl">{desc}</p>}
       {
         tags.length > 0 && (
           <div class="card-actions justify-end gap-2 mt-2">

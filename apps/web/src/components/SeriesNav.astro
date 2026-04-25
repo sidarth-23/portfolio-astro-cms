@@ -7,6 +7,7 @@ type Props = {
   currentPart: number;
   totalParts: number;
   position?: "top" | "bottom";
+  className?: string;
   prevPost?: {
     slug: string;
     title: string;
@@ -25,34 +26,31 @@ const {
   prevPost,
   nextPost,
   position = "top",
+  className = "",
 } = Astro.props;
 ---
 
-<div class="bg-base-200 rounded-lg p-4 mt-6">
-  {
-    position === "top" && (
-      <div class={`${prevPost || nextPost ? "mb-4" : ""} flex items-center justify-between gap-4`}>
-        <a
-          href={`/blog/series/${seriesSlug}`}
-          class="font-bold text-lg hover:text-primary transition-colors flex items-center gap-2 group outline-none"
-        >
-          <span class="truncate">{seriesName}</span>
-          <PhArrowSquareOut
-            class="w-4 h-4 flex-shrink-0 opacity-60 group-hover:opacity-100"
-          />
-        </a>
-        <span class="badge badge-secondary badge-sm whitespace-nowrap">
-          Part {currentPart} of {totalParts}
-        </span>
-      </div>
-    )
-  }
+{
+  position === "bottom" && !prevPost && !nextPost ? null : (
+    <div class={`bg-neutral rounded-lg p-4 ${className}`.trim()}>
+      {position === "top" && (
+        <div class="flex items-center justify-between gap-4">
+          <a
+            href={`/blog/series/${seriesSlug}`}
+            class="font-bold text-lg hover:text-primary transition-colors flex items-center gap-2 group outline-none"
+          >
+            <span class="truncate">{seriesName}</span>
+            <PhArrowSquareOut class="w-4 h-4 flex-shrink-0 opacity-60 group-hover:opacity-100" />
+          </a>
+          <span class="badge badge-secondary badge-sm whitespace-nowrap">
+            Part {currentPart} of {totalParts}
+          </span>
+        </div>
+      )}
 
-  {
-    position === "bottom" && (
-      <div class="flex items-center justify-between gap-4">
-        {
-          prevPost ? (
+      {position === "bottom" && (
+        <div class="flex items-center justify-between gap-4">
+          {prevPost ? (
             <a
               href={`/blog/${prevPost.slug}`}
               class="flex items-center gap-2 p-2 rounded-lg hover:bg-base-300 transition-colors max-w-[45%] text-left"
@@ -63,11 +61,9 @@ const {
             </a>
           ) : (
             <div />
-          )
-        }
+          )}
 
-        {
-          nextPost ? (
+          {nextPost ? (
             <a
               href={`/blog/${nextPost.slug}`}
               class="flex items-center gap-2 p-2 rounded-lg hover:bg-base-300 transition-colors max-w-[45%] justify-end text-right"
@@ -78,9 +74,9 @@ const {
             </a>
           ) : (
             <div />
-          )
-        }
-      </div>
-    )
-  }
-</div>
+          )}
+        </div>
+      )}
+    </div>
+  )
+}

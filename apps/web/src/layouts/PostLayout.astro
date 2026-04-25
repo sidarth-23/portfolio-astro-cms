@@ -1,28 +1,36 @@
 ---
-import TableOfContents from "@/components/TableOfContents.astro";
-import BaseLayout from "@/layouts/BaseLayout.astro";
+import EntryHeader from "@/components/EntryHeader.astro";
+import DetailLayout from "@/layouts/DetailLayout.astro";
 import { generateFilterUrl } from "@/lib/utils";
-import { PhList, PhX } from "phosphor-icons-astro";
-import type { TableOfContentsItem } from "@sidshub/lexical/web";
-
-type Tag = { name: string; slug: string };
-type Category = { name: string; slug: string };
-type Series = { name: string; slug: string };
-type Author = { id?: number | null; name?: string | null };
+import type { TableOfContentsItem } from "@sidshub/cms-lib-editor/web/html";
+import type { PopulatedAuthor } from "@sidshub/cms-core/client";
+import type { TagInfo, CategoryInfo, SeriesInfo } from "@/lib/cms";
 
 type Props = {
   title: string;
-  seoTitle?: string;
+  seoTitle: string;
   description: string;
   pubDate: string;
   updatedDate?: string;
   heroImage?: string;
   badge?: string;
-  tags?: Tag[];
-  category?: Category;
-  series?: Series;
-  authors?: Author[];
+  tags?: TagInfo[];
+  category?: CategoryInfo;
+  series?: SeriesInfo;
+  authors?: PopulatedAuthor[];
   toc?: TableOfContentsItem[];
+  tocContinuation?: {
+    prevPost?: {
+      slug: string;
+      title: string;
+      coverImage?: string;
+    };
+    nextPost?: {
+      slug: string;
+      title: string;
+      coverImage?: string;
+    };
+  };
 };
 
 const {
@@ -37,10 +45,10 @@ const {
   series,
   authors = [],
   toc = [],
-} = Astro.props;
+  tocContinuation,
+}: Props = Astro.props;
 
 const currentUrl = Astro.url;
-const showTableOfContents = toc.length > 1;
 
 const displayDate = new Intl.DateTimeFormat("en-US", {
   year: "numeric",
@@ -52,10 +60,8 @@ const authorNames = authors
   .filter((name): name is string => Boolean(name));
 
 const pubDateOnly = new Date(pubDate).toDateString();
-const updatedDateOnly = updatedDate
-  ? new Date(updatedDate).toDateString()
-  : null;
-const showUpdatedDate = updatedDateOnly && updatedDateOnly !== pubDateOnly;
+const updatedDateOnly = updatedDate ? new Date(updatedDate).toDateString() : null;
+const showUpdatedDate = Boolean(updatedDateOnly && updatedDateOnly !== pubDateOnly);
 const formattedUpdatedDate = updatedDate
   ? new Intl.DateTimeFormat("en-US", {
       year: "numeric",
@@ -71,282 +77,75 @@ const jsonLd = {
   description,
   image: heroImage ? [new URL(heroImage, Astro.url).toString()] : undefined,
   datePublished: new Date(pubDate).toISOString(),
-  dateModified: updatedDate
-    ? new Date(updatedDate).toISOString()
-    : new Date(pubDate).toISOString(),
+  dateModified: updatedDate ? new Date(updatedDate).toISOString() : new Date(pubDate).toISOString(),
   mainEntityOfPage: Astro.url.toString(),
 };
 ---
 
-<BaseLayout
+<DetailLayout
   title={title}
   seoTitle={seoTitle}
-  description={description}
-  image={heroImage}
+  seoDescription={description}
+  heroImage={heroImage}
+  toc={toc}
+  tocContinuation={tocContinuation}
   ogType="article"
   jsonLd={jsonLd}
 >
-  <div class="w-full px-6 py-14">
-    <div class={`drawer drawer-end ${showTableOfContents ? "xl:drawer-open" : ""}`.trim()}>
-      {showTableOfContents && <input id="post-toc-drawer" type="checkbox" class="drawer-toggle" />}
+  <Fragment slot="heroTop">
+    <slot name="heroTop" />
+  </Fragment>
 
-      <div class="drawer-content">
-        <div class="mx-auto w-full max-w-5xl 2xl:max-w-6xl">
-          <div class={`grid gap-12 ${showTableOfContents ? "xl:grid-cols-[minmax(0,1fr)_18rem] 2xl:grid-cols-[minmax(0,1fr)_20rem]" : ""}`.trim()}>
-            <article class="prose prose-lg min-w-0 max-w-none prose-img:mx-auto" data-toc-content>
-              {
-                (category || series) && (
-                  <div class="flex flex-wrap gap-2 mb-4">
-                    {category && (
-                      <a
-                        href={generateFilterUrl(currentUrl, "category", category.slug)}
-                        class="badge badge-accent no-underline"
-                      >
-                        {category.name}
-                      </a>
-                    )}
-                    {series && (
-                      <a
-                        href={`/blog/series/${series.slug}`}
-                        class="badge badge-secondary no-underline"
-                      >
-                        {series.name}
-                      </a>
-                    )}
-                  </div>
-                )
-              }
-              {
-                heroImage && (
-                  <img
-                    src={heroImage}
-                    alt={title}
-                    class="w-full mb-6 rounded-lg"
-                    loading="eager"
-                  />
-                )
-              }
-              <h1 class="title my-2 text-4xl font-bold">{title}</h1>
-              {
-                authorNames.length > 0 && (
-                  <div class="text-sm mt-1">By {authorNames.join(", ")}</div>
-                )
-              }
-              <div class="flex flex-wrap items-center justify-between gap-2">
-                <div class="text-sm opacity-70">
-                  <time>{displayDate}</time>
-                  {
-                    showUpdatedDate && (
-                      <span>
-                        {" "}
-                        (updated <time>{formattedUpdatedDate}</time>)
-                      </span>
-                    )
-                  }
-                </div>
-                {
-                  tags.length > 0 && (
-                    <div class="flex flex-wrap gap-1">
-                      {tags.map((tag) => (
-                        <a
-                          href={generateFilterUrl(currentUrl, "tag", tag.slug)}
-                          class="badge badge-outline badge-sm no-underline opacity-70"
-                        >
-                          {tag.name}
-                        </a>
-                      ))}
-                    </div>
-                  )
-                }
-              </div>
-              <div class="divider my-2"></div>
-              <slot />
-            </article>
-
-            {
-              showTableOfContents && (
-                <aside class="hidden xl:block">
-                  <div class="sticky top-24 max-h-[calc(100vh-8rem)] overflow-y-auto border-l border-base-200/50 pl-6 2xl:pl-8">
-                    <TableOfContents items={toc} />
-                  </div>
-                </aside>
-              )
-            }
-          </div>
-        </div>
-      </div>
-
+  <EntryHeader slot="header" title={title} tags={tags}>
+    <Fragment slot="preTitle">
       {
-        showTableOfContents && (
-          <div class="drawer-side z-50 xl:hidden" data-toc-drawer>
-            <label for="post-toc-drawer" aria-label="Close table of contents" class="drawer-overlay"></label>
-
-            <div class="min-h-full w-80 max-w-[85vw] border-l border-base-200/50 bg-base-200/95 p-4 backdrop-blur">
-              <div class="mb-4 flex items-center justify-between gap-4">
-                <div class="text-lg font-semibold">Table of contents</div>
-
-                <label for="post-toc-drawer" class="btn btn-square btn-ghost" aria-label="Close table of contents">
-                  <PhX size={18} />
-                </label>
-              </div>
-
-              <div class="border-l border-base-200/50 pl-5">
-                <TableOfContents items={toc} />
-              </div>
-            </div>
+        (category || series) && (
+          <div class="not-prose mb-4 flex flex-wrap gap-2">
+            {category && (
+              <a
+                href={generateFilterUrl(currentUrl, "category", category.slug)}
+                class="badge badge-accent no-underline"
+              >
+                {category.name}
+              </a>
+            )}
+            {series && (
+              <a href={`/blog/series/${series.slug}`} class="badge badge-secondary no-underline">
+                {series.name}
+              </a>
+            )}
           </div>
         )
       }
-    </div>
+    </Fragment>
 
-    {
-      showTableOfContents && (
-        <label
-          for="post-toc-drawer"
-          class="btn btn-circle btn-primary fixed bottom-6 right-6 z-40 shadow-lg xl:hidden"
-          aria-label="Open table of contents"
-        >
-          <PhList size={20} />
-        </label>
-      )
-    }
-  </div>
-
-  {
-    showTableOfContents && (
-      <script is:inline>
-        const POST_TOC_DRAWER_ID = "post-toc-drawer";
-        const TOC_ACTIVE_CLASSES = ["border-primary", "text-base-content", "opacity-100", "font-medium"];
-
-        const initializePostTableOfContents = () => {
-          const existingCleanup = window.__postTocCleanup;
-          if (typeof existingCleanup === "function") {
-            existingCleanup();
-          }
-
-          const headings = Array.from(
-            document.querySelectorAll("[data-toc-content] :is(h2[id], h3[id])"),
-          );
-          const links = Array.from(document.querySelectorAll("[data-toc-link]"));
-          const drawer = document.getElementById(POST_TOC_DRAWER_ID);
-
-          if (!headings.length || !links.length) {
-            return;
-          }
-
-          let currentActiveId = "";
-
-          const getHashId = () => window.location.hash.replace(/^#/, "");
-
-          const getHeadingById = (id) => {
-            return headings.find((heading) => heading.id === id);
-          };
-
-          const setActiveId = (id) => {
-            currentActiveId = id;
-
-            links.forEach((link) => {
-              const isActive = link.dataset.tocId === id;
-
-              if (isActive) {
-                link.setAttribute("aria-current", "true");
-              } else {
-                link.removeAttribute("aria-current");
-              }
-
-              TOC_ACTIVE_CLASSES.forEach((className) => {
-                link.classList.toggle(className, isActive);
-              });
-            });
-          };
-
-          const syncHash = (id) => {
-            if (!id || getHashId() === id) {
-              return;
-            }
-
-            const nextUrl = `${window.location.pathname}${window.location.search}#${id}`;
-            window.history.replaceState(window.history.state, "", nextUrl);
-          };
-
-          const applyHashState = () => {
-            const hashId = getHashId();
-
-            if (!hashId) {
-              return false;
-            }
-
-            if (!getHeadingById(hashId)) {
-              return false;
-            }
-
-            setActiveId(hashId);
-            return true;
-          };
-
-          const updateActiveId = () => {
-            const topOffset = window.innerWidth >= 1280 ? 112 : 96;
-            let activeHeading = headings[0];
-
-            headings.forEach((heading) => {
-              if (heading.getBoundingClientRect().top - topOffset <= 0) {
-                activeHeading = heading;
-              }
-            });
-
-            if (activeHeading && activeHeading.id) {
-              if (activeHeading.id === currentActiveId) {
-                return;
-              }
-
-              setActiveId(activeHeading.id);
-              syncHash(activeHeading.id);
-            }
-          };
-
-          const handleHashChange = () => {
-            if (!applyHashState()) {
-              updateActiveId();
-            }
-          };
-
-          const observer = new IntersectionObserver(updateActiveId, {
-            rootMargin: "-96px 0px -55% 0px",
-            threshold: [0, 1],
-          });
-
-          headings.forEach((heading) => observer.observe(heading));
-          window.addEventListener("scroll", updateActiveId, { passive: true });
-          window.addEventListener("resize", updateActiveId);
-          window.addEventListener("hashchange", handleHashChange);
-
-          links.forEach((link) => {
-            link.addEventListener("click", () => {
-              if (drawer instanceof HTMLInputElement) {
-                drawer.checked = false;
-              }
-            });
-          });
-
-          if (!applyHashState()) {
-            updateActiveId();
-          }
-
-          window.__postTocCleanup = () => {
-            observer.disconnect();
-            window.removeEventListener("scroll", updateActiveId);
-            window.removeEventListener("resize", updateActiveId);
-            window.removeEventListener("hashchange", handleHashChange);
-          };
-        };
-
-        initializePostTableOfContents();
-
-        if (!document.documentElement.dataset.postTocPageLoadBound) {
-          document.addEventListener("astro:page-load", initializePostTableOfContents);
-          document.documentElement.dataset.postTocPageLoadBound = "true";
+    <Fragment slot="meta">
+      {
+        authorNames.length > 0 && (
+          <div class="mt-1 text-sm font-medium text-base-content/80">
+            By {authorNames.join(", ")}
+          </div>
+        )
+      }
+      <div class="mt-1 flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-base-content/60">
+        <span>
+          Published <time datetime={pubDate}>{displayDate}</time>
+        </span>
+        {
+          showUpdatedDate && (
+            <>
+              <span aria-hidden="true" class="text-base-content/35">
+                •
+              </span>
+              <span>
+                Updated <time datetime={updatedDate}>{formattedUpdatedDate}</time>
+              </span>
+            </>
+          )
         }
-      </script>
-    )
-  }
-</BaseLayout>
+      </div>
+    </Fragment>
+  </EntryHeader>
+
+  <slot />
+</DetailLayout>

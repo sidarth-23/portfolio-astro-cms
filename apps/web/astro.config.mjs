@@ -3,6 +3,7 @@ import { fileURLToPath } from "node:url";
 import node from "@astrojs/node";
 import sitemap from "@astrojs/sitemap";
 import tailwindcss from "@tailwindcss/vite";
+import { devRefresh } from "./src/integrations/dev-refresh";
 
 const siteUrl = process.env.ASTRO_SITE_URL ?? "http://localhost:4321";
 
@@ -10,7 +11,7 @@ export default defineConfig({
   site: siteUrl,
   output: "static",
   adapter: node({ mode: "standalone" }),
-  integrations: [sitemap()],
+  integrations: [sitemap(), devRefresh()],
   env: {
     schema: {
       ASTRO_CMS_API_URL: envField.string({
@@ -23,17 +24,13 @@ export default defineConfig({
         context: "server",
         access: "secret",
       }),
-      ASTRO_CMS_HEALTH_TIMEOUT_MS: envField.number({
-        context: "server",
-        access: "public",
-        int: true,
-        min: 1,
-        default: 5000,
-      }),
     },
   },
   vite: {
     plugins: [tailwindcss()],
+    optimizeDeps: {
+      exclude: ["@sidshub/cms-core", "@sidshub/cms-lib-editor", "@sidshub/cms-lib-icons"],
+    },
     resolve: {
       alias: {
         "@": fileURLToPath(new URL("./src", import.meta.url)),

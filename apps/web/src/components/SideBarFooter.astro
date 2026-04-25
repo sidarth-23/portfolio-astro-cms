@@ -1,6 +1,6 @@
 ---
-import type { SiteFooterItem } from "@sidshub/cms-config/client-core";
-import { getIconForType } from "@/lib/social-icons";
+import type { SiteFooterItem } from "@sidshub/cms-core/client";
+import { resolveIcon } from "@/lib/resolveIcon";
 
 type Props = {
   items?: SiteFooterItem[];
@@ -8,10 +8,31 @@ type Props = {
 
 const { items = [] }: Props = Astro.props;
 
-const cleanItems = items
-  .filter((item): item is SiteFooterItem => Boolean(item?.type))
-  .slice(0, 4)
-  .filter((item) => item.url.length > 0);
+const cleanItems = (
+  await Promise.all(
+    items.map(async (item) => {
+      if (!item?.icon || item.url.length === 0) {
+        return null;
+      }
+
+      const iconData = await resolveIcon(item.icon);
+      if (!iconData) {
+        return null;
+      }
+
+      return { item, iconData };
+    }),
+  )
+)
+  .filter(
+    (
+      entry,
+    ): entry is {
+      item: SiteFooterItem;
+      iconData: NonNullable<Awaited<ReturnType<typeof resolveIcon>>>;
+    } => entry !== null,
+  )
+  .slice(0, 4);
 ---
 
 <div
@@ -22,19 +43,24 @@ const cleanItems = items
 {
   cleanItems.length > 0 && (
     <div class="social-icons px-4 pb-5 pt-1 flex flex-wrap gap-4 self-center justify-center sticky bottom-0 bg-base-200 group-[.collapsed]:px-1">
-      {cleanItems.map((item) => {
-        const Icon = getIconForType(item.type);
-
+      {cleanItems.map(({ item, iconData }) => {
         return (
           <a
             href={item.url}
-            target={item.openInNewTab ? "_blank" : undefined}
-            rel={item.openInNewTab ? "noreferrer noopener" : undefined}
-            class="mx-3 group-[.collapsed]:mx-1"
-            aria-label={item.type}
-            title={item.type}
+            target={item.newTab ? "_blank" : undefined}
+            rel={item.newTab ? "noreferrer noopener" : undefined}
+            class="mx-3 group-[.collapsed]:mx-1 hover:text-primary transition-colors"
+            aria-label={iconData.label}
+            title={iconData.label}
           >
-            <Icon size={24} weight="duotone" />
+            <svg
+              viewBox={iconData.viewBox}
+              width={24}
+              height={24}
+              aria-hidden="true"
+              class="h-6 w-6 fill-current stroke-current"
+              set:html={iconData.innerSvg}
+            ></svg>
           </a>
         );
       })}

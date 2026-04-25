@@ -5,13 +5,13 @@
   "scripts": {
     "dev": "astro dev",
     "start": "astro dev",
-    "build": "bun run check:cms && astro check && astro build",
+    "build": "ASTRO_BUILD_CACHE_GLOBALS=true astro check && ASTRO_BUILD_CACHE_GLOBALS=true astro build",
+    "build:test": "ASTRO_BUILD_CACHE_GLOBALS=true ASTRO_MOCK_CMS=true ASTRO_CMS_READ_TOKEN=mock ASTRO_CMS_API_URL=http://mock astro check && ASTRO_BUILD_CACHE_GLOBALS=true ASTRO_MOCK_CMS=true ASTRO_CMS_READ_TOKEN=mock ASTRO_CMS_API_URL=http://mock astro build",
     "preview": "astro preview",
     "check": "astro check",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
-    "astro": "astro",
-    "check:cms": "bun ./scripts/checkCms.ts"
+    "astro": "astro"
   },
   "dependencies": {
     "@astrojs/check": "0.9.4",
@@ -19,21 +19,20 @@
     "@astrojs/rss": "4.0.11",
     "@astrojs/sitemap": "3.3.1",
     "@astrojs/tailwind": "6.0.2",
-    "@sidshub/cms-config": "workspace:*",
-    "@sidshub/lexical": "workspace:*",
+    "@sidshub/cms-core": "workspace:*",
+    "@sidshub/cms-lib-editor": "workspace:*",
+    "@sidshub/cms-lib-icons": "workspace:*",
     "@tailwindcss/vite": "^4.1.4",
     "astro": "5.7.5",
     "phosphor-icons-astro": "^2.1.1-17042025",
-    "simple-icons": "^16.15.0",
     "tailwindcss": "^4.1.4",
     "typescript": "^5.5.4"
   },
   "devDependencies": {
-    "@typescript-eslint/parser": "^8.29.1",
+    "@faker-js/faker": "^9.8.0",
+    "@sidshub/dev-config": "workspace:*",
     "@tailwindcss/typography": "^0.5.15",
     "daisyui": "^5.5.5",
-    "eslint": "^9.24.0",
-    "eslint-plugin-astro": "^0.34.0",
-    "prettier-plugin-astro": "^0.14.1"
+    "eslint": "^9.24.0"
   }
 }

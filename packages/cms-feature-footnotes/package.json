@@ -1,0 +1,27 @@
+{
+  "name": "@sidshub/cms-feature-footnotes",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "sideEffects": false,
+  "scripts": {
+    "build": "rm -rf dist && tsdown",
+    "dev": "tsdown --watch",
+    "clean": "rm -rf dist",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix"
+  },
+  "exports": {
+    ".": "./dist/index.mjs",
+    "./server": "./dist/server.mjs",
+    "./client": "./dist/client.mjs",
+    "./types": "./dist/types.mjs"
+  },
+  "dependencies": {
+    "@payloadcms/richtext-lexical": "3.82.1"
+  },
+  "devDependencies": {
+    "@sidshub/dev-config": "workspace:*",
+    "eslint": "^9.24.0"
+  }
+}

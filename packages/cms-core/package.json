@@ -1,0 +1,48 @@
+{
+  "name": "@sidshub/cms-core",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "sideEffects": false,
+  "scripts": {
+    "build": "rm -rf dist && tsdown",
+    "dev": "tsdown --watch",
+    "clean": "rm -rf dist",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix"
+  },
+  "exports": {
+    ".": "./dist/payload-types.mjs",
+    "./builder": "./dist/builder.mjs",
+    "./client": "./dist/lib/client/index.mjs",
+    "./client/transport": "./dist/lib/client/transport.mjs",
+    "./client/media": "./dist/lib/client/media.mjs",
+    "./content": "./dist/lib/content/index.mjs",
+    "./validation": "./dist/lib/validation/index.mjs",
+    "./payload-types": "./dist/payload-types.mjs",
+    "./admin/*": "./dist/components/admin/*.mjs"
+  },
+  "peerDependencies": {
+    "qs-esm": "*",
+    "sharp": "*"
+  },
+  "devDependencies": {
+    "@sidshub/dev-config": "workspace:*",
+    "eslint": "^9.24.0"
+  },
+  "dependencies": {
+    "@payloadcms/plugin-seo": "3.82.1",
+    "@payloadcms/sdk": "3.82.1",
+    "@react-email/components": "^0.5.7",
+    "@react-email/render": "^1.4.0",
+    "@sidshub/cms-feature-emoji": "workspace:*",
+    "@sidshub/cms-lib-icons": "workspace:*",
+    "@sidshub/cms-feature-footnotes": "workspace:*",
+    "@sidshub/cms-plugin-deployment-log-view": "workspace:*",
+    "@sidshub/cms-feature-markdown-paste": "workspace:*",
+    "@sidshub/cms-plugin-og-image": "workspace:*",
+    "@sidshub/cms-lib-editor": "workspace:*",
+    "payload": "3.82.1",
+    "zod": "^3.24.1"
+  }
+}

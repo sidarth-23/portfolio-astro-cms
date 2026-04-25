@@ -1,14 +1,31 @@
 ---
-import { renderRichTextToHTML, type RichTextValue } from "@sidshub/lexical/web";
+import { renderRichTextToHTML } from "@sidshub/cms-lib-editor/web/html";
+import type { CalloutVariantProfile, RichTextValue } from "@sidshub/cms-lib-editor/web/html";
+import { ASTRO_CMS_API_URL } from "astro:env/server";
 
 type Props = {
   className?: string;
   data?: RichTextValue | null;
   enableContainer?: boolean;
+  calloutVariantProfile?: CalloutVariantProfile;
+  mediaBaseUrl?: string;
 };
 
-const { className, data, enableContainer = false }: Props = Astro.props;
-const html = renderRichTextToHTML({ className, data, enableContainer });
+const {
+  className,
+  data,
+  enableContainer = false,
+  calloutVariantProfile = "generic",
+  mediaBaseUrl,
+}: Props = Astro.props;
+const resolvedMediaBaseUrl = mediaBaseUrl ?? ASTRO_CMS_API_URL;
+const html = await renderRichTextToHTML(
+  { className, data, enableContainer },
+  {
+    calloutVariantProfile,
+    mediaBaseUrl: resolvedMediaBaseUrl,
+  },
+);
 ---
 
 {html && <Fragment set:html={html} />}

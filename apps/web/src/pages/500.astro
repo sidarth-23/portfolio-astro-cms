@@ -1,15 +1,22 @@
 ---
+import NotFoundState from "@/components/NotFoundState.astro";
 import ErrorLayout from "@/layouts/ErrorLayout.astro";
+import { getErrorPageSeo } from "@/lib/seo";
+import { PhWarningCircle } from "phosphor-icons-astro";
+
+const seo = await getErrorPageSeo();
 ---
 
 <ErrorLayout
-  title="500: Server Error"
-  description="Something went wrong while loading this page."
+  title={seo.title}
+  description={seo.description}
+  image={seo.image}
 >
-  <div class="text-center">
-    <h1 class="text-9xl font-bold mb-4">⚠️</h1>
-    <h1 class="text-7xl font-bold mb-2">500</h1>
-    <h3 class="text-2xl">Something went wrong while loading this page.</h3>
-    <a class="btn btn-accent mt-9" href="/">Home</a>
-  </div>
+  <NotFoundState
+    title="Something went wrong"
+    description="We ran into an unexpected error. Please try again later."
+    ctaLabel="Back to home"
+    ctaHref="/"
+    icon={PhWarningCircle}
+  />
 </ErrorLayout>

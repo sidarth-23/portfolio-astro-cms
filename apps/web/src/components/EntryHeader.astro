@@ -1,0 +1,36 @@
+---
+import type { TagInfo } from "@/lib/cms";
+
+type Props = {
+  title: string;
+  tags?: TagInfo[];
+};
+
+const { title, tags = [] }: Props = Astro.props;
+---
+
+<header class="mb-6 not-prose">
+  <slot name="preTitle" />
+
+  <div class="flex flex-wrap items-center justify-between gap-3">
+    <h1 class="title my-2 text-4xl font-bold">{title}</h1>
+    <div class="flex flex-wrap items-center gap-2">
+      <slot name="titleActions" />
+    </div>
+  </div>
+
+  <slot name="meta" />
+
+  {
+    tags.length > 0 && (
+      <div class="mt-3 flex flex-wrap items-center gap-2">
+        {tags.map((tag) => (
+          <span class="inline-flex items-center gap-1 rounded-full border border-base-content/12 bg-base-200/40 px-3 py-1 text-xs font-medium text-base-content/75">
+            <span class="text-base-content/30">#</span>
+            {tag.name}
+          </span>
+        ))}
+      </div>
+    )
+  }
+</header>

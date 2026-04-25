@@ -1,0 +1,20 @@
+import { defineConfig, type InlineConfig, type UserConfig } from "tsdown";
+import { baseTsdownConfig } from "@sidshub/dev-config/tsdown";
+
+export default defineConfig(
+  (inlineConfig: InlineConfig): UserConfig => ({
+    ...baseTsdownConfig(inlineConfig),
+    platform: "neutral",
+    entry: [
+      "src/payload-types.ts",
+      "src/builder.ts",
+      "src/lib/client/index.ts",
+      "src/lib/client/transport.ts",
+      "src/lib/client/media.ts",
+      "src/lib/content/index.ts",
+      "src/lib/validation/index.ts",
+      "src/components/admin/**/*.{ts,tsx}",
+    ],
+    external: ["node:path", "node:url", "path", "url", "fs/promises", "sharp", "qs-esm"],
+  }),
+);

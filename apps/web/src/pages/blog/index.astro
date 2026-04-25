@@ -1,20 +1,15 @@
 ---
 import { PhFunnel, PhInfo, PhMagnifyingGlass, PhX } from "phosphor-icons-astro";
-import { ASTRO_CMS_API_URL, ASTRO_CMS_READ_TOKEN } from "astro:env/server";
-import { createCmsRestClient } from "@sidshub/cms-config/rest-client";
-
 import HorizontalCard from "@/components/HorizontalCard.astro";
 import BlogPagination from "@/components/BlogPagination.astro";
 import BaseLayout from "@/layouts/BaseLayout.astro";
-
-const cmsClient = createCmsRestClient({ apiUrl: ASTRO_CMS_API_URL, token: ASTRO_CMS_READ_TOKEN });
+import { cmsClient } from "@/lib/cms";
 
 export const prerender = false;
 
 // Parse query params
 const searchQuery = Astro.url.searchParams.get("q") || undefined;
 const categoryFilter = Astro.url.searchParams.get("category") || undefined;
-const tagFilter = Astro.url.searchParams.get("tag") || undefined;
 const seriesFilter = Astro.url.searchParams.get("series") || undefined;
 const view = Astro.url.searchParams.get("view") || "posts";
 const pageParam = Astro.url.searchParams.get("page");
@@ -24,15 +19,13 @@ const pageSize = 10;
 
 type PaginatedPostsData = Awaited<ReturnType<typeof cmsClient.getPaginatedPublishedPosts>>;
 type CategoriesData = Awaited<ReturnType<typeof cmsClient.getAllCategories>>;
-type TagsData = Awaited<ReturnType<typeof cmsClient.getAllTags>>;
 type SeriesData = Awaited<ReturnType<typeof cmsClient.getAllSeriesWithPosts>>;
 type BlogPageData = Awaited<ReturnType<typeof cmsClient.getBlogPage>>;
 
 // Fetch data
-const [paginatedPosts, allCategories, allTags, allSeries, blogPage]: [
+const [paginatedPosts, allCategories, allSeries, blogPage]: [
   PaginatedPostsData,
   CategoriesData,
-  TagsData,
   SeriesData,
   BlogPageData,
 ] = await Promise.all([
@@ -41,20 +34,16 @@ const [paginatedPosts, allCategories, allTags, allSeries, blogPage]: [
     pageSize,
     search: searchQuery,
     categorySlug: categoryFilter,
-    tagSlug: tagFilter,
     seriesSlug: seriesFilter,
   }),
   cmsClient.getAllCategories(),
-  cmsClient.getAllTags(),
   cmsClient.getAllSeriesWithPosts(),
   cmsClient.getBlogPage(),
 ]);
 
-const blogSeoTitle = blogPage.meta?.title?.trim();
-const blogSeoDescription = blogPage.meta?.description?.trim();
-const blogTitle = blogPage.title?.trim();
+const { meta, title: blogTitle, intro: blogIntro } = blogPage;
 
-if (!blogSeoTitle || !blogSeoDescription) {
+if (!meta.title || !meta.description) {
   throw new Error("Blog page requires SEO `meta.title` and `meta.description`.");
 }
 
@@ -66,7 +55,6 @@ if (!blogTitle) {
 const buildBlogUrl = (overrides: {
   q?: string | null;
   category?: string | null;
-  tag?: string | null;
   series?: string | null;
   view?: string | null;
   page?: number | null;
@@ -79,8 +67,6 @@ const buildBlogUrl = (overrides: {
     overrides.category === null
       ? undefined
       : (overrides.category ?? categoryFilter);
-  const finalTag =
-    overrides.tag === null ? undefined : (overrides.tag ?? tagFilter);
   const finalSeries =
     overrides.series === null ? undefined : (overrides.series ?? seriesFilter);
   const finalView =
@@ -90,7 +76,6 @@ const buildBlogUrl = (overrides: {
 
   if (finalQuery) params.set("q", finalQuery);
   if (finalCategory) params.set("category", finalCategory);
-  if (finalTag) params.set("tag", finalTag);
   if (finalSeries) params.set("series", finalSeries);
   if (finalView && finalView !== "posts") params.set("view", finalView);
   if (finalPage && finalPage > 1) params.set("page", String(finalPage));
@@ -106,16 +91,12 @@ const buildPageUrl = (page: number): string =>
 const hasActiveFilters = !!(
   searchQuery ||
   categoryFilter ||
-  tagFilter ||
   seriesFilter
 );
 
-// Find active category/tag/series objects for display
+// Find active category/series objects for display
 const activeCategory = categoryFilter
   ? allCategories.find((c) => c.slug === categoryFilter)
-  : undefined;
-const activeTag = tagFilter
-  ? allTags.find((t) => t.slug === tagFilter)
   : undefined;
 const activeSeries = seriesFilter
   ? allSeries.find((s) => s.slug === seriesFilter)
@@ -124,9 +105,9 @@ const activeSeries = seriesFilter
 
 <BaseLayout
   title={blogTitle}
-  seoTitle={blogSeoTitle}
-  description={blogSeoDescription}
-  image={cmsClient.mediaToUrl(blogPage.meta?.image)}
+  seoTitle={meta.title}
+  description={meta.description}
+  image={cmsClient.mediaToUrl(meta?.image)}
 >
   <div
     class="mb-5 flex flex-col md:flex-row items-center justify-between gap-4"
@@ -153,13 +134,13 @@ const activeSeries = seriesFilter
   </div>
 
   {
-    blogPage.intro && (
-      <p class="mb-6 text-base-content/80 leading-relaxed">{blogPage.intro}</p>
+    blogIntro && (
+      <p class="mb-6 text-base-content/80 leading-relaxed">{blogIntro}</p>
     )
   }
 
   {/* Search and Filter Bar */}
-  <div class="flex flex-col md:flex-row gap-4 mb-6">
+  <div class="flex flex-col md:flex-row gap-4 mb-6 relative z-30">
     <form method="GET" action="/blog" class="flex-1 join">
       <input
         type="search"
@@ -174,7 +155,6 @@ const activeSeries = seriesFilter
           <input type="hidden" name="category" value={categoryFilter} />
         )
       }
-      {tagFilter && <input type="hidden" name="tag" value={tagFilter} />}
       {
         seriesFilter && (
           <input type="hidden" name="series" value={seriesFilter} />
@@ -187,19 +167,14 @@ const activeSeries = seriesFilter
       </button>
     </form>
 
-    <div class="dropdown dropdown-end">
-      <div
-        tabindex="0"
-        role="button"
-        class={`btn ${hasActiveFilters ? "btn-primary" : "btn-outline"} gap-2`}
-      >
+    <div class="dropdown dropdown-end relative z-40">
+      <div tabindex="0" role="button" class="btn btn-outline gap-2">
         <PhFunnel class="h-5 w-5" />
         Filter
         {
           hasActiveFilters && (
-            <div class="badge badge-sm badge-circle badge-ghost">
+            <div class="badge badge-sm badge-circle">
               {(categoryFilter ? 1 : 0) +
-                (tagFilter ? 1 : 0) +
                 (seriesFilter ? 1 : 0)}
             </div>
           )
@@ -207,75 +182,38 @@ const activeSeries = seriesFilter
       </div>
       <div
         tabindex="0"
-        class="dropdown-content z-[1] card card-compact w-72 sm:w-80 md:w-96 p-2 shadow-xl bg-base-200/90 backdrop-blur-md border border-base-200 max-h-[60vh] overflow-y-auto"
+        class="dropdown-content z-50 w-72 rounded-box bg-base-100 p-4 shadow pointer-events-auto"
       >
-        <div class="card-body">
-          <div class="flex justify-between items-center">
-            <h3 class="card-title text-sm uppercase tracking-wider opacity-70">
-              Categories
-            </h3>
-            {
-              categoryFilter && (
-                <a
-                  href={buildBlogUrl({ category: null, page: 1 })}
-                  class="btn btn-ghost btn-xs text-error"
-                >
-                  Clear
-                </a>
-              )
-            }
-          </div>
-          <div class="flex flex-wrap gap-2">
-            {
-              allCategories.map((category) => (
-                <a
-                  href={buildBlogUrl({
-                    category:
-                      category.slug === categoryFilter ? null : category.slug,
-                    page: 1,
-                  })}
-                  class={`btn btn-sm ${category.slug === categoryFilter ? "btn-primary" : "btn-ghost bg-base-200 hover:bg-base-300 font-normal"}`}
-                >
-                  {category.name}
-                </a>
-              ))
-            }
-          </div>
-
-          <div class="divider my-1"></div>
-
-          <div class="flex justify-between items-center">
-            <h3 class="card-title text-sm uppercase tracking-wider opacity-70">
-              Tags
-            </h3>
-            {
-              tagFilter && (
-                <a
-                  href={buildBlogUrl({ tag: null, page: 1 })}
-                  class="btn btn-ghost btn-xs text-error"
-                >
-                  Clear
-                </a>
-              )
-            }
-          </div>
-          <div class="flex flex-wrap gap-2">
-            {
-              allTags.map((tag) => (
-                <a
-                  href={buildBlogUrl({
-                    tag: tag.slug === tagFilter ? null : tag.slug,
-                    page: 1,
-                  })}
-                  class={`btn btn-sm ${tag.slug === tagFilter ? "btn-accent text-accent-content" : "btn-ghost bg-base-200 hover:bg-base-300 font-normal"}`}
-                >
-                  <span class="opacity-70">#</span>
-                  {tag.name}
-                </a>
-              ))
-            }
-          </div>
+        <div class="flex justify-between items-center mb-2">
+          <h3 class="text-sm font-semibold">Categories</h3>
+          {
+            categoryFilter && (
+              <a
+                href={buildBlogUrl({ category: null, page: 1 })}
+                class="link link-error text-xs"
+              >
+                Clear
+              </a>
+            )
+          }
         </div>
+        <div class="flex flex-wrap gap-2 mb-4">
+          {
+            allCategories.map((category) => (
+              <a
+                href={buildBlogUrl({
+                  category:
+                    category.slug === categoryFilter ? null : category.slug,
+                  page: 1,
+                })}
+                class={`badge badge-soft badge-sm no-underline ${category.slug === categoryFilter ? "badge-accent" : "badge-info"}`}
+              >
+                {category.name}
+              </a>
+            ))
+          }
+        </div>
+
       </div>
     </div>
   </div>
@@ -299,19 +237,9 @@ const activeSeries = seriesFilter
         {activeCategory && (
           <a
             href={buildBlogUrl({ category: null, page: 1 })}
-            class="badge badge-primary badge-sm gap-2 hover:badge-error"
+            class="badge badge-soft badge-accent badge-sm gap-2 hover:badge-error"
           >
             {activeCategory.name}
-            <PhX class="h-4 w-4" />
-          </a>
-        )}
-
-        {activeTag && (
-          <a
-            href={buildBlogUrl({ tag: null, page: 1 })}
-            class="badge badge-accent badge-sm gap-2 hover:badge-error"
-          >
-            {activeTag.name}
             <PhX class="h-4 w-4" />
           </a>
         )}
@@ -330,7 +258,6 @@ const activeSeries = seriesFilter
           href={buildBlogUrl({
             q: null,
             category: null,
-            tag: null,
             series: null,
             page: 1,
           })}
@@ -409,7 +336,7 @@ const activeSeries = seriesFilter
                 <HorizontalCard
                   title={post.title}
                   img={cmsClient.mediaToUrl(post.coverImage)}
-                  desc={post.excerpt}
+                  desc={post.description}
                   url={`/blog/${post.slug}`}
                   target="_self"
                   category={cmsClient.categoryFromPost(post)}

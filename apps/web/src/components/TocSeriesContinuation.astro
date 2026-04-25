@@ -1,0 +1,49 @@
+---
+import { PhCaretRight } from "phosphor-icons-astro";
+
+type SeriesAdjacentPost = {
+  slug: string;
+  title: string;
+  coverImage?: string;
+};
+
+type Props = {
+  prevPost?: SeriesAdjacentPost;
+  nextPost?: SeriesAdjacentPost;
+};
+
+const { prevPost, nextPost }: Props = Astro.props;
+const targetPost = nextPost ?? prevPost;
+const isNext = Boolean(nextPost);
+---
+
+{
+  targetPost && (
+    <div class="mt-4 border-t border-base-content/10 pt-3">
+      <div class="mb-1 ps-2 text-xs text-base-content/60">
+        <span>{isNext ? "Next Section" : "Previous Section"}</span>
+      </div>
+
+      <div class="group flex items-center gap-2.5 rounded-md pe-1 ps-2 py-1.5 transition-colors hover:bg-base-content/5">
+        {targetPost.coverImage ? (
+          <img
+            src={targetPost.coverImage}
+            alt={targetPost.title}
+            class="h-10 w-10 rounded object-cover"
+            loading="lazy"
+          />
+        ) : (
+          <div class="h-10 w-10 rounded bg-base-content/5" aria-hidden="true" />
+        )}
+
+        <a
+          href={`/blog/${targetPost.slug}`}
+          class="link link-hover inline-flex min-w-0 items-start gap-1.5 text-xs font-semibold leading-snug text-base-content/90"
+        >
+          <span class="line-clamp-2">{targetPost.title}</span>
+          <PhCaretRight class="mt-0.5 h-3.5 w-3.5 shrink-0 opacity-70" />
+        </a>
+      </div>
+    </div>
+  )
+}

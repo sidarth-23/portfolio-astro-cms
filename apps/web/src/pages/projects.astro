@@ -2,41 +2,26 @@
 import RichTextRenderer from "@/components/RichTextRenderer.astro";
 import HorizontalCard from "@/components/HorizontalCard.astro";
 import BaseLayout from "@/layouts/BaseLayout.astro";
-import { ASTRO_CMS_API_URL, ASTRO_CMS_READ_TOKEN } from "astro:env/server";
-import { asProjectArray } from "@sidshub/cms-config/client-core";
-import { createCmsRestClient } from "@sidshub/cms-config/rest-client";
-
-const cmsClient = createCmsRestClient({ apiUrl: ASTRO_CMS_API_URL, token: ASTRO_CMS_READ_TOKEN });
+import { asProjectArray } from "@sidshub/cms-core/client";
+import { cmsClient } from "@/lib/cms";
 const projectsPage = await cmsClient.getProjectsPage();
-const projectsSeoTitle = projectsPage.meta?.title?.trim();
-const projectsSeoDescription = projectsPage.meta?.description?.trim();
+const { meta, sections: projectSections } = projectsPage;
 
-if (!projectsSeoTitle || !projectsSeoDescription) {
+if (!meta.title || !meta.description) {
   throw new Error("Projects page requires SEO `meta.title` and `meta.description`.");
 }
 
-const sections = projectsPage.sections.map((section) => ({
+const sections = projectSections.map((section) => ({
   ...section,
   projects: asProjectArray(section.projects),
 }));
-
-const toTags = (tags?: Array<{ value: string }> | null) => {
-  return (tags || []).map((tag) => ({
-    name: tag.value,
-    slug: tag.value.toLowerCase().replace(/\s+/g, "-"),
-  }));
-};
-
-const toBadges = (badges?: Array<{ value: string }> | null) => {
-  return (badges || []).map((badge) => badge.value);
-};
 ---
 
 <BaseLayout
   title="Projects"
-  seoTitle={projectsSeoTitle}
-  description={projectsSeoDescription}
-  image={cmsClient.mediaToUrl(projectsPage.meta?.image)}
+  seoTitle={meta.title}
+  description={meta.description}
+  image={cmsClient.mediaToUrl(meta?.image)}
 >
   {
     sections.map((section) => (
@@ -53,14 +38,14 @@ const toBadges = (badges?: Array<{ value: string }> | null) => {
 
         {section.projects.map((project, index) => (
           <>
-              <HorizontalCard
-                title={project.title}
-                img={cmsClient.mediaToUrl(project.image)}
-                descRich={project.description}
-              badges={toBadges(project.badges)}
-              tags={toTags(project.tags)}
-              url={project.externalUrl}
-              githubUrl={project.githubUrl ?? undefined}
+            <HorizontalCard
+              title={project.title}
+              img={cmsClient.mediaToUrl(project.coverImage)}
+              desc={project.description}
+              badges={cmsClient.badgesFromProject(project)}
+              tags={cmsClient.tagsFromProject(project)}
+              url={"/projects/" + project.slug}
+              links={cmsClient.linksFromProject(project)}
               reverse={index % 2 === 1}
             />
             <div class="divider my-0" />

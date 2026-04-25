@@ -1,34 +1,57 @@
 {
   "$schema": "https://turbo.build/schema.json",
-  "globalEnv": [
-    "PAYLOAD_SECRET",
-    "PAYLOAD_PUBLIC_SERVER_URL",
-    "DATABASE_URI",
-    "RESEND_API_KEY",
-    "EMAIL_FROM_ADDRESS",
-    "EMAIL_FROM_NAME",
-    "S3_BUCKET",
-    "S3_REGION",
-    "S3_ENDPOINT",
-    "S3_AUTO_CREATE_BUCKET",
-    "S3_ACCESS_KEY_ID",
-    "S3_SECRET_ACCESS_KEY",
-    "CMS_READ_TOKEN",
-    "WEB_DEPLOY_WEBHOOK_URL",
-    "WEB_DEPLOY_BRANCH",
-    "ASTRO_SITE_URL",
-    "ASTRO_CMS_API_URL",
-    "ASTRO_CMS_READ_TOKEN",
-    "ASTRO_CMS_HEALTH_TIMEOUT_MS"
-  ],
+  "concurrency": "20",
   "tasks": {
     "build": {
       "dependsOn": ["^build"],
-      "outputs": ["dist/**", ".next/**", "!.next/cache/**"]
+      "inputs": ["$TURBO_DEFAULT$", "!README.md", "!Dockerfile", "!**/*.md", "!**/*.mdx"],
+      "outputs": ["dist/**"]
+    },
+    "build:test": {
+      "dependsOn": ["^build"],
+      "env": [
+        "ASTRO_BUILD_CACHE_GLOBALS",
+        "ASTRO_CMS_API_URL",
+        "ASTRO_CMS_READ_TOKEN",
+        "ASTRO_MOCK_CMS",
+        "ASTRO_SITE_URL"
+      ],
+      "inputs": ["$TURBO_DEFAULT$", "!README.md", "!Dockerfile", "!**/*.md", "!**/*.mdx"],
+      "outputs": ["dist/**"]
     },
     "dev": {
+      "dependsOn": ["^build"],
       "cache": false,
       "persistent": true
+    },
+    "@sidshub/web#dev": {
+      "dependsOn": ["^build"],
+      "with": [
+        "@sidshub/cms-core#dev",
+        "@sidshub/cms-lib-editor#dev",
+        "@sidshub/cms-lib-icons#dev"
+      ],
+      "cache": false,
+      "persistent": true
+    },
+    "@sidshub/cms#dev": {
+      "dependsOn": ["^build"],
+      "with": [
+        "@sidshub/cms-core#dev",
+        "@sidshub/cms-feature-emoji#dev",
+        "@sidshub/cms-feature-footnotes#dev",
+        "@sidshub/cms-feature-markdown-paste#dev",
+        "@sidshub/cms-lib-editor#dev",
+        "@sidshub/cms-lib-icons#dev",
+        "@sidshub/cms-plugin-deployment-log-view#dev",
+        "@sidshub/cms-plugin-og-image#dev"
+      ],
+      "cache": false,
+      "persistent": true
+    },
+    "@sidshub/dev-config#dev": {
+      "dependsOn": [],
+      "cache": false
     },
     "check": {
       "outputs": []
@@ -41,7 +64,77 @@
       "outputs": []
     },
     "generate:types": {
+      "env": [
+        "PAYLOAD_SECRET",
+        "PAYLOAD_PUBLIC_SERVER_URL",
+        "DATABASE_URI",
+        "CMS_READ_TOKEN",
+        "RESEND_API_KEY",
+        "EMAIL_FROM_ADDRESS",
+        "EMAIL_FROM_NAME",
+        "S3_BUCKET",
+        "S3_REGION",
+        "S3_ENDPOINT",
+        "S3_ACCESS_KEY_ID",
+        "S3_SECRET_ACCESS_KEY"
+      ],
       "outputs": ["src/payload-types.ts", "src/payload-generated-schema.ts"]
+    },
+    "@sidshub/web#build": {
+      "inputs": [
+        "astro.config.mjs",
+        "eslint.config.mjs",
+        "package.json",
+        "public/**",
+        "src/**",
+        "src/env.d.ts",
+        "tsconfig.json"
+      ],
+      "env": [
+        "ASTRO_BUILD_CACHE_GLOBALS",
+        "ASTRO_CMS_API_URL",
+        "ASTRO_CMS_READ_TOKEN",
+        "ASTRO_MOCK_CMS",
+        "ASTRO_SITE_URL"
+      ],
+      "outputs": ["dist/**"]
+    },
+    "@sidshub/web#build:test": {
+      "inputs": [
+        "astro.config.mjs",
+        "eslint.config.mjs",
+        "package.json",
+        "public/**",
+        "src/**",
+        "src/env.d.ts",
+        "tsconfig.json"
+      ]
+    },
+    "@sidshub/cms#build": {
+      "inputs": [
+        "eslint.config.mjs",
+        "next-env.d.ts",
+        "next.config.mjs",
+        "package.json",
+        "payload-types.ts",
+        "src/**",
+        "tsconfig.json"
+      ],
+      "env": [
+        "PAYLOAD_SECRET",
+        "PAYLOAD_PUBLIC_SERVER_URL",
+        "DATABASE_URI",
+        "CMS_READ_TOKEN",
+        "RESEND_API_KEY",
+        "EMAIL_FROM_ADDRESS",
+        "EMAIL_FROM_NAME",
+        "S3_BUCKET",
+        "S3_REGION",
+        "S3_ENDPOINT",
+        "S3_ACCESS_KEY_ID",
+        "S3_SECRET_ACCESS_KEY"
+      ],
+      "outputs": [".next/**", "!.next/cache/**"]
     }
   }
 }

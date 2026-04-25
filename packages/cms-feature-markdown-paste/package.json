@@ -1,0 +1,41 @@
+{
+  "name": "@sidshub/cms-feature-markdown-paste",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "sideEffects": false,
+  "scripts": {
+    "build": "rm -rf dist && tsdown",
+    "dev": "tsdown --watch",
+    "clean": "rm -rf dist",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix"
+  },
+  "exports": {
+    ".": "./dist/index.mjs",
+    "./server": "./dist/server.mjs",
+    "./client": "./dist/client.mjs",
+    "./plugin": "./dist/plugin.mjs",
+    "./endpoints": "./dist/endpoints/index.mjs",
+    "./contracts": "./dist/contracts.mjs",
+    "./options": "./dist/options.mjs"
+  },
+  "dependencies": {
+    "@payloadcms/richtext-lexical": "3.82.1",
+    "@payloadcms/ui": "3.82.1",
+    "@sidshub/cms-feature-footnotes": "workspace:*",
+    "markdown-it": "^14.1.1",
+    "markdown-it-footnote": "^4.0.0",
+    "mdast-util-from-markdown": "^2.0.2",
+    "mdast-util-gfm": "^3.1.0",
+    "micromark-extension-gfm": "^3.0.0",
+    "payload": "3.82.1",
+    "retext": "^9.0.0",
+    "retext-smartypants": "^6.2.0",
+    "simple-icons": "^16.15.0"
+  },
+  "devDependencies": {
+    "@sidshub/dev-config": "workspace:*",
+    "eslint": "^9.24.0"
+  }
+}

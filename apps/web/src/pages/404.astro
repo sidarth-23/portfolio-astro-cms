@@ -1,35 +1,22 @@
 ---
+import NotFoundState from "@/components/NotFoundState.astro";
 import ErrorLayout from "@/layouts/ErrorLayout.astro";
-import { ASTRO_CMS_API_URL, ASTRO_CMS_READ_TOKEN } from "astro:env/server";
-import { createCmsRestClient } from "@sidshub/cms-config/rest-client";
+import { getErrorPageSeo } from "@/lib/seo";
+import { PhMagnifyingGlass } from "phosphor-icons-astro";
 
-const cmsClient = createCmsRestClient({ apiUrl: ASTRO_CMS_API_URL, token: ASTRO_CMS_READ_TOKEN });
-const notFoundPage = await cmsClient.getNotFoundPage();
-
-const pageTitle = notFoundPage.title?.trim();
-const pageDescription = notFoundPage.description?.trim();
-const seoTitle = notFoundPage.meta?.title?.trim();
-const seoDescription = notFoundPage.meta?.description?.trim();
-const ctaLabel = notFoundPage.ctaLabel?.trim() || "Home";
-const ctaHref = notFoundPage.ctaHref?.trim() || "/";
-const emoji = notFoundPage.emoji?.trim() || "🏝";
-
-if (!pageTitle || !pageDescription || !seoTitle || !seoDescription) {
-  throw new Error(
-    "404 page requires `title`, `description`, and SEO `meta.title` + `meta.description`.",
-  );
-}
+const seo = await getErrorPageSeo();
 ---
 
 <ErrorLayout
-  title={seoTitle}
-  description={seoDescription}
-  image={cmsClient.mediaToUrl(notFoundPage.meta?.image)}
+  title={seo.title}
+  description={seo.description}
+  image={seo.image}
 >
-  <div class="text-center">
-    <h1 class="text-9xl font-bold mb-4">{emoji}</h1>
-    <h1 class="text-9xl font-bold mb-2">{pageTitle}</h1>
-    <h3 class="text-2xl">{pageDescription}</h3>
-    <a class="btn btn-accent mt-9" href={ctaHref}>{ctaLabel}</a>
-  </div>
+  <NotFoundState
+    title="Page not found"
+    description="The page you're looking for doesn't exist or may have been moved."
+    ctaLabel="Back to home"
+    ctaHref="/"
+    icon={PhMagnifyingGlass}
+  />
 </ErrorLayout>

@@ -1,10 +1,11 @@
-import eslintPluginAstro from "eslint-plugin-astro";
+import { astroConfig } from "@sidshub/dev-config/eslint";
 
-const eslintConfig = [
-  ...eslintPluginAstro.configs["flat/recommended"],
+export default [
+  ...astroConfig,
   {
-    ignores: ["dist/", ".astro/"],
+    files: ["**/*.d.ts"],
+    rules: {
+      "@typescript-eslint/triple-slash-reference": "off",
+    },
   },
 ];
-
-export default eslintConfig;
