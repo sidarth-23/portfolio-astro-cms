@@ -81,6 +81,7 @@
       "outputs": ["src/payload-types.ts", "src/payload-generated-schema.ts"]
     },
     "@sidshub/web#build": {
+      "dependsOn": ["^build"],
       "inputs": [
         "astro.config.mjs",
         "eslint.config.mjs",
@@ -100,6 +101,7 @@
       "outputs": ["dist/**"]
     },
     "@sidshub/web#build:test": {
+      "dependsOn": ["^build"],
       "inputs": [
         "astro.config.mjs",
         "eslint.config.mjs",
@@ -111,6 +113,7 @@
       ]
     },
     "@sidshub/cms#build": {
+      "dependsOn": ["^build"],
       "inputs": [
         "eslint.config.mjs",
         "next-env.d.ts",

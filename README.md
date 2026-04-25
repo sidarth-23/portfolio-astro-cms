@@ -32,6 +32,7 @@ This project started as a fork of [Astrofy](https://github.com/manuelernestog/as
 - Monorepo with Bun workspaces and Turbo pipelines.
 - Astro frontend with MDX content support, RSS, sitemap, and strict type checks.
 - Payload CMS with MongoDB, optional S3-compatible storage (MinIO), and publish-triggered web deploy webhook.
+- GitHub Actions image publishing to GHCR with path-aware Docker builds.
 - Shared packages:
   - `@sidshub/cms-core` for collections, fields, hooks, and generated types.
   - `@sidshub/cms-lib-editor` for Lexical editor and web-side rich text helpers.
