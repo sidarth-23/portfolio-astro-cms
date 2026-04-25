@@ -6,10 +6,6 @@ import { createCmsConfig } from "@sidshub/cms-core/builder";
 import { env } from "./env";
 
 function buildStoragePlugins() {
-  if (!env.S3_BUCKET || !env.S3_REGION || !env.S3_ACCESS_KEY_ID || !env.S3_SECRET_ACCESS_KEY) {
-    return [];
-  }
-
   return [
     s3Storage({
       collections: { media: true },

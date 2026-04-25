@@ -3,8 +3,9 @@
   "private": true,
   "type": "module",
   "scripts": {
+    "prepare:admin-artifacts": "cross-env NODE_OPTIONS=--no-deprecation SKIP_ENV_VALIDATION=1 payload generate:importmap",
     "predev": "npm run prepare:admin-artifacts",
-    "prebuild": "echo 'Nothing to prepare before build'",
+    "prebuild": "npm run prepare:admin-artifacts",
     "clean:next": "rm -rf .next",
     "dev": "npm run clean:next && cross-env NODE_OPTIONS=--no-deprecation next dev -p 3000",
     "build": "cross-env NODE_OPTIONS=--no-deprecation next build",
