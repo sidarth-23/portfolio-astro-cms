@@ -3,6 +3,9 @@ import TableOfContents from "@/components/TableOfContents.astro";
 import BaseLayout from "@/layouts/BaseLayout.astro";
 import { PhList, PhX } from "phosphor-icons-astro";
 import type { TableOfContentsItem } from "@sidshub/cms-lib-editor/web/html";
+import type { Media } from "@sidshub/cms-core/payload-types";
+import { getHeroImageSources } from "@/lib/cms/responsive-image";
+import { cmsClient } from "@/lib/cms";
 
 type Props = {
   title: string;
@@ -11,6 +14,7 @@ type Props = {
   image?: string;
   heroImage?: string;
   heroImageAlt?: string;
+  heroMedia?: Media | string | number | null;
   toc?: TableOfContentsItem[];
   tocContinuation?: {
     prevPost?: {
@@ -38,6 +42,7 @@ const {
   image,
   heroImage,
   heroImageAlt,
+  heroMedia,
   toc = [],
   tocContinuation,
   backHref,
@@ -47,6 +52,7 @@ const {
   articleClassName = "prose prose-lg min-w-0 max-w-none prose-img:mx-auto",
 }: Props = Astro.props;
 
+const heroSources = getHeroImageSources(heroMedia, cmsClient.mediaSizeUrl);
 const tocDrawerId = "detail-toc-drawer";
 const hasHeroTopSlot = Astro.slots.has("heroTop");
 ---
@@ -83,19 +89,24 @@ const hasHeroTopSlot = Astro.slots.has("heroTop");
               }
 
               {
-                heroImage && (
+                heroSources && (
                   <>
                     {hasHeroTopSlot && (
                       <div class="mb-4 not-prose">
                         <slot name="heroTop" />
                       </div>
                     )}
-                    <figure class="mb-8 flex w-full items-center justify-center rounded-3xl bg-base-200/30 shadow-sm not-prose">
+                    <figure class="mb-8 w-full overflow-hidden rounded-2xl bg-base-200/30 shadow-sm not-prose">
                       <img
-                        src={heroImage}
+                        src={heroSources.src}
+                        srcset={heroSources.srcset}
+                        sizes={heroSources.sizes}
                         alt={heroImageAlt ?? title}
-                        class="h-auto w-full rounded-2xl object-contain"
+                        class="w-full aspect-video object-cover"
                         loading="eager"
+                        width={heroSources.width}
+                        height={heroSources.height}
+                        fetchpriority="high"
                       />
                     </figure>
                   </>

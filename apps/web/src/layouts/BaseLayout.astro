@@ -47,7 +47,7 @@ if (!pageDescription) {
   throw new Error("BaseLayout requires a non-empty SEO description via `description`.");
 }
 
-const profileImage = cmsClient.mediaToUrl(siteSettings.profileImage);
+const profileImage = cmsClient.mediaSizeUrl(siteSettings.profileImage, "thumbnail");
 const footerItems = cmsClient.footerItemsFromSiteSettings(siteSettings);
 const resumeDownloadUrl = siteSettings.resumeDownloadUrl || undefined;
 ---

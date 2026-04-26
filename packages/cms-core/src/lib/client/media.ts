@@ -30,3 +30,19 @@ export const createMediaUrlResolver = (
     return media.url.startsWith("http") ? media.url : `${mediaBaseUrl}${media.url}`;
   };
 };
+
+export const createMediaSizeUrlResolver = (
+  mediaBaseUrl: string,
+): ((
+  media: Media | string | number | null | undefined,
+  sizeName: string,
+) => string | undefined) => {
+  return (media, sizeName) => {
+    if (!media || typeof media !== "object") return undefined;
+    const sizeField = (media as Media).sizes;
+    if (!sizeField) return undefined;
+    const size = sizeField[sizeName as keyof typeof sizeField];
+    if (!size || !size.url) return undefined;
+    return size.url.startsWith("http") ? size.url : `${mediaBaseUrl}${size.url}`;
+  };
+};

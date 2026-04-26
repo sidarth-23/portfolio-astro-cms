@@ -61,18 +61,12 @@ const buildBlogUrl = (overrides: {
 }): string => {
   const params = new URLSearchParams();
 
-  const finalQuery =
-    overrides.q === null ? undefined : (overrides.q ?? searchQuery);
+  const finalQuery = overrides.q === null ? undefined : (overrides.q ?? searchQuery);
   const finalCategory =
-    overrides.category === null
-      ? undefined
-      : (overrides.category ?? categoryFilter);
-  const finalSeries =
-    overrides.series === null ? undefined : (overrides.series ?? seriesFilter);
-  const finalView =
-    overrides.view === null ? undefined : (overrides.view ?? view);
-  const finalPage =
-    overrides.page === null ? undefined : (overrides.page ?? currentPage);
+    overrides.category === null ? undefined : (overrides.category ?? categoryFilter);
+  const finalSeries = overrides.series === null ? undefined : (overrides.series ?? seriesFilter);
+  const finalView = overrides.view === null ? undefined : (overrides.view ?? view);
+  const finalPage = overrides.page === null ? undefined : (overrides.page ?? currentPage);
 
   if (finalQuery) params.set("q", finalQuery);
   if (finalCategory) params.set("category", finalCategory);
@@ -84,23 +78,16 @@ const buildBlogUrl = (overrides: {
 };
 
 // Build page URL helper for pagination
-const buildPageUrl = (page: number): string =>
-  buildBlogUrl({ page: page === 1 ? null : page });
+const buildPageUrl = (page: number): string => buildBlogUrl({ page: page === 1 ? null : page });
 
 // Check if any filters are active
-const hasActiveFilters = !!(
-  searchQuery ||
-  categoryFilter ||
-  seriesFilter
-);
+const hasActiveFilters = !!(searchQuery || categoryFilter || seriesFilter);
 
 // Find active category/series objects for display
 const activeCategory = categoryFilter
   ? allCategories.find((c) => c.slug === categoryFilter)
   : undefined;
-const activeSeries = seriesFilter
-  ? allSeries.find((s) => s.slug === seriesFilter)
-  : undefined;
+const activeSeries = seriesFilter ? allSeries.find((s) => s.slug === seriesFilter) : undefined;
 ---
 
 <BaseLayout
@@ -109,9 +96,7 @@ const activeSeries = seriesFilter
   description={meta.description}
   image={cmsClient.mediaToUrl(meta?.image)}
 >
-  <div
-    class="mb-5 flex flex-col md:flex-row items-center justify-between gap-4"
-  >
+  <div class="mb-5 flex flex-col md:flex-row items-center justify-between gap-4">
     <h1 class="text-3xl font-bold">{blogTitle}</h1>
 
     {/* Tabs */}
@@ -133,11 +118,7 @@ const activeSeries = seriesFilter
     </div>
   </div>
 
-  {
-    blogIntro && (
-      <p class="mb-6 text-base-content/80 leading-relaxed">{blogIntro}</p>
-    )
-  }
+  {blogIntro && <p class="mb-6 text-base-content/80 leading-relaxed">{blogIntro}</p>}
 
   {/* Search and Filter Bar */}
   <div class="flex flex-col md:flex-row gap-4 mb-6 relative z-30">
@@ -150,16 +131,8 @@ const activeSeries = seriesFilter
         class="input input-bordered join-item flex-1"
       />
       {/* Hidden inputs to preserve filters */}
-      {
-        categoryFilter && (
-          <input type="hidden" name="category" value={categoryFilter} />
-        )
-      }
-      {
-        seriesFilter && (
-          <input type="hidden" name="series" value={seriesFilter} />
-        )
-      }
+      {categoryFilter && <input type="hidden" name="category" value={categoryFilter} />}
+      {seriesFilter && <input type="hidden" name="series" value={seriesFilter} />}
       {view !== "posts" && <input type="hidden" name="view" value={view} />}
 
       <button type="submit" class="btn btn-primary join-item">
@@ -174,8 +147,7 @@ const activeSeries = seriesFilter
         {
           hasActiveFilters && (
             <div class="badge badge-sm badge-circle">
-              {(categoryFilter ? 1 : 0) +
-                (seriesFilter ? 1 : 0)}
+              {(categoryFilter ? 1 : 0) + (seriesFilter ? 1 : 0)}
             </div>
           )
         }
@@ -188,10 +160,7 @@ const activeSeries = seriesFilter
           <h3 class="text-sm font-semibold">Categories</h3>
           {
             categoryFilter && (
-              <a
-                href={buildBlogUrl({ category: null, page: 1 })}
-                class="link link-error text-xs"
-              >
+              <a href={buildBlogUrl({ category: null, page: 1 })} class="link link-error text-xs">
                 Clear
               </a>
             )
@@ -202,8 +171,7 @@ const activeSeries = seriesFilter
             allCategories.map((category) => (
               <a
                 href={buildBlogUrl({
-                  category:
-                    category.slug === categoryFilter ? null : category.slug,
+                  category: category.slug === categoryFilter ? null : category.slug,
                   page: 1,
                 })}
                 class={`badge badge-soft badge-sm no-underline ${category.slug === categoryFilter ? "badge-accent" : "badge-info"}`}
@@ -213,7 +181,6 @@ const activeSeries = seriesFilter
             ))
           }
         </div>
-
       </div>
     </div>
   </div>
@@ -225,10 +192,7 @@ const activeSeries = seriesFilter
         <span class="text-sm opacity-70">Active filters:</span>
 
         {searchQuery && (
-          <a
-            href={buildBlogUrl({ q: null, page: 1 })}
-            class="badge gap-2 hover:badge-error group"
-          >
+          <a href={buildBlogUrl({ q: null, page: 1 })} class="badge gap-2 hover:badge-error group">
             "{searchQuery}"
             <PhX class="h-4 w-4 group-hover:block" />
           </a>
@@ -278,8 +242,7 @@ const activeSeries = seriesFilter
           allSeries
             .filter(
               (s) =>
-                (!searchQuery ||
-                  s.name.toLowerCase().includes(searchQuery.toLowerCase())) &&
+                (!searchQuery || s.name.toLowerCase().includes(searchQuery.toLowerCase())) &&
                 (!activeCategory || true), // Series don't always have categories/tags explicitly in the same way, usually independent
               // For now, simple client-side search for series name if view=series
             )
@@ -295,13 +258,9 @@ const activeSeries = seriesFilter
                       →
                     </span>
                   </h3>
-                  {series.description && (
-                    <p class="text-base-content/70">{series.description}</p>
-                  )}
+                  {series.description && <p class="text-base-content/70">{series.description}</p>}
                   <div class="card-actions justify-end mt-2">
-                    <div class="badge badge-outline">
-                      {series.postCount} posts
-                    </div>
+                    <div class="badge badge-outline">{series.postCount} posts</div>
                   </div>
                 </div>
               </a>
@@ -335,7 +294,7 @@ const activeSeries = seriesFilter
               <>
                 <HorizontalCard
                   title={post.title}
-                  img={cmsClient.mediaToUrl(post.coverImage)}
+                  img={cmsClient.mediaSizeUrl(post.coverImage, "card")}
                   desc={post.description}
                   url={`/blog/${post.slug}`}
                   target="_self"
@@ -343,9 +302,7 @@ const activeSeries = seriesFilter
                   series={cmsClient.seriesFromPost(post)}
                   tags={cmsClient.tagsFromPost(post)}
                 />
-                {index < paginatedPosts.docs.length - 1 && (
-                  <div class="divider my-0 opacity-50" />
-                )}
+                {index < paginatedPosts.docs.length - 1 && <div class="divider my-0 opacity-50" />}
               </>
             ))}
           </ul>

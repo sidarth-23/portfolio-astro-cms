@@ -83,7 +83,7 @@ const featuredSections = homePage.featuredSections ?? [];
                 <>
                   <HorizontalCard
                     title={post.title}
-                    img={cmsClient.mediaToUrl(post.coverImage)}
+                    img={cmsClient.mediaSizeUrl(post.coverImage, "card")}
                     desc={post.description}
                     url={`/blog/${post.slug}`}
                     category={cmsClient.categoryFromPost(post)}
@@ -99,7 +99,7 @@ const featuredSections = homePage.featuredSections ?? [];
                 <>
                   <HorizontalCard
                     title={project.title}
-                    img={cmsClient.mediaToUrl(project.coverImage)}
+                    img={cmsClient.mediaSizeUrl(project.coverImage, "card")}
                     desc={project.description}
                     url={"/projects/" + project.slug}
                     badges={cmsClient.badgesFromProject(project)}

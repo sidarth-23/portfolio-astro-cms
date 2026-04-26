@@ -24,7 +24,16 @@ export function resolveUrl(url: string, mediaBaseUrl?: string): string {
   return `${mediaBaseUrl}${url}`;
 }
 
-export function isUsableSize(s: ImageSize | null): s is Required<ImageSize> {
+export type UsableImageSize = {
+  url: string;
+  width: number;
+  height: number;
+  mimeType: string;
+  filesize: number;
+  filename: string;
+};
+
+export function isUsableSize(s: ImageSize | null): s is UsableImageSize {
   return !!(s?.url && s.width && s.height && s.mimeType && s.filesize && s.filename);
 }
 
@@ -43,23 +52,25 @@ export function ImagePicture({
   mediaBaseUrl?: string;
 }) {
   const url = resolveUrl(doc.url!, mediaBaseUrl);
-  const usableSizes = Object.values(doc.sizes ?? {}).filter(isUsableSize);
+  // Exclude hero sizes (16:9 cropped) — they are inappropriate for inline content images
+  const usableSizes = Object.entries(doc.sizes ?? {})
+    .filter((e): e is [string, UsableImageSize] => !e[0].startsWith("hero") && isUsableSize(e[1]))
+    .map(([, s]) => s);
 
   if (usableSizes.length === 0) {
     return <img alt={alt} src={url} style={IMG_STYLE} />;
   }
 
+  const sorted = [...usableSizes].sort((a, b) => a.width - b.width);
+  const srcset = sorted.map((s) => `${resolveUrl(s.url, mediaBaseUrl)} ${s.width}w`).join(", ");
+
   return (
-    <picture>
-      {usableSizes.map((s) => (
-        <source
-          key={s.url}
-          media={`(max-width: ${s.width}px)`}
-          srcset={resolveUrl(s.url!, mediaBaseUrl)}
-          type={s.mimeType ?? undefined}
-        />
-      ))}
-      <img alt={alt} src={url} style={IMG_STYLE} />
-    </picture>
+    <img
+      alt={alt}
+      src={url}
+      srcset={srcset}
+      sizes="(max-width: 768px) 100vw, 1200px"
+      style={IMG_STYLE}
+    />
   );
 }

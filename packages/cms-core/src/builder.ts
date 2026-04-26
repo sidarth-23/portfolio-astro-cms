@@ -8,6 +8,7 @@ import { ogImagePlugin, collectionOverride, globalOverride } from "@sidshub/cms-
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { buildConfig } from "payload";
+import sharp from "sharp";
 import type { CollectionConfig, Config, EmailAdapter, GlobalConfig, Plugin } from "payload";
 
 import { setReadAccessToken } from "@/access/readAccessConfig";
@@ -201,6 +202,7 @@ export function createCmsConfig(options: CmsConfigOptions) {
     ],
     db: options.db,
     secret: options.secret,
+    sharp,
     typescript: {
       // Keep cms-core as the canonical owner of generated Payload types.
       outputFile: path.resolve(dirname, "../src/payload-types.ts"),

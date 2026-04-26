@@ -4,6 +4,7 @@ import DetailLayout from "@/layouts/DetailLayout.astro";
 import { resolveIconSvg } from "@sidshub/cms-lib-icons";
 import type { TableOfContentsItem } from "@sidshub/cms-lib-editor/web/html";
 import type { ProjectLink } from "@sidshub/cms-core/client";
+import type { Media } from "@sidshub/cms-core/payload-types";
 import type { TagInfo } from "@/lib/cms";
 
 type Props = {
@@ -13,6 +14,7 @@ type Props = {
   image?: string;
   heroImage?: string;
   heroImageAlt?: string;
+  heroMedia?: Media | string | number | null;
   tags?: TagInfo[];
   badges?: string[];
   links?: ProjectLink[];
@@ -30,6 +32,7 @@ const {
   image,
   heroImage,
   heroImageAlt,
+  heroMedia,
   tags = [],
   badges = [],
   links = [],
@@ -81,6 +84,7 @@ const resolvedLinks = (
   image={image}
   heroImage={heroImage}
   heroImageAlt={heroImageAlt}
+  heroMedia={heroMedia}
   toc={toc}
   backHref={backHref}
   backLabel={backLabel}

@@ -82,14 +82,14 @@ if (series?.slug) {
         ? {
             slug: prevPost.slug,
             title: prevPost.title,
-            coverImage: cmsClient.mediaToUrl(prevPost.coverImage),
+            coverImage: cmsClient.mediaSizeUrl(prevPost.coverImage, "thumbnail"),
           }
         : undefined,
       nextPost: nextPost
         ? {
             slug: nextPost.slug,
             title: nextPost.title,
-            coverImage: cmsClient.mediaToUrl(nextPost.coverImage),
+            coverImage: cmsClient.mediaSizeUrl(nextPost.coverImage, "thumbnail"),
           }
         : undefined,
     };
@@ -106,14 +106,14 @@ const authors = cmsClient.authorsFromPost(post);
 const visibleAuthors = authors.filter((author) => {
   const hasName = Boolean(author.name?.trim());
   const hasBio = Boolean(author.bio);
-  const hasAvatar = Boolean(cmsClient.mediaToUrl(author.avatar));
+  const hasAvatar = Boolean(cmsClient.mediaSizeUrl(author.avatar, "thumbnail"));
   const hasLinks = getAuthorLinks(author).length > 0;
 
   return hasName || hasBio || hasAvatar || hasLinks;
 });
 const resolvedAuthorCards = await Promise.all(
   visibleAuthors.map(async (author) => {
-    const avatarUrl = cmsClient.mediaToUrl(author.avatar);
+    const avatarUrl = cmsClient.mediaSizeUrl(author.avatar, "thumbnail");
     const resolvedLinks = (
       await Promise.all(
         getAuthorLinks(author).map(async (link) => {
@@ -157,6 +157,7 @@ const pubDate = post?.publishedAt || post?.createdAt || new Date().toISOString()
   pubDate={pubDate}
   updatedDate={post.updatedAt}
   heroImage={cmsClient.mediaToUrl(post.coverImage)}
+  heroMedia={post.coverImage}
   tags={tags}
   category={category}
   series={series}

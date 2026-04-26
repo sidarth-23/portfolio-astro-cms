@@ -88,7 +88,7 @@ const seriesSeoDescription = series.meta?.description || seriesPageMeta.descript
           <li>
             <HorizontalCard
               title={`Part ${index + 1}: ${post.title}`}
-              img={cmsClient.mediaToUrl(post.coverImage)}
+              img={cmsClient.mediaSizeUrl(post.coverImage, "card")}
               desc={post.description}
               url={`/blog/${post.slug}`}
               target="_self"

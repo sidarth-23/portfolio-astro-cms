@@ -14,4 +14,4 @@ export type { PopulatedAuthor, ProjectLink, RelationValue, SiteFooterItem } from
 export { createCmsRestTransport } from "./transport";
 export type { CmsTransport } from "./transport";
 
-export { createMediaUrlResolver } from "./media";
+export { createMediaUrlResolver, createMediaSizeUrlResolver } from "./media";

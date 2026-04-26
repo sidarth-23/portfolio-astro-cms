@@ -4,6 +4,7 @@ import DetailLayout from "@/layouts/DetailLayout.astro";
 import { generateFilterUrl } from "@/lib/utils";
 import type { TableOfContentsItem } from "@sidshub/cms-lib-editor/web/html";
 import type { PopulatedAuthor } from "@sidshub/cms-core/client";
+import type { Media } from "@sidshub/cms-core/payload-types";
 import type { TagInfo, CategoryInfo, SeriesInfo } from "@/lib/cms";
 
 type Props = {
@@ -13,6 +14,7 @@ type Props = {
   pubDate: string;
   updatedDate?: string;
   heroImage?: string;
+  heroMedia?: Media | string | number | null;
   badge?: string;
   tags?: TagInfo[];
   category?: CategoryInfo;
@@ -40,6 +42,7 @@ const {
   pubDate,
   updatedDate,
   heroImage,
+  heroMedia,
   tags = [],
   category,
   series,
@@ -87,6 +90,7 @@ const jsonLd = {
   seoTitle={seoTitle}
   seoDescription={description}
   heroImage={heroImage}
+  heroMedia={heroMedia}
   toc={toc}
   tocContinuation={tocContinuation}
   ogType="article"

@@ -44,6 +44,7 @@ const toc = extractTableOfContents(project.content);
   seoDescription={project.meta.description}
   image={cmsClient.mediaToUrl(project.meta.image) ?? coverImage}
   heroImage={coverImage}
+  heroMedia={project.coverImage}
   createdAt={project.createdAt}
   updatedAt={project.updatedAt}
   badges={badges}
