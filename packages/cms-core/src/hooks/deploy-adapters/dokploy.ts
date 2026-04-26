@@ -20,7 +20,7 @@ export function createDokployPreDeployHook(config: DokployPreDeployConfig): PreD
         const getResponse = await fetch(
           `${normalizedApiUrl}/api/compose.one?composeId=${encodeURIComponent(config.composeId)}`,
           {
-            headers: { Authorization: `Bearer ${config.apiKey}` },
+            headers: { "x-api-key": config.apiKey },
             signal: AbortSignal.timeout(10000),
           },
         );
@@ -59,7 +59,7 @@ export function createDokployPreDeployHook(config: DokployPreDeployConfig): PreD
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${config.apiKey}`,
+            "x-api-key": config.apiKey,
           },
           body: JSON.stringify({ composeId: config.composeId, env: updatedEnv }),
           signal: AbortSignal.timeout(10000),
