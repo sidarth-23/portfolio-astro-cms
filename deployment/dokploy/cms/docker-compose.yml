@@ -60,6 +60,7 @@ services:
 
   payload-cms:
     image: ghcr.io/sidarth-23/sidshub-cms:${IMAGE_TAG:-latest}
+    pull_policy: always
     env_file:
       - path: .env
         required: false

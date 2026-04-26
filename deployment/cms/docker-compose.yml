@@ -58,6 +58,7 @@ services:
 
   payload-cms:
     image: ghcr.io/sidarth-g/sidshub-cms:${IMAGE_TAG:-main}
+    pull_policy: always
     env_file:
       - path: .env
         required: false

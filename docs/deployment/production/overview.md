@@ -140,8 +140,13 @@ Point these A records to the server IP before deploying:
 ### Code Releases (CMS)
 
 1. Push to `main` or `staging`.
-2. GitHub Actions builds the CMS Docker image and publishes it to GHCR.
-3. The hosting platform redeploys the CMS, pulling the updated image tag.
+2. GitHub Actions builds the CMS Docker image and publishes it to GHCR with multiple tags:
+   - `v1.0.<run_number>` — immutable semver tag tied to the CI run
+   - branch name (`main` or `staging`) — mutable, always points to latest on that branch
+   - `sha-<commit>` — immutable, tied to the exact commit
+3. The hosting platform redeploys the CMS. `pull_policy: always` in the compose file
+   ensures Docker always checks the registry for the latest digest of the branch tag,
+   downloading only changed layers.
 4. Web app is rebuilt on the server via the deploy webhook.
 
 ### Code Releases (Web)
@@ -178,12 +183,15 @@ the above commands (or configure Dokploy's Auto Deploy — see the Dokploy guide
 
 ## Rollback
 
-**CMS:** Set `IMAGE_TAG` to a specific SHA tag (e.g. `sha-abc1234`) in `deployment/cms/.env`
-and redeploy. SHA tags are immutable and published for every CMS push to `main` and `staging` by CI.
+**CMS:** Set `IMAGE_TAG` to a specific version tag (e.g. `v1.0.41`) in `deployment/cms/.env`
+and redeploy. Version tags are the recommended rollback mechanism — they are short, readable,
+and directly correspond to CI run numbers. SHA tags (e.g. `sha-abc1234`) are also available
+for pinning to an exact commit. Both are immutable and published for every CMS push to
+`main` and `staging` by CI.
 
 ```bash
 # deployment/cms/.env
-IMAGE_TAG=sha-abc1234
+IMAGE_TAG=v1.0.41
 
 docker compose -f deployment/cms/docker-compose.yml up -d payload-cms
 ```

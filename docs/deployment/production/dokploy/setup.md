@@ -143,9 +143,15 @@ Dokploy will rebuild the `astro-web` image with fresh CMS content and restart th
 
 ## Rollback
 
-**CMS:** Change `IMAGE_TAG` in the CMS app's Environment tab to a SHA tag (e.g. `sha-abc1234`)
-and redeploy. SHA tags are immutable and published for every CMS push to `main`
-and `staging` by the CI pipeline.
+**CMS:** Change `IMAGE_TAG` in the CMS app's Environment tab to a specific version tag
+(e.g. `v1.0.41`) and redeploy. Version tags are the recommended rollback mechanism —
+they are short, readable, and directly correspond to CI run numbers. SHA tags
+(e.g. `sha-abc1234`) are also available as an alternative for pinning to an exact commit.
+Both are immutable and published for every CMS push to `main` and `staging`.
+
+> **Tip:** When `IMAGE_TAG` is set to an immutable tag, `pull_policy: always` in the
+> compose file effectively becomes a no-op after the first pull — Docker checks the
+> registry digest, finds it matches the local image, and skips the download.
 
 **Web:** Check out the previous commit in the Dokploy source settings (or force-push
 the desired state to the branch) and redeploy. The image will be rebuilt from source.
