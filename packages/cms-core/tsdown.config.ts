@@ -15,6 +15,16 @@ export default defineConfig(
       "src/lib/validation/index.ts",
       "src/components/admin/**/*.{ts,tsx}",
     ],
+    copy: [
+      {
+        from: "../cms-plugin-og-image/dist/server/og/fonts/atkinson-regular.woff",
+        to: "dist/cms-plugin-og-image/dist/server/og/fonts/atkinson-regular.woff",
+      },
+      {
+        from: "../cms-plugin-og-image/dist/server/og/fonts/atkinson-bold.woff",
+        to: "dist/cms-plugin-og-image/dist/server/og/fonts/atkinson-bold.woff",
+      },
+    ],
     external: ["node:path", "node:url", "path", "url", "fs/promises", "sharp", "qs-esm"],
   }),
 );
