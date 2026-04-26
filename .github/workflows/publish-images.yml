@@ -82,6 +82,48 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
+      # Update Dokploy's compose env with the new immutable image tag BEFORE pushing
+      # the git tag. Dokploy's "on tag" auto-deploy will then pick up the updated
+      # IMAGE_TAG and pull the correct image instead of serving the cached :latest.
+      # Skipped silently when DOKPLOY_CMS_COMPOSE_ID is not configured.
+      # Required GitHub configuration:
+      #   Repository variable: DOKPLOY_API_URL          — Dokploy server URL
+      #   Repository variable: DOKPLOY_CMS_COMPOSE_ID   — CMS compose app's Dokploy ID
+      #   Repository secret:   DOKPLOY_API_KEY           — API key with compose read/write access
+      - name: Update Dokploy CMS image tag
+        if: vars.DOKPLOY_CMS_COMPOSE_ID != ''
+        env:
+          DOKPLOY_API_URL: ${{ vars.DOKPLOY_API_URL }}
+          DOKPLOY_API_KEY: ${{ secrets.DOKPLOY_API_KEY }}
+          COMPOSE_ID: ${{ vars.DOKPLOY_CMS_COMPOSE_ID }}
+          IMAGE_TAG: ${{ steps.versioning.outputs.version }}
+        run: |
+          set -euo pipefail
+          API="${DOKPLOY_API_URL%/}"
+
+          # Read current compose env
+          CURRENT=$(curl -fsSL \
+            -H "Authorization: Bearer ${DOKPLOY_API_KEY}" \
+            "${API}/api/compose.one?composeId=$(printf '%s' "${COMPOSE_ID}" | jq -sRr @uri)" \
+            | jq -r '.env // ""')
+
+          # Replace or append IMAGE_TAG
+          if echo "$CURRENT" | grep -q '^IMAGE_TAG='; then
+            UPDATED=$(echo "$CURRENT" | sed "s|^IMAGE_TAG=.*|IMAGE_TAG=${IMAGE_TAG}|")
+          else
+            UPDATED="${CURRENT}"$'\n'"IMAGE_TAG=${IMAGE_TAG}"
+          fi
+
+          # Save updated env
+          curl -fsSL -X POST \
+            -H "Authorization: Bearer ${DOKPLOY_API_KEY}" \
+            -H "Content-Type: application/json" \
+            -d "$(jq -n --arg id "$COMPOSE_ID" --arg env "$UPDATED" \
+              '{composeId: $id, env: $env}')" \
+            "${API}/api/compose.saveEnvironment"
+
+          echo "::notice::Updated Dokploy CMS IMAGE_TAG to ${IMAGE_TAG}"
+
       # ONLY PUSH THE TAG IF THE BUILD SUCCEEDED
       - name: Push Git Tag
         run: |

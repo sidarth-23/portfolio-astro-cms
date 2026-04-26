@@ -12,6 +12,8 @@ host = "${cms_domain}"
 
 [config.env]
 # Image tag — "latest" (stable release), "staging" (staging branch), a semver like "1.2.3", or a SHA for pinned deploys.
+# When the CI auto-deploy step is configured (see below), this is automatically updated to the
+# immutable version tag before each deploy, so Docker is forced to pull the new image.
 IMAGE_TAG = "latest"
 
 # CMS (Payload)
@@ -50,3 +52,10 @@ WEB_DEPLOY_BRANCH = "main"
 # WEB_DEPLOY_DOKPLOY_API_URL = ""          # Dokploy server URL, e.g. "https://deploy.example.com"
 # WEB_DEPLOY_DOKPLOY_API_KEY = ""          # Dokploy API key with compose read/write access
 # WEB_DEPLOY_DOKPLOY_COMPOSE_ID = ""       # The web app's Dokploy compose ID
+
+# CI auto-deploy — updates IMAGE_TAG in this compose env before pushing the git tag,
+# so Dokploy's "on tag" auto-deploy pulls the correct image instead of serving :latest from cache.
+# Configure these as GitHub repository variables/secrets in the portfolio repo settings:
+#   Repository variable: DOKPLOY_API_URL          — Dokploy server URL (e.g. "https://deploy.example.com")
+#   Repository variable: DOKPLOY_CMS_COMPOSE_ID   — this compose app's ID (find it in Dokploy's URL or API)
+#   Repository secret:   DOKPLOY_API_KEY           — Dokploy API key with compose read/write access
