@@ -1,4 +1,16 @@
 services:
+  nginx:
+    build:
+      context: ../..
+      dockerfile: deployment/nginx/cms.Dockerfile
+    depends_on:
+      payload-cms:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - webproxy
+      - cms-internal
+
   mongodb:
     image: mongo:7
     command: ["--bind_ip_all"]
@@ -12,6 +24,8 @@ services:
       timeout: 5s
       retries: 20
       start_period: 10s
+    networks:
+      - cms-internal
 
   minio:
     image: minio/minio:latest
@@ -28,6 +42,8 @@ services:
       timeout: 5s
       retries: 20
       start_period: 10s
+    networks:
+      - cms-internal
 
   minio-init:
     image: minio/mc:latest
@@ -57,6 +73,8 @@ services:
         mc mb --ignore-existing "local/$${S3_BUCKET}"
         echo "minio-init: bucket ready"
     restart: "no"
+    networks:
+      - cms-internal
 
   payload-cms:
     image: ghcr.io/sidarth-23/sidshub-cms:${IMAGE_TAG:-main}
@@ -89,8 +107,7 @@ services:
       retries: 15
       start_period: 90s
     networks:
-      - default
-      - webproxy
+      - cms-internal
 
 volumes:
   mongodb_data:
@@ -99,3 +116,4 @@ volumes:
 networks:
   webproxy:
     external: true
+  cms-internal:

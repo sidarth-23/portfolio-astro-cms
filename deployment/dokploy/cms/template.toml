@@ -6,8 +6,8 @@ s3_access_key = "${password:20}"
 s3_secret_key = "${password:40}"
 
 [[config.domains]]
-serviceName = "payload-cms"
-port = 3000
+serviceName = "nginx"
+port = 80
 host = "${cms_domain}"
 
 [config.env]

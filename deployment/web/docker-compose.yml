@@ -1,4 +1,15 @@
 services:
+  nginx:
+    build:
+      context: ../..
+      dockerfile: deployment/nginx/web.Dockerfile
+    depends_on:
+      - astro-web
+    restart: unless-stopped
+    networks:
+      - webproxy
+      - web-internal
+
   astro-web:
     build:
       context: ../..
@@ -21,8 +32,9 @@ services:
     #   docker compose -f deployment/web/docker-compose.yml build && \
     #   docker compose -f deployment/web/docker-compose.yml up -d
     networks:
-      - webproxy
+      - web-internal
 
 networks:
   webproxy:
     external: true
+  web-internal:

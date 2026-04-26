@@ -11,11 +11,7 @@ type Props = {
   resumeDownloadUrl?: string;
 };
 
-const {
-  footerItems = [],
-  profileImage,
-  resumeDownloadUrl,
-}: Props = Astro.props;
+const { footerItems = [], profileImage, resumeDownloadUrl }: Props = Astro.props;
 ---
 
 <div transition:persist transition:name="sidebar" class="drawer-side z-40 lg:overflow-visible">
@@ -26,27 +22,21 @@ const {
   >
     <div class="w-fit mx-auto mt-5 mb-6 relative">
       <a href="/">
-        <div
-          class="avatar transition ease-in-out hover:scale-[102%] block m-auto"
-        >
-          <div
-            class="w-[8.5rem] transition-[width] duration-300 group-[.collapsed]:w-[3rem]"
-          >
+        <div class="avatar transition ease-in-out hover:scale-[102%] block m-auto">
+          <div class="w-[8.5rem] transition-[width] duration-300 group-[.collapsed]:w-[3rem]">
             {
               profileImage ? (
                 <img
                   class="mask mask-circle w-full h-full object-cover"
                   loading="eager"
+                  fetchpriority="high"
                   width={300}
                   height={300}
                   src={profileImage}
                   alt="Profile"
                 />
               ) : (
-                <div
-                  class="mask mask-circle w-full h-full bg-base-300"
-                  aria-hidden="true"
-                />
+                <div class="mask mask-circle w-full h-full bg-base-300" aria-hidden="true" />
               )
             }
           </div>
@@ -70,23 +60,23 @@ const {
     <SideBarMenu />
 
     <div class="mt-auto flex flex-col gap-4 mb-6">
-      {resumeDownloadUrl && (
-        <div class="px-4 group-[.collapsed]:px-2">
-          <a
-            href={resumeDownloadUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            class="btn btn-outline btn-block gap-2 group-[.collapsed]:px-0 group-[.collapsed]:gap-0"
-          >
-            <PhFileText size={20} />
-            <span
-              class="inline-block overflow-hidden whitespace-nowrap transition-[max-width,opacity,margin] duration-300 ease-in-out max-w-32 opacity-100 ml-1 group-[.collapsed]:max-w-0 group-[.collapsed]:opacity-0 group-[.collapsed]:ml-0"
+      {
+        resumeDownloadUrl && (
+          <div class="px-4 group-[.collapsed]:px-2">
+            <a
+              href={resumeDownloadUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              class="btn btn-outline btn-block gap-2 group-[.collapsed]:px-0 group-[.collapsed]:gap-0"
             >
-              Download My CV
-            </span>
-          </a>
-        </div>
-      )}
+              <PhFileText size={20} />
+              <span class="inline-block overflow-hidden whitespace-nowrap transition-[max-width,opacity,margin] duration-300 ease-in-out max-w-32 opacity-100 ml-1 group-[.collapsed]:max-w-0 group-[.collapsed]:opacity-0 group-[.collapsed]:ml-0">
+                Download My CV
+              </span>
+            </a>
+          </div>
+        )
+      }
       <SideBarFooter items={footerItems} />
     </div>
   </aside>
@@ -99,9 +89,7 @@ const {
   const applyCollapsedState = (sidebar, isCollapsed) => {
     sidebar.classList.toggle("collapsed", isCollapsed);
     sidebar.classList.remove(SIDEBAR_WIDTH_EXPANDED, SIDEBAR_WIDTH_COLLAPSED);
-    sidebar.classList.add(
-      isCollapsed ? SIDEBAR_WIDTH_COLLAPSED : SIDEBAR_WIDTH_EXPANDED,
-    );
+    sidebar.classList.add(isCollapsed ? SIDEBAR_WIDTH_COLLAPSED : SIDEBAR_WIDTH_EXPANDED);
   };
 
   const initializeSidebar = () => {

@@ -2,6 +2,17 @@
 # Env vars are managed via deployment/dokploy/web/template.toml.
 
 services:
+  nginx:
+    build:
+      context: ../../..
+      dockerfile: deployment/nginx/web.Dockerfile
+    depends_on:
+      - astro-web
+    restart: unless-stopped
+    networks:
+      - webproxy
+      - web-internal
+
   astro-web:
     build:
       context: ../../..
@@ -20,3 +31,10 @@ services:
       ASTRO_CMS_READ_TOKEN: ${ASTRO_CMS_READ_TOKEN}
     # Fully independent of the CMS stack at runtime.
     # The image BUILD requires a running CMS (fetches content for SSG via external URL).
+    networks:
+      - web-internal
+
+networks:
+  webproxy:
+    external: true
+  web-internal:

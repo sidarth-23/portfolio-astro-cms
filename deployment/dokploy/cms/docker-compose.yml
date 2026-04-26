@@ -2,6 +2,18 @@
 # Env vars are managed via deployment/dokploy/cms/template.toml.
 
 services:
+  nginx:
+    build:
+      context: ../../..
+      dockerfile: deployment/nginx/cms.Dockerfile
+    depends_on:
+      payload-cms:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - webproxy
+      - cms-internal
+
   mongodb:
     image: mongo:7
     command: ["--bind_ip_all"]
@@ -90,7 +102,14 @@ services:
       timeout: 5s
       retries: 15
       start_period: 90s
+    networks:
+      - cms-internal
 
 volumes:
   mongodb_data:
   minio_data:
+
+networks:
+  webproxy:
+    external: true
+  cms-internal:

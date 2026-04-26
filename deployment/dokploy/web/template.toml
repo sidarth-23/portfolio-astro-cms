@@ -2,8 +2,8 @@
 web_domain = "${domain}"
 
 [[config.domains]]
-serviceName = "astro-web"
-port = 4321
+serviceName = "nginx"
+port = 80
 host = "${web_domain}"
 
 [config.env]
