@@ -32,30 +32,28 @@ const {
 } = Astro.props;
 const contentClass = `hero-content flex-col ${reverse ? "md:flex-row-reverse" : "md:flex-row"} md:gap-8 lg:gap-10 relative z-20 pointer-events-none`;
 const contentBodyClass = "grow w-full space-y-1 relative";
-const resolvedLinks = (
-  await Promise.all(
-    links.map(async (link) => {
-      const iconData = await resolveIconSvg(link.icon);
-      if (!iconData) {
-        return null;
-      }
+const resolvedLinks = links
+  .map((link) => {
+    const iconData = resolveIconSvg(link.icon);
+    if (!iconData) {
+      return null;
+    }
 
-      return {
-        ...link,
-        iconData,
-      };
-    }),
-  )
-).filter(
-  (
-    entry,
-  ): entry is {
-    icon: string;
-    url: string;
-    newTab: boolean;
-    iconData: NonNullable<Awaited<ReturnType<typeof resolveIconSvg>>>;
-  } => entry !== null,
-);
+    return {
+      ...link,
+      iconData,
+    };
+  })
+  .filter(
+    (
+      entry,
+    ): entry is {
+      icon: string;
+      url: string;
+      newTab: boolean;
+      iconData: NonNullable<ReturnType<typeof resolveIconSvg>>;
+    } => entry !== null,
+  );
 ---
 
 <div

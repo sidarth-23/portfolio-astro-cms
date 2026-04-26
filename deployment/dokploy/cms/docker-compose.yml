@@ -1,5 +1,10 @@
 # Dokploy template compose file for the CMS app.
 # Env vars are managed via deployment/dokploy/cms/template.toml.
+#
+# Network strategy: no explicit networks defined here. All services communicate
+# via the default compose network. Dokploy attaches the service named in
+# template.toml (nginx) to its Traefik network automatically — webproxy must
+# not be referenced here as Dokploy manages that network internally.
 
 services:
   nginx:
@@ -10,9 +15,6 @@ services:
       payload-cms:
         condition: service_healthy
     restart: unless-stopped
-    networks:
-      - webproxy
-      - cms-internal
 
   mongodb:
     image: mongo:7
@@ -102,14 +104,7 @@ services:
       timeout: 5s
       retries: 15
       start_period: 90s
-    networks:
-      - cms-internal
 
 volumes:
   mongodb_data:
   minio_data:
-
-networks:
-  webproxy:
-    external: true
-  cms-internal:
