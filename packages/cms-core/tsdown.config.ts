@@ -8,6 +8,7 @@ export default defineConfig(
     entry: [
       "src/payload-types.ts",
       "src/builder.ts",
+      "src/hooks/deploy-adapters/index.ts",
       "src/lib/client/index.ts",
       "src/lib/client/transport.ts",
       "src/lib/client/media.ts",

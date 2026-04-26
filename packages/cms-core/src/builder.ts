@@ -25,7 +25,7 @@ import { ProjectsPage } from "@/globals/ProjectsPage";
 import { SeriesPage } from "@/globals/SeriesPage";
 import { SiteSettings } from "@/globals/SiteSettings";
 import { createCollectionRedeployHook } from "@/hooks/triggerCollectionRedeploy";
-import { createTriggerDeployment } from "@/hooks/triggerDeployment";
+import { createTriggerDeployment, type PreDeployHook } from "@/hooks/triggerDeployment";
 import { createTriggerDevRefresh } from "@/hooks/triggerDevRefresh";
 import { createGlobalRedeployHook } from "@/hooks/triggerGlobalRedeploy";
 import { createBasicRichTextEditor } from "@/lib/editor";
@@ -51,7 +51,7 @@ export type CmsConfigOptions = {
   email: EmailAdapter;
   storagePlugins?: Plugin[];
   readAccessToken: string;
-  deployHook?: { webhookUrl: string; branch: string };
+  deployHook?: { webhookUrl: string; branch: string; preDeploy?: PreDeployHook };
   devRefreshUrl?: string;
   onInit?: () => Promise<void>;
   deploymentLogView?: Parameters<typeof deploymentLogViewPlugin>[0];

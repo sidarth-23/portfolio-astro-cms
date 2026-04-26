@@ -1,28 +1,40 @@
 type TriggerMeta = Record<string, string | number | undefined>;
 
-type DeployConfig = { webhookUrl: string; branch: string };
+export type Logger = {
+  info: (value: Record<string, unknown>) => void;
+  error: (value: Record<string, unknown>) => void;
+};
+
+export type PreDeployHook = {
+  bustBuildCache: (logger: Logger, meta: TriggerMeta) => Promise<void>;
+};
+
+type DeployConfig = { webhookUrl: string; branch: string; preDeploy?: PreDeployHook };
 
 const buildBodySnippet = (body: string): string => {
   return body.replace(/\s+/g, " ").trim().slice(0, 240);
 };
 
 export function createTriggerDeployment(config?: DeployConfig) {
-  return async (
-    logger: {
-      info: (value: Record<string, unknown>) => void;
-      error: (value: Record<string, unknown>) => void;
-    },
-    meta: TriggerMeta,
-  ): Promise<void> => {
+  return async (logger: Logger, meta: TriggerMeta): Promise<void> => {
     if (!config) {
       logger.error({
-        message: "Deployment trigger is not configured. Missing WEB_DEPLOY_WEBHOOK_URL or WEB_DEPLOY_BRANCH.",
+        message:
+          "Deployment trigger is not configured. Missing WEB_DEPLOY_WEBHOOK_URL or WEB_DEPLOY_BRANCH.",
         ...meta,
       });
       return;
     }
 
     const { webhookUrl, branch: deployBranch } = config;
+
+    if (config.preDeploy) {
+      try {
+        await config.preDeploy.bustBuildCache(logger, meta);
+      } catch (error) {
+        logger.error({ message: "Pre-deploy hook threw unexpectedly", error, ...meta });
+      }
+    }
 
     try {
       const response = await fetch(webhookUrl, {

@@ -141,6 +141,52 @@ The CMS must be running and seeded before the web app can be deployed successful
 The CMS `afterChange` hook POSTs to `WEB_DEPLOY_WEBHOOK_URL` whenever content is published.
 Dokploy will rebuild the `astro-web` image with fresh CMS content and restart the container.
 
+## 7. Enable Deploy Cache Busting
+
+By default, Docker caches the build layer that fetches CMS content. When content is updated and
+the webhook triggers a rebuild, Docker sees no source file changes and serves the stale cached
+layer — the new content never appears. Cache busting forces only that layer to rebuild on every
+content deploy while keeping the slower `base`/`pruner`/`deps` layers cached.
+
+### Find the web app's compose ID
+
+Open the **web** compose service in the Dokploy UI. The compose ID is the last segment of
+the URL in your browser:
+
+```
+https://your-dokploy.com/dashboard/project/<projectId>/compose/<composeId>
+```
+
+Copy the `composeId` value.
+
+### Create an API key
+
+Settings → API Keys → **New API key**. Give it a descriptive name (e.g. `cms-cache-bust`).
+Copy the generated key — it is only shown once.
+
+The key needs access to read and write compose environments. Dokploy does not offer
+per-resource scoping on API keys, so any key grants full API access — treat it as a secret.
+
+### Configure the CMS app
+
+Add these four variables to the **CMS** app's environment tab:
+
+| Variable                        | Value                                     |
+| ------------------------------- | ----------------------------------------- |
+| `WEB_DEPLOY_TYPE`               | `dokploy`                                 |
+| `WEB_DEPLOY_DOKPLOY_API_URL`    | Your Dokploy server URL (no trailing `/`) |
+| `WEB_DEPLOY_DOKPLOY_API_KEY`    | The API key created above                 |
+| `WEB_DEPLOY_DOKPLOY_COMPOSE_ID` | The `composeId` from the URL              |
+
+Redeploy the CMS app. From now on, every content publish will:
+
+1. Update `CACHE_BUST` in the web app's compose env via the Dokploy API
+2. Trigger the deploy webhook
+3. Docker rebuilds only the content layer — `base`/`pruner`/`deps` remain cached
+
+If the Dokploy API is unreachable, the error is logged and the deploy fires anyway
+(without cache busting).
+
 ## Rollback
 
 **CMS:** Change `IMAGE_TAG` in the CMS app's Environment tab to a specific version tag

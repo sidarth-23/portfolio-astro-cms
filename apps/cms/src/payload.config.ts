@@ -2,6 +2,10 @@ import { mongooseAdapter } from "@payloadcms/db-mongodb";
 import { resendAdapter } from "@payloadcms/email-resend";
 import { s3Storage } from "@payloadcms/storage-s3";
 import { createCmsConfig } from "@sidshub/cms-core/builder";
+import {
+  createDokployPreDeployHook,
+  type PreDeployHook,
+} from "@sidshub/cms-core/hooks/deploy-adapters";
 
 import { env } from "./env";
 
@@ -21,6 +25,19 @@ function buildStoragePlugins() {
       },
     }),
   ];
+}
+
+function buildPreDeployHook(): PreDeployHook | undefined {
+  if (!env.WEB_DEPLOY_TYPE) return undefined;
+
+  switch (env.WEB_DEPLOY_TYPE) {
+    case "dokploy":
+      return createDokployPreDeployHook({
+        apiUrl: env.WEB_DEPLOY_DOKPLOY_API_URL ?? "",
+        apiKey: env.WEB_DEPLOY_DOKPLOY_API_KEY ?? "",
+        composeId: env.WEB_DEPLOY_DOKPLOY_COMPOSE_ID ?? "",
+      });
+  }
 }
 
 function buildDeploymentLogView(): Parameters<typeof createCmsConfig>[0]["deploymentLogView"] {
@@ -56,7 +73,11 @@ export default createCmsConfig({
   storagePlugins: buildStoragePlugins(),
   deployHook:
     env.WEB_DEPLOY_WEBHOOK_URL && env.WEB_DEPLOY_BRANCH
-      ? { webhookUrl: env.WEB_DEPLOY_WEBHOOK_URL, branch: env.WEB_DEPLOY_BRANCH }
+      ? {
+          webhookUrl: env.WEB_DEPLOY_WEBHOOK_URL,
+          branch: env.WEB_DEPLOY_BRANCH,
+          preDeploy: buildPreDeployHook(),
+        }
       : undefined,
   devRefreshUrl: env.WEB_DEV_REFRESH_URL,
   deploymentLogView: buildDeploymentLogView(),
