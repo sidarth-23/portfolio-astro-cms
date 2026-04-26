@@ -1,20 +1,29 @@
 ---
-import NotFoundState from "@/components/NotFoundState.astro";
-import ErrorLayout from "@/layouts/ErrorLayout.astro";
 import RichTextRenderer from "@/components/RichTextRenderer.astro";
 import ProjectLayout from "@/layouts/ProjectLayout.astro";
 import { cmsClient } from "@/lib/cms";
-import { getErrorPageSeo } from "@/lib/seo";
 import { extractTableOfContents } from "@sidshub/cms-lib-editor/web/html";
-import { PhMagnifyingGlass } from "phosphor-icons-astro";
+import type { Project } from "@sidshub/cms-core/payload-types";
 
-export const prerender = false;
+type Props = { project: Project };
 
-const slug = Astro.params.slug;
-const project = slug ? await cmsClient.getProjectBySlug(slug) : null;
-const missingProject = !slug || !project;
+export async function getStaticPaths() {
+  if (String(import.meta.env.ASTRO_MOCK_CMS ?? process.env.ASTRO_MOCK_CMS ?? "") === "true") {
+    return [];
+  }
 
-const errorSeo = missingProject ? await getErrorPageSeo() : null;
+  try {
+    const projects = await cmsClient.getAllPublishedProjects();
+    return projects.flatMap((project) => {
+      if (!project.slug) return [];
+      return [{ params: { slug: project.slug }, props: { project } }];
+    });
+  } catch {
+    return [];
+  }
+}
+
+const { project } = Astro.props;
 
 if (project?.meta && (!project.meta.title || !project.meta.description)) {
   throw new Error(
@@ -22,43 +31,27 @@ if (project?.meta && (!project.meta.title || !project.meta.description)) {
   );
 }
 
-const tags = project ? cmsClient.tagsFromProject(project) : [];
-const badges = project ? cmsClient.badgesFromProject(project) : [];
-const links = project ? cmsClient.linksFromProject(project) : [];
-const coverImage = project ? cmsClient.mediaToUrl(project.coverImage) : undefined;
-const toc = project ? extractTableOfContents(project.content) : [];
+const tags = cmsClient.tagsFromProject(project);
+const badges = cmsClient.badgesFromProject(project);
+const links = cmsClient.linksFromProject(project);
+const coverImage = cmsClient.mediaToUrl(project.coverImage);
+const toc = extractTableOfContents(project.content);
 ---
 
-{
-  missingProject && errorSeo ? (
-    <ErrorLayout title={errorSeo.title} description={errorSeo.description} image={errorSeo.image}>
-      <NotFoundState
-        title="404"
-        description="The project you're looking for couldn't be found."
-        ctaLabel="Projects"
-        ctaHref="/projects"
-        icon={PhMagnifyingGlass}
-      />
-    </ErrorLayout>
-  ) : (
-    project && (
-      <ProjectLayout
-        title={project.title}
-        seoTitle={project.meta.title}
-        seoDescription={project.meta.description}
-        image={cmsClient.mediaToUrl(project.meta.image) ?? coverImage}
-        heroImage={coverImage}
-        createdAt={project.createdAt}
-        updatedAt={project.updatedAt}
-        badges={badges}
-        links={links}
-        tags={tags}
-        toc={toc}
-        backHref="/projects"
-        backLabel="Back to projects"
-      >
-        <RichTextRenderer data={project.content} calloutVariantProfile="generic" />
-      </ProjectLayout>
-    )
-  )
-}
+<ProjectLayout
+  title={project.title}
+  seoTitle={project.meta.title}
+  seoDescription={project.meta.description}
+  image={cmsClient.mediaToUrl(project.meta.image) ?? coverImage}
+  heroImage={coverImage}
+  createdAt={project.createdAt}
+  updatedAt={project.updatedAt}
+  badges={badges}
+  links={links}
+  tags={tags}
+  toc={toc}
+  backHref="/projects"
+  backLabel="Back to projects"
+>
+  <RichTextRenderer data={project.content} calloutVariantProfile="generic" />
+</ProjectLayout>

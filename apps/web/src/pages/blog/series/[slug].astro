@@ -16,16 +16,20 @@ export async function getStaticPaths() {
     return [];
   }
 
-  const entries = await cmsClient.getSeriesStaticPathsData();
-  return entries.map((entry) => {
-    return {
-      params: { slug: entry.slug },
-      props: {
-        series: entry.series,
-        posts: entry.posts,
-      },
-    };
-  });
+  try {
+    const entries = await cmsClient.getSeriesStaticPathsData();
+    return entries.map((entry) => {
+      return {
+        params: { slug: entry.slug },
+        props: {
+          series: entry.series,
+          posts: entry.posts,
+        },
+      };
+    });
+  } catch {
+    return [];
+  }
 }
 
 const { series, posts } = Astro.props as SeriesPageProps;

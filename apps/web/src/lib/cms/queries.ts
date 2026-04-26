@@ -271,6 +271,11 @@ export function createCmsQueries(
       return response.docs[0] ?? null;
     },
 
+    getAllPublishedProjects: async (): Promise<Project[]> => {
+      const response = await fetchPublishedProjects({ depth: 3 });
+      return response.docs;
+    },
+
     getCategorySlugs: async (): Promise<string[]> => {
       const allCategorySlugs = await fetchAllTaxonomySlugs("categories");
       const hasPostsByCategory = await Promise.all(
