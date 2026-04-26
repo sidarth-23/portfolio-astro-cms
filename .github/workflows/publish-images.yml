@@ -103,7 +103,7 @@ jobs:
 
           # Read current compose env
           CURRENT=$(curl -fsSL \
-            -H "Authorization: Bearer ${DOKPLOY_API_KEY}" \
+            -H "x-api-key: ${DOKPLOY_API_KEY}" \
             "${API}/api/compose.one?composeId=$(printf '%s' "${COMPOSE_ID}" | jq -sRr @uri)" \
             | jq -r '.env // ""')
 
@@ -116,7 +116,7 @@ jobs:
 
           # Save updated env
           curl -fsSL -X POST \
-            -H "Authorization: Bearer ${DOKPLOY_API_KEY}" \
+            -H "x-api-key: ${DOKPLOY_API_KEY}" \
             -H "Content-Type: application/json" \
             -d "$(jq -n --arg id "$COMPOSE_ID" --arg env "$UPDATED" \
               '{composeId: $id, env: $env}')" \

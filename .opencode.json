@@ -4,6 +4,10 @@
     "astro-docs": {
       "type": "remote",
       "url": "https://mcp.docs.astro.build/mcp"
+    },
+    "dokploy-mcp": {
+      "type": "local",
+      "command": ["npx", "-y", "@dokploy/mcp"]
     }
   }
 }
