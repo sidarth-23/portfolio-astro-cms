@@ -6,5 +6,6 @@ export default defineConfig(
     ...baseTsdownConfig(inlineConfig),
     platform: "neutral",
     entry: ["src/index.ts", "src/server.ts", "src/client.tsx"],
+    external: ["@emoji-mart/data", "@emoji-mart/react"],
   }),
 );
