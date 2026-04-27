@@ -1,26 +1,21 @@
 ---
 import { PhArrowSquareOut, PhCaretLeft, PhCaretRight } from "phosphor-icons-astro";
+import type { SeriesAdjacentPost } from "@/lib/types";
 
 type Props = {
   seriesName: string;
-  seriesSlug: string;
+  seriesHref: string;
   currentPart: number;
   totalParts: number;
   position?: "top" | "bottom";
   className?: string;
-  prevPost?: {
-    slug: string;
-    title: string;
-  };
-  nextPost?: {
-    slug: string;
-    title: string;
-  };
+  prevPost?: SeriesAdjacentPost;
+  nextPost?: SeriesAdjacentPost;
 };
 
 const {
   seriesName,
-  seriesSlug,
+  seriesHref,
   currentPart,
   totalParts,
   prevPost,
@@ -36,7 +31,7 @@ const {
       {position === "top" && (
         <div class="flex items-center justify-between gap-4">
           <a
-            href={`/blog/series/${seriesSlug}`}
+            href={seriesHref}
             class="font-bold text-lg hover:text-primary transition-colors flex items-center gap-2 group outline-none"
           >
             <span class="truncate">{seriesName}</span>
@@ -52,7 +47,7 @@ const {
         <div class="flex items-center justify-between gap-4">
           {prevPost ? (
             <a
-              href={`/blog/${prevPost.slug}`}
+              href={prevPost.href}
               class="flex items-center gap-2 p-2 rounded-lg hover:bg-base-300 transition-colors max-w-[45%] text-left"
               title={prevPost.title}
             >
@@ -65,7 +60,7 @@ const {
 
           {nextPost ? (
             <a
-              href={`/blog/${nextPost.slug}`}
+              href={nextPost.href}
               class="flex items-center gap-2 p-2 rounded-lg hover:bg-base-300 transition-colors max-w-[45%] justify-end text-right"
               title={nextPost.title}
             >

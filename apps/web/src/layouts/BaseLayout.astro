@@ -7,6 +7,7 @@ import ThemeSwitcher from "@/components/ThemeSwitcher.astro";
 import { ClientRouter } from "astro:transitions";
 import type { HomePage, SiteSetting } from "@sidshub/cms-core/payload-types";
 import { cmsClient } from "@/lib/cms";
+import { resolveLinks } from "@/lib/utils";
 import { TRANSITION_API } from "@/consts";
 
 type Props = {
@@ -48,7 +49,7 @@ if (!pageDescription) {
 }
 
 const profileImage = cmsClient.mediaSizeUrl(siteSettings.profileImage, "thumbnail");
-const footerItems = cmsClient.footerItemsFromSiteSettings(siteSettings);
+const footerItems = resolveLinks(cmsClient.footerItemsFromSiteSettings(siteSettings));
 const resumeDownloadUrl = siteSettings.resumeDownloadUrl || undefined;
 ---
 

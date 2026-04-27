@@ -6,6 +6,7 @@ import type { TableOfContentsItem } from "@sidshub/cms-lib-editor/web/html";
 import type { PopulatedAuthor } from "@sidshub/cms-core/client";
 import type { Media } from "@sidshub/cms-core/payload-types";
 import type { TagInfo, CategoryInfo, SeriesInfo } from "@/lib/cms";
+import type { SeriesAdjacentPost } from "@/lib/types";
 
 type Props = {
   title: string;
@@ -22,16 +23,8 @@ type Props = {
   authors?: PopulatedAuthor[];
   toc?: TableOfContentsItem[];
   tocContinuation?: {
-    prevPost?: {
-      slug: string;
-      title: string;
-      coverImage?: string;
-    };
-    nextPost?: {
-      slug: string;
-      title: string;
-      coverImage?: string;
-    };
+    prevPost?: SeriesAdjacentPost;
+    nextPost?: SeriesAdjacentPost;
   };
 };
 

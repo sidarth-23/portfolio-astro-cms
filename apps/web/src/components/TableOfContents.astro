@@ -1,21 +1,14 @@
 ---
 import TocSeriesContinuation from "@/components/TocSeriesContinuation.astro";
 import type { TableOfContentsItem } from "@sidshub/cms-lib-editor/web/html";
+import type { SeriesAdjacentPost } from "@/lib/types";
 
 type Props = {
   className?: string;
   items: TableOfContentsItem[];
   continuation?: {
-    prevPost?: {
-      slug: string;
-      title: string;
-      coverImage?: string;
-    };
-    nextPost?: {
-      slug: string;
-      title: string;
-      coverImage?: string;
-    };
+    prevPost?: SeriesAdjacentPost;
+    nextPost?: SeriesAdjacentPost;
   };
 };
 

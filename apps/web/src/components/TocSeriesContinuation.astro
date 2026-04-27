@@ -1,11 +1,6 @@
 ---
 import { PhCaretRight } from "phosphor-icons-astro";
-
-type SeriesAdjacentPost = {
-  slug: string;
-  title: string;
-  coverImage?: string;
-};
+import type { SeriesAdjacentPost } from "@/lib/types";
 
 type Props = {
   prevPost?: SeriesAdjacentPost;
@@ -37,7 +32,7 @@ const isNext = Boolean(nextPost);
         )}
 
         <a
-          href={`/blog/${targetPost.slug}`}
+          href={targetPost.href}
           class="link link-hover inline-flex min-w-0 items-start gap-1.5 text-xs font-semibold leading-snug text-base-content/90"
         >
           <span class="line-clamp-2">{targetPost.title}</span>

@@ -1,6 +1,8 @@
 ---
 import { PhLink } from "phosphor-icons-astro";
 
+type Props = { title: string; subtitle: string; url?: string };
+
 const { title, subtitle, url } = Astro.props;
 ---
 
@@ -12,11 +14,18 @@ const { title, subtitle, url } = Astro.props;
   <div class="experience__data bd-grid px-5">
     <div class="flex items-center gap-2 mb-1">
       <h3 class="font-semibold">{title}</h3>
-      {url && (
-        <a href={url} target="_blank" rel="noopener noreferrer" class="opacity-50 hover:opacity-100 transition-opacity">
-          <PhLink size={18} />
-        </a>
-      )}
+      {
+        url && (
+          <a
+            href={url}
+            target="_blank"
+            rel="noopener noreferrer"
+            class="opacity-50 hover:opacity-100 transition-opacity"
+          >
+            <PhLink size={18} />
+          </a>
+        )
+      }
     </div>
     <span class="font-light text-sm">{subtitle}</span>
     <p class="my-2 text-justify">
@@ -24,4 +33,3 @@ const { title, subtitle, url } = Astro.props;
     </p>
   </div>
 </div>
-

@@ -7,24 +7,17 @@ import { extractTableOfContents } from "@sidshub/cms-lib-editor/web/html";
 import { resolveIconSvg } from "@sidshub/cms-lib-icons";
 import { cmsClient } from "@/lib/cms";
 import type { Post } from "@sidshub/cms-core/payload-types";
+import type { SeriesAdjacentPost } from "@/lib/types";
 
 type Props = { post: Post };
 
 type SeriesNavProps = {
   seriesName: string;
-  seriesSlug: string;
+  seriesHref: string;
   currentPart: number;
   totalParts: number;
-  prevPost?: {
-    slug: string;
-    title: string;
-    coverImage?: string;
-  };
-  nextPost?: {
-    slug: string;
-    title: string;
-    coverImage?: string;
-  };
+  prevPost?: SeriesAdjacentPost;
+  nextPost?: SeriesAdjacentPost;
 };
 
 type AuthorLink = {
@@ -75,13 +68,14 @@ if (series?.slug) {
 
     seriesNav = {
       seriesName: series.name,
-      seriesSlug: series.slug,
+      seriesHref: `/blog/series/${series.slug}`,
       currentPart: currentIndex + 1,
       totalParts: seriesPosts.length,
       prevPost: prevPost
         ? {
             slug: prevPost.slug,
             title: prevPost.title,
+            href: `/blog/${prevPost.slug}`,
             coverImage: cmsClient.mediaSizeUrl(prevPost.coverImage, "thumbnail"),
           }
         : undefined,
@@ -89,6 +83,7 @@ if (series?.slug) {
         ? {
             slug: nextPost.slug,
             title: nextPost.title,
+            href: `/blog/${nextPost.slug}`,
             coverImage: cmsClient.mediaSizeUrl(nextPost.coverImage, "thumbnail"),
           }
         : undefined,
@@ -174,7 +169,7 @@ const pubDate = post?.publishedAt || post?.createdAt || new Date().toISOString()
         position="top"
         className="mt-0"
         seriesName={seriesNav.seriesName}
-        seriesSlug={seriesNav.seriesSlug}
+        seriesHref={seriesNav.seriesHref}
         currentPart={seriesNav.currentPart}
         totalParts={seriesNav.totalParts}
         prevPost={seriesNav.prevPost}
@@ -188,7 +183,7 @@ const pubDate = post?.publishedAt || post?.createdAt || new Date().toISOString()
   {
     seriesNav && (
       <FloatingSeriesToolbar
-        seriesSlug={seriesNav.seriesSlug}
+        seriesHref={seriesNav.seriesHref}
         prevPost={seriesNav.prevPost}
         nextPost={seriesNav.nextPost}
       />

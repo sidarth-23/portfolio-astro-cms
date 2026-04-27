@@ -1,38 +1,11 @@
 ---
-import type { SiteFooterItem } from "@sidshub/cms-core/client";
-import { resolveIconSvg } from "@sidshub/cms-lib-icons";
+import type { ResolvedLink } from "@/lib/types";
 
 type Props = {
-  items?: SiteFooterItem[];
+  items?: ResolvedLink[];
 };
 
 const { items = [] }: Props = Astro.props;
-
-const cleanItems = (
-  await Promise.all(
-    items.map(async (item) => {
-      if (!item?.icon || item.url.length === 0) {
-        return null;
-      }
-
-      const iconData = resolveIconSvg(item.icon);
-      if (!iconData) {
-        return null;
-      }
-
-      return { item, iconData };
-    }),
-  )
-)
-  .filter(
-    (
-      entry,
-    ): entry is {
-      item: SiteFooterItem;
-      iconData: NonNullable<ReturnType<typeof resolveIconSvg>>;
-    } => entry !== null,
-  )
-  .slice(0, 4);
 ---
 
 <div
@@ -41,29 +14,27 @@ const cleanItems = (
 </div>
 
 {
-  cleanItems.length > 0 && (
+  items.length > 0 && (
     <div class="social-icons px-4 pb-5 pt-1 flex flex-wrap gap-4 self-center justify-center sticky bottom-0 bg-base-200 group-[.collapsed]:px-1">
-      {cleanItems.map(({ item, iconData }) => {
-        return (
-          <a
-            href={item.url}
-            target={item.newTab ? "_blank" : undefined}
-            rel={item.newTab ? "noreferrer noopener" : undefined}
-            class="mx-3 group-[.collapsed]:mx-1 hover:text-primary transition-colors"
-            aria-label={iconData.label}
-            title={iconData.label}
-          >
-            <svg
-              viewBox={iconData.viewBox}
-              width={24}
-              height={24}
-              aria-hidden="true"
-              class="h-6 w-6 fill-current stroke-current"
-              set:html={iconData.innerSvg}
-            />
-          </a>
-        );
-      })}
+      {items.map((item) => (
+        <a
+          href={item.url}
+          target={item.newTab ? "_blank" : undefined}
+          rel={item.newTab ? "noreferrer noopener" : undefined}
+          class="mx-3 group-[.collapsed]:mx-1 hover:text-primary transition-colors"
+          aria-label={item.label}
+          title={item.label}
+        >
+          <svg
+            viewBox={item.viewBox}
+            width={24}
+            height={24}
+            aria-hidden="true"
+            class="h-6 w-6 fill-current stroke-current"
+            set:html={item.innerSvg}
+          />
+        </a>
+      ))}
     </div>
   )
 }

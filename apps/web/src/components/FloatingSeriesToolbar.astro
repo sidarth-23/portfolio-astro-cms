@@ -1,18 +1,14 @@
 ---
 import { PhBookOpenText, PhCaretLeft, PhCaretRight } from "phosphor-icons-astro";
-
-type SeriesAdjacentPost = {
-  slug: string;
-  title: string;
-};
+import type { SeriesAdjacentPost } from "@/lib/types";
 
 type Props = {
-  seriesSlug: string;
+  seriesHref: string;
   prevPost?: SeriesAdjacentPost;
   nextPost?: SeriesAdjacentPost;
 };
 
-const { seriesSlug, prevPost, nextPost }: Props = Astro.props;
+const { seriesHref, prevPost, nextPost }: Props = Astro.props;
 ---
 
 <div
@@ -26,7 +22,7 @@ const { seriesSlug, prevPost, nextPost }: Props = Astro.props;
     {
       prevPost ? (
         <a
-          href={`/blog/${prevPost.slug}`}
+          href={prevPost.href}
           class="btn btn-circle btn-sm btn-ghost"
           aria-label={`Previous section: ${prevPost.title}`}
           title={prevPost.title}
@@ -41,7 +37,7 @@ const { seriesSlug, prevPost, nextPost }: Props = Astro.props;
     }
 
     <a
-      href={`/blog/series/${seriesSlug}`}
+      href={seriesHref}
       class="btn btn-circle btn-sm btn-primary"
       aria-label="Back to series"
       title="Back to series"
@@ -52,7 +48,7 @@ const { seriesSlug, prevPost, nextPost }: Props = Astro.props;
     {
       nextPost ? (
         <a
-          href={`/blog/${nextPost.slug}`}
+          href={nextPost.href}
           class="btn btn-circle btn-sm btn-ghost"
           aria-label={`Next section: ${nextPost.title}`}
           title={nextPost.title}

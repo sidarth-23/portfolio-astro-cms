@@ -1,69 +1,31 @@
 ---
 import { PhHouse, PhBriefcase, PhNewspaper, PhFileText } from "phosphor-icons-astro";
+
+const menuItems = [
+  { id: "home", href: "/", label: "Home", Icon: PhHouse },
+  { id: "projects", href: "/projects", label: "Projects", Icon: PhBriefcase },
+  { id: "blog", href: "/blog/", label: "Blog", Icon: PhNewspaper },
+  { id: "cv", href: "/cv", label: "Resume", Icon: PhFileText },
+] as const;
+
+const linkClass =
+  "py-3 text-base flex items-center gap-4 group-[.collapsed]:justify-center group-[.collapsed]:px-0 group-[.collapsed]:gap-0";
+const labelClass =
+  "inline-block overflow-hidden whitespace-nowrap transition-[max-width,opacity,margin] duration-300 ease-in-out max-w-24 opacity-100 group-[.collapsed]:max-w-0 group-[.collapsed]:opacity-0";
 const activeClass = "is-active";
 ---
 
 <ul id="sidebar-menu" class="menu grow shrink menu-md overflow-y-auto w-full">
-  <li>
-    <a
-      class="py-3 text-base flex items-center gap-4 group-[.collapsed]:justify-center group-[.collapsed]:px-0 group-[.collapsed]:gap-0"
-      id="home"
-      href="/"
-      data-sidebar-item
-    >
-      <PhHouse size={24} />
-      <span
-        class="inline-block overflow-hidden whitespace-nowrap transition-[max-width,opacity,margin] duration-300 ease-in-out max-w-24 opacity-100 group-[.collapsed]:max-w-0 group-[.collapsed]:opacity-0"
-      >
-        Home
-      </span>
-    </a>
-  </li>
-  <li>
-    <a
-      class="py-3 text-base flex items-center gap-4 group-[.collapsed]:justify-center group-[.collapsed]:px-0 group-[.collapsed]:gap-0"
-      id="projects"
-      href="/projects"
-      data-sidebar-item
-    >
-      <PhBriefcase size={24} />
-      <span
-        class="inline-block overflow-hidden whitespace-nowrap transition-[max-width,opacity,margin] duration-300 ease-in-out max-w-24 opacity-100 group-[.collapsed]:max-w-0 group-[.collapsed]:opacity-0"
-      >
-        Projects
-      </span>
-    </a>
-  </li>
-  <li>
-    <a
-      class="py-3 text-base flex items-center gap-4 group-[.collapsed]:justify-center group-[.collapsed]:px-0 group-[.collapsed]:gap-0"
-      id="blog"
-      href="/blog/"
-      data-sidebar-item
-    >
-      <PhNewspaper size={24} />
-      <span
-        class="inline-block overflow-hidden whitespace-nowrap transition-[max-width,opacity,margin] duration-300 ease-in-out max-w-24 opacity-100 group-[.collapsed]:max-w-0 group-[.collapsed]:opacity-0"
-      >
-        Blog
-      </span>
-    </a>
-  </li>
-  <li>
-    <a
-      class="py-3 text-base flex items-center gap-4 group-[.collapsed]:justify-center group-[.collapsed]:px-0 group-[.collapsed]:gap-0"
-      id="cv"
-      href="/cv"
-      data-sidebar-item
-    >
-      <PhFileText size={24} />
-      <span
-        class="inline-block overflow-hidden whitespace-nowrap transition-[max-width,opacity,margin] duration-300 ease-in-out max-w-24 opacity-100 group-[.collapsed]:max-w-0 group-[.collapsed]:opacity-0"
-      >
-        Resume
-      </span>
-    </a>
-  </li>
+  {
+    menuItems.map(({ id, href, label, Icon }) => (
+      <li>
+        <a class={linkClass} id={id} href={href} data-sidebar-item>
+          <Icon size={24} />
+          <span class={labelClass}>{label}</span>
+        </a>
+      </li>
+    ))
+  }
 </ul>
 
 <script is:inline define:vars={{ activeClass: activeClass }}>
@@ -72,9 +34,7 @@ const activeClass = "is-active";
       return "/";
     }
 
-    const normalizedPath = path.endsWith("/") && path !== "/"
-      ? path.slice(0, -1)
-      : path;
+    const normalizedPath = path.endsWith("/") && path !== "/" ? path.slice(0, -1) : path;
 
     return normalizedPath || "/";
   };

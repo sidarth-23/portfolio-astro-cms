@@ -1,12 +1,12 @@
 ---
 import { PhCaretLeft, PhFileText } from "phosphor-icons-astro";
-import type { SiteFooterItem } from "@sidshub/cms-core/client";
+import type { ResolvedLink } from "@/lib/types";
 
 import SideBarFooter from "./SideBarFooter.astro";
 import SideBarMenu from "./SideBarMenu.astro";
 
 type Props = {
-  footerItems?: SiteFooterItem[];
+  footerItems?: ResolvedLink[];
   profileImage?: string;
   resumeDownloadUrl?: string;
 };

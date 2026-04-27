@@ -4,6 +4,7 @@ import HorizontalCard from "@/components/HorizontalCard.astro";
 import BaseLayout from "@/layouts/BaseLayout.astro";
 import { asProjectArray } from "@sidshub/cms-core/client";
 import { cmsClient } from "@/lib/cms";
+import { resolveLinks } from "@/lib/utils";
 const projectsPage = await cmsClient.getProjectsPage();
 const { meta, sections: projectSections } = projectsPage;
 
@@ -45,7 +46,7 @@ const sections = projectSections.map((section) => ({
               badges={cmsClient.badgesFromProject(project)}
               tags={cmsClient.tagsFromProject(project)}
               url={"/projects/" + project.slug}
-              links={cmsClient.linksFromProject(project)}
+              links={resolveLinks(cmsClient.linksFromProject(project))}
               reverse={index % 2 === 1}
             />
             <div class="divider my-0" />

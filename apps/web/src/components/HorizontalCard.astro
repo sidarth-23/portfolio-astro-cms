@@ -1,20 +1,19 @@
 ---
-import { resolveIconSvg } from "@sidshub/cms-lib-icons";
 import type { TagInfo, CategoryInfo, SeriesInfo } from "@/lib/cms";
+import type { ResolvedLink } from "@/lib/types";
 
 type Props = {
   title: string;
   img?: string;
   desc?: string;
   url: string;
-  badge?: string;
   badges?: string[];
   tags?: TagInfo[];
   category?: CategoryInfo;
   series?: SeriesInfo;
   target?: string;
   reverse?: boolean;
-  links?: Array<{ icon: string; url: string; newTab: boolean }>;
+  links?: ResolvedLink[];
 };
 
 const {
@@ -32,28 +31,6 @@ const {
 } = Astro.props;
 const contentClass = `hero-content flex-col ${reverse ? "md:flex-row-reverse" : "md:flex-row"} md:gap-8 lg:gap-10 relative z-20 pointer-events-none`;
 const contentBodyClass = "grow w-full space-y-1 relative";
-const resolvedLinks = links
-  .map((link) => {
-    const iconData = resolveIconSvg(link.icon);
-    if (!iconData) {
-      return null;
-    }
-
-    return {
-      ...link,
-      iconData,
-    };
-  })
-  .filter(
-    (
-      entry,
-    ): entry is {
-      icon: string;
-      url: string;
-      newTab: boolean;
-      iconData: NonNullable<ReturnType<typeof resolveIconSvg>>;
-    } => entry !== null,
-  );
 ---
 
 <div
@@ -88,30 +65,27 @@ const resolvedLinks = links
           {badges.map((item) => <div class="badge badge-secondary badge-xs">{item}</div>)}
         </h1>
         {
-          resolvedLinks.length > 0 && (
+          links.length > 0 && (
             <div class="z-20 flex gap-1 pointer-events-auto sm:shrink-0">
-              {resolvedLinks.map((link) => {
-                const { iconData } = link;
-                return (
-                  <a
-                    href={link.url}
-                    target={link.newTab ? "_blank" : undefined}
-                    rel={link.newTab ? "noopener noreferrer" : undefined}
-                    title={iconData.label}
-                    aria-label={iconData.label}
-                    class="btn btn-circle btn-sm btn-ghost transition-all duration-300"
-                  >
-                    <svg
-                      viewBox={iconData.viewBox}
-                      width={20}
-                      height={20}
-                      aria-hidden="true"
-                      class="h-5 w-5 fill-current stroke-current"
-                      set:html={iconData.innerSvg}
-                    />
-                  </a>
-                );
-              })}
+              {links.map((link) => (
+                <a
+                  href={link.url}
+                  target={link.newTab ? "_blank" : undefined}
+                  rel={link.newTab ? "noopener noreferrer" : undefined}
+                  title={link.label}
+                  aria-label={link.label}
+                  class="btn btn-circle btn-sm btn-ghost transition-all duration-300"
+                >
+                  <svg
+                    viewBox={link.viewBox}
+                    width={20}
+                    height={20}
+                    aria-hidden="true"
+                    class="h-5 w-5 fill-current stroke-current"
+                    set:html={link.innerSvg}
+                  />
+                </a>
+              ))}
             </div>
           )
         }

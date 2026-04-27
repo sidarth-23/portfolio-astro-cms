@@ -6,6 +6,7 @@ import type { TableOfContentsItem } from "@sidshub/cms-lib-editor/web/html";
 import type { Media } from "@sidshub/cms-core/payload-types";
 import { getHeroImageSources } from "@/lib/cms/responsive-image";
 import { cmsClient } from "@/lib/cms";
+import type { SeriesAdjacentPost } from "@/lib/types";
 
 type Props = {
   title: string;
@@ -17,16 +18,8 @@ type Props = {
   heroMedia?: Media | string | number | null;
   toc?: TableOfContentsItem[];
   tocContinuation?: {
-    prevPost?: {
-      slug: string;
-      title: string;
-      coverImage?: string;
-    };
-    nextPost?: {
-      slug: string;
-      title: string;
-      coverImage?: string;
-    };
+    prevPost?: SeriesAdjacentPost;
+    nextPost?: SeriesAdjacentPost;
   };
   backHref?: string;
   backLabel?: string;
