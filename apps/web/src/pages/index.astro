@@ -37,11 +37,8 @@ const featuredSections = homePage.featuredSections ?? [];
   image={cmsClient.mediaToUrl(meta?.image)}
 >
   <div>
-    <div class="text-xl py-1">{homePage?.greeting}</div>
-    <div class="text-5xl font-bold">{homePage?.name}</div>
-    <div class="text-3xl py-3 font-bold">
-      {homePage?.role}
-    </div>
+    <div class="text-5xl font-bold">{siteSettings.name}</div>
+    <div class="text-3xl py-3 font-bold">{siteSettings.role}</div>
 
     <div class="prose prose-lg py-2 max-w-none">
       <RichTextRenderer data={homePage.about} />

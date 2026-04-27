@@ -159,6 +159,9 @@ export const makeProject = (overrides: Partial<Project> = {}): Project => {
 
 export const makeSiteSetting = (overrides: Partial<SiteSetting> = {}): SiteSetting => ({
   id: nextId(),
+  name: "Sidarth G",
+  role: "Software Developer",
+  profileImage: nextId(),
   meta: {
     title: "Sid's Hub",
     description: "Personal website and blog.",
@@ -171,9 +174,6 @@ export const makeSiteSetting = (overrides: Partial<SiteSetting> = {}): SiteSetti
 
 export const makeHomePage = (posts: Post[], overrides: Partial<HomePage> = {}): HomePage => ({
   id: nextId(),
-  greeting: "Hello,",
-  name: faker.person.fullName(),
-  role: faker.person.jobTitle(),
   about: makeRichText(),
   featuredSections: [
     {

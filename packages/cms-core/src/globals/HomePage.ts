@@ -29,21 +29,6 @@ export const HomePage: GlobalConfig = {
           label: "Content",
           fields: [
             {
-              name: "greeting",
-              type: "text",
-              required: true,
-            },
-            {
-              name: "name",
-              type: "text",
-              required: true,
-            },
-            {
-              name: "role",
-              type: "text",
-              required: true,
-            },
-            {
               name: "about",
               type: "richText",
               required: true,

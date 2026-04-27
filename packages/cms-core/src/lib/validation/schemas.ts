@@ -52,6 +52,8 @@ const withSeoMeta = <T extends z.ZodRawShape>(shape: T) => {
 };
 
 export const siteSettingsSchema = withSeoMeta({
+  name: requiredText,
+  role: requiredText,
   sidebarFooterItems: z
     .array(
       z
@@ -68,9 +70,6 @@ export const siteSettingsSchema = withSeoMeta({
 
 export const homePageSchema = z
   .object({
-    greeting: requiredText.optional(),
-    name: requiredText.optional(),
-    role: requiredText.optional(),
     about: z.unknown().optional(),
     featuredSections: z
       .array(

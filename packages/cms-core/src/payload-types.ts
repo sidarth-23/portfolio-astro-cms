@@ -1081,7 +1081,15 @@ export interface PayloadMigrationsSelect<T extends boolean = true> {
  */
 export interface SiteSetting {
   id: string;
-  profileImage?: (string | null) | Media;
+  /**
+   * Display name shown in the sidebar profile.
+   */
+  name: string;
+  /**
+   * Role/title shown below the name in the sidebar.
+   */
+  role: string;
+  profileImage: string | Media;
   /**
    * Select Google Drive to auto-convert a sharing URL into a download link. Select Custom Link for any direct download URL.
    */
@@ -1134,9 +1142,6 @@ export interface SiteSetting {
  */
 export interface HomePage {
   id: string;
-  greeting: string;
-  name: string;
-  role: string;
   about: {
     root: {
       type: string;
@@ -1364,6 +1369,8 @@ export interface ProjectsPage {
  * via the `definition` "site-settings_select".
  */
 export interface SiteSettingsSelect<T extends boolean = true> {
+  name?: T;
+  role?: T;
   profileImage?: T;
   resumeUrlType?: T;
   resumeUrl?: T;
@@ -1395,9 +1402,6 @@ export interface SiteSettingsSelect<T extends boolean = true> {
  * via the `definition` "home-page_select".
  */
 export interface HomePageSelect<T extends boolean = true> {
-  greeting?: T;
-  name?: T;
-  role?: T;
   about?: T;
   featuredSections?:
     | T

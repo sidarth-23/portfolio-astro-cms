@@ -29,10 +29,22 @@ export const SiteSettings: GlobalConfig = {
           label: "Content",
           fields: [
             {
+              name: "name",
+              type: "text",
+              required: true,
+              admin: { description: "Display name shown in the sidebar profile." },
+            },
+            {
+              name: "role",
+              type: "text",
+              required: true,
+              admin: { description: "Role/title shown below the name in the sidebar." },
+            },
+            {
               name: "profileImage",
               type: "upload",
               relationTo: "media",
-              required: false,
+              required: true,
             },
             ...resumeLinkFields,
           ],

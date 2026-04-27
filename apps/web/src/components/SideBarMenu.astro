@@ -8,10 +8,8 @@ const menuItems = [
   { id: "cv", href: "/cv", label: "Resume", Icon: PhFileText },
 ] as const;
 
-const linkClass =
-  "py-3 text-base flex items-center gap-4 group-[.collapsed]:justify-center group-[.collapsed]:px-0 group-[.collapsed]:gap-0";
-const labelClass =
-  "inline-block overflow-hidden whitespace-nowrap transition-[max-width,opacity,margin] duration-300 ease-in-out max-w-24 opacity-100 group-[.collapsed]:max-w-0 group-[.collapsed]:opacity-0";
+const linkClass = "py-3 text-base flex items-center gap-4";
+const labelClass = "inline-block whitespace-nowrap overflow-hidden is-drawer-close:hidden";
 const activeClass = "is-active";
 ---
 
