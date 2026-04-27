@@ -3,9 +3,7 @@ import BaseHead from "@/components/BaseHead.astro";
 import Header from "@/components/Header.astro";
 import SideBar from "@/components/SideBar.astro";
 import ThemePreloadScript from "@/components/ThemePreloadScript.astro";
-import ThemeSwitcher from "@/components/ThemeSwitcher.astro";
 import { ClientRouter } from "astro:transitions";
-import type { HomePage, SiteSetting } from "@sidshub/cms-core/payload-types";
 import { cmsClient } from "@/lib/cms";
 import { resolveLinks } from "@/lib/utils";
 import { TRANSITION_API } from "@/consts";
@@ -30,10 +28,7 @@ const {
   jsonLd,
 }: Props = Astro.props;
 
-const [homePage, siteSettings]: [HomePage, SiteSetting] = await Promise.all([
-  cmsClient.getHomePage(),
-  cmsClient.getSiteSettings(),
-]);
+const siteSettings = await cmsClient.getSiteSettings();
 
 const pageTitle = seoTitle;
 const pageDescription = description;
@@ -71,11 +66,8 @@ const resumeDownloadUrl = siteSettings.resumeDownloadUrl || undefined;
     <div class="bg-base-100 drawer lg:drawer-open">
       <input id="my-drawer" type="checkbox" class="drawer-toggle" />
       <div class="drawer-content bg-base-100">
-        <Header name={homePage.name} />
+        <Header footerItems={footerItems} />
         <div class="w-full px-6 pb-14 pt-6">
-          <div class="mx-auto mb-4 hidden w-full max-w-5xl justify-end 2xl:max-w-6xl lg:flex">
-            <ThemeSwitcher />
-          </div>
           <main class="mx-auto w-full max-w-5xl 2xl:max-w-6xl">
             <slot />
           </main>
@@ -83,11 +75,7 @@ const resumeDownloadUrl = siteSettings.resumeDownloadUrl || undefined;
       </div>
       {
         includeSidebar && (
-          <SideBar
-            footerItems={footerItems}
-            profileImage={profileImage}
-            resumeDownloadUrl={resumeDownloadUrl}
-          />
+          <SideBar profileImage={profileImage} resumeDownloadUrl={resumeDownloadUrl} />
         )
       }
     </div>
