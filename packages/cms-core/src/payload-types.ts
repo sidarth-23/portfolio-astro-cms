@@ -1294,8 +1294,6 @@ export interface CvPage {
  */
 export interface BlogPage {
   id: string;
-  title: string;
-  intro?: string | null;
   meta: {
     title: string;
     description: string;
@@ -1313,7 +1311,6 @@ export interface BlogPage {
  */
 export interface SeriesPage {
   id: string;
-  backToSeriesLabel?: string | null;
   meta: {
     title: string;
     description: string;
@@ -1490,8 +1487,6 @@ export interface CvPageSelect<T extends boolean = true> {
  * via the `definition` "blog-page_select".
  */
 export interface BlogPageSelect<T extends boolean = true> {
-  title?: T;
-  intro?: T;
   meta?:
     | T
     | {
@@ -1508,7 +1503,6 @@ export interface BlogPageSelect<T extends boolean = true> {
  * via the `definition` "series-page_select".
  */
 export interface SeriesPageSelect<T extends boolean = true> {
-  backToSeriesLabel?: T;
   meta?:
     | T
     | {

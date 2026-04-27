@@ -13,20 +13,12 @@ const optionalTrimmedPreprocess = (value: unknown): unknown => {
   return trimmed.length > 0 ? trimmed : undefined;
 };
 
-export const requiredText = z.preprocess(trimPreprocess, z.string().min(1, "This field is required."));
+export const requiredText = z.preprocess(
+  trimPreprocess,
+  z.string().min(1, "This field is required."),
+);
 
 export const optionalText = z.preprocess(optionalTrimmedPreprocess, z.string().min(1).optional());
-
-export const optionalTextWithFallback = (fallback: string) => {
-  return z.preprocess((value: unknown) => {
-    if (typeof value !== "string") {
-      return fallback;
-    }
-
-    const trimmed = value.trim();
-    return trimmed.length > 0 ? trimmed : fallback;
-  }, z.string().min(1));
-};
 
 const parseURL = (value: string): URL | null => {
   try {
@@ -77,7 +69,9 @@ const isSupportedAbsoluteLinkProtocol = (value: string): boolean => {
   }
 
   const protocol = parsed.protocol;
-  return protocol === "http:" || protocol === "https:" || protocol === "mailto:" || protocol === "tel:";
+  return (
+    protocol === "http:" || protocol === "https:" || protocol === "mailto:" || protocol === "tel:"
+  );
 };
 
 const isSupportedLinkValue = (value: string): boolean => {

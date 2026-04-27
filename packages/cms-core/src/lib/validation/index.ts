@@ -5,7 +5,6 @@ export {
   optionalLinkUrl,
   optionalSlugLikeText,
   optionalText,
-  optionalTextWithFallback,
   requiredHttpUrl,
   requiredText,
 } from "./primitives";

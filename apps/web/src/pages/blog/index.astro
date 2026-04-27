@@ -41,14 +41,10 @@ const [paginatedPosts, allCategories, allSeries, blogPage]: [
   cmsClient.getBlogPage(),
 ]);
 
-const { meta, title: blogTitle, intro: blogIntro } = blogPage;
+const { meta } = blogPage;
 
 if (!meta.title || !meta.description) {
   throw new Error("Blog page requires SEO `meta.title` and `meta.description`.");
-}
-
-if (!blogTitle) {
-  throw new Error("Blog page requires a non-empty `title` field.");
 }
 
 // Helper to build blog URLs with filters
@@ -91,13 +87,13 @@ const activeSeries = seriesFilter ? allSeries.find((s) => s.slug === seriesFilte
 ---
 
 <BaseLayout
-  title={blogTitle}
+  title="Blog"
   seoTitle={meta.title}
   description={meta.description}
   image={cmsClient.mediaToUrl(meta?.image)}
 >
   <div class="mb-5 flex flex-col md:flex-row items-center justify-between gap-4">
-    <h1 class="text-3xl font-bold">{blogTitle}</h1>
+    <h1 class="text-3xl font-bold">Blog</h1>
 
     {/* Tabs */}
     <div role="tablist" class="tabs tabs-boxed">
@@ -117,8 +113,6 @@ const activeSeries = seriesFilter ? allSeries.find((s) => s.slug === seriesFilte
       </a>
     </div>
   </div>
-
-  {blogIntro && <p class="mb-6 text-base-content/80 leading-relaxed">{blogIntro}</p>}
 
   {/* Search and Filter Bar */}
   <div class="flex flex-col md:flex-row gap-4 mb-6 relative z-30">

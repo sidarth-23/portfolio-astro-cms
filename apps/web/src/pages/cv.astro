@@ -58,6 +58,12 @@ const getBadgeGroups = (section: unknown): CvBadgeGroup[] => {
 
   return (section.badgeGroups as CvBadgeGroup[] | null | undefined) || [];
 };
+const BADGE_GROUP_STYLES = [
+  "badge badge-soft badge-md badge-primary gap-2",
+  "badge badge-soft badge-md badge-secondary gap-2",
+  "badge badge-soft badge-md badge-accent gap-2",
+];
+
 const resolvedBadgeGroupsBySection = await Promise.all(
   sections.map(async (section) => {
     if (section.type !== "badges") {
@@ -108,7 +114,7 @@ const resolvedBadgeGroupsBySection = await Promise.all(
         )}
 
         {section.type === "items" && section.itemsVariant === "timeline" && (
-          <div class="time-line-container grid gap-4">
+          <div class="time-line-container grid gap-4 overflow-hidden">
             {(section.items || []).map((item) => (
               <TimeLineElement title={item.title} subtitle={getSubtitle(item)} url={item.url}>
                 {item.content && (
@@ -178,34 +184,42 @@ const resolvedBadgeGroupsBySection = await Promise.all(
         )}
 
         {section.type === "badges" && (
-          <div class="grid gap-4">
-            {resolvedBadgeGroupsBySection[sectionIndex].map((group) => (
-              <div class="grid gap-2">
-                <h3 class="text-sm font-semibold tracking-wide text-base-content/70">
-                  {group.title}
-                </h3>
-                <div class="flex flex-wrap gap-2">
-                  {(group.badges || []).map((badge) => {
-                    const { iconData } = badge;
-                    return (
-                      <span class="badge badge-outline gap-1.5 text-base-content">
-                        {iconData && (
-                          <svg
-                            viewBox={iconData.viewBox}
-                            width={12}
-                            height={12}
-                            aria-hidden="true"
-                            class="h-[0.75em] w-[0.75em] shrink-0 fill-current stroke-current"
-                            set:html={iconData.innerSvg}
-                          />
-                        )}
-                        <span>{badge.value}</span>
-                      </span>
-                    );
-                  })}
-                </div>
-              </div>
-            ))}
+          <div class="overflow-x-auto">
+            <table class="table">
+              <tbody>
+                {resolvedBadgeGroupsBySection[sectionIndex].map((group, groupIndex) => (
+                  <tr class="hover">
+                    <td class="w-40 align-top text-sm font-semibold tracking-wide text-base-content/70 whitespace-nowrap">
+                      {group.title}
+                    </td>
+                    <td>
+                      <div class="flex flex-wrap gap-2">
+                        {(group.badges || []).map((badge) => {
+                          const { iconData } = badge;
+                          return (
+                            <span
+                              class={BADGE_GROUP_STYLES[groupIndex % BADGE_GROUP_STYLES.length]}
+                            >
+                              {iconData && (
+                                <svg
+                                  viewBox={iconData.viewBox}
+                                  width={18}
+                                  height={18}
+                                  aria-hidden="true"
+                                  class="h-[1.15em] w-[1.15em] shrink-0 fill-current"
+                                  set:html={iconData.innerSvg}
+                                />
+                              )}
+                              <span>{badge.value}</span>
+                            </span>
+                          );
+                        })}
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
         )}
       </section>
@@ -214,10 +228,6 @@ const resolvedBadgeGroupsBySection = await Promise.all(
 </BaseLayout>
 
 <style>
-  .time-line-container > div:last-child .education__time > .education__line {
-    display: none;
-  }
-
   a {
     transition: opacity 0.3s ease-in-out;
   }

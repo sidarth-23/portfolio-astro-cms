@@ -2,13 +2,7 @@ import { z } from "zod";
 
 import { CV_SECTION_TYPE_OPTIONS, HOME_CTA_VARIANT_OPTIONS } from "@/lib/content";
 import { isValidIconValue } from "@sidshub/cms-lib-icons";
-import {
-  optionalHttpUrl,
-  optionalLinkUrl,
-  optionalText,
-  optionalTextWithFallback,
-  requiredText,
-} from "./primitives";
+import { optionalHttpUrl, optionalLinkUrl, optionalText, requiredText } from "./primitives";
 
 const strictIconSchema = z.string().superRefine((value, ctx) => {
   if (!isValidIconValue(value)) {
@@ -105,10 +99,7 @@ export const homePageSchema = z
   })
   .passthrough();
 
-export const blogPageSchema = withSeoMeta({
-  title: requiredText.optional(),
-  intro: optionalText,
-});
+export const blogPageSchema = withSeoMeta({});
 
 export const projectsPageSchema = withSeoMeta({
   sections: z
@@ -124,9 +115,7 @@ export const projectsPageSchema = withSeoMeta({
     .optional(),
 });
 
-export const seriesPageSchema = withSeoMeta({
-  backToSeriesLabel: optionalTextWithFallback("Back to Series").optional(),
-});
+export const seriesPageSchema = withSeoMeta({});
 
 const cvBadgeSchema = z
   .object({

@@ -12,6 +12,16 @@ export default defineConfig(
       "src/plugin.ts",
       "src/endpoints/index.ts",
     ],
-    external: ["qs-esm"],
+    external: [
+      "qs-esm",
+      "node:path",
+      "node:url",
+      "node:fs",
+      "node:crypto",
+      "path",
+      "url",
+      "fs",
+      "crypto",
+    ],
   }),
 );

@@ -202,8 +202,6 @@ export const makeHomePage = (posts: Post[], overrides: Partial<HomePage> = {}): 
 
 export const makeBlogPage = (overrides: Partial<BlogPage> = {}): BlogPage => ({
   id: nextId(),
-  title: "Blog",
-  intro: "Welcome to the mock blog.",
   meta: {
     title: "Mock Blog",
     description: faker.lorem.sentence(),
@@ -274,7 +272,6 @@ export const makeProjectsPage = (
 
 export const makeSeriesPage = (overrides: Partial<SeriesPage> = {}): SeriesPage => ({
   id: nextId(),
-  backToSeriesLabel: "Back to Series",
   meta: {
     title: "Mock Series",
     description: faker.lorem.sentence(),

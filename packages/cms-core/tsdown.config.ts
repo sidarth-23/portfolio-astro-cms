@@ -26,6 +26,16 @@ export default defineConfig(
         to: "dist/cms-plugin-og-image/dist/server/og/fonts/atkinson-bold.woff",
       },
     ],
-    external: ["node:path", "node:url", "path", "url", "fs/promises", "sharp", "qs-esm"],
+    external: [
+      "node:path",
+      "node:url",
+      "path",
+      "url",
+      "fs/promises",
+      "sharp",
+      "qs-esm",
+      "@emoji-mart/data",
+      "@emoji-mart/react",
+    ],
   }),
 );
