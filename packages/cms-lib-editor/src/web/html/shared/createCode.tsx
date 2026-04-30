@@ -78,7 +78,7 @@ export function createCode(config: CodeThemeConfig) {
           </div>
 
           <div class="code-panel-surface relative">
-            <div class="code-panel-actions absolute right-3 top-4 z-10 flex items-center gap-1">
+            <div class="code-panel-actions absolute right-3 top-2 z-10 flex items-center gap-1">
               {entries.map((entry, i) => (
                 <div
                   key={i}
@@ -127,7 +127,7 @@ export function createCode(config: CodeThemeConfig) {
     return (
       <figure class={config.figureClass}>
         <div class="code-panel-surface relative">
-          <div class="code-panel-actions absolute right-3 top-4 z-10 flex items-center gap-1">
+          <div class="code-panel-actions absolute right-3 top-2 z-10 flex items-center gap-1">
             <span class={config.iconClass} aria-label={`Language ${language}`} title={language}>
               <LanguageIcon language={language} />
             </span>

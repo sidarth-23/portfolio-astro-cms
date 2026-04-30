@@ -37,10 +37,7 @@ export function isUsableSize(s: ImageSize | null): s is UsableImageSize {
   return !!(s?.url && s.width && s.height && s.mimeType && s.filesize && s.filename);
 }
 
-// Shared inline style for the absolutely-positioned image — fills the
-// container while preserving the full image via object-contain.
-export const IMG_STYLE =
-  "position:absolute;inset:0;width:100%;height:100%;object-fit:contain;display:block;";
+export const IMG_STYLE = "width:100%;height:auto;display:block;";
 
 export function ImagePicture({
   doc,

@@ -3,8 +3,7 @@ import { createImageGallery } from "@/web/html/shared/createImageGallery";
 
 export const ImageGallery = createImageGallery({
   slideFrameClass: "",
-  slideFrameStyle:
-    "position:relative;width:100%;aspect-ratio:16/9;background-color:var(--fallback-b2,oklch(var(--b2)));overflow:hidden;",
+  slideFrameStyle: "",
   prevButtonClass:
     "btn btn-circle btn-ghost btn-sm absolute left-3 top-1/2 z-10 -translate-y-1/2 bg-base-300/80 shadow-md backdrop-blur-sm pointer-events-auto",
   nextButtonClass:

@@ -1,5 +1,9 @@
 import type { Block } from "payload";
-import { CODE_BLOCK_LANGUAGE_OPTIONS, CODE_BLOCK_MODE_OPTIONS } from "@/lib/content";
+import {
+  CODE_BLOCK_LANGUAGE_OPTIONS,
+  CODE_BLOCK_LANGUAGES_MAP,
+  CODE_BLOCK_MODE_OPTIONS,
+} from "@/lib/content";
 
 export const CodeBlock: Block = {
   slug: "code",
@@ -31,6 +35,12 @@ export const CodeBlock: Block = {
       admin: {
         condition: (_: unknown, siblingData: Record<string, unknown>) =>
           siblingData?.mode !== "multiple",
+        components: {
+          Field: {
+            clientProps: { languages: CODE_BLOCK_LANGUAGES_MAP },
+            path: "./components/admin/CodeFieldComponent#CodeFieldComponent",
+          },
+        },
       },
     },
     {
@@ -60,6 +70,14 @@ export const CodeBlock: Block = {
           type: "code",
           required: true,
           label: false,
+          admin: {
+            components: {
+              Field: {
+                clientProps: { languages: CODE_BLOCK_LANGUAGES_MAP },
+                path: "./components/admin/CodeFieldComponent#CodeFieldComponent",
+              },
+            },
+          },
         },
       ],
     },

@@ -15,20 +15,8 @@
   color: inherit;
 }
 
-.code-block-caption::before {
-  content: "Code " counter(code-figure);
-  font-weight: 700;
-  letter-spacing: 0.01em;
-  color: color-mix(in srgb, currentColor 82%, transparent);
-}
-
-.code-block-caption.has-caption::before {
-  content: "Code " counter(code-figure) ":";
-  margin-right: 0.45rem;
-}
-
 .code-block-caption.no-caption {
-  color: color-mix(in srgb, currentColor 70%, transparent);
+  display: none;
 }
 
 .code-block-caption-text {
@@ -66,7 +54,7 @@
 }
 
 .code-panel-with-actions pre {
-  padding-top: 2.25rem;
+  padding-top: 2rem;
   padding-right: 4.5rem;
 }
 

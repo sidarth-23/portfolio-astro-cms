@@ -413,6 +413,82 @@ export const initImageGallery = (root: ParentNode = document): (() => void) => {
   };
 };
 
+export const initImageLightbox = (root: ParentNode = document): (() => void) => {
+  const MODAL_ID = "image-lightbox-modal";
+
+  let modal = document.getElementById(MODAL_ID) as HTMLDialogElement | null;
+  if (!modal) {
+    const el = document.createElement("dialog");
+    el.id = MODAL_ID;
+    el.className = "modal";
+    el.innerHTML = `
+      <div class="modal-box" style="max-width:90vw;width:100%;padding:1rem;background-color:var(--fallback-b3,oklch(var(--b3)/1));position:relative;display:flex;flex-direction:column;gap:0.75rem;align-items:center;">
+        <form method="dialog" style="position:absolute;right:0.75rem;top:0.75rem;z-index:10;">
+          <button type="submit" class="btn btn-sm btn-circle btn-ghost" aria-label="Close">✕</button>
+        </form>
+        <img data-lightbox-img src="" alt="" style="max-height:82vh;max-width:100%;object-fit:contain;border-radius:0.5rem;display:block;" />
+        <p data-lightbox-caption style="font-size:0.875rem;text-align:center;color:color-mix(in srgb,currentColor 65%,transparent);padding:0 2rem;margin:0;display:none;"></p>
+      </div>
+      <form method="dialog" class="modal-backdrop">
+        <button>close</button>
+      </form>
+    `;
+    document.body.appendChild(el);
+    modal = el;
+  }
+
+  const imgEl = modal.querySelector("[data-lightbox-img]") as HTMLImageElement | null;
+  const captionEl = modal.querySelector("[data-lightbox-caption]") as HTMLElement | null;
+
+  const openLightbox = (src: string, alt: string, captionHtml: string) => {
+    if (!imgEl || !captionEl || !modal) return;
+    imgEl.src = src;
+    imgEl.alt = alt;
+    captionEl.innerHTML = captionHtml;
+    captionEl.style.display = captionHtml ? "block" : "none";
+    (modal as HTMLDialogElement).showModal();
+  };
+
+  const makeImagesClickable = () => {
+    root.querySelectorAll(".image-figure, .image-gallery-slide").forEach((el) => {
+      if (el instanceof HTMLElement) {
+        el.style.cursor = "zoom-in";
+      }
+    });
+  };
+
+  const clickHandler = (event: Event) => {
+    const target = event.target;
+    if (!(target instanceof Element)) return;
+    if (target.closest("[data-gallery-prev], [data-gallery-next]")) return;
+
+    const container = target.closest<HTMLElement>(".image-figure, .image-gallery-slide");
+    if (!container) return;
+
+    const img = container.querySelector("img");
+    if (!(img instanceof HTMLImageElement) || !img.src) return;
+
+    let captionHtml = "";
+    if (container.classList.contains("image-gallery-slide")) {
+      const slideCaption = container.querySelector("[data-gallery-slide-caption]");
+      captionHtml = slideCaption?.innerHTML?.trim() ?? "";
+    } else {
+      const figure = container.closest("figure");
+      const figcaption = figure?.querySelector("figcaption.has-caption");
+      captionHtml = figcaption?.innerHTML?.trim() ?? "";
+    }
+
+    openLightbox(img.src, img.alt ?? "", captionHtml);
+  };
+
+  makeImagesClickable();
+  document.addEventListener("click", clickHandler);
+
+  return () => {
+    document.removeEventListener("click", clickHandler);
+  };
+};
+
 export const initTableOfContents = (options: InitTableOfContentsOptions = {}): (() => void) => {
   const {
     root = document,

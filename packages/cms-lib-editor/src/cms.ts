@@ -391,6 +391,14 @@ const createCodeBlock = (): Block => ({
           type: "code",
           required: true,
           label: false,
+          admin: {
+            components: {
+              Field: {
+                clientProps: { languages: CODE_BLOCK_LANGUAGES },
+                path: "./components/admin/CodeFieldComponent#CodeFieldComponent",
+              },
+            },
+          },
         },
       ],
     },

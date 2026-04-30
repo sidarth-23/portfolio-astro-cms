@@ -24,3 +24,7 @@ export const CODE_BLOCK_LANGUAGE_OPTIONS = defineOptions([
 ]);
 
 export type CodeBlockLanguage = (typeof CODE_BLOCK_LANGUAGE_OPTIONS)[number]["value"];
+
+export const CODE_BLOCK_LANGUAGES_MAP: Record<string, string> = Object.fromEntries(
+  CODE_BLOCK_LANGUAGE_OPTIONS.map(({ value, label }) => [value, label]),
+);

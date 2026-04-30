@@ -2,8 +2,8 @@
 import { createImageGallery } from "@/web/html/shared/createImageGallery";
 
 export const ImageGallery = createImageGallery({
-  slideFrameClass: "relative w-full overflow-hidden bg-gray-100 dark:bg-gray-800",
-  slideFrameStyle: "aspect-ratio:16/9;",
+  slideFrameClass: "",
+  slideFrameStyle: "",
   prevButtonClass:
     "absolute left-3 top-1/2 z-10 -translate-y-1/2 flex items-center justify-center w-8 h-8 rounded-full bg-white/80 dark:bg-gray-900/80 shadow-md backdrop-blur-sm text-gray-700 dark:text-gray-200 hover:bg-white dark:hover:bg-gray-900 pointer-events-auto",
   nextButtonClass:

@@ -1,14 +1,19 @@
-'use client';
+"use client";
 
-import { CodeField, useFormFields } from '@payloadcms/ui';
-import React, { useId, useMemo } from 'react';
-import type { CodeFieldClient, CodeFieldValidation, RenderedField, SanitizedFieldPermissions } from 'payload';
+import { CodeField, useFormFields } from "@payloadcms/ui";
+import React, { useId, useMemo } from "react";
+import type {
+  CodeFieldClient,
+  CodeFieldValidation,
+  RenderedField,
+  SanitizedFieldPermissions,
+} from "payload";
 
 type Languages = Record<string, string>;
 
 type Props = {
   autoComplete?: string;
-  field: Omit<CodeFieldClient, 'type'> & Partial<Pick<CodeFieldClient, 'type'>>;
+  field: Omit<CodeFieldClient, "type"> & Partial<Pick<CodeFieldClient, "type">>;
   forceRender?: boolean;
   languages?: Languages;
   path: string;
@@ -39,21 +44,22 @@ export function CodeFieldComponent({
   typescript,
   validate,
 }: Props) {
-  const languageField = useFormFields(([fields]) => fields['language']);
-  const language = (languageField?.value ?? languageField?.initialValue ?? 'typescript') as string;
+  const languagePath = path.replace(/[^.]+$/, "language");
+  const languageField = useFormFields(([fields]) => fields[languagePath]);
+  const language = (languageField?.value ?? languageField?.initialValue ?? "typescript") as string;
   const instanceId = useId();
   const label = languages?.[language];
 
   const props = useMemo(
     () => ({
       ...field,
-      type: 'code' as const,
+      type: "code" as const,
       admin: {
         ...field.admin,
         editorOptions: {},
         editorProps: {
           // Fix for Payload bug: original only checks language === 'ts', but the value is 'typescript'
-          defaultPath: ['ts', 'typescript', 'tsx'].includes(language)
+          defaultPath: ["ts", "typescript", "tsx"].includes(language)
             ? `file-${field.name}-${instanceId}.tsx`
             : undefined,
         },
@@ -73,15 +79,15 @@ export function CodeFieldComponent({
         field={props}
         forceRender={forceRender}
         onMount={(_editor, monaco) => {
-          monaco.editor.defineTheme('vs-dark', {
-            base: 'vs-dark',
-            colors: { 'editor.background': '#222222' },
+          monaco.editor.defineTheme("vs-dark", {
+            base: "vs-dark",
+            colors: { "editor.background": "#222222" },
             inherit: true,
             rules: [],
           });
-          monaco.editor.defineTheme('vs', {
-            base: 'vs',
-            colors: { 'editor.background': '#f5f5f5' },
+          monaco.editor.defineTheme("vs", {
+            base: "vs",
+            colors: { "editor.background": "#f5f5f5" },
             inherit: true,
             rules: [],
           });
@@ -94,9 +100,9 @@ export function CodeFieldComponent({
             moduleResolution: monaco.languages.typescript.ModuleResolutionKind.NodeJs,
             noEmit: true,
             paths: typescript?.paths,
-            reactNamespace: 'React',
-            target: monaco.languages.typescript.ScriptTarget[typescript?.target ?? 'ESNext'],
-            typeRoots: typescript?.typeRoots ?? ['node_modules/@types'],
+            reactNamespace: "React",
+            target: monaco.languages.typescript.ScriptTarget[typescript?.target ?? "ESNext"],
+            typeRoots: typescript?.typeRoots ?? ["node_modules/@types"],
           });
           monaco.languages.typescript.typescriptDefaults.setDiagnosticsOptions({
             noSemanticValidation: typescript?.enableSemanticValidation ? false : true,

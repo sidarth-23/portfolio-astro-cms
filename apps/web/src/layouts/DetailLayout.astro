@@ -163,12 +163,14 @@ const hasHeroTopSlot = Astro.slots.has("heroTop");
     import {
       initCodeBlocks,
       initImageGallery,
+      initImageLightbox,
       initTableOfContents,
     } from "@sidshub/cms-lib-editor/web/html/client";
 
     const DETAIL_TOC_DRAWER_ID = "detail-toc-drawer";
     let cleanupCodeBlocks = () => {};
     let cleanupImageGallery = () => {};
+    let cleanupImageLightbox = () => {};
     let cleanupTableOfContents = () => {};
 
     const initializeCodeBlocks = () => {
@@ -179,6 +181,11 @@ const hasHeroTopSlot = Astro.slots.has("heroTop");
     const initializeImageGallery = () => {
       cleanupImageGallery();
       cleanupImageGallery = initImageGallery();
+    };
+
+    const initializeLightbox = () => {
+      cleanupImageLightbox();
+      cleanupImageLightbox = initImageLightbox();
     };
 
     const initializeTableOfContents = () => {
@@ -195,6 +202,7 @@ const hasHeroTopSlot = Astro.slots.has("heroTop");
 
     initializeCodeBlocks();
     initializeImageGallery();
+    initializeLightbox();
     initializeTableOfContents();
 
     if (!document.documentElement.dataset.codeBlockPageLoadBound) {
@@ -205,6 +213,11 @@ const hasHeroTopSlot = Astro.slots.has("heroTop");
     if (!document.documentElement.dataset.imageGalleryPageLoadBound) {
       document.addEventListener("astro:page-load", initializeImageGallery);
       document.documentElement.dataset.imageGalleryPageLoadBound = "true";
+    }
+
+    if (!document.documentElement.dataset.imageLightboxPageLoadBound) {
+      document.addEventListener("astro:page-load", initializeLightbox);
+      document.documentElement.dataset.imageLightboxPageLoadBound = "true";
     }
 
     if (!document.documentElement.dataset.detailTocPageLoadBound) {
