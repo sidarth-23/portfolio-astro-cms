@@ -8,12 +8,13 @@ const menuItems = [
   { id: "cv", href: "/cv", label: "Resume", Icon: PhFileText },
 ] as const;
 
-const linkClass = "py-3 text-base flex items-center gap-4";
+const linkClass =
+  "py-3 text-base flex items-center gap-4 lg:is-drawer-close:justify-center lg:is-drawer-close:px-0";
 const labelClass = "inline-block whitespace-nowrap overflow-hidden is-drawer-close:hidden";
 const activeClass = "is-active";
 ---
 
-<ul id="sidebar-menu" class="menu grow shrink menu-md overflow-y-auto w-full">
+<ul id="sidebar-menu" class="menu grow shrink menu-md overflow-y-auto overflow-x-hidden w-full">
   {
     menuItems.map(({ id, href, label, Icon }) => (
       <li>

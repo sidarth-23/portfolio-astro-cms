@@ -9,19 +9,19 @@ const { items = [] }: Props = Astro.props;
 ---
 
 <div
-  class="block sticky pointer-events-none bottom-10 bg-base-200 justify-center h-12 [mask-image:linear-gradient(transparent,#000000)]"
+  class="block sticky pointer-events-none bottom-10 bg-base-200 justify-center h-12 [mask-image:linear-gradient(transparent,#000000)] is-drawer-close:hidden"
 >
 </div>
 
 {
   items.length > 0 && (
-    <div class="social-icons px-4 pb-5 pt-1 flex flex-wrap gap-4 self-center justify-center sticky bottom-0 bg-base-200">
+    <div class="social-icons px-4 pb-5 pt-1 flex flex-wrap gap-4 self-center justify-center sticky bottom-0 bg-base-200 lg:is-drawer-close:flex-col lg:is-drawer-close:items-center lg:is-drawer-close:px-0 lg:is-drawer-close:gap-4 transition-[gap,padding] duration-300">
       {items.map((item) => (
         <a
           href={item.url}
           target={item.newTab ? "_blank" : undefined}
           rel={item.newTab ? "noreferrer noopener" : undefined}
-          class="mx-3 hover:text-primary transition-colors"
+          class="mx-3 hover:text-primary transition-all duration-300 lg:is-drawer-close:mx-0"
           aria-label={item.label}
           title={item.label}
         >

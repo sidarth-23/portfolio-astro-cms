@@ -20,12 +20,16 @@ const { profileImage, resumeDownloadUrl, footerItems = [], name, role }: Props =
   <label for="my-drawer" aria-label="close sidebar" class="drawer-overlay"></label>
   <aside
     id="sidebar"
-    class="px-2 pt-2 h-auto min-h-full bg-base-200 text-base-content flex flex-col relative transition-[width,opacity,padding] duration-300 ease-in-out is-drawer-open:w-[19rem] is-drawer-close:w-0 is-drawer-close:overflow-hidden is-drawer-close:px-0 is-drawer-close:opacity-0"
+    class="px-2 pt-2 h-auto min-h-full bg-base-200 text-base-content flex flex-col relative transition-[width,opacity,padding] duration-300 ease-in-out is-drawer-open:w-[19rem] is-drawer-close:w-0 is-drawer-close:overflow-hidden is-drawer-close:px-0 is-drawer-close:opacity-0 lg:is-drawer-close:w-20 lg:is-drawer-close:opacity-100 lg:is-drawer-close:px-2"
   >
-    <div class="w-fit mx-auto mt-5 mb-3">
+    <div
+      class="w-fit mx-auto mt-5 mb-3 lg:is-drawer-close:mt-3 lg:is-drawer-close:mb-1 transition-[margin] duration-300"
+    >
       <a href="/">
         <div class="avatar transition ease-in-out hover:scale-[102%] block m-auto">
-          <div class="w-[8.5rem]">
+          <div
+            class="w-[8.5rem] transition-[width] duration-300 ease-in-out lg:is-drawer-close:w-10"
+          >
             {
               profileImage ? (
                 <img
@@ -50,42 +54,63 @@ const { profileImage, resumeDownloadUrl, footerItems = [], name, role }: Props =
       <p class="text-lg font-bold text-base-content">{name}</p>
       <p class="text-[13px] text-base-content/70">{role}</p>
     </div>
-    <div class="divider my-1 mx-4 is-drawer-close:hidden"></div>
+    <div
+      class="divider my-1 mx-4 is-drawer-close:hidden lg:is-drawer-close:flex lg:is-drawer-close:mx-1 transition-[margin] duration-300"
+    >
+    </div>
 
     <SideBarMenu />
 
-    <div class="mt-auto flex flex-col gap-4 mb-6">
-      {
-        resumeDownloadUrl && (
-          <div class="px-4 overflow-hidden">
-            <a
-              href={resumeDownloadUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              class="btn btn-outline btn-block gap-2"
-            >
-              <PhFileText size={20} />
-              <span class="whitespace-nowrap overflow-hidden is-drawer-close:hidden">
-                Download My CV
-              </span>
-            </a>
-          </div>
-        )
-      }
+    {
+      resumeDownloadUrl && (
+        <div class="mt-auto mb-4 px-4 overflow-hidden lg:is-drawer-close:px-1 transition-[padding] duration-300">
+          <a
+            href={resumeDownloadUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            class="btn btn-outline btn-block gap-2"
+          >
+            <PhFileText size={20} />
+            <span class="whitespace-nowrap overflow-hidden is-drawer-close:hidden">
+              Download My CV
+            </span>
+          </a>
+        </div>
+      )
+    }
+    <div class="flex flex-col gap-4 mb-6 lg:is-drawer-close:mb-3 transition-[margin] duration-300">
       <SideBarFooter items={footerItems} />
     </div>
   </aside>
 </div>
 
 <script is:inline>
+  const STORAGE_KEY = "sidebar-expanded";
+
   const initSidebar = () => {
     const sidebar = document.getElementById("sidebar");
     const checkbox = document.getElementById("my-drawer");
     if (!(checkbox instanceof HTMLInputElement) || !sidebar) return;
 
     sidebar.style.transition = "none";
-    const isDesktop = window.matchMedia("(min-width: 1024px)").matches;
-    checkbox.checked = isDesktop;
+
+    if (!document.documentElement.dataset.sidebarInitialized) {
+      const isDesktop = window.matchMedia("(min-width: 1024px)").matches;
+      if (isDesktop) {
+        const saved = localStorage.getItem(STORAGE_KEY);
+        checkbox.checked = saved !== "false";
+      } else {
+        checkbox.checked = false;
+      }
+      document.documentElement.dataset.sidebarInitialized = "true";
+
+      checkbox.addEventListener("change", () => {
+        if (window.matchMedia("(min-width: 1024px)").matches) {
+          localStorage.setItem(STORAGE_KEY, String(checkbox.checked));
+        }
+      });
+    }
+
     void sidebar.offsetHeight;
     sidebar.style.transition = "";
   };
