@@ -9,3 +9,11 @@ export const PAGE_ROUTE_OPTIONS = defineOptions([
 ]);
 
 export type PageRoute = (typeof PAGE_ROUTE_OPTIONS)[number]["value"];
+
+export const PAGE_ROUTE_MAP: Record<PageRoute, string> = {
+  home: "/",
+  blog: "/blog",
+  projects: "/projects",
+  cv: "/cv",
+  rss: "/rss.xml",
+};

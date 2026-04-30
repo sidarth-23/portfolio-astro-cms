@@ -1,11 +1,10 @@
 ---
 import EntryHeader from "@/components/EntryHeader.astro";
 import DetailLayout from "@/layouts/DetailLayout.astro";
-import { resolveIconSvg } from "@sidshub/cms-lib-icons";
 import type { TableOfContentsItem } from "@sidshub/cms-lib-editor/web/html";
-import type { ProjectLink } from "@sidshub/cms-core/client";
 import type { Media } from "@sidshub/cms-core/payload-types";
 import type { TagInfo } from "@/lib/cms";
+import type { ResolvedLink } from "@/lib/types";
 
 type Props = {
   title: string;
@@ -17,7 +16,7 @@ type Props = {
   heroMedia?: Media | string | number | null;
   tags?: TagInfo[];
   badges?: string[];
-  links?: ProjectLink[];
+  links?: ResolvedLink[];
   toc?: TableOfContentsItem[];
   backHref?: string;
   backLabel?: string;
@@ -57,24 +56,6 @@ const formattedUpdatedDate = new Intl.DateTimeFormat("en-US", {
   month: "short",
   day: "numeric",
 }).format(new Date(updatedAt));
-const resolvedLinks = (
-  await Promise.all(
-    links.map(async (link) => {
-      const iconData = resolveIconSvg(link.icon);
-      if (!iconData) {
-        return null;
-      }
-
-      return {
-        ...link,
-        iconData,
-      };
-    }),
-  )
-).filter(
-  (entry): entry is ProjectLink & { iconData: NonNullable<ReturnType<typeof resolveIconSvg>> } =>
-    entry !== null,
-);
 ---
 
 <DetailLayout
@@ -104,28 +85,25 @@ const resolvedLinks = (
 
     <Fragment slot="titleActions">
       {
-        resolvedLinks.map((link) => {
-          const { iconData } = link;
-          return (
-            <a
-              href={link.url}
-              target={link.newTab ? "_blank" : undefined}
-              rel={link.newTab ? "noopener noreferrer" : undefined}
-              class="inline-flex h-9 w-9 items-center justify-center rounded-full border border-base-content/15 bg-base-200/40 text-base-content/60 transition-colors hover:text-base-content"
-              aria-label={iconData.label}
-              title={iconData.label}
-            >
-              <svg
-                viewBox={iconData.viewBox}
-                width={16}
-                height={16}
-                aria-hidden="true"
-                class="h-4 w-4 fill-current stroke-current"
-                set:html={iconData.innerSvg}
-              />
-            </a>
-          );
-        })
+        links.map((link) => (
+          <a
+            href={link.url}
+            target={link.newTab ? "_blank" : undefined}
+            rel={link.newTab ? "noopener noreferrer" : undefined}
+            class="inline-flex h-9 w-9 items-center justify-center rounded-full border border-base-content/15 bg-base-200/40 text-base-content/60 transition-colors hover:text-base-content"
+            aria-label={link.label}
+            title={link.label}
+          >
+            <svg
+              viewBox={link.viewBox}
+              width={16}
+              height={16}
+              aria-hidden="true"
+              class="h-4 w-4 fill-current stroke-current"
+              set:html={link.innerSvg}
+            />
+          </a>
+        ))
       }
     </Fragment>
 

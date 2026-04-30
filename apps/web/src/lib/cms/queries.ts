@@ -13,10 +13,9 @@ import type {
   SeriesPage,
   SiteSetting,
 } from "@sidshub/cms-core/payload-types";
-import type { CmsTransport } from "@sidshub/cms-core/client";
+import type { CmsTransport, RelationID } from "@sidshub/cms-core/client";
+import { isRelationID } from "@sidshub/cms-core/client";
 import type { PaginatedPosts, PostFilterOptions, PublishedPostsQueryOptions } from "./types";
-
-type RelationID = number | string;
 
 type TaxonomyDoc = {
   id: RelationID;
@@ -26,10 +25,6 @@ type TaxonomyDoc = {
 type SeriesLookupDoc = TaxonomyDoc & Pick<Series, "posts">;
 
 const NO_MATCHING_POSTS_ID = "__no_matching_posts__";
-
-const isRelationID = (value: unknown): value is RelationID => {
-  return typeof value === "number" || typeof value === "string";
-};
 
 const toTrimmedString = (value: unknown): string | undefined => {
   if (typeof value !== "string") {

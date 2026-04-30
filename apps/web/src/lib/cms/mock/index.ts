@@ -43,6 +43,8 @@ const matchesCondition = (doc: unknown, where: unknown): boolean => {
     const value = getNestedValue(doc, field);
 
     if ("equals" in cond && value !== cond.equals) return false;
+    if ("in" in cond && Array.isArray(cond.in) && !(cond.in as unknown[]).includes(value))
+      return false;
     if ("like" in cond) {
       const str = typeof value === "string" ? value.toLowerCase() : "";
       if (!str.includes(String(cond.like).toLowerCase())) return false;

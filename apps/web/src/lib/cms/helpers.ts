@@ -1,4 +1,5 @@
 import type {
+  CvPage,
   HomePage,
   Media,
   Post,
@@ -7,17 +8,19 @@ import type {
   SiteSetting,
   User,
 } from "@sidshub/cms-core/payload-types";
-import type { CmsTransport } from "@sidshub/cms-core/client";
-import { asCategory, asPopulatedAuthors, asSeries, asUserArray } from "@sidshub/cms-core/client";
-import type { PopulatedAuthor, ProjectLink, SiteFooterItem } from "@sidshub/cms-core/client";
-import { createSlug } from "@sidshub/cms-core/content";
+import { resolveIconSvg } from "@sidshub/cms-lib-icons";
+import type { CmsTransport, RelationID } from "@sidshub/cms-core/client";
+import {
+  asCategory,
+  asPopulatedAuthors,
+  asSeries,
+  asUserArray,
+  isRelationID,
+} from "@sidshub/cms-core/client";
+import type { PopulatedAuthor } from "@sidshub/cms-core/client";
+import { createSlug, PAGE_ROUTE_MAP } from "@sidshub/cms-core/content";
+import type { ResolvedLink } from "@/lib/types";
 import type { HomeCtaButton, TagInfo, CategoryInfo, SeriesInfo } from "./types";
-
-type RelationID = number | string;
-
-const isRelationID = (value: unknown): value is RelationID => {
-  return typeof value === "number" || typeof value === "string";
-};
 
 const toTrimmedString = (value: unknown): string | undefined => {
   if (typeof value !== "string") return undefined;
@@ -47,14 +50,6 @@ const isSeries = (value: RelationID | Series | null | undefined): value is Serie
   return typeof value === "object" && value !== null;
 };
 
-const PAGE_ROUTES: Record<string, string> = {
-  home: "/",
-  blog: "/blog",
-  projects: "/projects",
-  cv: "/cv",
-  rss: "/rss.xml",
-};
-
 type LinkReference =
   | { relationTo: string; value: RelationID | Post | Project | Series | null | undefined }
   | RelationID
@@ -66,6 +61,21 @@ type LinkShape = {
   url?: string | null;
   page?: string | null;
   reference?: LinkReference;
+};
+
+type CvSection = CvPage["sections"][number];
+type CvItem = NonNullable<CvSection["items"]>[number];
+
+export type ResolvedCvBadgeGroup = {
+  title: string;
+  badges: Array<{ value: string; iconData: ReturnType<typeof resolveIconSvg> }>;
+};
+
+const formatCvMonth = (dateStr: string | null | undefined): string | null => {
+  if (!dateStr) return null;
+  const date = new Date(dateStr);
+  if (Number.isNaN(date.getTime())) return dateStr;
+  return new Intl.DateTimeFormat("en-US", { month: "short", year: "numeric" }).format(date);
 };
 
 export function createCmsHelpers(
@@ -110,7 +120,7 @@ export function createCmsHelpers(
     if (type === "page") {
       const page = toTrimmedString(link.page);
       if (!page) return undefined;
-      const route = PAGE_ROUTES[page];
+      const route = PAGE_ROUTE_MAP[page as keyof typeof PAGE_ROUTE_MAP];
       return route ? toAbsolutePageUrl(route) : undefined;
     }
 
@@ -192,25 +202,29 @@ export function createCmsHelpers(
       });
     },
 
-    linksFromProject: (project: Project): ProjectLink[] => {
+    linksFromProject: (project: Project): ResolvedLink[] => {
       if (!Array.isArray(project.links)) return [];
       return project.links.flatMap((link) => {
         const icon = toTrimmedString(link.icon as string | undefined);
         if (!icon) return [];
         const url = resolveLinkUrl(link);
         if (!url) return [];
-        return [{ icon, url, newTab: link.newTab === true }];
+        const iconData = resolveIconSvg(icon);
+        if (!iconData) return [];
+        return [{ url, newTab: link.newTab === true, ...iconData }];
       });
     },
 
-    footerItemsFromSiteSettings: (siteSettings: SiteSetting): SiteFooterItem[] => {
+    footerItemsFromSiteSettings: (siteSettings: SiteSetting): ResolvedLink[] => {
       if (!Array.isArray(siteSettings.sidebarFooterItems)) return [];
       return siteSettings.sidebarFooterItems.flatMap((item) => {
         const icon = toTrimmedString(item?.icon);
         if (!icon) return [];
         const url = resolveLinkUrl(item);
         if (!url) return [];
-        return [{ icon, url, newTab: item?.newTab === true }];
+        const iconData = resolveIconSvg(icon);
+        if (!iconData) return [];
+        return [{ url, newTab: item?.newTab === true, ...iconData }];
       });
     },
 
@@ -218,6 +232,32 @@ export function createCmsHelpers(
       const populatedAuthors = asPopulatedAuthors(post.populatedAuthors);
       if (populatedAuthors.length > 0) return populatedAuthors;
       return asUserArray(post.authors);
+    },
+
+    subtitleFromCvItem: (item: CvItem): string => {
+      if (item.itemType === "organizationRole") {
+        const start = formatCvMonth(item.startMonth);
+        const end = item.currentlyWorkingHere ? "Current" : formatCvMonth(item.endMonth);
+        return [[start, end].filter(Boolean).join(" - "), item.organization, item.location]
+          .filter(Boolean)
+          .join(" | ");
+      }
+      if (item.itemType === "generic" || !item.itemType) {
+        return item.subtitle ?? "";
+      }
+      return "";
+    },
+
+    resolvedBadgeGroupsFromCvSection: (section: CvSection): ResolvedCvBadgeGroup[] => {
+      return (section.badgeGroups ?? []).map((group) => ({
+        title: group.title,
+        badges: (group.badges ?? [])
+          .filter((badge) => Boolean(badge.value))
+          .map((badge) => ({
+            value: badge.value,
+            iconData: badge.icon ? resolveIconSvg(badge.icon) : null,
+          })),
+      }));
     },
   };
 }

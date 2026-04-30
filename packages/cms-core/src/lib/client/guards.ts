@@ -1,6 +1,11 @@
 import type { Category, Media, Post, Project, ProjectsPage, Series, User } from "@/payload-types";
 import type { PopulatedAuthor, RelationValue, SiteFooterItem } from "./types";
 
+export type RelationID = number | string;
+
+export const isRelationID = (value: unknown): value is RelationID =>
+  typeof value === "number" || typeof value === "string";
+
 export const isObjectRelation = <T extends object>(value: RelationValue<T>): value is T => {
   return typeof value === "object" && value !== null;
 };

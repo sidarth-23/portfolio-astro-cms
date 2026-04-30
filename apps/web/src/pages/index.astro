@@ -4,7 +4,6 @@ import type { HomePage, SiteSetting } from "@sidshub/cms-core/payload-types";
 import BaseLayout from "@/layouts/BaseLayout.astro";
 import HorizontalCard from "@/components/HorizontalCard.astro";
 import { cmsClient } from "@/lib/cms";
-import { resolveLinks } from "@/lib/utils";
 
 const [homePage, siteSettings]: [HomePage, SiteSetting] = await Promise.all([
   cmsClient.getHomePage(),
@@ -102,7 +101,7 @@ const featuredSections = homePage.featuredSections ?? [];
                     url={"/projects/" + project.slug}
                     badges={cmsClient.badgesFromProject(project)}
                     tags={cmsClient.tagsFromProject(project)}
-                    links={resolveLinks(cmsClient.linksFromProject(project))}
+                    links={cmsClient.linksFromProject(project)}
                   />
                   <div class="divider my-0" />
                 </>

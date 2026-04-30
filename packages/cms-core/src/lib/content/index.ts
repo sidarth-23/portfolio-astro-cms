@@ -8,7 +8,7 @@ export {
 } from "./options/cv";
 export { HOME_CTA_VARIANT_OPTIONS } from "./options/home";
 export { LINK_TYPE_OPTIONS } from "./options/link";
-export { PAGE_ROUTE_OPTIONS } from "./options/page";
+export { PAGE_ROUTE_OPTIONS, PAGE_ROUTE_MAP } from "./options/page";
 export { RESUME_URL_TYPE_OPTIONS } from "./options/resume";
 
 export type { CalloutVariantProfile } from "./options/callout";

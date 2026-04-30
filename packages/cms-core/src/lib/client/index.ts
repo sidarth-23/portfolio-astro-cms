@@ -7,7 +7,10 @@ export {
   asSiteFooterItems,
   asUserArray,
   isObjectRelation,
+  isRelationID,
 } from "./guards";
+
+export type { RelationID } from "./guards";
 
 export type { PopulatedAuthor, ProjectLink, RelationValue, SiteFooterItem } from "./types";
 
