@@ -11,16 +11,31 @@ export type PreDeployHook = {
 
 type DeployConfig = { webhookUrl: string; branch: string; preDeploy?: PreDeployHook };
 
+const COOLDOWN_MS = 60_000;
+
 const buildBodySnippet = (body: string): string => {
   return body.replace(/\s+/g, " ").trim().slice(0, 240);
 };
 
 export function createTriggerDeployment(config?: DeployConfig) {
+  let lastTriggerAt = 0;
+
   return async (logger: Logger, meta: TriggerMeta): Promise<void> => {
     if (!config) {
       logger.error({
         message:
           "Deployment trigger is not configured. Missing WEB_DEPLOY_WEBHOOK_URL or WEB_DEPLOY_BRANCH.",
+        ...meta,
+      });
+      return;
+    }
+
+    const now = Date.now();
+    if (now - lastTriggerAt < COOLDOWN_MS) {
+      logger.info({
+        message: "Skipping deployment trigger — within cooldown window",
+        cooldownMs: COOLDOWN_MS,
+        secondsSinceLast: Math.round((now - lastTriggerAt) / 1000),
         ...meta,
       });
       return;
@@ -63,6 +78,7 @@ export function createTriggerDeployment(config?: DeployConfig) {
         return;
       }
 
+      lastTriggerAt = Date.now();
       logger.info({
         message: "Triggered web deployment webhook",
         status: response.status,

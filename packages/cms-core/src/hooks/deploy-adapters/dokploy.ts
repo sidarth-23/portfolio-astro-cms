@@ -13,6 +13,24 @@ type DokployComposeResponse = {
 export function createDokployPreDeployHook(config: DokployPreDeployConfig): PreDeployHook {
   return {
     async bustBuildCache(logger: Logger, meta) {
+      if (!config.apiUrl || !config.apiKey || !config.composeId) {
+        logger.error({
+          message:
+            "Dokploy pre-deploy hook is misconfigured — missing apiUrl, apiKey, or composeId",
+          hasApiUrl: Boolean(config.apiUrl),
+          hasApiKey: Boolean(config.apiKey),
+          hasComposeId: Boolean(config.composeId),
+          ...meta,
+        });
+        return;
+      }
+
+      logger.info({
+        message: "Dokploy pre-deploy: busting build cache",
+        composeId: config.composeId,
+        ...meta,
+      });
+
       const normalizedApiUrl = config.apiUrl.replace(/\/$/, "");
 
       let currentEnv: string;
@@ -26,10 +44,12 @@ export function createDokployPreDeployHook(config: DokployPreDeployConfig): PreD
         );
 
         if (!getResponse.ok) {
+          const body = await getResponse.text().catch(() => "(unreadable)");
           logger.error({
             message: "Failed to read compose env from Dokploy",
             status: getResponse.status,
             statusText: getResponse.statusText,
+            bodySnippet: body.slice(0, 240),
             ...meta,
           });
           return;
@@ -55,7 +75,7 @@ export function createDokployPreDeployHook(config: DokployPreDeployConfig): PreD
       const updatedEnv = updatedLines.join("\n");
 
       try {
-        const saveResponse = await fetch(`${normalizedApiUrl}/api/compose.saveEnvironment`, {
+        const saveResponse = await fetch(`${normalizedApiUrl}/api/compose.update`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -66,10 +86,12 @@ export function createDokployPreDeployHook(config: DokployPreDeployConfig): PreD
         });
 
         if (!saveResponse.ok) {
+          const body = await saveResponse.text().catch(() => "(unreadable)");
           logger.error({
             message: "Failed to save CACHE_BUST to Dokploy compose env",
             status: saveResponse.status,
             statusText: saveResponse.statusText,
+            bodySnippet: body.slice(0, 240),
             ...meta,
           });
           return;

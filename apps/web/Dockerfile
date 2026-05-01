@@ -27,7 +27,7 @@ ENV ASTRO_CMS_READ_TOKEN=${ASTRO_CMS_READ_TOKEN}
 # Changing this value busts the Docker layer cache for this stage only (base/pruner/deps stay cached).
 # Updated automatically by the CMS deploy hook on content changes via the Dokploy API.
 ARG CACHE_BUST
-RUN bunx turbo run build --filter=@sidshub/web
+RUN echo "cache-bust: ${CACHE_BUST}" && bunx turbo run build --filter=@sidshub/web
 
 # Runtime stage (Bun alpine, non-root)
 FROM oven/bun:1.3.6-alpine AS runtime
