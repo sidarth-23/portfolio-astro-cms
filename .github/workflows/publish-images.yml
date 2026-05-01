@@ -1,0 +1,133 @@
+name: Publish Images
+
+on:
+  push:
+    branches:
+      - main
+      - staging
+  workflow_dispatch:
+
+concurrency:
+  group: publish-images-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: write # Required to push the tag back to the repo
+  packages: write
+
+jobs:
+  changes:
+    runs-on: ubuntu-latest
+    outputs:
+      cms: ${{ steps.filter.outputs.cms }}
+    steps:
+      - uses: actions/checkout@v4
+      - id: filter
+        uses: dorny/paths-filter@v3
+        with:
+          filters: |
+            cms:
+              - "apps/cms/**"
+              - "packages/cms-*/**"
+              - "apps/cms/Dockerfile"
+              - ".github/workflows/publish-images.yml"
+
+  publish-cms:
+    needs: changes
+    if: needs.changes.outputs.cms == 'true' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # Required for automated tagging
+
+      - id: prep
+        shell: bash
+        run: |
+          owner="$(echo "${GITHUB_REPOSITORY_OWNER}" | tr '[:upper:]' '[:lower:]')"
+          echo "image=ghcr.io/${owner}/sidshub-cms" >> "$GITHUB_OUTPUT"
+
+      - uses: docker/setup-buildx-action@v3
+
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      # We generate a unique version number here to use as the Tag
+      - name: Generate Version
+        id: versioning
+        run: |
+          VERSION="v1.0.${{ github.run_number }}"
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+
+      - id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ steps.prep.outputs.image }}
+          tags: |
+            type=raw,value=${{ steps.versioning.outputs.version }}
+            type=raw,value=latest,enable=${{ github.ref == 'refs/heads/main' }}
+            type=ref,event=branch
+            type=sha
+
+      - uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: apps/cms/Dockerfile
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      # Update Dokploy's compose env with the new immutable image tag BEFORE pushing
+      # the git tag. Dokploy's "on tag" auto-deploy will then pick up the updated
+      # IMAGE_TAG and pull the correct image instead of serving the cached :latest.
+      # Skipped silently when DOKPLOY_CMS_COMPOSE_ID is not configured.
+      # Required GitHub configuration:
+      #   Repository variable: DOKPLOY_API_URL          — Dokploy server URL
+      #   Repository variable: DOKPLOY_CMS_COMPOSE_ID   — CMS compose app's Dokploy ID
+      #   Repository secret:   DOKPLOY_API_KEY           — API key with compose read/write access
+      - name: Update Dokploy CMS image tag
+        if: vars.DOKPLOY_CMS_COMPOSE_ID != ''
+        env:
+          DOKPLOY_API_URL: ${{ vars.DOKPLOY_API_URL }}
+          DOKPLOY_API_KEY: ${{ secrets.DOKPLOY_API_KEY }}
+          COMPOSE_ID: ${{ vars.DOKPLOY_CMS_COMPOSE_ID }}
+          IMAGE_TAG: ${{ steps.versioning.outputs.version }}
+        run: |
+          set -euo pipefail
+          API="${DOKPLOY_API_URL%/}"
+
+          # Read current compose env
+          CURRENT=$(curl -fsSL \
+            -H "x-api-key: ${DOKPLOY_API_KEY}" \
+            "${API}/api/compose.one?composeId=$(printf '%s' "${COMPOSE_ID}" | jq -sRr @uri)" \
+            | jq -r '.env // ""')
+
+          # Replace or append IMAGE_TAG
+          if echo "$CURRENT" | grep -q '^IMAGE_TAG='; then
+            UPDATED=$(echo "$CURRENT" | sed "s|^IMAGE_TAG=.*|IMAGE_TAG=${IMAGE_TAG}|")
+          else
+            UPDATED="${CURRENT}"$'\n'"IMAGE_TAG=${IMAGE_TAG}"
+          fi
+
+          # Save updated env
+          curl -fsSL -X POST \
+            -H "x-api-key: ${DOKPLOY_API_KEY}" \
+            -H "Content-Type: application/json" \
+            -d "$(jq -n --arg id "$COMPOSE_ID" --arg env "$UPDATED" \
+              '{composeId: $id, env: $env}')" \
+            "${API}/api/compose.saveEnvironment"
+
+          echo "::notice::Updated Dokploy CMS IMAGE_TAG to ${IMAGE_TAG}"
+
+      # ONLY PUSH THE TAG IF THE BUILD SUCCEEDED
+      - name: Push Git Tag
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git tag ${{ steps.versioning.outputs.version }}
+          git push origin ${{ steps.versioning.outputs.version }}

@@ -1,0 +1,20 @@
+@import "tailwindcss";
+@import "@sidshub/cms-lib-editor/web/html/styles.css";
+@source "../../../../packages/lexical/src";
+@source "../../../../node_modules/@sidshub/cms-lib-editor";
+@plugin "@tailwindcss/typography";
+@plugin "daisyui" {
+  themes:
+    emerald --default,
+    night --prefersdark;
+  logs: false;
+}
+
+:root {
+  scrollbar-gutter: stable;
+}
+
+[data-theme="night"] .code-panel .shiki,
+[data-theme="night"] .code-panel .shiki span {
+  color: var(--shiki-dark) !important;
+}

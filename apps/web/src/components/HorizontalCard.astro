@@ -1,0 +1,105 @@
+---
+import type { TagInfo, CategoryInfo, SeriesInfo } from "@/lib/cms";
+import type { ResolvedLink } from "@/lib/types";
+
+type Props = {
+  title: string;
+  img?: string;
+  desc?: string;
+  url: string;
+  badges?: string[];
+  tags?: TagInfo[];
+  category?: CategoryInfo;
+  series?: SeriesInfo;
+  target?: string;
+  reverse?: boolean;
+  links?: ResolvedLink[];
+};
+
+const {
+  title,
+  img,
+  desc = "",
+  url,
+  badges = [],
+  tags = [],
+  category,
+  series,
+  target = "_self",
+  reverse = false,
+  links = [],
+} = Astro.props;
+const contentClass = `hero-content flex-col ${reverse ? "md:flex-row-reverse" : "md:flex-row"} md:gap-8 lg:gap-10 relative z-20 pointer-events-none`;
+const contentBodyClass = "grow w-full space-y-1 relative";
+---
+
+<div
+  class="card transition-colors duration-300 ease-in-out rounded-xl block hover:bg-base-content/5 group relative z-0"
+>
+  <a href={url} target={target} class="absolute inset-0 z-10" aria-label={title}></a>
+  <div class={contentClass}>
+    {
+      img && (
+        <div class="w-full md:w-56 h-40 md:h-40 flex-shrink-0 overflow-hidden rounded-lg">
+          <img
+            src={img}
+            loading="lazy"
+            alt={title}
+            class="w-full h-full object-cover"
+            width={480}
+            height={320}
+          />
+        </div>
+      )
+    }
+    <div class={contentBodyClass}>
+      <div>
+        {category && <span class="badge badge-primary badge-sm mb-1">{category.name}</span>}
+        {series && <span class="badge badge-secondary badge-sm mb-1 ml-1">{series.name}</span>}
+      </div>
+      <div class="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+        <h1
+          class="min-w-0 text-xl font-bold decoration-2 underline-offset-4 flex items-center gap-1.5 flex-wrap"
+        >
+          <span class="group-hover:underline">{title}</span>
+          {badges.map((item) => <div class="badge badge-secondary badge-xs">{item}</div>)}
+        </h1>
+        {
+          links.length > 0 && (
+            <div class="z-20 flex gap-1 pointer-events-auto sm:shrink-0">
+              {links.map((link) => (
+                <a
+                  href={link.url}
+                  target={link.newTab ? "_blank" : undefined}
+                  rel={link.newTab ? "noopener noreferrer" : undefined}
+                  title={link.label}
+                  aria-label={link.label}
+                  class="btn btn-circle btn-sm btn-ghost transition-all duration-300"
+                >
+                  <svg
+                    viewBox={link.viewBox}
+                    width={20}
+                    height={20}
+                    aria-hidden="true"
+                    class="h-5 w-5 fill-current stroke-current"
+                    set:html={link.innerSvg}
+                  />
+                </a>
+              ))}
+            </div>
+          )
+        }
+      </div>
+      {desc && <p class="py-1 text-1xl">{desc}</p>}
+      {
+        tags.length > 0 && (
+          <div class="card-actions justify-end gap-2 mt-2">
+            {tags.map((tag) => (
+              <span class="badge badge-outline badge-sm">{tag.name}</span>
+            ))}
+          </div>
+        )
+      }
+    </div>
+  </div>
+</div>

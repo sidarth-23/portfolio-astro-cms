@@ -1,0 +1,61 @@
+[variables]
+cms_domain = "${domain}"
+payload_secret = "${base64:32}"
+cms_read_token = "${base64:32}"
+s3_access_key = "${password:20}"
+s3_secret_key = "${password:40}"
+
+[[config.domains]]
+serviceName = "nginx"
+port = 80
+host = "${cms_domain}"
+
+[config.env]
+# Image tag — "latest" (stable release), "staging" (staging branch), a semver like "1.2.3", or a SHA for pinned deploys.
+# When the CI auto-deploy step is configured (see below), this is automatically updated to the
+# immutable version tag before each deploy, so Docker is forced to pull the new image.
+IMAGE_TAG = "latest"
+
+# CMS (Payload)
+PAYLOAD_SECRET = "${payload_secret}"
+CMS_READ_TOKEN = "${cms_read_token}"
+PAYLOAD_PUBLIC_SERVER_URL = "http://${cms_domain}"
+
+# Web app site URL — fill after the web app is set up (used by the CMS for CORS/redirects).
+ASTRO_SITE_URL = ""
+
+# Email (Resend) — required, fill before deploying.
+RESEND_API_KEY = ""
+EMAIL_FROM_ADDRESS = ""
+EMAIL_FROM_NAME = ""
+
+# S3 / MinIO
+S3_BUCKET = "sidshub-media"
+S3_REGION = "us-east-1"
+S3_ACCESS_KEY_ID = "${s3_access_key}"
+S3_SECRET_ACCESS_KEY = "${s3_secret_key}"
+
+# Deploy webhook — enable Auto Deploy on the web app in Dokploy, then paste its webhook URL here.
+WEB_DEPLOY_WEBHOOK_URL = ""
+WEB_DEPLOY_BRANCH = "main"
+
+# Deployment Log View (optional) — shows web app build status in the CMS admin dashboard.
+# SITE_BUILD_HOOK_TYPE = "dokploy"
+# SITE_BUILD_HOOK_URL = ""
+# SITE_BUILD_HOOK_SECRET = ""
+# SITE_BUILD_HOOK_DOKPLOY_APP_ID = ""      # The web app's Dokploy app ID
+# SITE_BUILD_HOOK_DOKPLOY_PROJECT_ID = ""
+
+# Deploy cache busting (optional) — updates CACHE_BUST in the web app's Dokploy compose env before each deploy.
+# Without this, Docker caches the build layer and stale content may be served after CMS updates.
+# WEB_DEPLOY_TYPE = "dokploy"
+# WEB_DEPLOY_DOKPLOY_API_URL = ""          # Dokploy server URL, e.g. "https://deploy.example.com"
+# WEB_DEPLOY_DOKPLOY_API_KEY = ""          # Dokploy API key with compose read/write access
+# WEB_DEPLOY_DOKPLOY_COMPOSE_ID = ""       # The web app's Dokploy compose ID
+
+# CI auto-deploy — updates IMAGE_TAG in this compose env before pushing the git tag,
+# so Dokploy's "on tag" auto-deploy pulls the correct image instead of serving :latest from cache.
+# Configure these as GitHub repository variables/secrets in the portfolio repo settings:
+#   Repository variable: DOKPLOY_API_URL          — Dokploy server URL (e.g. "https://deploy.example.com")
+#   Repository variable: DOKPLOY_CMS_COMPOSE_ID   — this compose app's ID (find it in Dokploy's URL or API)
+#   Repository secret:   DOKPLOY_API_KEY           — Dokploy API key with compose read/write access

@@ -1,0 +1,80 @@
+---
+import { PhHouse, PhBriefcase, PhNewspaper, PhFileText } from "phosphor-icons-astro";
+
+const menuItems = [
+  { id: "home", href: "/", label: "Home", Icon: PhHouse },
+  { id: "projects", href: "/projects", label: "Projects", Icon: PhBriefcase },
+  { id: "blog", href: "/blog/", label: "Blog", Icon: PhNewspaper },
+  { id: "cv", href: "/cv", label: "Resume", Icon: PhFileText },
+] as const;
+
+const linkClass =
+  "py-3 text-base flex items-center gap-4 lg:is-drawer-close:justify-center lg:is-drawer-close:px-0";
+const labelClass = "inline-block whitespace-nowrap overflow-hidden is-drawer-close:hidden";
+const activeClass = "is-active";
+---
+
+<ul id="sidebar-menu" class="menu grow shrink menu-md overflow-y-auto overflow-x-hidden w-full">
+  {
+    menuItems.map(({ id, href, label, Icon }) => (
+      <li>
+        <a class={linkClass} id={id} href={href} data-sidebar-item>
+          <Icon size={24} />
+          <span class={labelClass}>{label}</span>
+        </a>
+      </li>
+    ))
+  }
+</ul>
+
+<script is:inline define:vars={{ activeClass: activeClass }}>
+  const normalizePath = (path) => {
+    if (typeof path !== "string" || path === "") {
+      return "/";
+    }
+
+    const normalizedPath = path.endsWith("/") && path !== "/" ? path.slice(0, -1) : path;
+
+    return normalizedPath || "/";
+  };
+
+  const matchesPath = (currentPath, itemPath) => {
+    if (itemPath === "/") {
+      return currentPath === "/";
+    }
+
+    return currentPath === itemPath || currentPath.startsWith(`${itemPath}/`);
+  };
+
+  const setActiveMenuItem = () => {
+    const menuElem = document.getElementById("sidebar-menu");
+    if (!menuElem) {
+      return;
+    }
+
+    const currentPath = normalizePath(window.location.pathname);
+    const menuItems = menuElem.querySelectorAll("[data-sidebar-item]");
+    menuItems.forEach((item) => item.classList.remove(activeClass));
+
+    for (const item of menuItems) {
+      const itemPath = normalizePath(item.getAttribute("href") || "/");
+      if (matchesPath(currentPath, itemPath)) {
+        item.classList.add(activeClass);
+        break;
+      }
+    }
+  };
+
+  setActiveMenuItem();
+
+  if (!document.documentElement.dataset.sidebarMenuPageLoadBound) {
+    document.addEventListener("astro:page-load", setActiveMenuItem);
+    document.documentElement.dataset.sidebarMenuPageLoadBound = "true";
+  }
+</script>
+
+<style>
+  #sidebar-menu :global(a.is-active) {
+    background-color: var(--color-base-300);
+  }
+</style>

@@ -1,0 +1,269 @@
+---
+import RichTextRenderer from "@/components/RichTextRenderer.astro";
+import SeriesNav from "@/components/SeriesNav.astro";
+import FloatingSeriesToolbar from "@/components/FloatingSeriesToolbar.astro";
+import PostLayout from "@/layouts/PostLayout.astro";
+import { extractTableOfContents } from "@sidshub/cms-lib-editor/web/html";
+import { resolveIconSvg } from "@sidshub/cms-lib-icons";
+import { cmsClient } from "@/lib/cms";
+import type { Post } from "@sidshub/cms-core/payload-types";
+import type { SeriesAdjacentPost } from "@/lib/types";
+
+type Props = { post: Post };
+
+type SeriesNavProps = {
+  seriesName: string;
+  seriesHref: string;
+  currentPart: number;
+  totalParts: number;
+  prevPost?: SeriesAdjacentPost;
+  nextPost?: SeriesAdjacentPost;
+};
+
+type AuthorLink = {
+  icon?: string | null;
+  url?: string | null;
+  newTab?: boolean | null;
+};
+
+export async function getStaticPaths() {
+  if (String(import.meta.env.ASTRO_MOCK_CMS ?? process.env.ASTRO_MOCK_CMS ?? "") === "true") {
+    return [];
+  }
+
+  try {
+    const posts = await cmsClient.getAllPublishedPosts();
+    return posts.flatMap((post) => {
+      if (!post.slug) return [];
+      return [{ params: { slug: post.slug }, props: { post } }];
+    });
+  } catch {
+    return [];
+  }
+}
+
+const getAuthorLinks = (author: unknown): AuthorLink[] => {
+  if (!author || typeof author !== "object") {
+    return [];
+  }
+
+  const links = (author as { links?: unknown }).links;
+  return Array.isArray(links) ? (links as AuthorLink[]) : [];
+};
+
+const { post } = Astro.props;
+
+let seriesNav: SeriesNavProps | undefined;
+
+const series = cmsClient.seriesFromPost(post);
+
+if (series?.slug) {
+  const seriesPosts = await cmsClient.getPostsBySeries(series.slug);
+  const currentIndex = seriesPosts.findIndex((entry) => entry.slug === post.slug);
+
+  if (currentIndex !== -1) {
+    const prevPost = currentIndex > 0 ? seriesPosts[currentIndex - 1] : undefined;
+    const nextPost =
+      currentIndex < seriesPosts.length - 1 ? seriesPosts[currentIndex + 1] : undefined;
+
+    seriesNav = {
+      seriesName: series.name,
+      seriesHref: `/blog/series/${series.slug}`,
+      currentPart: currentIndex + 1,
+      totalParts: seriesPosts.length,
+      prevPost: prevPost
+        ? {
+            slug: prevPost.slug,
+            title: prevPost.title,
+            href: `/blog/${prevPost.slug}`,
+            coverImage: cmsClient.mediaSizeUrl(prevPost.coverImage, "thumbnail"),
+          }
+        : undefined,
+      nextPost: nextPost
+        ? {
+            slug: nextPost.slug,
+            title: nextPost.title,
+            href: `/blog/${nextPost.slug}`,
+            coverImage: cmsClient.mediaSizeUrl(nextPost.coverImage, "thumbnail"),
+          }
+        : undefined,
+    };
+  }
+}
+
+if (post?.meta && (!post.meta.title || !post.meta.description)) {
+  throw new Error(`Post "${post.slug}" requires SEO \`meta.title\` and \`meta.description\`.`);
+}
+
+const category = cmsClient.categoryFromPost(post);
+const tags = cmsClient.tagsFromPost(post);
+const authors = cmsClient.authorsFromPost(post);
+const visibleAuthors = authors.filter((author) => {
+  const hasName = Boolean(author.name?.trim());
+  const hasBio = Boolean(author.bio);
+  const hasAvatar = Boolean(cmsClient.mediaSizeUrl(author.avatar, "thumbnail"));
+  const hasLinks = getAuthorLinks(author).length > 0;
+
+  return hasName || hasBio || hasAvatar || hasLinks;
+});
+const resolvedAuthorCards = await Promise.all(
+  visibleAuthors.map(async (author) => {
+    const avatarUrl = cmsClient.mediaSizeUrl(author.avatar, "thumbnail");
+    const resolvedLinks = (
+      await Promise.all(
+        getAuthorLinks(author).map(async (link) => {
+          if (!link.icon || !link.url) {
+            return null;
+          }
+
+          const iconData = resolveIconSvg(link.icon);
+          if (!iconData) {
+            return null;
+          }
+
+          return {
+            url: link.url,
+            newTab: link.newTab === true,
+            iconData,
+          };
+        }),
+      )
+    ).filter(
+      (
+        entry,
+      ): entry is {
+        url: string;
+        newTab: boolean;
+        iconData: NonNullable<ReturnType<typeof resolveIconSvg>>;
+      } => entry !== null,
+    );
+
+    return { author, avatarUrl, resolvedLinks };
+  }),
+);
+const toc = extractTableOfContents(post.content);
+const pubDate = post?.publishedAt || post?.createdAt || new Date().toISOString();
+---
+
+<PostLayout
+  title={post.title}
+  seoTitle={post.meta.title}
+  description={post.meta.description}
+  pubDate={pubDate}
+  updatedDate={post.updatedAt}
+  heroImage={cmsClient.mediaToUrl(post.coverImage)}
+  heroMedia={post.coverImage}
+  tags={tags}
+  category={category}
+  series={series}
+  authors={visibleAuthors}
+  toc={toc}
+  tocContinuation={seriesNav
+    ? { prevPost: seriesNav.prevPost, nextPost: seriesNav.nextPost }
+    : undefined}
+>
+  {
+    seriesNav && (
+      <SeriesNav
+        slot="heroTop"
+        position="top"
+        className="mt-0"
+        seriesName={seriesNav.seriesName}
+        seriesHref={seriesNav.seriesHref}
+        currentPart={seriesNav.currentPart}
+        totalParts={seriesNav.totalParts}
+        prevPost={seriesNav.prevPost}
+        nextPost={seriesNav.nextPost}
+      />
+    )
+  }
+
+  <RichTextRenderer data={post.content} calloutVariantProfile="blog" />
+
+  {
+    seriesNav && (
+      <FloatingSeriesToolbar
+        seriesHref={seriesNav.seriesHref}
+        prevPost={seriesNav.prevPost}
+        nextPost={seriesNav.nextPost}
+      />
+    )
+  }
+
+  {
+    visibleAuthors.length > 0 && (
+      <section class="mt-16 pt-4 border-t border-base-content/20">
+        <h2 class="text-base font-bold uppercase tracking-wider text-base-content mb-8">
+          {visibleAuthors.length > 1 ? "Authors" : "Author"}
+        </h2>
+        <div class="flex flex-col gap-10">
+          {resolvedAuthorCards.map(({ author, avatarUrl, resolvedLinks }) => {
+            return (
+              <article class="flex flex-col sm:flex-row gap-6 items-start bg-base-200/30 p-6 sm:p-8 rounded-2xl border border-base-content/20">
+                {avatarUrl ? (
+                  <img
+                    src={avatarUrl}
+                    alt={author.name || "Author avatar"}
+                    class="w-16 h-16 sm:w-20 sm:h-20 rounded-full object-cover shrink-0 ring-1 ring-base-content/10"
+                    loading="lazy"
+                  />
+                ) : (
+                  <div class="w-16 h-16 sm:w-20 sm:h-20 rounded-full shrink-0 bg-base-300/50 flex items-center justify-center text-base-content/40 ring-1 ring-base-content/10">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="24"
+                      height="24"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    >
+                      <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" />
+                      <circle cx="12" cy="7" r="4" />
+                    </svg>
+                  </div>
+                )}
+                <div class="flex-1">
+                  <h3 class="text-lg font-semibold">{author.name || "Unknown Author"}</h3>
+                  {author.bio && (
+                    <div class="mt-3 text-sm sm:text-base leading-relaxed text-base-content/70 prose prose-sm max-w-none prose-p:last:mb-0">
+                      <RichTextRenderer data={author.bio} />
+                    </div>
+                  )}
+                  {resolvedLinks.length > 0 && (
+                    <div class="mt-5 flex gap-4 items-center">
+                      {resolvedLinks.map((link) => {
+                        const { iconData } = link;
+                        return (
+                          <a
+                            href={link.url}
+                            target={link.newTab ? "_blank" : undefined}
+                            rel={link.newTab ? "noopener noreferrer" : undefined}
+                            class="text-base-content/50 hover:text-base-content transition-colors"
+                            aria-label={iconData.label}
+                            title={iconData.label}
+                          >
+                            <svg
+                              viewBox={iconData.viewBox}
+                              width={20}
+                              height={20}
+                              aria-hidden="true"
+                              class="h-5 w-5 fill-current stroke-current"
+                              set:html={iconData.innerSvg}
+                            />
+                          </a>
+                        );
+                      })}
+                    </div>
+                  )}
+                </div>
+              </article>
+            );
+          })}
+        </div>
+      </section>
+    )
+  }
+</PostLayout>

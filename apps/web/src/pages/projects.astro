@@ -1,0 +1,57 @@
+---
+import RichTextRenderer from "@/components/RichTextRenderer.astro";
+import HorizontalCard from "@/components/HorizontalCard.astro";
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import { asProjectArray } from "@sidshub/cms-core/client";
+import { cmsClient } from "@/lib/cms";
+const projectsPage = await cmsClient.getProjectsPage();
+const { meta, sections: projectSections } = projectsPage;
+
+if (!meta.title || !meta.description) {
+  throw new Error("Projects page requires SEO `meta.title` and `meta.description`.");
+}
+
+const sections = projectSections.map((section) => ({
+  ...section,
+  projects: asProjectArray(section.projects),
+}));
+---
+
+<BaseLayout
+  title="Projects"
+  seoTitle={meta.title}
+  description={meta.description}
+  image={cmsClient.mediaToUrl(meta?.image)}
+>
+  {
+    sections.map((section) => (
+      <section class="mb-14 last:mb-0">
+        <div class="mb-8">
+          <h2 class="text-3xl w-full font-bold mb-2">{section.title}</h2>
+
+          {section.description && (
+            <div class="prose max-w-none">
+              <RichTextRenderer data={section.description} />
+            </div>
+          )}
+        </div>
+
+        {section.projects.map((project, index) => (
+          <>
+            <HorizontalCard
+              title={project.title}
+              img={cmsClient.mediaSizeUrl(project.coverImage, "card")}
+              desc={project.description}
+              badges={cmsClient.badgesFromProject(project)}
+              tags={cmsClient.tagsFromProject(project)}
+              url={"/projects/" + project.slug}
+              links={cmsClient.linksFromProject(project)}
+              reverse={index % 2 === 1}
+            />
+            <div class="divider my-0" />
+          </>
+        ))}
+      </section>
+    ))
+  }
+</BaseLayout>

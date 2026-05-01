@@ -1,0 +1,35 @@
+# Dokploy template compose file for the web app.
+# Env vars are managed via deployment/dokploy/web/template.toml.
+#
+# Network strategy: no explicit networks defined here. All services communicate
+# via the default compose network. Dokploy attaches the service named in
+# template.toml (nginx) to its Traefik network automatically — webproxy must
+# not be referenced here as Dokploy manages that network internally.
+
+services:
+  nginx:
+    build:
+      context: ../../..
+      dockerfile: deployment/nginx/web.Dockerfile
+    depends_on:
+      - astro-web
+    restart: unless-stopped
+
+  astro-web:
+    build:
+      context: ../../..
+      dockerfile: apps/web/Dockerfile
+      args:
+        ASTRO_SITE_URL: ${ASTRO_SITE_URL}
+        ASTRO_CMS_API_URL: ${ASTRO_CMS_API_URL}
+        ASTRO_CMS_READ_TOKEN: ${ASTRO_CMS_READ_TOKEN}
+        CACHE_BUST: ${CACHE_BUST:-}
+    environment:
+      # Compose-determined values — always the same in this deployment topology.
+      HOST: "0.0.0.0"
+      PORT: "4321"
+      # Secret vars (access: "secret" in astro env schema) are read from process.env at runtime,
+      # not inlined at build time — they must be provided here, not just as build args.
+      ASTRO_CMS_READ_TOKEN: ${ASTRO_CMS_READ_TOKEN}
+    # Fully independent of the CMS stack at runtime.
+    # The image BUILD requires a running CMS (fetches content for SSG via external URL).

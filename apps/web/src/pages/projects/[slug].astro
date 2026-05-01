@@ -1,0 +1,58 @@
+---
+import RichTextRenderer from "@/components/RichTextRenderer.astro";
+import ProjectLayout from "@/layouts/ProjectLayout.astro";
+import { cmsClient } from "@/lib/cms";
+import { extractTableOfContents } from "@sidshub/cms-lib-editor/web/html";
+import type { Project } from "@sidshub/cms-core/payload-types";
+
+type Props = { project: Project };
+
+export async function getStaticPaths() {
+  if (String(import.meta.env.ASTRO_MOCK_CMS ?? process.env.ASTRO_MOCK_CMS ?? "") === "true") {
+    return [];
+  }
+
+  try {
+    const projects = await cmsClient.getAllPublishedProjects();
+    return projects.flatMap((project) => {
+      if (!project.slug) return [];
+      return [{ params: { slug: project.slug }, props: { project } }];
+    });
+  } catch {
+    return [];
+  }
+}
+
+const { project } = Astro.props;
+
+if (project?.meta && (!project.meta.title || !project.meta.description)) {
+  throw new Error(
+    `Project "${project.slug}" requires SEO \`meta.title\` and \`meta.description\`.`,
+  );
+}
+
+const tags = cmsClient.tagsFromProject(project);
+const badges = cmsClient.badgesFromProject(project);
+const links = cmsClient.linksFromProject(project);
+const coverImage = cmsClient.mediaToUrl(project.coverImage);
+const toc = extractTableOfContents(project.content);
+---
+
+<ProjectLayout
+  title={project.title}
+  seoTitle={project.meta.title}
+  seoDescription={project.meta.description}
+  image={cmsClient.mediaToUrl(project.meta.image) ?? coverImage}
+  heroImage={coverImage}
+  heroMedia={project.coverImage}
+  createdAt={project.createdAt}
+  updatedAt={project.updatedAt}
+  badges={badges}
+  links={links}
+  tags={tags}
+  toc={toc}
+  backHref="/projects"
+  backLabel="Back to projects"
+>
+  <RichTextRenderer data={project.content} calloutVariantProfile="generic" />
+</ProjectLayout>

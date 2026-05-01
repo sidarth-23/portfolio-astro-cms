@@ -1,0 +1,148 @@
+---
+import EntryHeader from "@/components/EntryHeader.astro";
+import DetailLayout from "@/layouts/DetailLayout.astro";
+import { generateFilterUrl } from "@/lib/utils";
+import type { TableOfContentsItem } from "@sidshub/cms-lib-editor/web/html";
+import type { PopulatedAuthor } from "@sidshub/cms-core/client";
+import type { Media } from "@sidshub/cms-core/payload-types";
+import type { TagInfo, CategoryInfo, SeriesInfo } from "@/lib/cms";
+import type { SeriesAdjacentPost } from "@/lib/types";
+
+type Props = {
+  title: string;
+  seoTitle: string;
+  description: string;
+  pubDate: string;
+  updatedDate?: string;
+  heroImage?: string;
+  heroMedia?: Media | string | number | null;
+  badge?: string;
+  tags?: TagInfo[];
+  category?: CategoryInfo;
+  series?: SeriesInfo;
+  authors?: PopulatedAuthor[];
+  toc?: TableOfContentsItem[];
+  tocContinuation?: {
+    prevPost?: SeriesAdjacentPost;
+    nextPost?: SeriesAdjacentPost;
+  };
+};
+
+const {
+  title,
+  seoTitle,
+  description,
+  pubDate,
+  updatedDate,
+  heroImage,
+  heroMedia,
+  tags = [],
+  category,
+  series,
+  authors = [],
+  toc = [],
+  tocContinuation,
+}: Props = Astro.props;
+
+const currentUrl = Astro.url;
+
+const displayDate = new Intl.DateTimeFormat("en-US", {
+  year: "numeric",
+  month: "short",
+  day: "numeric",
+}).format(new Date(pubDate));
+const authorNames = authors
+  .map((author) => author.name)
+  .filter((name): name is string => Boolean(name));
+
+const pubDateOnly = new Date(pubDate).toDateString();
+const updatedDateOnly = updatedDate ? new Date(updatedDate).toDateString() : null;
+const showUpdatedDate = Boolean(updatedDateOnly && updatedDateOnly !== pubDateOnly);
+const formattedUpdatedDate = updatedDate
+  ? new Intl.DateTimeFormat("en-US", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+    }).format(new Date(updatedDate))
+  : null;
+
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@type": "Article",
+  headline: title,
+  description,
+  image: heroImage ? [new URL(heroImage, Astro.url).toString()] : undefined,
+  datePublished: new Date(pubDate).toISOString(),
+  dateModified: updatedDate ? new Date(updatedDate).toISOString() : new Date(pubDate).toISOString(),
+  mainEntityOfPage: Astro.url.toString(),
+};
+---
+
+<DetailLayout
+  title={title}
+  seoTitle={seoTitle}
+  seoDescription={description}
+  heroImage={heroImage}
+  heroMedia={heroMedia}
+  toc={toc}
+  tocContinuation={tocContinuation}
+  ogType="article"
+  jsonLd={jsonLd}
+>
+  <Fragment slot="heroTop">
+    <slot name="heroTop" />
+  </Fragment>
+
+  <EntryHeader slot="header" title={title} tags={tags}>
+    <Fragment slot="preTitle">
+      {
+        (category || series) && (
+          <div class="not-prose mb-4 flex flex-wrap gap-2">
+            {category && (
+              <a
+                href={generateFilterUrl(currentUrl, "category", category.slug)}
+                class="badge badge-accent no-underline"
+              >
+                {category.name}
+              </a>
+            )}
+            {series && (
+              <a href={`/blog/series/${series.slug}`} class="badge badge-secondary no-underline">
+                {series.name}
+              </a>
+            )}
+          </div>
+        )
+      }
+    </Fragment>
+
+    <Fragment slot="meta">
+      {
+        authorNames.length > 0 && (
+          <div class="mt-1 text-sm font-medium text-base-content/80">
+            By {authorNames.join(", ")}
+          </div>
+        )
+      }
+      <div class="mt-1 flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-base-content/60">
+        <span>
+          Published <time datetime={pubDate}>{displayDate}</time>
+        </span>
+        {
+          showUpdatedDate && (
+            <>
+              <span aria-hidden="true" class="text-base-content/35">
+                •
+              </span>
+              <span>
+                Updated <time datetime={updatedDate}>{formattedUpdatedDate}</time>
+              </span>
+            </>
+          )
+        }
+      </div>
+    </Fragment>
+  </EntryHeader>
+
+  <slot />
+</DetailLayout>

@@ -1,33 +1,57 @@
 {
-  "name": "portfolio",
+  "name": "sidshub-workspace",
+  "private": true,
   "type": "module",
-  "version": "0.0.1",
-  "scripts": {
-    "dev": "astro dev",
-    "start": "astro dev",
-    "build": "astro check && astro build",
-    "preview": "astro preview",
-    "astro": "astro"
+  "packageManager": "bun@1.3.6",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "overrides": {
+    "lexical": "0.41.0",
+    "@lexical/*": "0.41.0"
   },
-  "dependencies": {
-    "@astrojs/check": "0.9.4",
-    "@astrojs/mdx": "4.2.5",
-    "@astrojs/react": "4.2.5",
-    "@astrojs/rss": "4.0.11",
-    "@astrojs/sitemap": "3.3.1",
-    "@astrojs/tailwind": "6.0.2",
-    "@tailwindcss/vite": "^4.1.4",
-    "@types/react": "^19.1.2",
-    "@types/react-dom": "^19.1.2",
-    "astro": "5.7.5",
-    "react": "^19.1.0",
-    "react-dom": "^19.1.0",
-    "tailwindcss": "^4.1.4",
-    "typescript": "^5.5.4"
+  "scripts": {
+    "dev": "bun run dev:web",
+    "dev:web": "turbo run dev --filter=@sidshub/web",
+    "dev:cms": "turbo run dev --filter=@sidshub/cms",
+    "dev:all": "turbo run dev --filter=@sidshub/web --filter=@sidshub/cms",
+    "build": "turbo run build --filter=@sidshub/web --filter=@sidshub/cms",
+    "build:web": "turbo run build --filter=@sidshub/web",
+    "build:test:web": "turbo run build:test --filter=@sidshub/web",
+    "build:cms": "turbo run build --filter=@sidshub/cms",
+    "build:packages": "turbo run build --filter='./packages/*'",
+    "check:web": "turbo run check --filter=@sidshub/web",
+    "payload:types": "turbo run generate:types --filter=@sidshub/cms",
+    "lint": "turbo run lint",
+    "lint:fix": "turbo run lint:fix",
+    "commitlint": "commitlint",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "postinstall": "simple-git-hooks && bun run --filter @sidshub/dev-config build"
+  },
+  "simple-git-hooks": {
+    "pre-commit": "if git diff --cached --quiet --exit-code; then echo 'pre-commit: no staged changes, skipping lint-staged'; exit 0; fi; bunx lint-staged --allow-empty",
+    "commit-msg": "bun run commitlint --edit $1"
+  },
+  "lint-staged": {
+    "{apps,packages}/**/*.{js,jsx,ts,tsx,cjs,mjs,astro}": [
+      "eslint --fix --max-warnings=0 --no-warn-ignored",
+      "prettier --write"
+    ],
+    "*.{json,md,mdx,yaml,yml,css,scss,html}": [
+      "prettier --write"
+    ]
   },
   "devDependencies": {
-    "@tailwindcss/typography": "^0.5.15",
-    "daisyui": "^5.5.5",
-    "prettier-plugin-astro": "^0.14.1"
+    "@commitlint/cli": "^19.8.1",
+    "@commitlint/config-conventional": "^19.8.1",
+    "eslint": "^9.24.0",
+    "lint-staged": "^15.5.2",
+    "prettier": "^3.5.3",
+    "prettier-plugin-astro": "^0.14.1",
+    "simple-git-hooks": "^2.13.1",
+    "tsdown": "^0.16.6",
+    "turbo": "^2.5.8"
   }
 }

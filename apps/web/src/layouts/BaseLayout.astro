@@ -1,0 +1,92 @@
+---
+import BaseHead from "@/components/BaseHead.astro";
+import Header from "@/components/Header.astro";
+import SideBar from "@/components/SideBar.astro";
+import ThemePreloadScript from "@/components/ThemePreloadScript.astro";
+import { ClientRouter } from "astro:transitions";
+import { cmsClient } from "@/lib/cms";
+import { TRANSITION_API } from "@/consts";
+
+type Props = {
+  image?: string;
+  title: string;
+  seoTitle: string;
+  description: string;
+  includeSidebar?: boolean;
+  ogType?: string;
+  jsonLd?: unknown;
+};
+
+const {
+  image,
+  title,
+  seoTitle,
+  description,
+  includeSidebar = true,
+  ogType,
+  jsonLd,
+}: Props = Astro.props;
+
+const siteSettings = await cmsClient.getSiteSettings();
+
+const pageTitle = seoTitle;
+const pageDescription = description;
+
+if (!pageTitle) {
+  throw new Error(
+    `BaseLayout requires a non-empty SEO title via \`seoTitle\` (page title: "${title}").`,
+  );
+}
+
+if (!pageDescription) {
+  throw new Error("BaseLayout requires a non-empty SEO description via `description`.");
+}
+
+const profileImage =
+  cmsClient.mediaSizeUrl(siteSettings.profileImage, "thumbnail") ||
+  "https://placehold.co/300x300?text=Profile";
+const footerItems = cmsClient.footerItemsFromSiteSettings(siteSettings);
+const resumeDownloadUrl = siteSettings.resumeDownloadUrl || undefined;
+const profileName = siteSettings.name;
+const profileRole = siteSettings.role;
+---
+
+<!doctype html>
+<html lang="en" data-theme="emerald">
+  <head>
+    <ThemePreloadScript />
+    <BaseHead
+      title={pageTitle}
+      description={pageDescription}
+      image={image}
+      ogType={ogType}
+      jsonLd={jsonLd}
+    />
+    {TRANSITION_API && <ClientRouter />}
+  </head>
+
+  <body>
+    <div class="bg-base-100 drawer lg:drawer-open">
+      <input id="my-drawer" type="checkbox" class="drawer-toggle" />
+      <div class="drawer-content bg-base-100">
+        <Header footerItems={footerItems} />
+        <div class="w-full px-6 pb-14 pt-6">
+          <main class="mx-auto w-full max-w-5xl 2xl:max-w-6xl">
+            <slot />
+          </main>
+        </div>
+      </div>
+      {
+        includeSidebar && (
+          <SideBar
+            profileImage={profileImage}
+            resumeDownloadUrl={resumeDownloadUrl}
+            footerItems={footerItems}
+            name={profileName}
+            role={profileRole}
+          />
+        )
+      }
+    </div>
+  </body>
+</html>

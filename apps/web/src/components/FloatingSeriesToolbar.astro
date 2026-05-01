@@ -1,0 +1,112 @@
+---
+import { PhBookOpenText, PhCaretLeft, PhCaretRight } from "phosphor-icons-astro";
+import type { SeriesAdjacentPost } from "@/lib/types";
+
+type Props = {
+  seriesHref: string;
+  prevPost?: SeriesAdjacentPost;
+  nextPost?: SeriesAdjacentPost;
+};
+
+const { seriesHref, prevPost, nextPost }: Props = Astro.props;
+---
+
+<div
+  class="not-prose pointer-events-none fixed bottom-5 z-30 -translate-x-1/2"
+  data-series-floating-toolbar
+  style="left: 50vw"
+>
+  <div
+    class="pointer-events-auto flex items-center gap-2 rounded-2xl border border-base-content/10 bg-base-200/40 p-1.5 shadow-sm backdrop-blur-md supports-[backdrop-filter]:bg-base-200/30"
+  >
+    {
+      prevPost ? (
+        <a
+          href={prevPost.href}
+          class="btn btn-circle btn-sm btn-ghost"
+          aria-label={`Previous section: ${prevPost.title}`}
+          title={prevPost.title}
+        >
+          <PhCaretLeft size={18} />
+        </a>
+      ) : (
+        <span class="btn btn-circle btn-sm btn-ghost invisible" aria-hidden="true">
+          <PhCaretLeft size={18} />
+        </span>
+      )
+    }
+
+    <a
+      href={seriesHref}
+      class="btn btn-circle btn-sm btn-primary"
+      aria-label="Back to series"
+      title="Back to series"
+    >
+      <PhBookOpenText size={16} weight="fill" />
+    </a>
+
+    {
+      nextPost ? (
+        <a
+          href={nextPost.href}
+          class="btn btn-circle btn-sm btn-ghost"
+          aria-label={`Next section: ${nextPost.title}`}
+          title={nextPost.title}
+        >
+          <PhCaretRight size={18} />
+        </a>
+      ) : (
+        <span class="btn btn-circle btn-sm btn-ghost invisible" aria-hidden="true">
+          <PhCaretRight size={18} />
+        </span>
+      )
+    }
+  </div>
+</div>
+
+<script>
+  const TOOLBAR_SELECTOR = "[data-series-floating-toolbar]";
+  const ANCHOR_SELECTOR = "[data-series-toolbar-anchor]";
+
+  let frameId = 0;
+
+  const updateToolbarPosition = () => {
+    const toolbars = document.querySelectorAll(TOOLBAR_SELECTOR);
+    if (toolbars.length === 0) {
+      return;
+    }
+
+    const anchor = document.querySelector(ANCHOR_SELECTOR);
+    let center = window.innerWidth / 2;
+
+    if (anchor instanceof HTMLElement) {
+      const rect = anchor.getBoundingClientRect();
+      center = rect.left + rect.width / 2;
+    }
+
+    toolbars.forEach((toolbar) => {
+      if (toolbar instanceof HTMLElement) {
+        toolbar.style.left = `${Math.round(center)}px`;
+      }
+    });
+  };
+
+  const scheduleUpdateToolbarPosition = () => {
+    if (frameId !== 0) {
+      return;
+    }
+
+    frameId = window.requestAnimationFrame(() => {
+      frameId = 0;
+      updateToolbarPosition();
+    });
+  };
+
+  scheduleUpdateToolbarPosition();
+
+  if (!document.documentElement.dataset.seriesToolbarBound) {
+    window.addEventListener("resize", scheduleUpdateToolbarPosition, { passive: true });
+    document.addEventListener("astro:page-load", scheduleUpdateToolbarPosition);
+    document.documentElement.dataset.seriesToolbarBound = "true";
+  }
+</script>

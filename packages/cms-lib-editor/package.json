@@ -1,0 +1,35 @@
+{
+  "name": "@sidshub/cms-lib-editor",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "sideEffects": false,
+  "scripts": {
+    "build": "rm -rf dist && tsdown",
+    "dev": "tsdown --watch",
+    "clean": "rm -rf dist",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix"
+  },
+  "exports": {
+    "./cms": "./dist/cms.mjs",
+    "./web/html": "./dist/web/html/index.mjs",
+    "./web/html/client": "./dist/web/html/client/index.mjs",
+    "./web/html/styles.css": "./dist/web/html/styles.css",
+    "./web/util": "./dist/web/util/index.mjs"
+  },
+  "devDependencies": {
+    "@sidshub/dev-config": "workspace:*",
+    "eslint": "^9.24.0"
+  },
+  "dependencies": {
+    "@payloadcms/richtext-lexical": "3.82.1",
+    "@phosphor-icons/core": "^2.1.1",
+    "embla-carousel": "^8.6.0",
+    "lexical": "0.41.0",
+    "preact": "^10.29.1",
+    "preact-render-to-string": "^6.6.7",
+    "shiki": "^4.0.2",
+    "simple-icons": "^16.16.0"
+  }
+}

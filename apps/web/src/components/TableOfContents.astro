@@ -1,0 +1,49 @@
+---
+import TocSeriesContinuation from "@/components/TocSeriesContinuation.astro";
+import type { TableOfContentsItem } from "@sidshub/cms-lib-editor/web/html";
+import type { SeriesAdjacentPost } from "@/lib/types";
+
+type Props = {
+  className?: string;
+  items: TableOfContentsItem[];
+  continuation?: {
+    prevPost?: SeriesAdjacentPost;
+    nextPost?: SeriesAdjacentPost;
+  };
+};
+
+const { className = "", items, continuation }: Props = Astro.props;
+---
+
+<nav aria-label="Table of contents" class={`text-sm ${className}`.trim()} data-toc-root>
+  <div class="mb-4 border-b border-base-content/20 pb-3 text-sm font-semibold opacity-80">
+    On this page
+  </div>
+
+  {
+    items.length === 0 ? (
+      <p class="text-xs leading-relaxed text-base-content/60">No sections in this page yet.</p>
+    ) : (
+      <ul class="flex flex-col">
+        {items.map((item) => {
+          const indentClass = item.depth === 2 ? "pl-3" : item.depth === 3 ? "pl-8" : "pl-12";
+
+          return (
+            <li>
+              <a
+                href={`#${item.id}`}
+                class={`block border-l-[1.5px] border-transparent py-1.5 text-[0.85rem] leading-snug opacity-70 transition-colors hover:border-base-content/20 hover:opacity-100 ${indentClass}`.trim()}
+                data-toc-id={item.id}
+                data-toc-link
+              >
+                {item.text}
+              </a>
+            </li>
+          );
+        })}
+      </ul>
+    )
+  }
+
+  <TocSeriesContinuation prevPost={continuation?.prevPost} nextPost={continuation?.nextPost} />
+</nav>

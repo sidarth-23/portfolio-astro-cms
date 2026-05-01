@@ -1,0 +1,1 @@
+Astro-based personal portfolio and blog site deployed at https://www.sidshub.in. Purpose: showcase projects, CV, and blog posts via static site generation. Stack: Astro 5, TypeScript strict mode, Tailwind CSS v4, DaisyUI v5, MDX content collections, Bun package manager; React 19 available but limited usage. Repository root includes src/, public/, astro.config.mjs, tsconfig.json.

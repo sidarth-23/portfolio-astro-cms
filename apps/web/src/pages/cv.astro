@@ -1,0 +1,174 @@
+---
+import CvProfileHeader from "@/components/CvProfileHeader.astro";
+import RichTextRenderer from "@/components/RichTextRenderer.astro";
+import TimeLineElement from "@/components/TimeLine.astro";
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import { PhLink } from "phosphor-icons-astro";
+import { cmsClient } from "@/lib/cms";
+const [{ meta, sections }, siteSettings] = await Promise.all([
+  cmsClient.getCvPage(),
+  cmsClient.getSiteSettings(),
+]);
+const profileImage = cmsClient.mediaSizeUrl(siteSettings.profileImage, "thumbnail");
+
+if (!meta.title || !meta.description) {
+  throw new Error("CV page requires SEO `meta.title` and `meta.description`.");
+}
+
+const BADGE_GROUP_STYLES = [
+  "badge badge-soft badge-md badge-primary gap-2",
+  "badge badge-soft badge-md badge-secondary gap-2",
+  "badge badge-soft badge-md badge-accent gap-2",
+];
+---
+
+<BaseLayout
+  title="Resume"
+  seoTitle={meta.title}
+  description={meta.description}
+  image={cmsClient.mediaToUrl(meta?.image)}
+>
+  <CvProfileHeader name={siteSettings.name} role={siteSettings.role} profileImage={profileImage} />
+  {
+    sections.map((section) => (
+      <section class="mb-10">
+        <div class="mb-5">
+          <h2 class="text-3xl w-full font-bold">{section.title}</h2>
+        </div>
+
+        {section.type === "description" && section.description && (
+          <div class="prose max-w-none text-justify">
+            <RichTextRenderer data={section.description} />
+          </div>
+        )}
+
+        {section.type === "items" && section.itemsVariant === "timeline" && (
+          <div class="time-line-container grid gap-4 overflow-hidden">
+            {(section.items || []).map((item) => (
+              <TimeLineElement
+                title={item.title}
+                subtitle={cmsClient.subtitleFromCvItem(item)}
+                url={item.url ?? undefined}
+              >
+                {item.content && (
+                  <div class="prose max-w-none">
+                    <RichTextRenderer data={item.content} />
+                  </div>
+                )}
+              </TimeLineElement>
+            ))}
+          </div>
+        )}
+
+        {section.type === "items" && section.itemsVariant === "list" && (
+          <ul class="list-disc mx-6 grid gap-2">
+            {(section.items || []).map((item) => (
+              <li>
+                <div class="font-medium flex items-center gap-2">
+                  {item.title}
+                  {item.url && (
+                    <a
+                      href={item.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      class="opacity-50 hover:opacity-100 transition-opacity"
+                    >
+                      <PhLink size={18} />
+                    </a>
+                  )}
+                </div>
+                {cmsClient.subtitleFromCvItem(item) && (
+                  <div class="text-sm opacity-80">{cmsClient.subtitleFromCvItem(item)}</div>
+                )}
+                {item.content && (
+                  <div class="prose max-w-none">
+                    <RichTextRenderer data={item.content} />
+                  </div>
+                )}
+              </li>
+            ))}
+          </ul>
+        )}
+
+        {section.type === "items" && section.itemsVariant === "columns" && (
+          <ul class="list-disc mx-6 grid gap-4 md:columns-3 columns-1">
+            {(section.items || []).map((item) => (
+              <li>
+                <div class="font-medium flex items-center gap-2">
+                  {item.title}
+                  {item.url && (
+                    <a
+                      href={item.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      class="opacity-50 hover:opacity-100 transition-opacity"
+                    >
+                      <PhLink size={18} />
+                    </a>
+                  )}
+                </div>
+                {cmsClient.subtitleFromCvItem(item) && (
+                  <div class="text-sm opacity-80">{cmsClient.subtitleFromCvItem(item)}</div>
+                )}
+                {item.content && (
+                  <div class="prose max-w-none">
+                    <RichTextRenderer data={item.content} />
+                  </div>
+                )}
+              </li>
+            ))}
+          </ul>
+        )}
+
+        {section.type === "badges" && (
+          <div class="overflow-x-auto">
+            <table class="table">
+              <tbody>
+                {cmsClient.resolvedBadgeGroupsFromCvSection(section).map((group, groupIndex) => (
+                  <tr class="hover">
+                    <td class="w-40 align-top text-sm font-semibold tracking-wide text-base-content/70 whitespace-nowrap">
+                      {group.title}
+                    </td>
+                    <td>
+                      <div class="flex flex-wrap gap-2">
+                        {group.badges.map((badge) => (
+                          <span class={BADGE_GROUP_STYLES[groupIndex % BADGE_GROUP_STYLES.length]}>
+                            {badge.iconData && (
+                              <svg
+                                viewBox={badge.iconData.viewBox}
+                                width={18}
+                                height={18}
+                                aria-hidden="true"
+                                class="h-[1.15em] w-[1.15em] shrink-0 fill-current"
+                                set:html={badge.iconData.innerSvg}
+                              />
+                            )}
+                            <span>{badge.value}</span>
+                          </span>
+                        ))}
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </section>
+    ))
+  }
+</BaseLayout>
+
+<style>
+  a {
+    transition: opacity 0.3s ease-in-out;
+  }
+
+  a:hover {
+    opacity: 0.8;
+  }
+
+  a:hover:after {
+    opacity: 1;
+  }
+</style>

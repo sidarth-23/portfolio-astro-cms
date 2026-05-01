@@ -1,0 +1,318 @@
+---
+import { PhFunnel, PhInfo, PhMagnifyingGlass, PhX } from "phosphor-icons-astro";
+import HorizontalCard from "@/components/HorizontalCard.astro";
+import BlogPagination from "@/components/BlogPagination.astro";
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import { cmsClient } from "@/lib/cms";
+
+export const prerender = false;
+
+// Parse query params
+const searchQuery = Astro.url.searchParams.get("q") || undefined;
+const categoryFilter = Astro.url.searchParams.get("category") || undefined;
+const seriesFilter = Astro.url.searchParams.get("series") || undefined;
+const view = Astro.url.searchParams.get("view") || "posts";
+const pageParam = Astro.url.searchParams.get("page");
+const currentPage = pageParam ? Math.max(1, parseInt(pageParam, 10)) : 1;
+
+const pageSize = 10;
+
+type PaginatedPostsData = Awaited<ReturnType<typeof cmsClient.getPaginatedPublishedPosts>>;
+type CategoriesData = Awaited<ReturnType<typeof cmsClient.getAllCategories>>;
+type SeriesData = Awaited<ReturnType<typeof cmsClient.getAllSeriesWithPosts>>;
+type BlogPageData = Awaited<ReturnType<typeof cmsClient.getBlogPage>>;
+
+// Fetch data
+const [paginatedPosts, allCategories, allSeries, blogPage]: [
+  PaginatedPostsData,
+  CategoriesData,
+  SeriesData,
+  BlogPageData,
+] = await Promise.all([
+  cmsClient.getPaginatedPublishedPosts({
+    page: currentPage,
+    pageSize,
+    search: searchQuery,
+    categorySlug: categoryFilter,
+    seriesSlug: seriesFilter,
+  }),
+  cmsClient.getAllCategories(),
+  cmsClient.getAllSeriesWithPosts(),
+  cmsClient.getBlogPage(),
+]);
+
+const { meta } = blogPage;
+
+if (!meta.title || !meta.description) {
+  throw new Error("Blog page requires SEO `meta.title` and `meta.description`.");
+}
+
+// Helper to build blog URLs with filters
+const buildBlogUrl = (overrides: {
+  q?: string | null;
+  category?: string | null;
+  series?: string | null;
+  view?: string | null;
+  page?: number | null;
+}): string => {
+  const params = new URLSearchParams();
+
+  const finalQuery = overrides.q === null ? undefined : (overrides.q ?? searchQuery);
+  const finalCategory =
+    overrides.category === null ? undefined : (overrides.category ?? categoryFilter);
+  const finalSeries = overrides.series === null ? undefined : (overrides.series ?? seriesFilter);
+  const finalView = overrides.view === null ? undefined : (overrides.view ?? view);
+  const finalPage = overrides.page === null ? undefined : (overrides.page ?? currentPage);
+
+  if (finalQuery) params.set("q", finalQuery);
+  if (finalCategory) params.set("category", finalCategory);
+  if (finalSeries) params.set("series", finalSeries);
+  if (finalView && finalView !== "posts") params.set("view", finalView);
+  if (finalPage && finalPage > 1) params.set("page", String(finalPage));
+
+  return `/blog${params.toString() ? `?${params.toString()}` : ""}`;
+};
+
+// Build page URL helper for pagination
+const buildPageUrl = (page: number): string => buildBlogUrl({ page: page === 1 ? null : page });
+
+// Check if any filters are active
+const hasActiveFilters = !!(searchQuery || categoryFilter || seriesFilter);
+
+// Find active category/series objects for display
+const activeCategory = categoryFilter
+  ? allCategories.find((c) => c.slug === categoryFilter)
+  : undefined;
+const activeSeries = seriesFilter ? allSeries.find((s) => s.slug === seriesFilter) : undefined;
+---
+
+<BaseLayout
+  title="Blog"
+  seoTitle={meta.title}
+  description={meta.description}
+  image={cmsClient.mediaToUrl(meta?.image)}
+>
+  <div class="mb-5 flex flex-col md:flex-row items-center justify-between gap-4">
+    <h1 class="text-3xl font-bold">Blog</h1>
+
+    {/* Tabs */}
+    <div role="tablist" class="tabs tabs-boxed">
+      <a
+        role="tab"
+        class={`tab ${view === "posts" ? "tab-active" : ""}`}
+        href={buildBlogUrl({ view: "posts", page: 1 })}
+      >
+        Posts
+      </a>
+      <a
+        role="tab"
+        class={`tab ${view === "series" ? "tab-active" : ""}`}
+        href={buildBlogUrl({ view: "series", page: 1 })}
+      >
+        Series
+      </a>
+    </div>
+  </div>
+
+  {/* Search and Filter Bar */}
+  <div class="flex flex-col md:flex-row gap-4 mb-6 relative z-30">
+    <form method="GET" action="/blog" class="flex-1 join">
+      <input
+        type="search"
+        name="q"
+        placeholder={view === "series" ? "Search series..." : "Search posts..."}
+        value={searchQuery || ""}
+        class="input input-bordered join-item flex-1"
+      />
+      {/* Hidden inputs to preserve filters */}
+      {categoryFilter && <input type="hidden" name="category" value={categoryFilter} />}
+      {seriesFilter && <input type="hidden" name="series" value={seriesFilter} />}
+      {view !== "posts" && <input type="hidden" name="view" value={view} />}
+
+      <button type="submit" class="btn btn-primary join-item">
+        <PhMagnifyingGlass class="h-5 w-5" />
+      </button>
+    </form>
+
+    <div class="dropdown dropdown-end relative z-40">
+      <div tabindex="0" role="button" class="btn btn-outline gap-2">
+        <PhFunnel class="h-5 w-5" />
+        Filter
+        {
+          hasActiveFilters && (
+            <div class="badge badge-sm badge-circle">
+              {(categoryFilter ? 1 : 0) + (seriesFilter ? 1 : 0)}
+            </div>
+          )
+        }
+      </div>
+      <div
+        tabindex="0"
+        class="dropdown-content z-50 w-72 rounded-box bg-base-100 p-4 shadow pointer-events-auto"
+      >
+        <div class="flex justify-between items-center mb-2">
+          <h3 class="text-sm font-semibold">Categories</h3>
+          {
+            categoryFilter && (
+              <a href={buildBlogUrl({ category: null, page: 1 })} class="link link-error text-xs">
+                Clear
+              </a>
+            )
+          }
+        </div>
+        <div class="flex flex-wrap gap-2 mb-4">
+          {
+            allCategories.map((category) => (
+              <a
+                href={buildBlogUrl({
+                  category: category.slug === categoryFilter ? null : category.slug,
+                  page: 1,
+                })}
+                class={`badge badge-soft badge-sm no-underline ${category.slug === categoryFilter ? "badge-accent" : "badge-info"}`}
+              >
+                {category.name}
+              </a>
+            ))
+          }
+        </div>
+      </div>
+    </div>
+  </div>
+
+  {/* Active Filters Display */}
+  {
+    hasActiveFilters && (
+      <div class="flex flex-wrap items-center gap-2 mb-6">
+        <span class="text-sm opacity-70">Active filters:</span>
+
+        {searchQuery && (
+          <a href={buildBlogUrl({ q: null, page: 1 })} class="badge gap-2 hover:badge-error group">
+            "{searchQuery}"
+            <PhX class="h-4 w-4 group-hover:block" />
+          </a>
+        )}
+
+        {activeCategory && (
+          <a
+            href={buildBlogUrl({ category: null, page: 1 })}
+            class="badge badge-soft badge-accent badge-sm gap-2 hover:badge-error"
+          >
+            {activeCategory.name}
+            <PhX class="h-4 w-4" />
+          </a>
+        )}
+
+        {activeSeries && (
+          <a
+            href={buildBlogUrl({ series: null, page: 1 })}
+            class="badge badge-info gap-2 hover:badge-error"
+          >
+            {activeSeries.name}
+            <PhX class="h-4 w-4" />
+          </a>
+        )}
+
+        <a
+          href={buildBlogUrl({
+            q: null,
+            category: null,
+            series: null,
+            page: 1,
+          })}
+          class="btn btn-xs btn-ghost"
+        >
+          Clear all
+        </a>
+      </div>
+    )
+  }
+
+  {/* Content Area */}
+  {
+    view === "series" ? (
+      /* Series View */
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+        {allSeries.length > 0 ? (
+          allSeries
+            .filter(
+              (s) =>
+                (!searchQuery || s.name.toLowerCase().includes(searchQuery.toLowerCase())) &&
+                (!activeCategory || true), // Series don't always have categories/tags explicitly in the same way, usually independent
+              // For now, simple client-side search for series name if view=series
+            )
+            .map((series) => (
+              <a
+                href={`/blog/series/${series.slug}`}
+                class="card card-compact bg-base-200 transition-colors duration-300 ease-in-out hover:bg-base-300 group no-underline"
+              >
+                <div class="card-body">
+                  <h3 class="card-title text-lg">
+                    {series.name}
+                    <span class="opacity-0 group-hover:opacity-100 transition-opacity translate-x-1 group-hover:translate-x-2">
+                      →
+                    </span>
+                  </h3>
+                  {series.description && <p class="text-base-content/70">{series.description}</p>}
+                  <div class="card-actions justify-end mt-2">
+                    <div class="badge badge-outline">{series.postCount} posts</div>
+                  </div>
+                </div>
+              </a>
+            ))
+        ) : (
+          <div class="col-span-2 alert">No series found.</div>
+        )}
+      </div>
+    ) : (
+      /* Posts View */
+      <>
+        <div class="mb-4 text-sm text-base-content/70 flex justify-between items-center">
+          <span>
+            {paginatedPosts.totalDocs > 0
+              ? `Showing ${paginatedPosts.docs.length} of ${paginatedPosts.totalDocs} posts`
+              : "No posts found"}
+          </span>
+        </div>
+
+        {paginatedPosts.docs.length === 0 ? (
+          <div class="alert bg-base-200">
+            <PhInfo class="shrink-0 h-6 w-6" />
+            <div>
+              <p class="font-bold">No posts found matching your filters.</p>
+              <p>Try clearing some filters or searching for something else.</p>
+            </div>
+          </div>
+        ) : (
+          <ul>
+            {paginatedPosts.docs.map((post, index) => (
+              <>
+                <HorizontalCard
+                  title={post.title}
+                  img={cmsClient.mediaSizeUrl(post.coverImage, "card")}
+                  desc={post.description}
+                  url={`/blog/${post.slug}`}
+                  target="_self"
+                  category={cmsClient.categoryFromPost(post)}
+                  series={cmsClient.seriesFromPost(post)}
+                  tags={cmsClient.tagsFromPost(post)}
+                />
+                {index < paginatedPosts.docs.length - 1 && <div class="divider my-0 opacity-50" />}
+              </>
+            ))}
+          </ul>
+        )}
+
+        {/* Pagination */}
+        {paginatedPosts.totalPages > 1 && (
+          <div class="flex justify-center my-10">
+            <BlogPagination
+              currentPage={currentPage}
+              totalPages={paginatedPosts.totalPages}
+              buildPageUrl={buildPageUrl}
+            />
+          </div>
+        )}
+      </>
+    )
+  }
+</BaseLayout>

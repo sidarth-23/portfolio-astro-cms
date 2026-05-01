@@ -1,0 +1,36 @@
+import { createEnv } from "@t3-oss/env-core";
+import { z } from "zod";
+
+export const env = createEnv({
+  server: {
+    PAYLOAD_SECRET: z.string().min(1),
+    PAYLOAD_PUBLIC_SERVER_URL: z.string().url(),
+    ASTRO_SITE_URL: z.string().url().default("http://localhost:4321"),
+    DATABASE_URI: z.string().min(1),
+    RESEND_API_KEY: z.string().min(1),
+    EMAIL_FROM_ADDRESS: z.string().email(),
+    EMAIL_FROM_NAME: z.string().min(1),
+    CMS_READ_TOKEN: z.string().min(1),
+    S3_BUCKET: z.string().min(1),
+    S3_REGION: z.string().min(1),
+    S3_ENDPOINT: z.string().optional(),
+    S3_ACCESS_KEY_ID: z.string().min(1),
+    S3_SECRET_ACCESS_KEY: z.string().min(1),
+    WEB_DEPLOY_WEBHOOK_URL: z.string().url().optional(),
+    WEB_DEPLOY_BRANCH: z.string().optional(),
+    WEB_DEV_REFRESH_URL: z.string().url().optional(),
+    WEB_DEPLOY_TYPE: z.enum(["dokploy"]).optional(),
+    WEB_DEPLOY_DOKPLOY_API_URL: z.string().url().optional(),
+    WEB_DEPLOY_DOKPLOY_API_KEY: z.string().min(1).optional(),
+    WEB_DEPLOY_DOKPLOY_COMPOSE_ID: z.string().min(1).optional(),
+    SITE_BUILD_HOOK_TYPE: z.enum(["dokploy"]).optional(),
+    SITE_BUILD_HOOK_URL: z.string().url().optional(),
+    SITE_BUILD_HOOK_SECRET: z.string().min(1).optional(),
+    SITE_BUILD_HOOK_DOKPLOY_APP_ID: z.string().min(1).optional(),
+    SITE_BUILD_HOOK_DOKPLOY_PROJECT_ID: z.string().optional(),
+    NODE_ENV: z.enum(["development", "production", "test"]).default("development"),
+  },
+  runtimeEnv: process.env,
+  emptyStringAsUndefined: true,
+  skipValidation: !!process.env.SKIP_ENV_VALIDATION,
+});

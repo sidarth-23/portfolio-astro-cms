@@ -1,0 +1,228 @@
+---
+import TableOfContents from "@/components/TableOfContents.astro";
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import { PhList, PhX } from "phosphor-icons-astro";
+import type { TableOfContentsItem } from "@sidshub/cms-lib-editor/web/html";
+import type { Media } from "@sidshub/cms-core/payload-types";
+import { getHeroImageSources } from "@/lib/cms/responsive-image";
+import { cmsClient } from "@/lib/cms";
+import type { SeriesAdjacentPost } from "@/lib/types";
+
+type Props = {
+  title: string;
+  seoTitle: string;
+  seoDescription: string;
+  image?: string;
+  heroImage?: string;
+  heroImageAlt?: string;
+  heroMedia?: Media | string | number | null;
+  toc?: TableOfContentsItem[];
+  tocContinuation?: {
+    prevPost?: SeriesAdjacentPost;
+    nextPost?: SeriesAdjacentPost;
+  };
+  backHref?: string;
+  backLabel?: string;
+  ogType?: string;
+  jsonLd?: unknown;
+  articleClassName?: string;
+};
+
+const {
+  title,
+  seoTitle,
+  seoDescription,
+  image,
+  heroImage,
+  heroImageAlt,
+  heroMedia,
+  toc = [],
+  tocContinuation,
+  backHref,
+  backLabel,
+  ogType,
+  jsonLd,
+  articleClassName = "prose prose-lg min-w-0 max-w-none prose-img:mx-auto",
+}: Props = Astro.props;
+
+const heroSources = getHeroImageSources(heroMedia, cmsClient.mediaSizeUrl);
+const tocDrawerId = "detail-toc-drawer";
+const hasHeroTopSlot = Astro.slots.has("heroTop");
+---
+
+<BaseLayout
+  title={title}
+  seoTitle={seoTitle}
+  description={seoDescription}
+  image={image ?? heroImage}
+  ogType={ogType}
+  jsonLd={jsonLd}
+>
+  <div class="w-full px-6 py-14">
+    <div class="drawer drawer-end xl:drawer-open">
+      <input id={tocDrawerId} type="checkbox" class="drawer-toggle" />
+
+      <div class="drawer-content">
+        <div class="mx-auto w-full max-w-5xl 2xl:max-w-6xl">
+          <div
+            class="grid gap-12 xl:grid-cols-[minmax(0,1fr)_18rem] 2xl:grid-cols-[minmax(0,1fr)_20rem]"
+          >
+            <article class="min-w-0" data-series-toolbar-anchor>
+              {
+                backHref && backLabel && (
+                  <div class="mb-6 not-prose">
+                    <a
+                      href={backHref}
+                      class="text-sm font-medium text-base-content/60 transition-colors hover:text-base-content"
+                    >
+                      {backLabel}
+                    </a>
+                  </div>
+                )
+              }
+
+              {
+                heroSources && (
+                  <>
+                    {hasHeroTopSlot && (
+                      <div class="mb-4 not-prose">
+                        <slot name="heroTop" />
+                      </div>
+                    )}
+                    <figure class="mb-8 w-full overflow-hidden rounded-2xl bg-base-200/30 shadow-sm not-prose">
+                      <img
+                        src={heroSources.src}
+                        srcset={heroSources.srcset}
+                        sizes={heroSources.sizes}
+                        alt={heroImageAlt ?? title}
+                        class="w-full aspect-video object-cover"
+                        loading="eager"
+                        width={heroSources.width}
+                        height={heroSources.height}
+                        fetchpriority="high"
+                      />
+                    </figure>
+                  </>
+                )
+              }
+
+              <slot name="header" />
+
+              <div class="divider my-3"></div>
+
+              <div class={articleClassName} data-toc-content>
+                <slot />
+              </div>
+            </article>
+
+            <aside class="hidden xl:block">
+              <div
+                class="sticky top-24 max-h-[calc(100vh-8rem)] overflow-y-auto border-l border-base-content/20 pl-6 2xl:pl-8 pr-2"
+              >
+                <TableOfContents items={toc} continuation={tocContinuation} />
+              </div>
+            </aside>
+          </div>
+        </div>
+      </div>
+
+      <div class="drawer-side z-50 xl:hidden" data-toc-drawer>
+        <label for={tocDrawerId} aria-label="Close table of contents" class="drawer-overlay"
+        ></label>
+
+        <div class="min-h-full w-80 max-w-[85vw] bg-base-200 p-4">
+          <div class="mb-4 flex items-center justify-between gap-4">
+            <div class="text-lg font-semibold">Table of contents</div>
+
+            <label
+              for={tocDrawerId}
+              class="btn btn-square btn-ghost"
+              aria-label="Close table of contents"
+            >
+              <PhX size={18} />
+            </label>
+          </div>
+
+          <div class="pl-5">
+            <TableOfContents items={toc} continuation={tocContinuation} />
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <label
+      for={tocDrawerId}
+      class="btn btn-circle btn-primary fixed bottom-6 right-6 z-40 shadow-lg xl:hidden"
+      aria-label="Open table of contents"
+    >
+      <PhList size={20} />
+    </label>
+  </div>
+
+  <script>
+    import {
+      initCodeBlocks,
+      initImageGallery,
+      initImageLightbox,
+      initTableOfContents,
+    } from "@sidshub/cms-lib-editor/web/html/client";
+
+    const DETAIL_TOC_DRAWER_ID = "detail-toc-drawer";
+    let cleanupCodeBlocks = () => {};
+    let cleanupImageGallery = () => {};
+    let cleanupImageLightbox = () => {};
+    let cleanupTableOfContents = () => {};
+
+    const initializeCodeBlocks = () => {
+      cleanupCodeBlocks();
+      cleanupCodeBlocks = initCodeBlocks();
+    };
+
+    const initializeImageGallery = () => {
+      cleanupImageGallery();
+      cleanupImageGallery = initImageGallery();
+    };
+
+    const initializeLightbox = () => {
+      cleanupImageLightbox();
+      cleanupImageLightbox = initImageLightbox();
+    };
+
+    const initializeTableOfContents = () => {
+      cleanupTableOfContents();
+      cleanupTableOfContents = initTableOfContents({
+        onLinkClick: () => {
+          const drawer = document.getElementById(DETAIL_TOC_DRAWER_ID);
+          if (drawer instanceof HTMLInputElement) {
+            drawer.checked = false;
+          }
+        },
+      });
+    };
+
+    initializeCodeBlocks();
+    initializeImageGallery();
+    initializeLightbox();
+    initializeTableOfContents();
+
+    if (!document.documentElement.dataset.codeBlockPageLoadBound) {
+      document.addEventListener("astro:page-load", initializeCodeBlocks);
+      document.documentElement.dataset.codeBlockPageLoadBound = "true";
+    }
+
+    if (!document.documentElement.dataset.imageGalleryPageLoadBound) {
+      document.addEventListener("astro:page-load", initializeImageGallery);
+      document.documentElement.dataset.imageGalleryPageLoadBound = "true";
+    }
+
+    if (!document.documentElement.dataset.imageLightboxPageLoadBound) {
+      document.addEventListener("astro:page-load", initializeLightbox);
+      document.documentElement.dataset.imageLightboxPageLoadBound = "true";
+    }
+
+    if (!document.documentElement.dataset.detailTocPageLoadBound) {
+      document.addEventListener("astro:page-load", initializeTableOfContents);
+      document.documentElement.dataset.detailTocPageLoadBound = "true";
+    }
+  </script>
+</BaseLayout>

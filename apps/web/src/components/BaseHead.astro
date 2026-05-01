@@ -1,0 +1,58 @@
+---
+import "@/styles/global.css";
+
+type Props = {
+  title: string;
+  description: string;
+  image?: string;
+  ogType?: string;
+  canonicalUrl?: string;
+  robotsIndex?: boolean;
+  robotsFollow?: boolean;
+  jsonLd?: unknown;
+};
+
+const {
+  title,
+  description,
+  image,
+  ogType = "website",
+  canonicalUrl,
+  robotsIndex = true,
+  robotsFollow = true,
+  jsonLd,
+} = Astro.props;
+
+const robots = `${robotsIndex ? "index" : "noindex"},${robotsFollow ? "follow" : "nofollow"}`;
+const resolvedCanonical = canonicalUrl || Astro.url.toString();
+const resolvedImage = image ? new URL(image, Astro.url).toString() : undefined;
+---
+
+<!-- Global Metadata -->
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<link rel="icon" type="image/svg+xml" href="/favicon.png" />
+<meta name="generator" content={Astro.generator} />
+
+<!-- Primary Meta Tags -->
+<title>{title}</title>
+<meta name="title" content={title} />
+<meta name="description" content={description} />
+<link rel="canonical" href={resolvedCanonical} />
+<meta name="robots" content={robots} />
+
+<!-- Open Graph / Facebook -->
+<meta property="og:type" content={ogType} />
+<meta property="og:url" content={resolvedCanonical} />
+<meta property="og:title" content={title} />
+<meta property="og:description" content={description} />
+<meta property="og:image" content={resolvedImage} />
+
+<!-- Twitter -->
+<meta property="twitter:card" content="summary_large_image" />
+<meta property="twitter:url" content={resolvedCanonical} />
+<meta property="twitter:title" content={title} />
+<meta property="twitter:description" content={description} />
+<meta property="twitter:image" content={resolvedImage} />
+
+{jsonLd && <script is:inline type="application/ld+json" set:html={JSON.stringify(jsonLd)} />}
