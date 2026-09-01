@@ -3,11 +3,6 @@
     "astro-docs": {
       "type": "http",
       "url": "https://mcp.docs.astro.build/mcp"
-    },
-    "dokploy-mcp": {
-      "type": "stdio",
-      "command": "npx",
-      "args": ["-y", "@dokploy/mcp"]
     }
   }
 }

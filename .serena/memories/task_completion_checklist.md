@@ -1,1 +1,0 @@
-After code changes, run `bun run build` to catch type/build issues. Ensure new imports use `@/` alias. For blog content, validate frontmatter against Zod schema. Keep styling consistent with Tailwind/DaisyUI and existing theme conventions. Do not introduce unrelated changes.
