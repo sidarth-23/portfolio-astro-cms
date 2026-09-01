@@ -18,12 +18,12 @@ type Props = {
 
 export async function getStaticPaths() {
   const pageSize = 10;
-  const [posts, allCategories, blogPage] = await Promise.all([
-    cmsClient.getAllPublishedPosts(),
+  const [totalDocs, allCategories, blogPage] = await Promise.all([
+    cmsClient.getPublishedPostsCount(),
     cmsClient.getAllCategories(),
     cmsClient.getBlogPage(),
   ]);
-  const totalPages = Math.ceil(posts.length / pageSize);
+  const totalPages = Math.ceil(totalDocs / pageSize);
 
   return Promise.all(
     Array.from({ length: Math.max(0, totalPages - 1) }, async (_, index) => {

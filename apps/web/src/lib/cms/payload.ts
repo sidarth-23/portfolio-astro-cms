@@ -1,11 +1,16 @@
-import type { Payload } from "payload";
+import config from "@sidshub/cms/payload-config";
+import { getPayload, type Payload } from "payload";
+
+let cachedPayload: Promise<Payload> | null = null;
 
 /** Load the CMS configuration for server-side queries. */
-export async function getCmsPayload(): Promise<Payload> {
-  const [{ default: config }, { getPayload }] = await Promise.all([
-    import("@sidshub/cms/payload-config"),
-    import("payload"),
-  ]);
+export function getCmsPayload(): Promise<Payload> {
+  if (!cachedPayload) {
+    cachedPayload = getPayload({ config }).catch((error: unknown) => {
+      cachedPayload = null;
+      throw error;
+    });
+  }
 
-  return getPayload({ config });
+  return cachedPayload;
 }
