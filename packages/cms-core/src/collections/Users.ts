@@ -48,6 +48,7 @@ export const Users: CollectionConfig = {
     ],
   },
   auth: {
+    useAPIKey: true,
     forgotPassword: {
       generateEmailHTML: async (args) => {
         const req = args?.req;
