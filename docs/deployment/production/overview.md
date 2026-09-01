@@ -16,11 +16,13 @@ flowchart LR
 ```
 
 Dokploy's native Traefik terminates TLS, routes domains, redirects HTTP, and supports
-WebSockets. No Nginx sidecar is required. Route the CMS domain to `payload-cms:3000`
-and the web domain to `astro-web:4321` through Dokploy's service domain settings.
+WebSockets. Use one public hostname. Route `/admin` and `/api` to `payload-cms:3000`,
+and route `/` plus all other paths to `astro-web:4321`.
 
 All services start together as one Compose project. The web build uses safe defaults
 when CMS globals and collections are unseeded, so no profile or deployment gate is required.
+The web and CMS share the same origin. Payload's admin panel is available at `/admin`,
+and the REST API is available at `/api`.
 
 MinIO has no public domain. Its host bindings are localhost-only in Compose, and
 Payload reaches it over Docker DNS at `http://minio:9000`. The bootstrap service

@@ -7,7 +7,7 @@ and WebSocket upgrades; no Nginx sidecar or deployment template is required.
 ## Prerequisites
 
 - Dokploy installed on a VPS
-- DNS A records for the CMS and web domains
+- DNS A record for the shared web/CMS hostname
 - GitHub registry credentials with `read:packages` if pulling the CMS image
 
 ## 1. Create the Compose project
@@ -24,9 +24,9 @@ Copy `.env.example` into the project's environment configuration and replace all
 placeholder values. Set:
 
 - `PAYLOAD_SECRET` to a strong generated secret.
-- `PAYLOAD_PUBLIC_SERVER_URL` to the CMS public URL.
-- `ASTRO_SITE_URL` to the web public URL.
-- `ASTRO_CMS_API_URL` to the CMS public API URL plus `/api`.
+- `PAYLOAD_PUBLIC_SERVER_URL` to the shared public URL.
+- `ASTRO_SITE_URL` to the shared public URL.
+- `ASTRO_CMS_API_URL` to the shared public URL plus `/api`.
 - Email and S3 credentials required by the CMS.
 - `IMAGE_TAG` to `latest`, a branch tag, or an immutable image tag.
 
@@ -35,12 +35,16 @@ Configure `WEB_DEPLOY_WEBHOOK_URL` and optional Dokploy cache-busting variables 
 
 ## 3. Configure Traefik domains
 
-In the project's Domains settings, route:
+In the project's Domains settings, add three routes using the same hostname:
 
-| Service       | Container port | Domain       |
-| ------------- | -------------: | ------------ |
-| `payload-cms` |           3000 | CMS hostname |
-| `astro-web`   |           4321 | Web hostname |
+| Path     | Service       | Container port | Internal path | Strip path |
+| -------- | ------------- | -------------: | ------------- | ---------- |
+| `/`      | `astro-web`   |           4321 | `/`           | Disabled   |
+| `/admin` | `payload-cms` |           3000 | `/admin`      | Disabled   |
+| `/api`   | `payload-cms` |           3000 | `/api`        | Disabled   |
+
+The `/admin` and `/api` routes must take precedence over the `/` route. Dokploy
+normally assigns higher priority to the more specific path routes.
 
 MinIO and MongoDB receive no domains. Their Compose ports bind to `127.0.0.1`, and
 MinIO remains private on the Docker network. Payload uses `http://minio:9000` directly.

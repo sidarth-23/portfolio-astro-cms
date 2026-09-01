@@ -6,7 +6,7 @@ import type { ReactNode } from "react";
 
 import config from "@payload-config";
 
-import { importMap } from "./importMap.js";
+import { importMap } from "./admin/importMap.js";
 
 type Props = {
   children: ReactNode;

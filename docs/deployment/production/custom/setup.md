@@ -23,22 +23,29 @@ from the server during the Astro build. Never expose MinIO or MongoDB through th
 
 ## 2. Configure the reverse proxy
 
-Route the public hosts directly to the internal service ports:
+Route one public hostname with path-based rules:
 
-| Host         | Service            |
-| ------------ | ------------------ |
-| CMS hostname | `payload-cms:3000` |
-| Web hostname | `astro-web:4321`   |
+```text
+example.com/       → astro-web:4321
+example.com/admin  → payload-cms:3000
+example.com/api    → payload-cms:3000
+```
 
-Attach the proxy to the compose network if it runs in Docker. With Caddy, for example:
+With Caddy, for example:
 
 ```caddyfile
-cms.example.com {
-  reverse_proxy payload-cms:3000
-}
+example.com {
+  handle /admin* {
+    reverse_proxy payload-cms:3000
+  }
 
-www.example.com, example.com {
-  reverse_proxy astro-web:4321
+  handle /api* {
+    reverse_proxy payload-cms:3000
+  }
+
+  handle {
+    reverse_proxy astro-web:4321
+  }
 }
 ```
 

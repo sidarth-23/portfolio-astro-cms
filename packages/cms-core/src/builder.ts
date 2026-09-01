@@ -139,7 +139,7 @@ export function createCmsConfig(options: CmsConfigOptions) {
       },
     },
     routes: {
-      admin: "/",
+      admin: "/admin",
     },
     endpoints: [importMediaFromUrlEndpoint, convertMarkdownEndpoint, ...orphanedMediaEndpoints],
     collections,
