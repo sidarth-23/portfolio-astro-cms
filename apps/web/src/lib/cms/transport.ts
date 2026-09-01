@@ -1,18 +1,27 @@
-import { createCmsRestTransport } from "@sidshub/cms-core/client/transport";
-import type { CmsTransport } from "@sidshub/cms-core/client";
+import type { Payload } from "payload";
+import type { CmsQueryOperations } from "./queries";
 
 const useMock =
   String(import.meta.env.ASTRO_MOCK_CMS ?? process.env.ASTRO_MOCK_CMS ?? "") === "true";
 const siteUrl = typeof import.meta.env.SITE === "string" ? import.meta.env.SITE : undefined;
 
-export async function createTransport(): Promise<CmsTransport> {
+export type CmsContext = {
+  query: CmsQueryOperations;
+  mediaBaseUrl: string;
+  siteUrl?: string;
+};
+
+export async function createTransport(): Promise<CmsContext> {
   if (useMock) {
     const { createMockTransport } = await import("./mock");
-    return createMockTransport();
+    return { query: createMockTransport(), mediaBaseUrl: "http://mock", siteUrl: "http://mock" };
   }
-  const { ASTRO_CMS_API_URL } = await import("astro:env/server");
-  return createCmsRestTransport({
-    apiUrl: ASTRO_CMS_API_URL,
+
+  const { getCmsPayload } = await import("./payload");
+  const payload: Payload = await getCmsPayload();
+  return {
+    query: payload,
+    mediaBaseUrl: payload.config.serverURL ?? "",
     siteUrl,
-  });
+  };
 }

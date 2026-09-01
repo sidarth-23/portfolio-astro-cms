@@ -1,4 +1,4 @@
-import type { Media } from "@sidshub/cms-core/payload-types";
+import type { Media } from "@sidshub/cms/payload-types";
 
 type MediaSizeUrlFn = (
   media: Media | string | number | null | undefined,

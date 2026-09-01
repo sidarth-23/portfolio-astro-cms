@@ -81,9 +81,9 @@ https://cms.example.com/api/posts?limit=1 -> published API response
 
 Create the first admin user, log in, upload one image, and confirm that its URL starts with `https://media.example.com/`.
 
-## 4. Deploy web on Cloudflare Pages
+## 4. Deploy web container
 
-Create a Pages project from the repository. Configure the monorepo build from the repository root:
+Create a Dokploy web application from the repository. Configure the monorepo build from the repository root:
 
 | Setting                | Value                                                    |
 | ---------------------- | -------------------------------------------------------- |
@@ -92,16 +92,27 @@ Create a Pages project from the repository. Configure the monorepo build from th
 | Build output directory | `apps/web/dist`                                          |
 | Node/Bun version       | Bun `1.3.6` (or the repository's configured Bun version) |
 
-Set these Pages **build-time variables**:
+Set these web container **build-time and runtime variables**:
 
 ```text
 ASTRO_SITE_URL=https://www.example.com
-ASTRO_CMS_API_URL=https://cms.example.com/api
+PAYLOAD_SECRET=<secret>
+PAYLOAD_PUBLIC_SERVER_URL=https://cms.example.com
+DATABASE_URI=<private-mongodb-uri>
+RESEND_API_KEY=<secret>
+EMAIL_FROM_ADDRESS=you@example.com
+EMAIL_FROM_NAME=Your Name
+S3_BUCKET=<bucket>
+S3_REGION=<region>
+S3_ENDPOINT=<optional-endpoint>
+S3_PUBLIC_URL=https://media.example.com/
+S3_ACCESS_KEY_ID=<access-key>
+S3_SECRET_ACCESS_KEY=<secret-key>
 ```
 
-`ASTRO_CMS_API_URL` is public build configuration, not a secret. The static build fetches CMS globals and published content, so the CMS must be healthy and publicly reachable from Cloudflare's build environment before starting a Pages deployment.
-
-Attach the production domain to Pages. Do not copy `DATABASE_URI`, `PAYLOAD_SECRET`, R2 credentials, or Resend credentials into Pages.
+Astro uses Payload's Local API for build-time content and the runtime search route.
+Keep the database, Payload, Resend, and S3 values in Dokploy secrets; the CMS must be
+healthy and reachable from the web container before starting a deployment.
 
 ## 5. Release sequence
 

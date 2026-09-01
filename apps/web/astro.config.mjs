@@ -1,4 +1,4 @@
-import { defineConfig, envField } from "astro/config";
+import { defineConfig } from "astro/config";
 import { fileURLToPath } from "node:url";
 import node from "@astrojs/node";
 import sitemap from "@astrojs/sitemap";
@@ -9,27 +9,18 @@ const siteUrl = process.env.ASTRO_SITE_URL || "http://localhost:4321";
 
 export default defineConfig({
   site: siteUrl,
-  output: "static",
+  output: "server",
   adapter: node({ mode: "standalone" }),
   integrations: [sitemap(), devRefresh()],
-  env: {
-    schema: {
-      ASTRO_CMS_API_URL: envField.string({
-        context: "server",
-        access: "public",
-        url: true,
-        default: "http://localhost:3000/api",
-      }),
-    },
-  },
   vite: {
     plugins: [tailwindcss()],
-    optimizeDeps: {
-      exclude: ["@sidshub/cms-core", "@sidshub/cms-lib-editor", "@sidshub/cms-lib-icons"],
+    ssr: {
+      noExternal: ["@sidshub/cms", "payload", "sharp"],
     },
     resolve: {
       alias: {
         "@": fileURLToPath(new URL("./src", import.meta.url)),
+        "@cms": fileURLToPath(new URL("../cms/src", import.meta.url)),
       },
     },
   },

@@ -7,18 +7,18 @@ import type {
   Series,
   SiteSetting,
   User,
-} from "@sidshub/cms-core/payload-types";
-import { resolveIconSvg } from "@sidshub/cms-lib-icons";
-import type { CmsTransport, RelationID } from "@sidshub/cms-core/client";
+} from "@sidshub/cms/payload-types";
+import { resolveIconSvg } from "@sidshub/icon-catalog";
 import {
   asCategory,
   asPopulatedAuthors,
   asSeries,
   asUserArray,
   isRelationID,
-} from "@sidshub/cms-core/client";
-import type { PopulatedAuthor } from "@sidshub/cms-core/client";
-import { createSlug, PAGE_ROUTE_MAP } from "@sidshub/cms-core/content";
+  type PopulatedAuthor,
+  type RelationID,
+} from "./relations";
+import { createSlug, PAGE_ROUTE_MAP } from "./content";
 import type { ResolvedLink } from "@/lib/types";
 import type { HomeCtaButton, TagInfo, CategoryInfo, SeriesInfo } from "./types";
 
@@ -79,7 +79,7 @@ const formatCvMonth = (dateStr: string | null | undefined): string | null => {
 };
 
 export function createCmsHelpers(
-  { siteUrl }: CmsTransport,
+  siteUrl: string | undefined,
   mediaToUrl: (media: Media) => string | undefined,
 ) {
   const toAbsolutePageUrl = (route: string): string => {

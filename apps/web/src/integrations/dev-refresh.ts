@@ -6,9 +6,7 @@ import type { ViteDevServer } from "vite";
 // When tsdown rebuilds a package, Astro's SSR module cache needs explicit
 // invalidation because server-side imports bypass Vite's HMR pipeline.
 const WORKSPACE_DIST_GLOBS = [
-  fileURLToPath(new URL("../../../../../packages/cms-core/dist/**", import.meta.url)),
-  fileURLToPath(new URL("../../../../../packages/cms-lib-editor/dist/**", import.meta.url)),
-  fileURLToPath(new URL("../../../../../packages/cms-lib-icons/dist/**", import.meta.url)),
+  fileURLToPath(new URL("../../../../../packages/icon-catalog/dist/**", import.meta.url)),
 ];
 
 /**

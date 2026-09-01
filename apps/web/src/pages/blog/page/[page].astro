@@ -1,0 +1,162 @@
+---
+import { PhFunnel, PhInfo, PhMagnifyingGlass } from "phosphor-icons-astro";
+import HorizontalCard from "@/components/HorizontalCard.astro";
+import BlogPagination from "@/components/BlogPagination.astro";
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import { cmsClient } from "@/lib/cms";
+
+export const prerender = true;
+
+type PaginatedPosts = Awaited<ReturnType<typeof cmsClient.getPaginatedPublishedPosts>>;
+type Categories = Awaited<ReturnType<typeof cmsClient.getAllCategories>>;
+type BlogPage = Awaited<ReturnType<typeof cmsClient.getBlogPage>>;
+type Props = {
+  paginatedPosts: PaginatedPosts;
+  allCategories: Categories;
+  blogPage: BlogPage;
+};
+
+export async function getStaticPaths() {
+  const pageSize = 10;
+  const [posts, allCategories, blogPage] = await Promise.all([
+    cmsClient.getAllPublishedPosts(),
+    cmsClient.getAllCategories(),
+    cmsClient.getBlogPage(),
+  ]);
+  const totalPages = Math.ceil(posts.length / pageSize);
+
+  return Promise.all(
+    Array.from({ length: Math.max(0, totalPages - 1) }, async (_, index) => {
+      const page = index + 2;
+      const paginatedPosts = await cmsClient.getPaginatedPublishedPosts({ page, pageSize });
+      return {
+        params: { page: String(page) },
+        props: { paginatedPosts, allCategories, blogPage },
+      };
+    }),
+  );
+}
+
+const { paginatedPosts, allCategories, blogPage } = Astro.props as Props;
+const currentPage = paginatedPosts.page;
+const { meta } = blogPage;
+const pageTitle = meta?.title ?? "Blog";
+const pageDescription = meta?.description ?? "Articles, notes, and ideas.";
+
+const buildSearchUrl = (category?: string): string => {
+  const params = new URLSearchParams();
+  if (category) {
+    params.set("category", category);
+  }
+  return `/blog/search${params.toString() ? `?${params.toString()}` : ""}`;
+};
+
+const buildPageUrl = (page: number): string => (page === 1 ? "/blog" : `/blog/page/${page}`);
+---
+
+<BaseLayout
+  title="Blog"
+  seoTitle={pageTitle}
+  description={pageDescription}
+  image={cmsClient.mediaToUrl(meta?.image)}
+>
+  <div class="mb-5 flex flex-col md:flex-row items-center justify-between gap-4">
+    <h1 class="text-3xl font-bold">Blog</h1>
+
+    <div role="tablist" class="tabs tabs-boxed">
+      <a role="tab" class="tab tab-active" href="/blog">Posts</a>
+      <a role="tab" class="tab" href="/blog/series">Series</a>
+    </div>
+  </div>
+
+  <div class="flex flex-col md:flex-row gap-4 mb-6 relative z-30">
+    <form method="GET" action="/blog/search" class="flex-1 join">
+      <input
+        type="search"
+        name="q"
+        placeholder="Search posts..."
+        class="input input-bordered join-item flex-1"
+      />
+      <button type="submit" class="btn btn-primary join-item">
+        <PhMagnifyingGlass class="h-5 w-5" />
+      </button>
+    </form>
+
+    <div class="dropdown dropdown-end relative z-40">
+      <div tabindex="0" role="button" class="btn btn-outline gap-2">
+        <PhFunnel class="h-5 w-5" />
+        Filter
+      </div>
+      <div
+        tabindex="0"
+        class="dropdown-content z-50 w-72 rounded-box bg-base-100 p-4 shadow pointer-events-auto"
+      >
+        <h3 class="text-sm font-semibold mb-2">Categories</h3>
+        <div class="flex flex-wrap gap-2 mb-4">
+          {
+            allCategories.map((category) => (
+              <a
+                href={buildSearchUrl(category.slug)}
+                class="badge badge-soft badge-sm no-underline badge-info"
+              >
+                {category.name}
+              </a>
+            ))
+          }
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="mb-4 text-sm text-base-content/70 flex justify-between items-center">
+    <span>
+      {
+        paginatedPosts.totalDocs > 0
+          ? `Showing ${paginatedPosts.docs.length} of ${paginatedPosts.totalDocs} posts`
+          : "No posts found"
+      }
+    </span>
+  </div>
+
+  {
+    paginatedPosts.docs.length === 0 ? (
+      <div class="alert bg-base-200">
+        <PhInfo class="shrink-0 h-6 w-6" />
+        <div>
+          <p class="font-bold">No posts found.</p>
+          <p>Check back soon for new articles.</p>
+        </div>
+      </div>
+    ) : (
+      <ul>
+        {paginatedPosts.docs.map((post, index) => (
+          <>
+            <HorizontalCard
+              title={post.title}
+              img={cmsClient.mediaSizeUrl(post.coverImage, "card")}
+              desc={post.description}
+              url={`/blog/${post.slug}`}
+              target="_self"
+              category={cmsClient.categoryFromPost(post)}
+              series={cmsClient.seriesFromPost(post)}
+              tags={cmsClient.tagsFromPost(post)}
+            />
+            {index < paginatedPosts.docs.length - 1 && <div class="divider my-0 opacity-50" />}
+          </>
+        ))}
+      </ul>
+    )
+  }
+
+  {
+    paginatedPosts.totalPages > 1 && (
+      <div class="flex justify-center my-10">
+        <BlogPagination
+          currentPage={currentPage}
+          totalPages={paginatedPosts.totalPages}
+          buildPageUrl={buildPageUrl}
+        />
+      </div>
+    )
+  }
+</BaseLayout>

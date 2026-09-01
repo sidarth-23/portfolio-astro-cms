@@ -1,9 +1,7 @@
-import type { PayloadSDK } from "@payloadcms/sdk";
-import type { Where } from "payload";
+import type { CollectionSlug, Payload, Where } from "payload";
 import type {
   BlogPage,
   Category,
-  Config,
   CvPage,
   HomePage,
   Post,
@@ -12,10 +10,11 @@ import type {
   Series,
   SeriesPage,
   SiteSetting,
-} from "@sidshub/cms-core/payload-types";
-import type { CmsTransport, RelationID } from "@sidshub/cms-core/client";
-import { isRelationID } from "@sidshub/cms-core/client";
+} from "@sidshub/cms/payload-types";
+import { isRelationID, type RelationID } from "./relations";
 import type { PaginatedPosts, PostFilterOptions, PublishedPostsQueryOptions } from "./types";
+
+export type CmsQueryOperations = Pick<Payload, "find" | "findGlobal" | "count">;
 
 type TaxonomyDoc = {
   id: RelationID;
@@ -47,7 +46,7 @@ const sortPosts = (posts: Post[]): Post[] => {
 };
 
 export function createCmsQueries(
-  { sdk }: CmsTransport,
+  query: CmsQueryOperations,
   getCachedGlobal: <T>(key: string, loader: () => Promise<T>) => Promise<T>,
 ) {
   const getTaxonomyDocBySlug = async <TDoc extends TaxonomyDoc>(
@@ -55,8 +54,8 @@ export function createCmsQueries(
     slug: string,
     depth = 0,
   ): Promise<TDoc | null> => {
-    const response = await (sdk as PayloadSDK<Config>).find({
-      collection: collection as "categories",
+    const response = await query.find({
+      collection: collection as CollectionSlug,
       where: { slug: { equals: slug } },
       depth,
       limit: 1,
@@ -106,7 +105,7 @@ export function createCmsQueries(
   };
 
   const fetchPublishedPostsPage = async (options: PublishedPostsQueryOptions = {}) => {
-    return (sdk as PayloadSDK<Config>).find({
+    return query.find({
       collection: "posts",
       where: await buildPublishedWhere(options),
       depth: options.depth ?? 3,
@@ -124,7 +123,7 @@ export function createCmsQueries(
     if (slug) {
       conditions.push({ slug: { equals: slug } });
     }
-    return (sdk as PayloadSDK<Config>).find({
+    return query.find({
       collection: "projects",
       where: conditions.length === 1 ? conditions[0] : { and: conditions },
       depth,
@@ -135,8 +134,8 @@ export function createCmsQueries(
 
   const fetchAllTaxonomySlugs = async (collection: "categories" | "series"): Promise<string[]> => {
     const limit = 200;
-    const firstPage = await (sdk as PayloadSDK<Config>).find({
-      collection: collection as "categories",
+    const firstPage = await query.find({
+      collection: collection as CollectionSlug,
       page: 1,
       limit,
       sort: "slug",
@@ -146,8 +145,8 @@ export function createCmsQueries(
     const docs: TaxonomyDoc[] = [...firstPage.docs];
 
     for (let page = 2; page <= firstPage.totalPages; page += 1) {
-      const nextPage = await (sdk as PayloadSDK<Config>).find({
-        collection: collection as "categories",
+      const nextPage = await query.find({
+        collection: collection as CollectionSlug,
         page,
         limit,
         sort: "slug",
@@ -164,7 +163,7 @@ export function createCmsQueries(
   const hasPublishedPosts = async (
     filters: Pick<PostFilterOptions, "categorySlug" | "seriesSlug">,
   ): Promise<boolean> => {
-    const result = await (sdk as PayloadSDK<Config>).count({
+    const result = await query.count({
       collection: "posts",
       where: await buildPublishedWhere(filters),
     });
@@ -174,37 +173,37 @@ export function createCmsQueries(
   return {
     getSiteSettings: (): Promise<SiteSetting> => {
       return getCachedGlobal("global:site-settings", () =>
-        (sdk as PayloadSDK<Config>).findGlobal({ slug: "site-settings", depth: 2 }),
+        query.findGlobal({ slug: "site-settings", depth: 2 }),
       );
     },
 
     getHomePage: (): Promise<HomePage> => {
       return getCachedGlobal("global:home-page", () =>
-        (sdk as PayloadSDK<Config>).findGlobal({ slug: "home-page", depth: 3 }),
+        query.findGlobal({ slug: "home-page", depth: 3 }),
       );
     },
 
     getCvPage: (): Promise<CvPage> => {
       return getCachedGlobal("global:cv-page", () =>
-        (sdk as PayloadSDK<Config>).findGlobal({ slug: "cv-page", depth: 2 }),
+        query.findGlobal({ slug: "cv-page", depth: 2 }),
       );
     },
 
     getProjectsPage: (): Promise<ProjectsPage> => {
       return getCachedGlobal("global:projects-page", () =>
-        (sdk as PayloadSDK<Config>).findGlobal({ slug: "projects-page", depth: 2 }),
+        query.findGlobal({ slug: "projects-page", depth: 2 }),
       );
     },
 
     getSeriesPage: (): Promise<SeriesPage> => {
       return getCachedGlobal("global:series-page", () =>
-        (sdk as PayloadSDK<Config>).findGlobal({ slug: "series-page", depth: 2 }),
+        query.findGlobal({ slug: "series-page", depth: 2 }),
       );
     },
 
     getBlogPage: (): Promise<BlogPage> => {
       return getCachedGlobal("global:blog-page", () =>
-        (sdk as PayloadSDK<Config>).findGlobal({ slug: "blog-page", depth: 2 }),
+        query.findGlobal({ slug: "blog-page", depth: 2 }),
       );
     },
 
@@ -308,7 +307,7 @@ export function createCmsQueries(
     },
 
     getSeriesBySlug: async (slug: string): Promise<Series | null> => {
-      const response = await (sdk as PayloadSDK<Config>).find({
+      const response = await query.find({
         collection: "series",
         where: { slug: { equals: slug } },
         depth: 2,
@@ -321,7 +320,7 @@ export function createCmsQueries(
       Array<{ slug: string; series: Series; posts: Post[] }>
     > => {
       const limit = 200;
-      const firstPage = await (sdk as PayloadSDK<Config>).find({
+      const firstPage = await query.find({
         collection: "series",
         page: 1,
         limit,
@@ -332,7 +331,7 @@ export function createCmsQueries(
       const docs = [...firstPage.docs];
 
       for (let page = 2; page <= firstPage.totalPages; page += 1) {
-        const nextPage = await (sdk as PayloadSDK<Config>).find({
+        const nextPage = await query.find({
           collection: "series",
           page,
           limit,
@@ -353,7 +352,7 @@ export function createCmsQueries(
 
     getAllCategories: async (): Promise<Category[]> => {
       const limit = 200;
-      const firstPage = await (sdk as PayloadSDK<Config>).find({
+      const firstPage = await query.find({
         collection: "categories",
         page: 1,
         limit,
@@ -364,7 +363,7 @@ export function createCmsQueries(
       const docs = [...firstPage.docs];
 
       for (let page = 2; page <= firstPage.totalPages; page += 1) {
-        const nextPage = await (sdk as PayloadSDK<Config>).find({
+        const nextPage = await query.find({
           collection: "categories",
           page,
           limit,
@@ -387,7 +386,7 @@ export function createCmsQueries(
       }>
     > => {
       const limit = 200;
-      const firstPage = await (sdk as PayloadSDK<Config>).find({
+      const firstPage = await query.find({
         collection: "series",
         page: 1,
         limit,
@@ -398,7 +397,7 @@ export function createCmsQueries(
       const docs = [...firstPage.docs];
 
       for (let page = 2; page <= firstPage.totalPages; page += 1) {
-        const nextPage = await (sdk as PayloadSDK<Config>).find({
+        const nextPage = await query.find({
           collection: "series",
           page,
           limit,

@@ -2,8 +2,8 @@
 import TableOfContents from "@/components/TableOfContents.astro";
 import BaseLayout from "@/layouts/BaseLayout.astro";
 import { PhList, PhX } from "phosphor-icons-astro";
-import type { TableOfContentsItem } from "@sidshub/cms-lib-editor/web/html";
-import type { Media } from "@sidshub/cms-core/payload-types";
+import type { TableOfContentsItem } from "@/lib/rich-text/html";
+import type { Media } from "@sidshub/cms/payload-types";
 import { getHeroImageSources } from "@/lib/cms/responsive-image";
 import { cmsClient } from "@/lib/cms";
 import type { SeriesAdjacentPost } from "@/lib/types";
@@ -165,7 +165,7 @@ const hasHeroTopSlot = Astro.slots.has("heroTop");
       initImageGallery,
       initImageLightbox,
       initTableOfContents,
-    } from "@sidshub/cms-lib-editor/web/html/client";
+    } from "@/lib/rich-text/html/client";
 
     const DETAIL_TOC_DRAWER_ID = "detail-toc-drawer";
     let cleanupCodeBlocks = () => {};

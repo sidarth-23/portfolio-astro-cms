@@ -1,7 +1,6 @@
 import { faker } from "@faker-js/faker";
-import type { PayloadSDK } from "@payloadcms/sdk";
-import type { Config } from "@sidshub/cms-core/payload-types";
-import type { CmsTransport } from "@sidshub/cms-core/client";
+import type { Payload } from "payload";
+import type { CmsQueryOperations } from "../queries";
 import {
   makeBlogPage,
   makeCategory,
@@ -15,6 +14,13 @@ import {
   makeSiteSetting,
   nextId,
 } from "./factories";
+
+type FindOptions = Parameters<Payload["find"]>[0];
+type FindResult = Awaited<ReturnType<Payload["find"]>>;
+type CountOptions = Parameters<Payload["count"]>[0];
+type CountResult = Awaited<ReturnType<Payload["count"]>>;
+type FindGlobalOptions = Parameters<Payload["findGlobal"]>[0];
+type FindGlobalResult = Awaited<ReturnType<Payload["findGlobal"]>>;
 
 const getNestedValue = (obj: unknown, path: string): unknown => {
   return path.split(".").reduce((curr: unknown, key: string) => {
@@ -43,8 +49,9 @@ const matchesCondition = (doc: unknown, where: unknown): boolean => {
     const value = getNestedValue(doc, field);
 
     if ("equals" in cond && value !== cond.equals) return false;
-    if ("in" in cond && Array.isArray(cond.in) && !(cond.in as unknown[]).includes(value))
+    if ("in" in cond && Array.isArray(cond.in) && !(cond.in as unknown[]).includes(value)) {
       return false;
+    }
     if ("like" in cond) {
       const str = typeof value === "string" ? value.toLowerCase() : "";
       if (!str.includes(String(cond.like).toLowerCase())) return false;
@@ -72,7 +79,7 @@ const paginate = <T>(docs: T[], page: number, limit: number) => {
   };
 };
 
-export const createMockTransport = (): CmsTransport => {
+export const createMockTransport = (): CmsQueryOperations => {
   faker.seed(42);
 
   const cat1 = makeCategory({ id: nextId(), name: "Technology", slug: "technology" });
@@ -137,27 +144,27 @@ export const createMockTransport = (): CmsTransport => {
     series: seriesList,
   };
 
-  const fakeSdk = {
-    find: async ({ collection, where, limit, page }: Record<string, unknown>) => {
-      const allDocs = collections[collection as string] ?? [];
-      const filtered = allDocs.filter((doc) => matchesCondition(doc, where));
-      return paginate(filtered, (page as number) ?? 1, (limit as number) ?? 100);
+  const fakePayload = {
+    find: async (options: FindOptions) => {
+      const allDocs = collections[String(options.collection)] ?? [];
+      const filtered = allDocs.filter((doc) => matchesCondition(doc, options.where));
+      return paginate(
+        filtered,
+        typeof options.page === "number" ? options.page : 1,
+        typeof options.limit === "number" ? options.limit : 100,
+      ) as FindResult;
     },
-    count: async ({ collection, where }: Record<string, unknown>) => {
-      const allDocs = collections[collection as string] ?? [];
-      const filtered = allDocs.filter((doc) => matchesCondition(doc, where));
-      return { totalDocs: filtered.length };
+    count: async (options: CountOptions) => {
+      const allDocs = collections[String(options.collection)] ?? [];
+      const filtered = allDocs.filter((doc) => matchesCondition(doc, options.where));
+      return { totalDocs: filtered.length } as CountResult;
     },
-    findGlobal: async ({ slug }: Record<string, unknown>) => {
-      const global = globals[slug as string];
-      if (!global) throw new Error(`Mock: global not found: ${String(slug)}`);
-      return global;
+    findGlobal: async (options: FindGlobalOptions) => {
+      const global = globals[String(options.slug)];
+      if (!global) throw new Error(`Mock: global not found: ${String(options.slug)}`);
+      return global as FindGlobalResult;
     },
-  };
+  } as unknown as CmsQueryOperations;
 
-  return {
-    sdk: fakeSdk as unknown as PayloadSDK<Config>,
-    mediaBaseUrl: "http://mock",
-    siteUrl: "http://mock",
-  };
+  return fakePayload;
 };

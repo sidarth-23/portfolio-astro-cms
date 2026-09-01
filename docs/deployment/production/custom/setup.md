@@ -18,8 +18,9 @@ cd sidshub
 cp .env.example .env
 ```
 
-Fill `.env` with production secrets and URLs. `ASTRO_CMS_API_URL` must be reachable
-from the server during the Astro build. Never expose MinIO or MongoDB through the reverse proxy.
+Fill `.env` with the CMS runtime contract and site URL. Astro uses Payload's Local API
+at build time and for the explicit search route; the CMS database and secrets must be
+available to the web container. Never expose MinIO or MongoDB through the reverse proxy.
 
 ## 2. Configure the reverse proxy
 

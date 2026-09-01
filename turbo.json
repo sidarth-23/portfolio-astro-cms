@@ -1,7 +1,7 @@
 {
   "$schema": "https://turbo.build/schema.json",
   "concurrency": "20",
-  "globalPassThroughEnv": ["SKIP_ENV_VALIDATION"],
+  "globalPassThroughEnv": [],
   "tasks": {
     "build": {
       "dependsOn": ["^build"],
@@ -10,36 +10,12 @@
     },
     "build:test": {
       "dependsOn": ["^build"],
-      "env": ["ASTRO_BUILD_CACHE_GLOBALS", "ASTRO_CMS_API_URL", "ASTRO_MOCK_CMS", "ASTRO_SITE_URL"],
+      "env": ["ASTRO_BUILD_CACHE_GLOBALS", "ASTRO_MOCK_CMS", "ASTRO_SITE_URL"],
       "inputs": ["$TURBO_DEFAULT$", "!README.md", "!Dockerfile", "!**/*.md", "!**/*.mdx"],
       "outputs": ["dist/**"]
     },
     "dev": {
       "dependsOn": ["^build"],
-      "cache": false,
-      "persistent": true
-    },
-    "@sidshub/web#dev": {
-      "dependsOn": ["^build"],
-      "with": [
-        "@sidshub/cms-core#dev",
-        "@sidshub/cms-lib-editor#dev",
-        "@sidshub/cms-lib-icons#dev"
-      ],
-      "cache": false,
-      "persistent": true
-    },
-    "@sidshub/cms#dev": {
-      "dependsOn": ["^build"],
-      "with": [
-        "@sidshub/cms-core#dev",
-        "@sidshub/cms-feature-emoji#dev",
-        "@sidshub/cms-feature-footnotes#dev",
-        "@sidshub/cms-feature-markdown-paste#dev",
-        "@sidshub/cms-lib-editor#dev",
-        "@sidshub/cms-lib-icons#dev",
-        "@sidshub/cms-plugin-og-image#dev"
-      ],
       "cache": false,
       "persistent": true
     },
@@ -85,11 +61,11 @@
         "src/env.d.ts",
         "tsconfig.json"
       ],
-      "env": ["ASTRO_BUILD_CACHE_GLOBALS", "ASTRO_CMS_API_URL", "ASTRO_MOCK_CMS", "ASTRO_SITE_URL"],
+      "env": ["ASTRO_BUILD_CACHE_GLOBALS", "ASTRO_MOCK_CMS", "ASTRO_SITE_URL"],
       "outputs": ["dist/**"]
     },
     "@sidshub/web#build:test": {
-      "dependsOn": ["^build"],
+      "dependsOn": [],
       "inputs": [
         "astro.config.mjs",
         "eslint.config.mjs",
@@ -98,7 +74,8 @@
         "src/**",
         "src/env.d.ts",
         "tsconfig.json"
-      ]
+      ],
+      "env": ["ASTRO_BUILD_CACHE_GLOBALS", "ASTRO_MOCK_CMS", "ASTRO_SITE_URL"]
     },
     "@sidshub/cms#build": {
       "dependsOn": ["^build"],

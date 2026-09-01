@@ -1,0 +1,183 @@
+/* Figure counters for code blocks and inline images */
+:where(article, .rich-text-content, [data-rich-text-content]) {
+  counter-reset: code-figure figure;
+}
+
+.code-block-figure {
+  counter-increment: code-figure;
+}
+
+.code-block-caption {
+  font-size: 0.75rem;
+  line-height: 1.4;
+  opacity: 1;
+  font-style: normal;
+  color: inherit;
+}
+
+.code-block-caption.no-caption {
+  display: none;
+}
+
+.code-block-caption-text {
+  font-weight: 400;
+  color: color-mix(in srgb, currentColor 72%, transparent);
+}
+
+.code-panel pre {
+  margin: 0;
+  padding: 1rem 1.125rem;
+  background: transparent !important;
+  overflow-x: auto;
+}
+
+.code-panel-header {
+  padding: 0;
+}
+
+.code-panel-actions {
+  pointer-events: none;
+}
+
+.code-panel-actions > * {
+  pointer-events: auto;
+}
+
+.prose .code-block-figure {
+  border-color: var(--tw-prose-hr);
+  margin-top: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.prose .code-panel-header {
+  box-shadow: none;
+}
+
+.code-panel-with-actions pre {
+  padding-top: 2rem;
+  padding-right: 4.5rem;
+}
+
+/* Inline image figures in rich text content */
+.image-figure {
+  counter-increment: figure;
+  margin-block: 2rem;
+  text-align: center;
+}
+
+.image-figure figcaption,
+.image-gallery-figure figcaption {
+  margin-top: 0.625rem;
+  font-size: 0.75rem;
+  line-height: 1.4;
+  opacity: 1;
+  font-style: normal;
+  color: inherit;
+}
+
+.image-gallery-figure {
+  counter-increment: figure var(--gallery-count, 1);
+}
+
+.image-figure figcaption::before {
+  content: "Fig " counter(figure);
+  font-weight: 600;
+}
+
+.image-figure figcaption.has-caption::before {
+  content: "Fig " counter(figure) " - ";
+}
+
+.image-gallery-figure figcaption::before {
+  content: attr(data-fig-label);
+  font-weight: 600;
+}
+
+.image-gallery-figure figcaption.has-caption::before {
+  content: attr(data-fig-label) " - ";
+}
+
+/* Keep media caption rich text inline with the figure label (Fig n - ...). */
+.image-figure figcaption > :where(p),
+.image-gallery-figure figcaption > :where(p) {
+  display: inline;
+  margin: 0;
+}
+
+.image-figure figcaption > :where(p + p)::before,
+.image-gallery-figure figcaption > :where(p + p)::before {
+  content: " ";
+}
+
+.image-figure figcaption :where(strong, b),
+.image-gallery-figure figcaption :where(strong, b) {
+  font-weight: 600;
+}
+
+.image-figure figcaption :where(em, i),
+.image-gallery-figure figcaption :where(em, i) {
+  font-style: italic;
+}
+
+/* Image gallery figures in rich text content */
+.image-gallery-figure {
+  margin-block: 2rem;
+  text-align: center;
+}
+
+/* Footnotes in rendered rich text */
+.footnote-ref {
+  margin-left: 0.1em;
+}
+
+.footnote-ref > a {
+  font-size: 0.75em;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.footnote-ref > a:hover {
+  text-decoration: underline;
+}
+
+.footnotes {
+  margin-top: 2.25rem;
+  padding-top: 1rem;
+  border-top: 1px solid color-mix(in srgb, currentColor 16%, transparent);
+}
+
+.footnotes-title {
+  margin: 0 0 0.75rem;
+  font-size: 0.95rem;
+  letter-spacing: 0.01em;
+  text-transform: uppercase;
+}
+
+.footnotes ol {
+  margin: 0;
+  padding-left: 1.25rem;
+}
+
+.footnotes li {
+  scroll-margin-top: 7rem;
+}
+
+.footnotes li + li {
+  margin-top: 0.5rem;
+}
+
+.footnote-backrefs {
+  display: inline-flex;
+  gap: 0.25rem;
+  margin-left: 0.35rem;
+  white-space: nowrap;
+}
+
+.footnote-backref {
+  font-size: 0.85em;
+  text-decoration: none;
+}
+
+.footnote-backref:hover {
+  text-decoration: underline;
+}

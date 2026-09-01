@@ -1,17 +1,18 @@
-import { createMediaUrlResolver, createMediaSizeUrlResolver } from "@sidshub/cms-core/client/media";
+import { createMediaUrlResolver, createMediaSizeUrlResolver } from "./media";
 import { createTransport } from "./transport";
 import { createGlobalCache } from "./cache";
 import { createCmsQueries } from "./queries";
 import { createCmsHelpers } from "./helpers";
 
-const transport = await createTransport();
-const mediaToUrl = createMediaUrlResolver(transport.mediaBaseUrl);
-const mediaSizeUrl = createMediaSizeUrlResolver(transport.mediaBaseUrl);
+const { query, mediaBaseUrl, siteUrl } = await createTransport();
+const mediaToUrl = createMediaUrlResolver(mediaBaseUrl);
+const mediaSizeUrl = createMediaSizeUrlResolver(mediaBaseUrl);
 const getCachedGlobal = createGlobalCache();
-const queries = createCmsQueries(transport, getCachedGlobal);
-const helpers = createCmsHelpers(transport, mediaToUrl);
+const queries = createCmsQueries(query, getCachedGlobal);
+const helpers = createCmsHelpers(siteUrl, mediaToUrl);
 
-export const cmsClient = { ...queries, ...helpers, mediaToUrl, mediaSizeUrl };
+export const cmsClient = { ...queries, ...helpers, mediaToUrl, mediaSizeUrl, mediaBaseUrl };
+export const cmsMediaBaseUrl = mediaBaseUrl;
 
 export type {
   TagInfo,

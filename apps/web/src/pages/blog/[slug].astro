@@ -1,12 +1,13 @@
 ---
+export const prerender = true;
 import RichTextRenderer from "@/components/RichTextRenderer.astro";
 import SeriesNav from "@/components/SeriesNav.astro";
 import FloatingSeriesToolbar from "@/components/FloatingSeriesToolbar.astro";
 import PostLayout from "@/layouts/PostLayout.astro";
-import { extractTableOfContents } from "@sidshub/cms-lib-editor/web/html";
-import { resolveIconSvg } from "@sidshub/cms-lib-icons";
+import { extractTableOfContents } from "@/lib/rich-text/html";
+import { resolveIconSvg } from "@sidshub/icon-catalog";
 import { cmsClient } from "@/lib/cms";
-import type { Post } from "@sidshub/cms-core/payload-types";
+import type { Post } from "@sidshub/cms/payload-types";
 import type { SeriesAdjacentPost } from "@/lib/types";
 
 type Props = { post: Post };

@@ -1,9 +1,10 @@
 ---
+export const prerender = true;
 import RichTextRenderer from "@/components/RichTextRenderer.astro";
 import ProjectLayout from "@/layouts/ProjectLayout.astro";
 import { cmsClient } from "@/lib/cms";
-import { extractTableOfContents } from "@sidshub/cms-lib-editor/web/html";
-import type { Project } from "@sidshub/cms-core/payload-types";
+import { extractTableOfContents } from "@/lib/rich-text/html";
+import type { Project } from "@sidshub/cms/payload-types";
 
 type Props = { project: Project };
 

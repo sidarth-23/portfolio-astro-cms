@@ -1,0 +1,27 @@
+{
+  "name": "@sidshub/icon-catalog",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "sideEffects": false,
+  "scripts": {
+    "prebuild": "bun run scripts/codegen-phosphor-svgs.ts",
+    "build": "bun run prebuild && rm -rf dist && tsdown",
+    "dev": "bun run prebuild && tsdown --watch",
+    "clean": "rm -rf dist",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix"
+  },
+  "exports": {
+    ".": "./dist/index.mjs",
+    "./parser": "./dist/parser.mjs"
+  },
+  "dependencies": {
+    "@phosphor-icons/core": "^2.1.1",
+    "simple-icons": "^16.15.0"
+  },
+  "devDependencies": {
+    "@sidshub/dev-config": "workspace:*",
+    "eslint": "^9.24.0"
+  }
+}

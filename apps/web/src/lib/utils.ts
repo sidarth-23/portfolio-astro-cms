@@ -1,9 +1,9 @@
 export const generateFilterUrl = (currentUrl: URL, key: string, value: string): string => {
   const newUrl = new URL(currentUrl.toString());
-  // If we are not on the blog page, reset to /blog
-  if (newUrl.pathname !== "/blog") {
-    newUrl.pathname = "/blog";
-    newUrl.search = ""; // Clear existing params if we are navigating from a non-blog page
+  // If we are not on the runtime blog search route, reset to /blog/search
+  if (newUrl.pathname !== "/blog/search") {
+    newUrl.pathname = "/blog/search";
+    newUrl.search = "";
   }
 
   const params = newUrl.searchParams;

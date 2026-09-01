@@ -1,0 +1,43 @@
+import type { CollectionConfig } from "payload";
+import { publicReadAccess } from "@cms/access/readAccess";
+import { slugField } from "@cms/fields/slug";
+import { createPayloadDataSchemaHook, seriesSchema } from "@cms/lib/validation";
+
+export const Series: CollectionConfig = {
+  slug: "series",
+  access: {
+    read: publicReadAccess,
+  },
+  admin: {
+    useAsTitle: "name",
+    defaultColumns: ["name", "slug", "updatedAt"],
+    group: "Taxonomy",
+  },
+  hooks: {
+    beforeValidate: [
+      createPayloadDataSchemaHook(seriesSchema, { errorPrefix: "Series validation failed:" }),
+    ],
+  },
+  fields: [
+    {
+      name: "name",
+      type: "text",
+      required: true,
+    },
+    {
+      name: "description",
+      type: "textarea",
+    },
+    {
+      name: "posts",
+      type: "relationship",
+      relationTo: "posts",
+      hasMany: true,
+      required: false,
+      admin: {
+        description: "Select and reorder posts in this series.",
+      },
+    },
+    slugField({ fieldToUse: "name" }),
+  ],
+};

@@ -22,7 +22,6 @@ COPY --from=deps /app/node_modules ./node_modules
 COPY --from=pruner /app/out/full/ .
 COPY --from=pruner /app/out/json/bun.lock ./bun.lock
 ENV NODE_ENV=production
-ENV SKIP_ENV_VALIDATION=1
 RUN --mount=type=cache,id=sidshub-turbo-cms,target=/app/.turbo ./node_modules/.bin/turbo run build --filter=@sidshub/cms...
 # Remove build cache — not needed at runtime and accounts for ~633 MB
 RUN rm -rf /app/apps/cms/.next/cache
@@ -36,13 +35,7 @@ COPY --from=builder --chown=node:node /app/apps/cms/.next/standalone ./
 COPY --from=builder --chown=node:node /app/apps/cms/.next/static ./apps/cms/.next/static
 # Workspace package dist outputs (Payload resolves these at runtime)
 COPY --from=builder --chown=node:node /app/packages/dev-config/dist ./packages/dev-config/dist
-COPY --from=builder --chown=node:node /app/packages/cms-core/dist ./packages/cms-core/dist
-COPY --from=builder --chown=node:node /app/packages/cms-lib-editor/dist ./packages/cms-lib-editor/dist
-COPY --from=builder --chown=node:node /app/packages/cms-lib-icons/dist ./packages/cms-lib-icons/dist
-COPY --from=builder --chown=node:node /app/packages/cms-feature-emoji/dist ./packages/cms-feature-emoji/dist
-COPY --from=builder --chown=node:node /app/packages/cms-feature-footnotes/dist ./packages/cms-feature-footnotes/dist
-COPY --from=builder --chown=node:node /app/packages/cms-feature-markdown-paste/dist ./packages/cms-feature-markdown-paste/dist
-COPY --from=builder --chown=node:node /app/packages/cms-plugin-og-image/dist ./packages/cms-plugin-og-image/dist
+COPY --from=builder --chown=node:node /app/packages/icon-catalog/dist ./packages/icon-catalog/dist
 ENV NODE_ENV=production
 ENV HOSTNAME=0.0.0.0
 ENV PORT=3000

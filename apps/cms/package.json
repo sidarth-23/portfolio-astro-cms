@@ -2,9 +2,12 @@
   "name": "@sidshub/cms",
   "private": true,
   "type": "module",
+  "exports": {
+    "./payload-config": "./src/payload.config.ts",
+    "./payload-types": "./src/payload-types.ts"
+  },
   "scripts": {
-    "prepare:admin-artifacts": "cross-env NODE_OPTIONS=--no-deprecation SKIP_ENV_VALIDATION=1 payload generate:importmap",
-    "predev": "npm run prepare:admin-artifacts",
+    "prepare:admin-artifacts": "cross-env NODE_OPTIONS=--no-deprecation payload generate:importmap",
     "prebuild": "npm run prepare:admin-artifacts",
     "clean:next": "rm -rf .next",
     "dev": "npm run clean:next && cross-env NODE_OPTIONS=--no-deprecation next dev -p 3000",
@@ -21,24 +24,25 @@
     "@payloadcms/next": "3.82.1",
     "@payloadcms/plugin-seo": "3.82.1",
     "@payloadcms/richtext-lexical": "3.82.1",
-    "@payloadcms/storage-s3": "3.82.1",
-    "@sidshub/cms-core": "workspace:*",
-    "@sidshub/cms-lib-editor": "workspace:*",
-    "@sidshub/cms-feature-emoji": "workspace:*",
-    "@sidshub/cms-feature-footnotes": "workspace:*",
-    "@sidshub/cms-feature-markdown-paste": "workspace:*",
-    "@sidshub/cms-plugin-og-image": "workspace:*",
+    "@payloadcms/ui": "3.82.1",
+    "@sidshub/icon-catalog": "workspace:*",
     "@t3-oss/env-core": "^0.13.4",
     "cross-env": "^7.0.3",
+    "markdown-it": "14.1.0",
+    "markdown-it-footnote": "^4.0.0",
     "next": "^15.4.11",
     "payload": "3.82.1",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
+    "react-select": "5.9.0",
     "sharp": "^0.34.3",
     "zod": "^3.24.1"
   },
   "devDependencies": {
     "@sidshub/dev-config": "workspace:*",
+    "@types/markdown-it": "^14.2.0",
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
     "eslint": "^9.24.0",
     "typescript": "^5.7.2"
   }
