@@ -22,6 +22,7 @@ COPY --from=deps /app/node_modules ./node_modules
 COPY --from=pruner /app/out/full/ .
 COPY --from=pruner /app/out/json/bun.lock ./bun.lock
 ENV NODE_ENV=production
+ENV SKIP_ENV_VALIDATION=1
 RUN --mount=type=cache,id=sidshub-turbo-cms,target=/app/.turbo ./node_modules/.bin/turbo run build --filter=@sidshub/cms...
 # Remove build cache — not needed at runtime and accounts for ~633 MB
 RUN rm -rf /app/apps/cms/.next/cache

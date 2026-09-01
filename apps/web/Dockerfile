@@ -11,6 +11,7 @@ RUN bunx turbo prune @sidshub/web --docker
 # Install only dependencies (no scripts)
 FROM base AS deps
 COPY --from=pruner /app/out/json/ .
+COPY --from=pruner /app/out/json/bun.lock ./bun.lock
 RUN bun install --frozen-lockfile --ignore-scripts
 
 # App build stage (Bun)
@@ -35,6 +36,9 @@ ARG S3_SECRET_ACCESS_KEY
 ENV ASTRO_SITE_URL=${ASTRO_SITE_URL}
 ENV PAYLOAD_SECRET=${PAYLOAD_SECRET}
 ENV PAYLOAD_PUBLIC_SERVER_URL=${PAYLOAD_PUBLIC_SERVER_URL}
+ENV DATABASE_URI=${DATABASE_URI}
+ENV RESEND_API_KEY=${RESEND_API_KEY}
+ENV SKIP_ENV_VALIDATION=1
 ENV EMAIL_FROM_ADDRESS=${EMAIL_FROM_ADDRESS}
 ENV EMAIL_FROM_NAME=${EMAIL_FROM_NAME}
 ENV S3_BUCKET=${S3_BUCKET}
