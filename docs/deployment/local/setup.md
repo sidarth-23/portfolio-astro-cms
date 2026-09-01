@@ -14,22 +14,23 @@ The root `docker-compose.yml` contains the complete stack. For host-based develo
 ```bash
 bun install
 cp .env.example .env
-# Or copy .env.services.example when running backing services only.
+cp .env.cms.example apps/cms/.env
+cp .env.cms.example apps/web/.env
 task up
 bun run dev:all
 ```
 
-`task up` runs `mongodb`, `minio`, and the one-shot `minio-init` service. The bucket is
-created idempotently and forced private. `task up:all` (or `task up:build`) builds and
-starts every service in the root compose file.
+`.env.example` configures the backing services. The app files contain the
+runtime variables required by Payload; Astro also bridges its app-local
+variables to the shared Payload configuration during development.
+
+`task up` runs `mongodb`, `minio`, and the one-shot `minio-init` service. The
+bucket is created idempotently.
 
 ## Compose Commands
 
 ```bash
 task up                 # MongoDB, MinIO, and bucket bootstrap
-task up:services        # Alias for task up
-task up:all             # Build and start the complete containerized stack
-task up:build           # Alias for task up:all
 task logs               # Follow all service logs
 task status             # Show service status
 task down               # Stop services

@@ -7,7 +7,7 @@
   "scripts": {
     "prebuild": "bun run scripts/codegen-phosphor-svgs.ts",
     "build": "bun run prebuild && rm -rf dist && tsdown",
-    "dev": "bun run prebuild && tsdown --watch",
+    "dev": "bun run prebuild",
     "clean": "rm -rf dist",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix"

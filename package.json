@@ -12,14 +12,9 @@
     "@lexical/*": "0.41.0"
   },
   "scripts": {
-    "dev": "bun run dev:web",
-    "dev:web": "turbo run dev --filter=@sidshub/web",
-    "dev:cms": "turbo run dev --filter=@sidshub/cms",
-    "dev:all": "turbo run dev --filter=@sidshub/web --filter=@sidshub/cms",
-    "build": "turbo run build --filter=@sidshub/web --filter=@sidshub/cms",
-    "build:web": "turbo run build --filter=@sidshub/web",
-    "build:cms": "turbo run build --filter=@sidshub/cms",
-    "check:web": "turbo run check --filter=@sidshub/web",
+    "dev": "turbo run dev",
+    "build": "turbo run build",
+    "check": "turbo run check",
     "payload:types": "turbo run generate:types --filter=@sidshub/cms",
     "lint": "turbo run lint",
     "lint:fix": "turbo run lint:fix",

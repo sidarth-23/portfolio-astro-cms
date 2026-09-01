@@ -12,6 +12,16 @@
       "cache": false,
       "persistent": true
     },
+    "@sidshub/web#dev": {
+      "dependsOn": ["@sidshub/icon-catalog#build"],
+      "cache": false,
+      "persistent": true
+    },
+    "@sidshub/cms#dev": {
+      "dependsOn": ["@sidshub/icon-catalog#build"],
+      "cache": false,
+      "persistent": true
+    },
     "check": {
       "outputs": []
     },

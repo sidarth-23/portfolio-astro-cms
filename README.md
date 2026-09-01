@@ -81,13 +81,13 @@ flowchart LR
 # 1) Install dependencies
 bun install
 
-# 2) Configure the unified environment
-cp .env.example .env
+# The web and CMS load runtime variables from their app directories.
+cp .env.cms.example apps/cms/.env
+cp .env.cms.example apps/web/.env
+# 3) Start the local backing services
+task up
 
-# 3) Start the unified Docker Compose project
-task up:build
-
-# 4) Start app dev servers when developing locally
+# 4) Start the app dev servers
 bun run dev:web
 # or: bun run dev:cms / bun run dev:all
 ```
