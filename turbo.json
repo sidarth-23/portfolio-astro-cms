@@ -9,22 +9,15 @@
       "outputs": ["dist/**"]
     },
     "build:test": {
-      "dependsOn": ["^build"],
       "env": ["ASTRO_BUILD_CACHE_GLOBALS", "ASTRO_MOCK_CMS", "ASTRO_SITE_URL"],
       "inputs": ["$TURBO_DEFAULT$", "!README.md", "!Dockerfile", "!**/*.md", "!**/*.mdx"],
       "outputs": ["dist/**"]
     },
     "dev": {
-      "dependsOn": ["^build"],
       "cache": false,
       "persistent": true
     },
-    "@sidshub/dev-config#dev": {
-      "dependsOn": [],
-      "cache": false
-    },
     "check": {
-      "dependsOn": ["^build"],
       "outputs": []
     },
     "lint": {
@@ -51,43 +44,14 @@
       "outputs": ["src/payload-types.ts", "src/payload-generated-schema.ts"]
     },
     "@sidshub/web#build": {
-      "dependsOn": ["^build"],
-      "inputs": [
-        "astro.config.mjs",
-        "eslint.config.mjs",
-        "package.json",
-        "public/**",
-        "src/**",
-        "src/env.d.ts",
-        "tsconfig.json"
-      ],
+      "dependsOn": ["@sidshub/icon-catalog#build"],
+      "inputs": ["$TURBO_DEFAULT$", "!README.md", "!Dockerfile", "!**/*.md", "!**/*.mdx"],
       "env": ["ASTRO_BUILD_CACHE_GLOBALS", "ASTRO_MOCK_CMS", "ASTRO_SITE_URL"],
       "outputs": ["dist/**"]
     },
-    "@sidshub/web#build:test": {
-      "dependsOn": [],
-      "inputs": [
-        "astro.config.mjs",
-        "eslint.config.mjs",
-        "package.json",
-        "public/**",
-        "src/**",
-        "src/env.d.ts",
-        "tsconfig.json"
-      ],
-      "env": ["ASTRO_BUILD_CACHE_GLOBALS", "ASTRO_MOCK_CMS", "ASTRO_SITE_URL"]
-    },
     "@sidshub/cms#build": {
-      "dependsOn": ["^build"],
-      "inputs": [
-        "eslint.config.mjs",
-        "next-env.d.ts",
-        "next.config.mjs",
-        "package.json",
-        "payload-types.ts",
-        "src/**",
-        "tsconfig.json"
-      ],
+      "dependsOn": ["@sidshub/icon-catalog#build"],
+      "inputs": ["$TURBO_DEFAULT$", "!README.md", "!Dockerfile", "!**/*.md", "!**/*.mdx"],
       "env": [
         "ASTRO_SITE_URL",
         "PAYLOAD_SECRET",

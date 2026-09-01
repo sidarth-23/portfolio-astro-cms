@@ -10,6 +10,7 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 /** @type {import("next").NextConfig} */
 const nextConfig = {
   output: "standalone",
+  transpilePackages: ["@sidshub/icon-catalog"],
   // Required for monorepo: traces files from the repo root so workspace
   // packages are included in the standalone output
   outputFileTracingRoot: path.resolve(__dirname, "../.."),

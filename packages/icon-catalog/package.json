@@ -13,8 +13,16 @@
     "lint:fix": "eslint . --fix"
   },
   "exports": {
-    ".": "./dist/index.mjs",
-    "./parser": "./dist/parser.mjs"
+    ".": {
+      "types": "./src/index.ts",
+      "import": "./src/index.ts",
+      "default": "./dist/index.mjs"
+    },
+    "./parser": {
+      "types": "./src/parser.ts",
+      "import": "./src/parser.ts",
+      "default": "./dist/parser.mjs"
+    }
   },
   "dependencies": {
     "@phosphor-icons/core": "^2.1.1",
