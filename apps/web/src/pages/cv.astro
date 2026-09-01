@@ -5,15 +5,15 @@ import TimeLineElement from "@/components/TimeLine.astro";
 import BaseLayout from "@/layouts/BaseLayout.astro";
 import { PhLink } from "phosphor-icons-astro";
 import { cmsClient } from "@/lib/cms";
-const [{ meta, sections }, siteSettings] = await Promise.all([
+const [{ meta, sections: cvSections }, siteSettings] = await Promise.all([
   cmsClient.getCvPage(),
   cmsClient.getSiteSettings(),
 ]);
 const profileImage = cmsClient.mediaSizeUrl(siteSettings.profileImage, "thumbnail");
 
-if (!meta.title || !meta.description) {
-  throw new Error("CV page requires SEO `meta.title` and `meta.description`.");
-}
+const pageTitle = meta?.title ?? "Resume";
+const pageDescription = meta?.description ?? "My resume and professional experience.";
+const sections = cvSections ?? [];
 
 const BADGE_GROUP_STYLES = [
   "badge badge-soft badge-md badge-primary gap-2",
@@ -24,8 +24,8 @@ const BADGE_GROUP_STYLES = [
 
 <BaseLayout
   title="Resume"
-  seoTitle={meta.title}
-  description={meta.description}
+  seoTitle={pageTitle}
+  description={pageDescription}
   image={cmsClient.mediaToUrl(meta?.image)}
 >
   <CvProfileHeader name={siteSettings.name} role={siteSettings.role} profileImage={profileImage} />

@@ -10,13 +10,7 @@
     },
     "build:test": {
       "dependsOn": ["^build"],
-      "env": [
-        "ASTRO_BUILD_CACHE_GLOBALS",
-        "ASTRO_CMS_API_URL",
-        "ASTRO_CMS_READ_TOKEN",
-        "ASTRO_MOCK_CMS",
-        "ASTRO_SITE_URL"
-      ],
+      "env": ["ASTRO_BUILD_CACHE_GLOBALS", "ASTRO_CMS_API_URL", "ASTRO_MOCK_CMS", "ASTRO_SITE_URL"],
       "inputs": ["$TURBO_DEFAULT$", "!README.md", "!Dockerfile", "!**/*.md", "!**/*.mdx"],
       "outputs": ["dist/**"]
     },
@@ -70,7 +64,6 @@
         "PAYLOAD_SECRET",
         "PAYLOAD_PUBLIC_SERVER_URL",
         "DATABASE_URI",
-        "CMS_READ_TOKEN",
         "RESEND_API_KEY",
         "EMAIL_FROM_ADDRESS",
         "EMAIL_FROM_NAME",
@@ -93,13 +86,7 @@
         "src/env.d.ts",
         "tsconfig.json"
       ],
-      "env": [
-        "ASTRO_BUILD_CACHE_GLOBALS",
-        "ASTRO_CMS_API_URL",
-        "ASTRO_CMS_READ_TOKEN",
-        "ASTRO_MOCK_CMS",
-        "ASTRO_SITE_URL"
-      ],
+      "env": ["ASTRO_BUILD_CACHE_GLOBALS", "ASTRO_CMS_API_URL", "ASTRO_MOCK_CMS", "ASTRO_SITE_URL"],
       "outputs": ["dist/**"]
     },
     "@sidshub/web#build:test": {
@@ -129,7 +116,6 @@
         "PAYLOAD_SECRET",
         "PAYLOAD_PUBLIC_SERVER_URL",
         "DATABASE_URI",
-        "CMS_READ_TOKEN",
         "RESEND_API_KEY",
         "EMAIL_FROM_ADDRESS",
         "EMAIL_FROM_NAME",

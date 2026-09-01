@@ -13,9 +13,8 @@ bun run --filter @sidshub/cms cleanup:media
 
 Copy the root `.env.cms.example` to `apps/cms/.env` and fill required values.
 
-Required for web read access over REST:
-
-- `CMS_READ_TOKEN` (must match `ASTRO_CMS_READ_TOKEN` used by the web app)
+Public REST reads use Payload's native access control: published content is readable
+without authentication, while authenticated CMS users can read all content.
 
 Required for auth email delivery via Resend:
 

@@ -1,6 +1,6 @@
 import type { CollectionConfig } from "payload";
 import { createDocumentRichTextEditor } from "@/lib/editor";
-import { readAccess } from "@/access/readAccess";
+import { publishedReadAccess } from "@/access/readAccess";
 import { iconPickerField } from "@sidshub/cms-lib-icons";
 import { linkFields } from "@/fields/link";
 import { slugField } from "@/fields/slug";
@@ -9,7 +9,7 @@ import { projectsSchema, createPayloadDataSchemaHook } from "@/lib/validation";
 export const Projects: CollectionConfig = {
   slug: "projects",
   access: {
-    read: readAccess,
+    read: publishedReadAccess,
   },
   admin: {
     useAsTitle: "title",

@@ -10,7 +10,6 @@ export const env = createEnv({
     RESEND_API_KEY: z.string().min(1),
     EMAIL_FROM_ADDRESS: z.string().email(),
     EMAIL_FROM_NAME: z.string().min(1),
-    CMS_READ_TOKEN: z.string().min(1),
     S3_BUCKET: z.string().min(1),
     S3_REGION: z.string().min(1),
     S3_ENDPOINT: z.string().optional(),

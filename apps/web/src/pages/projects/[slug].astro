@@ -40,9 +40,9 @@ const toc = extractTableOfContents(project.content);
 
 <ProjectLayout
   title={project.title}
-  seoTitle={project.meta.title}
-  seoDescription={project.meta.description}
-  image={cmsClient.mediaToUrl(project.meta.image) ?? coverImage}
+  seoTitle={project.meta?.title ?? project.title}
+  seoDescription={project.meta?.description ?? project.description}
+  image={cmsClient.mediaToUrl(project.meta?.image) ?? coverImage}
   heroImage={coverImage}
   heroMedia={project.coverImage}
   createdAt={project.createdAt}

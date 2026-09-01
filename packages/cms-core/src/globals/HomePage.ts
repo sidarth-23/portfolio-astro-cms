@@ -1,7 +1,7 @@
 import type { GlobalConfig } from "payload";
 import { createBasicRichTextEditor } from "@/lib/editor";
 
-import { readAccess } from "@/access/readAccess";
+import { publicReadAccess } from "@/access/readAccess";
 import { featuredSectionFields } from "@/fields/featured";
 import { linkField } from "@/fields/link";
 import { HOME_CTA_VARIANT_OPTIONS } from "@/lib/content";
@@ -11,7 +11,7 @@ export const HomePage: GlobalConfig = {
   slug: "home-page",
   label: "Home Page",
   access: {
-    read: readAccess,
+    read: publicReadAccess,
   },
   admin: {
     group: "Pages",

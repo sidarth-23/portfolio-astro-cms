@@ -43,9 +43,8 @@ const [paginatedPosts, allCategories, allSeries, blogPage]: [
 
 const { meta } = blogPage;
 
-if (!meta.title || !meta.description) {
-  throw new Error("Blog page requires SEO `meta.title` and `meta.description`.");
-}
+const pageTitle = meta?.title ?? "Blog";
+const pageDescription = meta?.description ?? "Articles, notes, and ideas.";
 
 // Helper to build blog URLs with filters
 const buildBlogUrl = (overrides: {
@@ -88,8 +87,8 @@ const activeSeries = seriesFilter ? allSeries.find((s) => s.slug === seriesFilte
 
 <BaseLayout
   title="Blog"
-  seoTitle={meta.title}
-  description={meta.description}
+  seoTitle={pageTitle}
+  description={pageDescription}
   image={cmsClient.mediaToUrl(meta?.image)}
 >
   <div class="mb-5 flex flex-col md:flex-row items-center justify-between gap-4">

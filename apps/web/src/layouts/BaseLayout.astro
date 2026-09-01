@@ -29,26 +29,16 @@ const {
 
 const siteSettings = await cmsClient.getSiteSettings();
 
-const pageTitle = seoTitle;
-const pageDescription = description;
-
-if (!pageTitle) {
-  throw new Error(
-    `BaseLayout requires a non-empty SEO title via \`seoTitle\` (page title: "${title}").`,
-  );
-}
-
-if (!pageDescription) {
-  throw new Error("BaseLayout requires a non-empty SEO description via `description`.");
-}
-
+const pageTitle = seoTitle || title || siteSettings?.meta?.title || "Sid's Hub";
+const pageDescription =
+  description || siteSettings?.meta?.description || "Personal portfolio and blog.";
 const profileImage =
-  cmsClient.mediaSizeUrl(siteSettings.profileImage, "thumbnail") ||
+  cmsClient.mediaSizeUrl(siteSettings?.profileImage, "thumbnail") ||
   "https://placehold.co/300x300?text=Profile";
 const footerItems = cmsClient.footerItemsFromSiteSettings(siteSettings);
-const resumeDownloadUrl = siteSettings.resumeDownloadUrl || undefined;
-const profileName = siteSettings.name;
-const profileRole = siteSettings.role;
+const resumeDownloadUrl = siteSettings?.resumeDownloadUrl || undefined;
+const profileName = siteSettings?.name || "Sidarth";
+const profileRole = siteSettings?.role || "";
 ---
 
 <!doctype html>

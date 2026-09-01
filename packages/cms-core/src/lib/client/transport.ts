@@ -9,7 +9,7 @@ export type CmsTransport = {
 
 type RestClientOptions = {
   apiUrl: string;
-  token: string;
+  token?: string;
   siteUrl?: string;
   fetchImpl?: typeof fetch;
 };
@@ -27,7 +27,9 @@ export const createCmsRestTransport = ({
     const headers = new Headers(
       init instanceof Request ? init.headers : (init as RequestInit).headers,
     );
-    headers.set("Authorization", `Bearer ${token}`);
+    if (token) {
+      headers.set("Authorization", `Bearer ${token}`);
+    }
     try {
       if (init instanceof Request) {
         return await fetchImpl(new Request(input, { ...init, headers }));

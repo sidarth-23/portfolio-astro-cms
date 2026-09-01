@@ -6,7 +6,7 @@
     "dev": "astro dev",
     "start": "astro dev",
     "build": "ASTRO_BUILD_CACHE_GLOBALS=true astro check && ASTRO_BUILD_CACHE_GLOBALS=true astro build",
-    "build:test": "ASTRO_BUILD_CACHE_GLOBALS=true ASTRO_MOCK_CMS=true ASTRO_CMS_READ_TOKEN=mock ASTRO_CMS_API_URL=http://mock astro check && ASTRO_BUILD_CACHE_GLOBALS=true ASTRO_MOCK_CMS=true ASTRO_CMS_READ_TOKEN=mock ASTRO_CMS_API_URL=http://mock astro build",
+    "build:test": "ASTRO_BUILD_CACHE_GLOBALS=true ASTRO_MOCK_CMS=true ASTRO_CMS_API_URL=http://mock astro check && ASTRO_BUILD_CACHE_GLOBALS=true ASTRO_MOCK_CMS=true ASTRO_CMS_API_URL=http://mock astro build",
     "preview": "astro preview",
     "check": "astro check",
     "lint": "eslint .",

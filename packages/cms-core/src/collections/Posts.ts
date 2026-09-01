@@ -1,6 +1,6 @@
 import type { CollectionConfig } from "payload";
 import { createBasicRichTextEditor, createDocumentRichTextEditor } from "@/lib/editor";
-import { readAccess } from "@/access/readAccess";
+import { publishedReadAccess } from "@/access/readAccess";
 import { populateAuthors } from "@/hooks/populateAuthors";
 import { populateSeries } from "@/hooks/populateSeries";
 import { slugField } from "@/fields/slug";
@@ -9,7 +9,7 @@ import { createPayloadDataSchemaHook, postsSchema } from "@/lib/validation";
 export const Posts: CollectionConfig = {
   slug: "posts",
   access: {
-    read: readAccess,
+    read: publishedReadAccess,
   },
   admin: {
     useAsTitle: "title",

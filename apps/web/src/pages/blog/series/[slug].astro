@@ -35,12 +35,9 @@ export async function getStaticPaths() {
 const { series, posts } = Astro.props as SeriesPageProps;
 const { meta: seriesPageMeta } = await cmsClient.getSeriesPage();
 
-if (!seriesPageMeta.title || !seriesPageMeta.description) {
-  throw new Error("Series page requires SEO `meta.title` and `meta.description`.");
-}
-
-const seriesSeoTitle = series.meta?.title || seriesPageMeta.title;
-const seriesSeoDescription = series.meta?.description || seriesPageMeta.description;
+const seriesSeoTitle = series.meta?.title || seriesPageMeta?.title || `${series.name} - Series`;
+const seriesSeoDescription =
+  series.meta?.description || seriesPageMeta?.description || "Posts in this series.";
 ---
 
 <BaseLayout

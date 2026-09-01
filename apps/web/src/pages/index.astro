@@ -11,9 +11,8 @@ const [homePage, siteSettings]: [HomePage, SiteSetting] = await Promise.all([
 ]);
 const { meta } = siteSettings;
 
-if (!meta.title || !meta.description) {
-  throw new Error("Site settings requires SEO `meta.title` and `meta.description`.");
-}
+const pageTitle = meta?.title ?? "Home";
+const pageDescription = meta?.description ?? "Welcome to my portfolio and blog";
 
 type ButtonVariant = NonNullable<NonNullable<HomePage["ctaButtons"]>[number]["variant"]>;
 const variantToButtonClass: Record<ButtonVariant, string> = {
@@ -26,13 +25,13 @@ const variantToButtonClass: Record<ButtonVariant, string> = {
 };
 
 const ctaButtons = cmsClient.homeCtaButtons(homePage);
-const featuredSections = homePage.featuredSections ?? [];
+const featuredSections = homePage?.featuredSections ?? [];
 ---
 
 <BaseLayout
   title="Home"
-  seoTitle={meta.title}
-  description={meta.description}
+  seoTitle={pageTitle}
+  description={pageDescription}
   image={cmsClient.mediaToUrl(meta?.image)}
 >
   <div>

@@ -19,8 +19,7 @@ cp .env.example .env
 ```
 
 Fill `.env` with production secrets and URLs. `ASTRO_CMS_API_URL` must be reachable
-from the server during the Astro build. `ASTRO_CMS_READ_TOKEN` must match
-`CMS_READ_TOKEN`. Never expose MinIO or MongoDB through the reverse proxy.
+from the server during the Astro build. Never expose MinIO or MongoDB through the reverse proxy.
 
 ## 2. Configure the reverse proxy
 
@@ -48,14 +47,13 @@ point. MinIO remains private and Payload mediates media access.
 
 ## 3. First deployment
 
-The web build fetches CMS content at build time. Start and seed the CMS first:
+The unified project builds and starts all services together:
 
 ```bash
-docker compose up -d mongodb minio minio-init payload-cms
-# Create an admin and seed required CMS content.
-docker compose build astro-web
-docker compose up -d astro-web
+docker compose up -d --build
 ```
+
+Open the CMS admin and seed required content as needed.
 
 ## 4. Updates and rollback
 
@@ -64,9 +62,7 @@ docker compose up -d astro-web
 docker compose pull payload-cms
 docker compose up -d payload-cms
 
-# Rebuild web from the selected source revision
-docker compose build astro-web
-docker compose up -d astro-web
+docker compose up -d --build
 ```
 
 Set `IMAGE_TAG` to an immutable GHCR tag to roll back the CMS. Check out a previous

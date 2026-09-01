@@ -2,14 +2,14 @@ import type { GlobalConfig } from "payload";
 
 import { resumeLinkFields } from "@/fields/resumeLink";
 import { linkFields } from "@/fields/link";
-import { readAccess } from "@/access/readAccess";
+import { publicReadAccess } from "@/access/readAccess";
 import { createPayloadDataSchemaHook, siteSettingsSchema } from "@/lib/validation";
 
 export const SiteSettings: GlobalConfig = {
   slug: "site-settings",
   label: "Site Settings",
   access: {
-    read: readAccess,
+    read: publicReadAccess,
   },
   admin: {
     group: "Site",

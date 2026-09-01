@@ -1,12 +1,12 @@
 import type { GlobalConfig } from "payload";
 
-import { readAccess } from "@/access/readAccess";
+import { publicReadAccess } from "@/access/readAccess";
 
 export const BlogPage: GlobalConfig = {
   slug: "blog-page",
   label: "Blog Page",
   access: {
-    read: readAccess,
+    read: publicReadAccess,
   },
   admin: {
     group: "Pages",

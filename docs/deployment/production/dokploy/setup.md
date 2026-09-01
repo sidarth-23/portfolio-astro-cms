@@ -16,17 +16,17 @@ Create one **Docker Compose** service in a Dokploy project, select this reposito
 set the compose file path to `docker-compose.yml`. Configure a GHCR registry if using
 the default `ghcr.io/sidarth-23/sidshub-cms:${IMAGE_TAG}` image. Dokploy can build the
 CMS locally instead because the compose service also defines `apps/cms/Dockerfile`.
+All services start together in the single Compose project; no Compose profile is required.
 
 ## 2. Configure environment
 
 Copy `.env.example` into the project's environment configuration and replace all
 placeholder values. Set:
 
-- `PAYLOAD_SECRET` and `CMS_READ_TOKEN` to strong generated secrets.
+- `PAYLOAD_SECRET` to a strong generated secret.
 - `PAYLOAD_PUBLIC_SERVER_URL` to the CMS public URL.
 - `ASTRO_SITE_URL` to the web public URL.
 - `ASTRO_CMS_API_URL` to the CMS public API URL plus `/api`.
-- `ASTRO_CMS_READ_TOKEN` equal to `CMS_READ_TOKEN`.
 - Email and S3 credentials required by the CMS.
 - `IMAGE_TAG` to `latest`, a branch tag, or an immutable image tag.
 
@@ -47,13 +47,13 @@ MinIO remains private on the Docker network. Payload uses `http://minio:9000` di
 
 ## 4. First deployment
 
-The web image is an Astro SSG build and requires seeded CMS content. Deploy in this
-order:
+The unified project builds and starts all services together:
 
-1. Deploy `mongodb`, `minio`, `minio-init`, and `payload-cms`.
-2. Open the CMS admin and create an administrator.
-3. Seed home, projects, blog, CV, and site-settings content.
-4. Build/redeploy `astro-web`.
+```bash
+docker compose up -d --build
+```
+
+Open the CMS admin and seed home, projects, blog, CV, and site-settings content as needed.
 
 The `minio-init` service waits for MinIO, creates `S3_BUCKET` idempotently, and applies
 a private anonymous policy before the CMS starts.
@@ -64,8 +64,7 @@ For CMS updates, change `IMAGE_TAG` and redeploy `payload-cms`; use an immutable
 rollback. For web updates or content rebuilds, rebuild and redeploy `astro-web`:
 
 ```bash
-docker compose build astro-web
-docker compose up -d astro-web
+docker compose up -d --build
 ```
 
 If using the CMS publish webhook, Dokploy can trigger this redeploy automatically.

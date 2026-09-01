@@ -10,10 +10,9 @@ export async function createTransport(): Promise<CmsTransport> {
     const { createMockTransport } = await import("./mock");
     return createMockTransport();
   }
-  const { ASTRO_CMS_API_URL, ASTRO_CMS_READ_TOKEN } = await import("astro:env/server");
+  const { ASTRO_CMS_API_URL } = await import("astro:env/server");
   return createCmsRestTransport({
     apiUrl: ASTRO_CMS_API_URL,
-    token: ASTRO_CMS_READ_TOKEN,
     siteUrl,
   });
 }

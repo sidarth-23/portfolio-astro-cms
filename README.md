@@ -85,11 +85,10 @@ bun install
 # 2) Configure the unified environment
 cp .env.example .env
 
-# 3) Start local backing services
-task up
-# or: docker compose up -d mongodb minio minio-init
+# 3) Start the unified Docker Compose project
+task up:build
 
-# 4) Start app dev servers and workspace package watchers
+# 4) Start app dev servers when developing locally
 bun run dev:web
 # or: bun run dev:cms / bun run dev:all
 ```
@@ -126,7 +125,7 @@ bun run format:check  # Prettier check
 - Strict TypeScript settings are enabled in both web and cms apps.
 - Git hooks run lint-staged checks on staged files.
 - Commit messages are validated using Conventional Commits.
-- `build:web` is fail-fast: it requires a reachable CMS API preflight.
+- `build:web` and `build:test:web` support both seeded and unseeded CMS environments.
 - No dedicated automated test suite is configured yet; build, check, and lint gates are currently the primary quality guardrails.
 
 ## Security For A Public Repo

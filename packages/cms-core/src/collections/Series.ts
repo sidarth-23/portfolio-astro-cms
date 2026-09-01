@@ -1,12 +1,12 @@
 import type { CollectionConfig } from "payload";
-import { readAccess } from "@/access/readAccess";
+import { publicReadAccess } from "@/access/readAccess";
 import { slugField } from "@/fields/slug";
 import { createPayloadDataSchemaHook, seriesSchema } from "@/lib/validation";
 
 export const Series: CollectionConfig = {
   slug: "series",
   access: {
-    read: readAccess,
+    read: publicReadAccess,
   },
   admin: {
     useAsTitle: "name",

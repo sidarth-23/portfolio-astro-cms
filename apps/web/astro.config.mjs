@@ -20,10 +20,6 @@ export default defineConfig({
         url: true,
         default: "http://localhost:3000/api",
       }),
-      ASTRO_CMS_READ_TOKEN: envField.string({
-        context: "server",
-        access: "secret",
-      }),
     },
   },
   vite: {

@@ -19,10 +19,8 @@ COPY --from=pruner /app/out/full/ .
 COPY --from=pruner /app/out/json/bun.lock ./bun.lock
 ARG ASTRO_SITE_URL
 ARG ASTRO_CMS_API_URL
-ARG ASTRO_CMS_READ_TOKEN
 ENV ASTRO_SITE_URL=${ASTRO_SITE_URL}
 ENV ASTRO_CMS_API_URL=${ASTRO_CMS_API_URL}
-ENV ASTRO_CMS_READ_TOKEN=${ASTRO_CMS_READ_TOKEN}
 # Changing this value busts the Docker layer cache for this stage only (base/pruner/deps stay cached).
 # Updated automatically by the CMS deploy hook on content changes via the Dokploy API.
 ARG CACHE_BUST

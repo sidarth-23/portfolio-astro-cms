@@ -39,7 +39,6 @@ task clean              # Stop services, remove volumes and dependencies
 Direct Compose usage:
 
 ```bash
-docker compose up -d mongodb minio minio-init
 docker compose up -d --build
 docker compose down
 ```
@@ -65,8 +64,8 @@ bun run dev:all
 bun run payload:types
 ```
 
-`bun run build:web` requires a reachable CMS API and read token. Use the values in `.env`
-for `ASTRO_CMS_API_URL` and `ASTRO_CMS_READ_TOKEN`.
+The unified Compose build starts the CMS and web together. For an empty-data build
+without local services, use `bun run build:test:web`.
 
 ## Database Tasks
 

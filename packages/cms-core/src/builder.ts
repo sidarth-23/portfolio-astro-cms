@@ -11,7 +11,6 @@ import { buildConfig } from "payload";
 import sharp from "sharp";
 import type { CollectionConfig, Config, EmailAdapter, GlobalConfig, Plugin } from "payload";
 
-import { setReadAccessToken } from "@/access/readAccessConfig";
 import { Categories } from "@/collections/Categories";
 import { Media } from "@/collections/Media";
 import { Posts } from "@/collections/Posts";
@@ -51,7 +50,6 @@ export type CmsConfigOptions = {
   db: Config["db"];
   email: EmailAdapter;
   storagePlugins?: Plugin[];
-  readAccessToken: string;
   deployHook?: { webhookUrl: string; branch: string; preDeploy?: PreDeployHook };
   devRefreshUrl?: string;
   onInit?: () => Promise<void>;
@@ -59,9 +57,8 @@ export type CmsConfigOptions = {
 };
 
 export function createCmsConfig(options: CmsConfigOptions) {
-  setReadAccessToken(options.readAccessToken);
-
   const triggerDeploy = createTriggerDeployment(options.deployHook);
+
   const triggerRefresh = createTriggerDevRefresh(options.devRefreshUrl);
   const collectionRedeployHook = createCollectionRedeployHook(triggerDeploy, triggerRefresh);
   const globalRedeployHook = createGlobalRedeployHook(triggerDeploy, triggerRefresh);

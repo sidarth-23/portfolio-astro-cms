@@ -7,11 +7,10 @@ import { cmsClient } from "@/lib/cms";
 const projectsPage = await cmsClient.getProjectsPage();
 const { meta, sections: projectSections } = projectsPage;
 
-if (!meta.title || !meta.description) {
-  throw new Error("Projects page requires SEO `meta.title` and `meta.description`.");
-}
+const pageTitle = meta?.title ?? "Projects";
+const pageDescription = meta?.description ?? "Explore my projects.";
 
-const sections = projectSections.map((section) => ({
+const sections = (projectSections ?? []).map((section) => ({
   ...section,
   projects: asProjectArray(section.projects),
 }));
@@ -19,8 +18,8 @@ const sections = projectSections.map((section) => ({
 
 <BaseLayout
   title="Projects"
-  seoTitle={meta.title}
-  description={meta.description}
+  seoTitle={pageTitle}
+  description={pageDescription}
   image={cmsClient.mediaToUrl(meta?.image)}
 >
   {

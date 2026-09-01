@@ -1,7 +1,7 @@
 import type { GlobalConfig } from "payload";
 import { createBasicRichTextEditor } from "@/lib/editor";
 
-import { readAccess } from "@/access/readAccess";
+import { publicReadAccess } from "@/access/readAccess";
 import { createPayloadDataSchemaHook, projectsPageSchema } from "@/lib/validation";
 
 type ProjectRelationValue = number | string | { id?: number | string | null } | null | undefined;
@@ -58,7 +58,7 @@ export const ProjectsPage: GlobalConfig = {
   slug: "projects-page",
   label: "Projects Page",
   access: {
-    read: readAccess,
+    read: publicReadAccess,
   },
   admin: {
     group: "Pages",

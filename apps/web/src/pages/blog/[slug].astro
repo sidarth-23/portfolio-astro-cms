@@ -147,8 +147,8 @@ const pubDate = post?.publishedAt || post?.createdAt || new Date().toISOString()
 
 <PostLayout
   title={post.title}
-  seoTitle={post.meta.title}
-  description={post.meta.description}
+  seoTitle={post.meta?.title ?? post.title}
+  description={post.meta?.description ?? post.description}
   pubDate={pubDate}
   updatedDate={post.updatedAt}
   heroImage={cmsClient.mediaToUrl(post.coverImage)}
