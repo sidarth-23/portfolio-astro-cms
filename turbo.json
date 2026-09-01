@@ -1,54 +1,28 @@
 {
   "$schema": "https://turbo.build/schema.json",
   "concurrency": "20",
-  "globalPassThroughEnv": ["SKIP_ENV_VALIDATION"],
+  "globalPassThroughEnv": [],
   "tasks": {
     "build": {
       "dependsOn": ["^build"],
       "inputs": ["$TURBO_DEFAULT$", "!README.md", "!Dockerfile", "!**/*.md", "!**/*.mdx"],
       "outputs": ["dist/**"]
     },
-    "build:test": {
-      "dependsOn": ["^build"],
-      "env": ["ASTRO_BUILD_CACHE_GLOBALS", "ASTRO_CMS_API_URL", "ASTRO_MOCK_CMS", "ASTRO_SITE_URL"],
-      "inputs": ["$TURBO_DEFAULT$", "!README.md", "!Dockerfile", "!**/*.md", "!**/*.mdx"],
-      "outputs": ["dist/**"]
-    },
     "dev": {
-      "dependsOn": ["^build"],
       "cache": false,
       "persistent": true
     },
     "@sidshub/web#dev": {
-      "dependsOn": ["^build"],
-      "with": [
-        "@sidshub/cms-core#dev",
-        "@sidshub/cms-lib-editor#dev",
-        "@sidshub/cms-lib-icons#dev"
-      ],
+      "dependsOn": ["@sidshub/icon-catalog#build"],
       "cache": false,
       "persistent": true
     },
     "@sidshub/cms#dev": {
-      "dependsOn": ["^build"],
-      "with": [
-        "@sidshub/cms-core#dev",
-        "@sidshub/cms-feature-emoji#dev",
-        "@sidshub/cms-feature-footnotes#dev",
-        "@sidshub/cms-feature-markdown-paste#dev",
-        "@sidshub/cms-lib-editor#dev",
-        "@sidshub/cms-lib-icons#dev",
-        "@sidshub/cms-plugin-og-image#dev"
-      ],
+      "dependsOn": ["@sidshub/icon-catalog#build"],
       "cache": false,
       "persistent": true
     },
-    "@sidshub/dev-config#dev": {
-      "dependsOn": [],
-      "cache": false
-    },
     "check": {
-      "dependsOn": ["^build"],
       "outputs": []
     },
     "lint": {
@@ -75,42 +49,14 @@
       "outputs": ["src/payload-types.ts", "src/payload-generated-schema.ts"]
     },
     "@sidshub/web#build": {
-      "dependsOn": ["^build"],
-      "inputs": [
-        "astro.config.mjs",
-        "eslint.config.mjs",
-        "package.json",
-        "public/**",
-        "src/**",
-        "src/env.d.ts",
-        "tsconfig.json"
-      ],
-      "env": ["ASTRO_BUILD_CACHE_GLOBALS", "ASTRO_CMS_API_URL", "ASTRO_MOCK_CMS", "ASTRO_SITE_URL"],
+      "dependsOn": ["@sidshub/icon-catalog#build"],
+      "inputs": ["$TURBO_DEFAULT$", "!README.md", "!Dockerfile", "!**/*.md", "!**/*.mdx"],
+      "env": ["ASTRO_BUILD_CACHE_GLOBALS", "ASTRO_SITE_URL"],
       "outputs": ["dist/**"]
     },
-    "@sidshub/web#build:test": {
-      "dependsOn": ["^build"],
-      "inputs": [
-        "astro.config.mjs",
-        "eslint.config.mjs",
-        "package.json",
-        "public/**",
-        "src/**",
-        "src/env.d.ts",
-        "tsconfig.json"
-      ]
-    },
     "@sidshub/cms#build": {
-      "dependsOn": ["^build"],
-      "inputs": [
-        "eslint.config.mjs",
-        "next-env.d.ts",
-        "next.config.mjs",
-        "package.json",
-        "payload-types.ts",
-        "src/**",
-        "tsconfig.json"
-      ],
+      "dependsOn": ["@sidshub/icon-catalog#build"],
+      "inputs": ["$TURBO_DEFAULT$", "!README.md", "!Dockerfile", "!**/*.md", "!**/*.mdx"],
       "env": [
         "ASTRO_SITE_URL",
         "PAYLOAD_SECRET",

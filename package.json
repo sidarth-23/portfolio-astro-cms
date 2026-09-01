@@ -12,23 +12,16 @@
     "@lexical/*": "0.41.0"
   },
   "scripts": {
-    "dev": "bun run dev:web",
-    "dev:web": "turbo run dev --filter=@sidshub/web",
-    "dev:cms": "turbo run dev --filter=@sidshub/cms",
-    "dev:all": "turbo run dev --filter=@sidshub/web --filter=@sidshub/cms",
-    "build": "turbo run build --filter=@sidshub/web --filter=@sidshub/cms",
-    "build:web": "turbo run build --filter=@sidshub/web",
-    "build:test:web": "turbo run build:test --filter=@sidshub/web",
-    "build:cms": "turbo run build --filter=@sidshub/cms",
-    "build:packages": "turbo run build --filter='./packages/*'",
-    "check:web": "turbo run check --filter=@sidshub/web",
+    "dev": "turbo run dev",
+    "build": "turbo run build",
+    "check": "turbo run check",
     "payload:types": "turbo run generate:types --filter=@sidshub/cms",
     "lint": "turbo run lint",
     "lint:fix": "turbo run lint:fix",
     "commitlint": "commitlint",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "postinstall": "simple-git-hooks && bun run --filter @sidshub/dev-config build"
+    "postinstall": "simple-git-hooks && bun run --filter @sidshub/dev-config build && bun run --filter @sidshub/icon-catalog prebuild"
   },
   "simple-git-hooks": {
     "pre-commit": "if git diff --cached --quiet --exit-code; then echo 'pre-commit: no staged changes, skipping lint-staged'; exit 0; fi; bunx lint-staged --allow-empty",

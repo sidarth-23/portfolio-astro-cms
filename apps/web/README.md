@@ -17,9 +17,23 @@ I want a portfolio that is simple, clean, and easy to navigate. I want to showca
 - Sitemap support
 - RSS Feed support
 
+## Local Development Environment
+
+The web server imports the shared Payload configuration for server-side content
+queries, so it needs the same runtime variables as the CMS. Copy the local
+template before starting the web app:
+
+```bash
+cp ../../.env.cms.example .env
+```
+
+Astro loads this file and bridges its server-side values to the shared Payload
+configuration. Keep the file local; never commit credentials or production
+secrets.
+
 ## Payload Typing Note
 
-- `apps/web` consumes generated Payload types directly from `@sidshub/cms-core/payload-types`.
+- `apps/web` consumes app-owned generated Payload types from `@sidshub/cms/payload-types`.
 - Route SEO is configured in page globals: `Blog Page`, `Series Page`, and `404 Page`; per-series SEO is configured on each `Series` entry.
 
 If you have any questions or comments, or with to connect with me, feel free to reach out to me on [LinkedIn](https://www.linkedin.com/in/sidarth-g/).

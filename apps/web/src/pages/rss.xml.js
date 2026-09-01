@@ -7,7 +7,7 @@ export async function GET(context) {
   let description = "Personal website and blog.";
 
   try {
-    /** @type {[import("@sidshub/cms-core/payload-types").Post[], import("@sidshub/cms-core/payload-types").SiteSetting]} */
+    /** @type {[import("@sidshub/cms/payload-types").Post[], import("@sidshub/cms/payload-types").SiteSetting]} */
     const [fetchedPosts, siteSettings] = await Promise.all([
       cmsClient.getAllPublishedPosts(),
       cmsClient.getSiteSettings(),

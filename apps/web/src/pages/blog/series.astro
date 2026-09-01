@@ -1,0 +1,72 @@
+---
+import { PhMagnifyingGlass } from "phosphor-icons-astro";
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import { cmsClient } from "@/lib/cms";
+
+export const prerender = true;
+
+const [allSeries, blogPage] = await Promise.all([
+  cmsClient.getAllSeriesWithPosts(),
+  cmsClient.getBlogPage(),
+]);
+const { meta } = blogPage;
+const pageTitle = meta?.title ?? "Blog";
+const pageDescription = meta?.description ?? "Articles, notes, and ideas.";
+---
+
+<BaseLayout
+  title="Blog"
+  seoTitle={pageTitle}
+  description={pageDescription}
+  image={cmsClient.mediaToUrl(meta?.image)}
+>
+  <div class="mb-5 flex flex-col md:flex-row items-center justify-between gap-4">
+    <h1 class="text-3xl font-bold">Blog</h1>
+
+    <div role="tablist" class="tabs tabs-boxed">
+      <a role="tab" class="tab" href="/blog">Posts</a>
+      <a role="tab" class="tab tab-active" href="/blog/series">Series</a>
+    </div>
+  </div>
+
+  <form method="GET" action="/blog/search" class="flex mb-6 join">
+    <input type="hidden" name="view" value="series" />
+    <input
+      type="search"
+      name="q"
+      placeholder="Search series..."
+      class="input input-bordered join-item flex-1"
+    />
+    <button type="submit" class="btn btn-primary join-item">
+      <PhMagnifyingGlass class="h-5 w-5" />
+    </button>
+  </form>
+
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+    {
+      allSeries.length > 0 ? (
+        allSeries.map((series) => (
+          <a
+            href={`/blog/series/${series.slug}`}
+            class="card card-compact bg-base-200 transition-colors duration-300 ease-in-out hover:bg-base-300 group no-underline"
+          >
+            <div class="card-body">
+              <h3 class="card-title text-lg">
+                {series.name}
+                <span class="opacity-0 group-hover:opacity-100 transition-opacity translate-x-1 group-hover:translate-x-2">
+                  →
+                </span>
+              </h3>
+              {series.description && <p class="text-base-content/70">{series.description}</p>}
+              <div class="card-actions justify-end mt-2">
+                <div class="badge badge-outline">{series.postCount} posts</div>
+              </div>
+            </div>
+          </a>
+        ))
+      ) : (
+        <div class="col-span-2 alert">No series found.</div>
+      )
+    }
+  </div>
+</BaseLayout>

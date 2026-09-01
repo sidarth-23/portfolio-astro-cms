@@ -76,10 +76,10 @@ apps/
 │   ├── package.json
 │   └── ...
 packages/
-├── cms-core/
-│   └── src/payload-types.ts
-└── cms-lib-editor/
+└── icon-catalog/
 ```
+
+Generated Payload contracts live at `apps/cms/src/payload-types.ts` and are consumed by the web app via `@sidshub/cms/payload-types`.
 
 ## Public Repo Safety Rules
 

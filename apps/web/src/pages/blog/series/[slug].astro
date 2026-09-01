@@ -1,6 +1,7 @@
 ---
+export const prerender = true;
 import { PhCaretLeft } from "phosphor-icons-astro";
-import type { Post, Series } from "@sidshub/cms-core/payload-types";
+import type { Post, Series } from "@sidshub/cms/payload-types";
 
 import HorizontalCard from "@/components/HorizontalCard.astro";
 import BaseLayout from "@/layouts/BaseLayout.astro";
@@ -12,10 +13,6 @@ type SeriesPageProps = {
 };
 
 export async function getStaticPaths() {
-  if (String(import.meta.env.ASTRO_MOCK_CMS ?? process.env.ASTRO_MOCK_CMS ?? "") === "true") {
-    return [];
-  }
-
   try {
     const entries = await cmsClient.getSeriesStaticPathsData();
     return entries.map((entry) => {
@@ -48,7 +45,7 @@ const seriesSeoDescription =
 >
   <div class="mb-6">
     <a
-      href="/blog?view=series"
+      href="/blog/series"
       class="btn btn-ghost btn-sm pl-0 hover:bg-transparent hover:text-secondary transition-colors"
     >
       <PhCaretLeft class="h-5 w-5 inline-block mr-1" />

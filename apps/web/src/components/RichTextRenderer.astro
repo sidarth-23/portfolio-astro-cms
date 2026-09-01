@@ -1,8 +1,7 @@
 ---
-import { renderRichTextToHTML } from "@sidshub/cms-lib-editor/web/html";
-import type { CalloutVariantProfile, RichTextValue } from "@sidshub/cms-lib-editor/web/html";
-import { ASTRO_CMS_API_URL } from "astro:env/server";
-
+import { renderRichTextToHTML } from "@/lib/rich-text/html";
+import type { CalloutVariantProfile, RichTextValue } from "@/lib/rich-text/html";
+import { cmsMediaBaseUrl } from "@/lib/cms";
 type Props = {
   className?: string;
   data?: RichTextValue | null;
@@ -18,7 +17,7 @@ const {
   calloutVariantProfile = "generic",
   mediaBaseUrl,
 }: Props = Astro.props;
-const resolvedMediaBaseUrl = mediaBaseUrl ?? ASTRO_CMS_API_URL.replace(/\/api\/?$/, "");
+const resolvedMediaBaseUrl = mediaBaseUrl ?? cmsMediaBaseUrl;
 const html = await renderRichTextToHTML(
   { className, data, enableContainer },
   {

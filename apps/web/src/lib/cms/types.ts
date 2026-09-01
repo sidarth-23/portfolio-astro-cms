@@ -1,5 +1,6 @@
-import type { Post } from "@sidshub/cms-core/payload-types";
-import type { HomeCtaVariant } from "@sidshub/cms-core/content";
+import type { Post, Series } from "@sidshub/cms/payload-types";
+
+type HomeCtaVariant = "default" | "primary" | "secondary" | "accent" | "outline" | "ghost";
 
 export type PostFilterOptions = {
   slug?: string;
@@ -34,7 +35,7 @@ export type SeriesInfo = { name: string; slug: string };
 
 export type SeriesStaticPathData = {
   slug: string;
-  series: import("@sidshub/cms-core/payload-types").Series;
+  series: Series;
   posts: Post[];
 };
 

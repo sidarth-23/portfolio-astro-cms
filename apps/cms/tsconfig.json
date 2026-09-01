@@ -1,6 +1,7 @@
 {
   "compilerOptions": {
     "target": "ES2022",
+    "baseUrl": ".",
     "module": "ESNext",
     "moduleResolution": "Bundler",
     "strict": true,
@@ -11,7 +12,8 @@
     "isolatedModules": true,
     "types": ["node"],
     "paths": {
-      "@payload-config": ["./src/payload.config.ts"]
+      "@payload-config": ["./src/payload.config.ts"],
+      "@cms/*": ["./src/*"]
     },
     "lib": ["dom", "dom.iterable", "esnext"],
     "allowJs": true,
@@ -27,7 +29,7 @@
   },
   "include": [
     "next-env.d.ts",
-    "payload-types.ts",
+    "src/payload-types.ts",
     "src/**/*.d.ts",
     "src/**/*.ts",
     "src/**/*.tsx",

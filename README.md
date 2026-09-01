@@ -33,9 +33,8 @@ This project started as a fork of [Astrofy](https://github.com/manuelernestog/as
 - Astro frontend with MDX content support, RSS, sitemap, and strict type checks.
 - Payload CMS with MongoDB, optional S3-compatible storage (MinIO), and publish-triggered web deploy webhook.
 - GitHub Actions image publishing to GHCR with path-aware Docker builds.
-- Shared packages:
-  - `@sidshub/cms-core` for collections, fields, hooks, and generated types.
-  - `@sidshub/cms-lib-editor` for Lexical editor and web-side rich text helpers.
+- Shared runtime package:
+  - `@sidshub/icon-catalog` for the persisted icon catalog.
 - Pre-commit quality gates with ESLint, Prettier, and Conventional Commit validation.
 
 ## Architecture
@@ -59,14 +58,14 @@ flowchart LR
 
 ## Monorepo At A Glance
 
-| Path                          | Purpose                                         |
-| ----------------------------- | ----------------------------------------------- |
-| `apps/web`                    | Astro 5 portfolio + blog frontend               |
-| `apps/cms`                    | Payload CMS backend (Next.js runtime)           |
-| `packages/cms-core`           | Shared Payload schema/config/access/hooks/types |
-| `packages/cms-lib-editor`     | Shared Lexical editor integration (CMS + web)   |
-| `docs/deployment/local/`      | Local infrastructure and developer workflow     |
-| `docs/deployment/production/` | Production stack, env vars, publish flow        |
+| Path                            | Purpose                                     |
+| ------------------------------- | ------------------------------------------- |
+| `apps/web`                      | Astro 5 portfolio + blog frontend           |
+| `apps/cms`                      | Payload CMS backend (Next.js runtime)       |
+| `apps/cms/src/payload-types.ts` | App-owned generated Payload contracts       |
+| `packages/icon-catalog`         | Shared persisted icon catalog               |
+| `docs/deployment/local/`        | Local infrastructure and developer workflow |
+| `docs/deployment/production/`   | Production stack, env vars, publish flow    |
 
 ## Quick Start
 
@@ -82,13 +81,13 @@ flowchart LR
 # 1) Install dependencies
 bun install
 
-# 2) Configure the unified environment
-cp .env.example .env
+# The web and CMS load runtime variables from their app directories.
+cp .env.cms.example apps/cms/.env
+cp .env.cms.example apps/web/.env
+# 3) Start the local backing services
+task up
 
-# 3) Start the unified Docker Compose project
-task up:build
-
-# 4) Start app dev servers when developing locally
+# 4) Start the app dev servers
 bun run dev:web
 # or: bun run dev:cms / bun run dev:all
 ```
@@ -103,7 +102,6 @@ bun run dev:all       # Run web, CMS, and shared package watchers together
 bun run build         # Build web + cms
 bun run build:web     # Build web only
 bun run build:cms     # Build cms only
-bun run build:test:web # Build web with mocked CMS env
 bun run check:web     # Astro type checks
 bun run payload:types # Regenerate Payload types
 bun run lint          # Lint all workspaces
@@ -117,15 +115,15 @@ bun run format:check  # Prettier check
 - Dokploy setup: [docs/deployment/production/dokploy/setup.md](docs/deployment/production/dokploy/setup.md)
 - Web app internals: [apps/web/README.md](apps/web/README.md)
 - CMS internals: [apps/cms/README.md](apps/cms/README.md)
-- Shared CMS core package: [packages/cms-core/README.md](packages/cms-core/README.md)
-- Shared editor package: [packages/cms-lib-editor/README.md](packages/cms-lib-editor/README.md)
+- Generated CMS contracts: [apps/cms/src/payload-types.ts](apps/cms/src/payload-types.ts)
+- Shared icon catalog: `packages/icon-catalog`
 
 ## Quality And Standards
 
 - Strict TypeScript settings are enabled in both web and cms apps.
 - Git hooks run lint-staged checks on staged files.
 - Commit messages are validated using Conventional Commits.
-- `build:web` and `build:test:web` support both seeded and unseeded CMS environments.
+- `build:web` builds the web app against the configured CMS.
 - No dedicated automated test suite is configured yet; build, check, and lint gates are currently the primary quality guardrails.
 
 ## Security For A Public Repo
