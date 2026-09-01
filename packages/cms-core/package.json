@@ -39,7 +39,6 @@
     "@sidshub/cms-feature-emoji": "workspace:*",
     "@sidshub/cms-lib-icons": "workspace:*",
     "@sidshub/cms-feature-footnotes": "workspace:*",
-    "@sidshub/cms-plugin-deployment-log-view": "workspace:*",
     "@sidshub/cms-feature-markdown-paste": "workspace:*",
     "@sidshub/cms-plugin-og-image": "workspace:*",
     "@sidshub/cms-lib-editor": "workspace:*",

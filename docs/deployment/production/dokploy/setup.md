@@ -1,79 +1,82 @@
 # Dokploy Setup
 
-Deploy the complete stack as one Dokploy Docker Compose project using the repository's
-root `docker-compose.yml`. Dokploy's native Traefik handles TLS, domains, redirects,
-and WebSocket upgrades; no Nginx sidecar or deployment template is required.
+Deploy three independent Dokploy resources. Do not deploy root `docker-compose.yml`; it remains local MongoDB and MinIO infrastructure for development.
 
 ## Prerequisites
 
-- Dokploy installed on a VPS
-- DNS A record for the shared web/CMS hostname
-- GitHub registry credentials with `read:packages` if pulling the CMS image
+- Dokploy installed on a VPS and a DNS A record for the shared HTTPS hostname.
+- Repository access for Dokploy source builds.
+- A private AWS S3 or compatible bucket, plus CMS-scoped credentials.
+- A controlled host with MinIO Client (`mc`) for the media migration.
 
-## 1. Create the Compose project
+## 1. Create `sidshub-mongodb`
 
-Create one **Docker Compose** service in a Dokploy project, select this repository, and
-set the compose file path to `docker-compose.yml`. Configure a GHCR registry if using
-the default `ghcr.io/sidarth-23/sidshub-cms:${IMAGE_TAG}` image. Dokploy can build the
-CMS locally instead because the compose service also defines `apps/cms/Dockerfile`.
-All services start together in the single Compose project; no Compose profile is required.
+Create a Dokploy **MongoDB** database named `sidshub-mongodb` with persistent storage. Do not configure a domain or an Advanced port. Copy Dokploy's generated **Internal Connection URL** verbatim into the CMS `DATABASE_URI`; it is for the CMS-to-database private-network connection only. Do not use internal credentials externally.
 
-## 2. Configure environment
+## 2. Provision private object storage
 
-Copy `.env.example` into the project's environment configuration and replace all
-placeholder values. Set:
+Create `S3_BUCKET` in `S3_REGION`, block all anonymous public access, and create credentials scoped only to object read/write/delete and list operations for that bucket or its selected prefix. Keep the access key and secret in Dokploy CMS service secrets. Never put them in Git, Dockerfile `ARG`, or build arguments.
 
-- `PAYLOAD_SECRET` to a strong generated secret.
-- `PAYLOAD_PUBLIC_SERVER_URL` to the shared public URL.
-- `ASTRO_SITE_URL` to the shared public URL.
-- `ASTRO_CMS_API_URL` to the shared public URL plus `/api`.
-- Email and S3 credentials required by the CMS.
-- `IMAGE_TAG` to `latest`, a branch tag, or an immutable image tag.
+Set `S3_ENDPOINT` only for a provider that needs a custom endpoint. Leave it unset for AWS S3. Do not configure MinIO, a Dokploy network alias, or a host-published MinIO port in production.
 
-Configure `WEB_DEPLOY_WEBHOOK_URL` and optional Dokploy cache-busting variables from
-`.env.example` if publishing CMS content should rebuild the web image automatically.
+## 3. Create `sidshub-cms`
 
-## 3. Configure Traefik domains
+Create a Dokploy **Application** with:
 
-In the project's Domains settings, add three routes using the same hostname:
+| Setting          | Value                 |
+| ---------------- | --------------------- |
+| Source           | This repository       |
+| Build type       | Dockerfile            |
+| Dockerfile path  | `apps/cms/Dockerfile` |
+| Build context    | `.`                   |
+| Application port | `3000`                |
 
-| Path     | Service       | Container port | Internal path | Strip path |
-| -------- | ------------- | -------------: | ------------- | ---------- |
-| `/`      | `astro-web`   |           4321 | `/`           | Disabled   |
-| `/admin` | `payload-cms` |           3000 | `/admin`      | Disabled   |
-| `/api`   | `payload-cms` |           3000 | `/api`        | Disabled   |
+Set the CMS runtime configuration as scoped secrets, including `PAYLOAD_SECRET`, `PAYLOAD_PUBLIC_SERVER_URL`, `ASTRO_SITE_URL`, `DATABASE_URI` from step 1, email configuration, `S3_BUCKET`, `S3_REGION`, `S3_ACCESS_KEY_ID`, and `S3_SECRET_ACCESS_KEY`. Set `S3_ENDPOINT` only when required by the selected compatible provider.
 
-The `/admin` and `/api` routes must take precedence over the `/` route. Dokploy
-normally assigns higher priority to the more specific path routes.
+Add the shared hostname's `/admin` and `/api` Traefik domain routes to port `3000`. Do not configure an Advanced port.
 
-MinIO and MongoDB receive no domains. Their Compose ports bind to `127.0.0.1`, and
-MinIO remains private on the Docker network. Payload uses `http://minio:9000` directly.
+## 4. Create `sidshub-web`
 
-## 4. First deployment
+Create a second Dokploy **Application** with:
 
-The unified project builds and starts all services together:
+| Setting          | Value                 |
+| ---------------- | --------------------- |
+| Source           | This repository       |
+| Build type       | Dockerfile            |
+| Dockerfile path  | `apps/web/Dockerfile` |
+| Build context    | `.`                   |
+| Application port | `4321`                |
 
-```bash
-docker compose up -d --build
-```
+Set `ASTRO_SITE_URL` to the canonical HTTPS origin and `ASTRO_CMS_API_URL` to that same origin plus `/api` as Docker build arguments. They are public build configuration, not runtime secrets. Add the shared hostname's `/` Traefik domain route to port `4321`, after the CMS `/admin` and `/api` routes. Do not configure an Advanced port.
 
-Open the CMS admin and seed home, projects, blog, CV, and site-settings content as needed.
+Only CMS and managed MongoDB require Dokploy internal networking. S3 is external HTTPS access.
 
-The `minio-init` service waits for MinIO, creates `S3_BUCKET` idempotently, and applies
-a private anonymous policy before the CMS starts.
+## 5. Migrate in this order
 
-## 5. Updates and rollback
+1. Back up the existing MongoDB data.
+2. Create the private S3 bucket and CMS-scoped credentials.
+3. On a controlled host, configure `local` for the existing MinIO endpoint and `remote` for the S3 endpoint and credentials, then migrate media:
 
-For CMS updates, change `IMAGE_TAG` and redeploy `payload-cms`; use an immutable tag for
-rollback. For web updates or content rebuilds, rebuild and redeploy `astro-web`:
+   ```bash
+   mc mirror --overwrite local/<S3_BUCKET> remote/<S3_BUCKET>
+   ```
 
-```bash
-docker compose up -d --build
-```
+4. Verify equal source and destination object counts and sample object checksums. Confirm anonymous public S3 access is denied and the CMS credential cannot access another bucket.
+5. Deploy `sidshub-mongodb` and restore the MongoDB backup.
+6. Deploy `sidshub-cms` with the production S3 settings. Verify existing media downloads and a new Payload admin upload.
+7. Deploy `sidshub-web`.
+8. Move DNS/routes, then request `/`, `/api/health`, and `/admin`. They must reach web, CMS health, and Payload admin respectively.
+9. Retire the old unified production Compose project only after all preceding checks pass. Do not retire local Compose.
 
-If using the CMS publish webhook, Dokploy can trigger this redeploy automatically.
-Scheduled media cleanup can run as a Dokploy job at `0 3 * * *` with:
+## Dokploy notes
 
-```bash
-bun run --filter @sidshub/cms cleanup:media
-```
+Application domains hot-reload through Traefik's file provider. Dockerfile build arguments must not contain secrets; use Dokploy build-time secrets if a build needs sensitive values.
+
+- [Dockerfile application builds](https://docs.dokploy.com/docs/core/applications/build-type)
+- [Traefik domains](https://docs.dokploy.com/docs/core/domains)
+- [Database internal connections](https://docs.dokploy.com/docs/core/databases/connection)
+- [Payload S3 adapter](https://payloadcms.com/docs/upload/storage-adapters)
+- [Shared-network DNS requirement](https://github.com/Dokploy/dokploy/issues/1335)
+- [Build-time runtime-network limitation](https://github.com/Dokploy/dokploy/issues/2413)
+- [Compose remote-build-server limitation](https://github.com/Dokploy/dokploy/issues/4148)
+- [Compose `--build` cache limitation](https://github.com/Dokploy/dokploy/issues/5020)

@@ -38,7 +38,6 @@
         "@sidshub/cms-feature-markdown-paste#dev",
         "@sidshub/cms-lib-editor#dev",
         "@sidshub/cms-lib-icons#dev",
-        "@sidshub/cms-plugin-deployment-log-view#dev",
         "@sidshub/cms-plugin-og-image#dev"
       ],
       "cache": false,

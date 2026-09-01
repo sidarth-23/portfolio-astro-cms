@@ -1,3 +1,5 @@
+# syntax=docker/dockerfile:1.7
+
 FROM oven/bun:1.3.6 AS base
 WORKDIR /app
 
@@ -21,7 +23,7 @@ COPY --from=pruner /app/out/full/ .
 COPY --from=pruner /app/out/json/bun.lock ./bun.lock
 ENV NODE_ENV=production
 ENV SKIP_ENV_VALIDATION=1
-RUN ./node_modules/.bin/turbo run build --filter=@sidshub/cms...
+RUN --mount=type=cache,id=sidshub-turbo-cms,target=/app/.turbo ./node_modules/.bin/turbo run build --filter=@sidshub/cms...
 # Remove build cache — not needed at runtime and accounts for ~633 MB
 RUN rm -rf /app/apps/cms/.next/cache
 
@@ -40,7 +42,6 @@ COPY --from=builder --chown=node:node /app/packages/cms-lib-icons/dist ./package
 COPY --from=builder --chown=node:node /app/packages/cms-feature-emoji/dist ./packages/cms-feature-emoji/dist
 COPY --from=builder --chown=node:node /app/packages/cms-feature-footnotes/dist ./packages/cms-feature-footnotes/dist
 COPY --from=builder --chown=node:node /app/packages/cms-feature-markdown-paste/dist ./packages/cms-feature-markdown-paste/dist
-COPY --from=builder --chown=node:node /app/packages/cms-plugin-deployment-log-view/dist ./packages/cms-plugin-deployment-log-view/dist
 COPY --from=builder --chown=node:node /app/packages/cms-plugin-og-image/dist ./packages/cms-plugin-og-image/dist
 ENV NODE_ENV=production
 ENV HOSTNAME=0.0.0.0

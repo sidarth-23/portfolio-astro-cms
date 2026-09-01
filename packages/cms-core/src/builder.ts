@@ -1,5 +1,4 @@
 import { seoPlugin } from "@payloadcms/plugin-seo";
-import { deploymentLogViewPlugin } from "@sidshub/cms-plugin-deployment-log-view/plugin";
 import {
   convertMarkdownEndpoint,
   importMediaFromUrlEndpoint,
@@ -24,10 +23,6 @@ import { HomePage } from "@/globals/HomePage";
 import { ProjectsPage } from "@/globals/ProjectsPage";
 import { SeriesPage } from "@/globals/SeriesPage";
 import { SiteSettings } from "@/globals/SiteSettings";
-import { createCollectionRedeployHook } from "@/hooks/triggerCollectionRedeploy";
-import { createTriggerDeployment, type PreDeployHook } from "@/hooks/triggerDeployment";
-import { createTriggerDevRefresh } from "@/hooks/triggerDevRefresh";
-import { createGlobalRedeployHook } from "@/hooks/triggerGlobalRedeploy";
 import { createBasicRichTextEditor } from "@/lib/editor";
 import { SEO_COLLECTIONS, SEO_GLOBALS } from "@/registry";
 import type {
@@ -50,35 +45,9 @@ export type CmsConfigOptions = {
   db: Config["db"];
   email: EmailAdapter;
   storagePlugins?: Plugin[];
-  deployHook?: { webhookUrl: string; branch: string; preDeploy?: PreDeployHook };
-  devRefreshUrl?: string;
-  onInit?: () => Promise<void>;
-  deploymentLogView?: Parameters<typeof deploymentLogViewPlugin>[0];
 };
 
 export function createCmsConfig(options: CmsConfigOptions) {
-  const triggerDeploy = createTriggerDeployment(options.deployHook);
-
-  const triggerRefresh = createTriggerDevRefresh(options.devRefreshUrl);
-  const collectionRedeployHook = createCollectionRedeployHook(triggerDeploy, triggerRefresh);
-  const globalRedeployHook = createGlobalRedeployHook(triggerDeploy, triggerRefresh);
-
-  const withCollectionAfterChangeHook = (collection: CollectionConfig): CollectionConfig => ({
-    ...collection,
-    hooks: {
-      ...collection.hooks,
-      afterChange: [...(collection.hooks?.afterChange ?? []), collectionRedeployHook],
-    },
-  });
-
-  const withGlobalAfterChangeHook = (globalConfig: GlobalConfig): GlobalConfig => ({
-    ...globalConfig,
-    hooks: {
-      ...globalConfig.hooks,
-      afterChange: [...(globalConfig.hooks?.afterChange ?? []), globalRedeployHook],
-    },
-  });
-
   const siteUrl = options.siteUrl ?? "https://sidshub.in";
 
   // URL mapping: collection/global slug → public-facing URL on the frontend
@@ -101,9 +70,7 @@ export function createCmsConfig(options: CmsConfigOptions) {
     return siteUrl;
   };
 
-  const collections: CollectionConfig[] = [Users, Media, Categories, Series, Posts, Projects].map(
-    withCollectionAfterChangeHook,
-  );
+  const collections: CollectionConfig[] = [Users, Media, Categories, Series, Posts, Projects];
   const globals: GlobalConfig[] = [
     SiteSettings,
     HomePage,
@@ -111,7 +78,7 @@ export function createCmsConfig(options: CmsConfigOptions) {
     BlogPage,
     SeriesPage,
     ProjectsPage,
-  ].map(withGlobalAfterChangeHook);
+  ];
 
   return buildConfig({
     // Experimental in Payload v3 — may change in minor versions until stable.
@@ -194,7 +161,6 @@ export function createCmsConfig(options: CmsConfigOptions) {
           "site-settings": globalOverride<SiteSetting>({}),
         },
       }),
-      deploymentLogViewPlugin(options.deploymentLogView ?? { enabled: false }),
       ...(options.storagePlugins ?? []),
     ],
     db: options.db,

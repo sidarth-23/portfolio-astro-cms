@@ -1,3 +1,5 @@
+# syntax=docker/dockerfile:1.7
+
 FROM oven/bun:1.3.6 AS base
 WORKDIR /app
 
@@ -21,10 +23,7 @@ ARG ASTRO_SITE_URL
 ARG ASTRO_CMS_API_URL
 ENV ASTRO_SITE_URL=${ASTRO_SITE_URL}
 ENV ASTRO_CMS_API_URL=${ASTRO_CMS_API_URL}
-# Changing this value busts the Docker layer cache for this stage only (base/pruner/deps stay cached).
-# Updated automatically by the CMS deploy hook on content changes via the Dokploy API.
-ARG CACHE_BUST
-RUN echo "cache-bust: ${CACHE_BUST}" && bunx turbo run build --filter=@sidshub/web...
+RUN --mount=type=cache,id=sidshub-turbo-web,target=/app/.turbo bunx turbo run build --filter=@sidshub/web...
 
 # Runtime stage (Bun alpine, non-root)
 FROM oven/bun:1.3.6-alpine AS runtime

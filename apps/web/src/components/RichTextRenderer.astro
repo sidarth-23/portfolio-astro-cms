@@ -18,7 +18,7 @@ const {
   calloutVariantProfile = "generic",
   mediaBaseUrl,
 }: Props = Astro.props;
-const resolvedMediaBaseUrl = mediaBaseUrl ?? ASTRO_CMS_API_URL;
+const resolvedMediaBaseUrl = mediaBaseUrl ?? ASTRO_CMS_API_URL.replace(/\/api\/?$/, "");
 const html = await renderRichTextToHTML(
   { className, data, enableContainer },
   {

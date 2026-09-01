@@ -30,7 +30,6 @@
         "@sidshub/cms-feature-footnotes": "workspace:*",
         "@sidshub/cms-feature-markdown-paste": "workspace:*",
         "@sidshub/cms-lib-editor": "workspace:*",
-        "@sidshub/cms-plugin-deployment-log-view": "workspace:*",
         "@sidshub/cms-plugin-og-image": "workspace:*",
         "@t3-oss/env-core": "^0.13.4",
         "cross-env": "^7.0.3",
@@ -86,7 +85,6 @@
         "@sidshub/cms-feature-markdown-paste": "workspace:*",
         "@sidshub/cms-lib-editor": "workspace:*",
         "@sidshub/cms-lib-icons": "workspace:*",
-        "@sidshub/cms-plugin-deployment-log-view": "workspace:*",
         "@sidshub/cms-plugin-og-image": "workspace:*",
         "payload": "3.82.1",
         "zod": "^3.24.1",
@@ -181,18 +179,6 @@
       "peerDependencies": {
         "payload": "*",
         "react": "*",
-      },
-    },
-    "packages/cms-plugin-deployment-log-view": {
-      "name": "@sidshub/cms-plugin-deployment-log-view",
-      "version": "0.0.1",
-      "dependencies": {
-        "@payloadcms/ui": "3.82.1",
-        "payload": "3.82.1",
-      },
-      "devDependencies": {
-        "@sidshub/dev-config": "workspace:*",
-        "eslint": "^9.24.0",
       },
     },
     "packages/cms-plugin-og-image": {
@@ -897,8 +883,6 @@
     "@sidshub/cms-lib-editor": ["@sidshub/cms-lib-editor@workspace:packages/cms-lib-editor"],
 
     "@sidshub/cms-lib-icons": ["@sidshub/cms-lib-icons@workspace:packages/cms-lib-icons"],
-
-    "@sidshub/cms-plugin-deployment-log-view": ["@sidshub/cms-plugin-deployment-log-view@workspace:packages/cms-plugin-deployment-log-view"],
 
     "@sidshub/cms-plugin-og-image": ["@sidshub/cms-plugin-og-image@workspace:packages/cms-plugin-og-image"],
 

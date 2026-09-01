@@ -26,7 +26,6 @@
     "@sidshub/cms-lib-editor": "workspace:*",
     "@sidshub/cms-feature-emoji": "workspace:*",
     "@sidshub/cms-feature-footnotes": "workspace:*",
-    "@sidshub/cms-plugin-deployment-log-view": "workspace:*",
     "@sidshub/cms-feature-markdown-paste": "workspace:*",
     "@sidshub/cms-plugin-og-image": "workspace:*",
     "@t3-oss/env-core": "^0.13.4",

@@ -10,21 +10,6 @@ tasks:
     cmds:
       - docker compose -f {{.COMPOSE_FILE}} up -d mongodb minio minio-init
 
-  up:services:
-    desc: Start local backing services (MongoDB, MinIO)
-    cmds:
-      - task: up
-
-  up:all:
-    desc: Build and start the complete stack
-    cmds:
-      - docker compose -f {{.COMPOSE_FILE}} up -d --build
-
-  up:build:
-    desc: Build and start the complete stack
-    cmds:
-      - task: up:all
-
   minio:ensure-bucket:
     desc: Ensure MinIO bucket exists for media uploads
     cmds:
@@ -115,10 +100,10 @@ tasks:
 
   # Complete Reset
   reset:
-    desc: "Complete reset - cleanup, reinstall dependencies, start services"
-    prompt: This will delete ALL data and dependencies, then rebuild everything. Continue?
+    desc: "Complete reset - clean up, reinstall dependencies, start backing services"
+    prompt: This will delete ALL local data and dependencies, then reinstall them. Continue?
     cmds:
       - task: clean
       - task: install:deps
-      - task: up:build
-      - echo "Reset complete. Services running - start apps with 'bun run dev'"
+      - task: up
+      - echo "Reset complete. Backing services running - start apps with 'bun run dev'."

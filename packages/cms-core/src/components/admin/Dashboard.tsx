@@ -1,5 +1,4 @@
 import type { AdminViewServerProps } from "payload";
-import { DeploymentStatusCard } from "@sidshub/cms-plugin-deployment-log-view/ui";
 import { OgGeneratorCard } from "@sidshub/cms-plugin-og-image/ui";
 
 export function DashboardView(_props: AdminViewServerProps) {
@@ -16,14 +15,6 @@ export function DashboardView(_props: AdminViewServerProps) {
         Dashboard
       </h2>
       <OgGeneratorCard />
-      <hr
-        style={{
-          border: "none",
-          borderTop: "1px solid var(--theme-elevation-150)",
-          margin: "28px 0",
-        }}
-      />
-      <DeploymentStatusCard />
     </div>
   );
 }
