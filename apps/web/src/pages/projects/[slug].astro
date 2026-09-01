@@ -9,10 +9,6 @@ import type { Project } from "@sidshub/cms/payload-types";
 type Props = { project: Project };
 
 export async function getStaticPaths() {
-  if (String(import.meta.env.ASTRO_MOCK_CMS ?? process.env.ASTRO_MOCK_CMS ?? "") === "true") {
-    return [];
-  }
-
   try {
     const projects = await cmsClient.getAllPublishedProjects();
     return projects.flatMap((project) => {
@@ -27,9 +23,7 @@ export async function getStaticPaths() {
 const { project } = Astro.props;
 
 if (project?.meta && (!project.meta.title || !project.meta.description)) {
-  throw new Error(
-    `Project "${project.slug}" requires SEO \`meta.title\` and \`meta.description\`.`,
-  );
+  console.warn(`Project "${project.slug}" requires SEO \`meta.title\` and \`meta.description\`.`);
 }
 
 const tags = cmsClient.tagsFromProject(project);

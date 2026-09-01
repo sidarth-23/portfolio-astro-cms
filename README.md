@@ -102,7 +102,6 @@ bun run dev:all       # Run web, CMS, and shared package watchers together
 bun run build         # Build web + cms
 bun run build:web     # Build web only
 bun run build:cms     # Build cms only
-bun run build:test:web # Build web with mocked CMS env
 bun run check:web     # Astro type checks
 bun run payload:types # Regenerate Payload types
 bun run lint          # Lint all workspaces
@@ -124,7 +123,7 @@ bun run format:check  # Prettier check
 - Strict TypeScript settings are enabled in both web and cms apps.
 - Git hooks run lint-staged checks on staged files.
 - Commit messages are validated using Conventional Commits.
-- `build:web` and `build:test:web` support both seeded and unseeded CMS environments.
+- `build:web` builds the web app against the configured CMS.
 - No dedicated automated test suite is configured yet; build, check, and lint gates are currently the primary quality guardrails.
 
 ## Security For A Public Repo

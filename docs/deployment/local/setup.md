@@ -64,9 +64,6 @@ bun run dev:all
 bun run payload:types
 ```
 
-The unified Compose build starts the CMS and web together. For an empty-data build
-without local services, use `bun run build:test:web`.
-
 ## Database Tasks
 
 ```bash

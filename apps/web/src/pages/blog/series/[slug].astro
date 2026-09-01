@@ -13,10 +13,6 @@ type SeriesPageProps = {
 };
 
 export async function getStaticPaths() {
-  if (String(import.meta.env.ASTRO_MOCK_CMS ?? process.env.ASTRO_MOCK_CMS ?? "") === "true") {
-    return [];
-  }
-
   try {
     const entries = await cmsClient.getSeriesStaticPathsData();
     return entries.map((entry) => {

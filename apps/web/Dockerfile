@@ -50,7 +50,7 @@ FROM oven/bun:1.3.6-alpine AS runtime
 WORKDIR /app
 # bun:bun (1000:1000) is already present in the bun alpine image
 RUN chown bun:bun /app
-# Production-only install — excludes devDeps (faker, eslint, dev-config, daisyui…)
+# Production-only install — excludes devDeps (eslint, dev-config, daisyui…)
 COPY --from=pruner --chown=bun:bun /app/out/json/ .
 COPY --from=pruner --chown=bun:bun /app/out/json/bun.lock ./bun.lock
 RUN bun install --frozen-lockfile --production --ignore-scripts

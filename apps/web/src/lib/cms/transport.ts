@@ -1,8 +1,7 @@
 import type { Payload } from "payload";
 import type { CmsQueryOperations } from "./queries";
+import { getCmsPayload } from "./payload";
 
-const useMock =
-  String(import.meta.env.ASTRO_MOCK_CMS ?? process.env.ASTRO_MOCK_CMS ?? "") === "true";
 const siteUrl = typeof import.meta.env.SITE === "string" ? import.meta.env.SITE : undefined;
 
 export type CmsContext = {
@@ -12,12 +11,6 @@ export type CmsContext = {
 };
 
 export async function createTransport(): Promise<CmsContext> {
-  if (useMock) {
-    const { createMockTransport } = await import("./mock");
-    return { query: createMockTransport(), mediaBaseUrl: "http://mock", siteUrl: "http://mock" };
-  }
-
-  const { getCmsPayload } = await import("./payload");
   const payload: Payload = await getCmsPayload();
   return {
     query: payload,

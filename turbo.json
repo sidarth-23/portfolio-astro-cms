@@ -8,11 +8,6 @@
       "inputs": ["$TURBO_DEFAULT$", "!README.md", "!Dockerfile", "!**/*.md", "!**/*.mdx"],
       "outputs": ["dist/**"]
     },
-    "build:test": {
-      "env": ["ASTRO_BUILD_CACHE_GLOBALS", "ASTRO_MOCK_CMS", "ASTRO_SITE_URL"],
-      "inputs": ["$TURBO_DEFAULT$", "!README.md", "!Dockerfile", "!**/*.md", "!**/*.mdx"],
-      "outputs": ["dist/**"]
-    },
     "dev": {
       "cache": false,
       "persistent": true
@@ -46,7 +41,7 @@
     "@sidshub/web#build": {
       "dependsOn": ["@sidshub/icon-catalog#build"],
       "inputs": ["$TURBO_DEFAULT$", "!README.md", "!Dockerfile", "!**/*.md", "!**/*.mdx"],
-      "env": ["ASTRO_BUILD_CACHE_GLOBALS", "ASTRO_MOCK_CMS", "ASTRO_SITE_URL"],
+      "env": ["ASTRO_BUILD_CACHE_GLOBALS", "ASTRO_SITE_URL"],
       "outputs": ["dist/**"]
     },
     "@sidshub/cms#build": {

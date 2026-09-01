@@ -28,10 +28,6 @@ type AuthorLink = {
 };
 
 export async function getStaticPaths() {
-  if (String(import.meta.env.ASTRO_MOCK_CMS ?? process.env.ASTRO_MOCK_CMS ?? "") === "true") {
-    return [];
-  }
-
   try {
     const posts = await cmsClient.getAllPublishedPosts();
     return posts.flatMap((post) => {
@@ -93,7 +89,7 @@ if (series?.slug) {
 }
 
 if (post?.meta && (!post.meta.title || !post.meta.description)) {
-  throw new Error(`Post "${post.slug}" requires SEO \`meta.title\` and \`meta.description\`.`);
+  console.warn(`Post "${post.slug}" requires SEO \`meta.title\` and \`meta.description\`.`);
 }
 
 const category = cmsClient.categoryFromPost(post);

@@ -6,7 +6,6 @@
     "dev": "astro dev",
     "start": "astro dev",
     "build": "ASTRO_BUILD_CACHE_GLOBALS=true astro check && ASTRO_BUILD_CACHE_GLOBALS=true astro build",
-    "build:test": "ASTRO_BUILD_CACHE_GLOBALS=true ASTRO_MOCK_CMS=true astro check && ASTRO_BUILD_CACHE_GLOBALS=true ASTRO_MOCK_CMS=true astro build",
     "preview": "astro preview",
     "check": "astro check",
     "lint": "eslint .",
@@ -36,7 +35,6 @@
     "typescript": "^5.5.4"
   },
   "devDependencies": {
-    "@faker-js/faker": "^9.8.0",
     "@sidshub/dev-config": "workspace:*",
     "@tailwindcss/typography": "^0.5.15",
     "daisyui": "^5.5.5",
