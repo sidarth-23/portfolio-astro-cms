@@ -1,52 +1,42 @@
 version: "3"
 
 vars:
-  COMPOSE_FILE: deployment/docker-compose.local.yml
+  COMPOSE_FILE: docker-compose.yml
 
 tasks:
   # Docker Compose Operations
   up:
-    desc: Start local infrastructure (MongoDB, MinIO)
+    desc: Start local backing services (MongoDB, MinIO)
     cmds:
-      - docker compose -f {{.COMPOSE_FILE}} up -d
-      - task: minio:ensure-bucket
+      - docker compose -f {{.COMPOSE_FILE}} up -d mongodb minio minio-init
 
-  up:build:
-    desc: Build and start local infrastructure
+  up:services:
+    desc: Start local backing services (MongoDB, MinIO)
+    cmds:
+      - task: up
+
+  up:all:
+    desc: Build and start the complete stack
     cmds:
       - docker compose -f {{.COMPOSE_FILE}} up -d --build
-      - task: minio:ensure-bucket
+
+  up:build:
+    desc: Build and start the complete stack
+    cmds:
+      - task: up:all
 
   minio:ensure-bucket:
-    desc: Ensure MinIO bucket exists for local media uploads
+    desc: Ensure MinIO bucket exists for media uploads
     cmds:
-      - |
-        set -e
-        max_attempts=20
-        attempt=1
-        while [ "$attempt" -le "$max_attempts" ]; do
-          if docker compose -f {{.COMPOSE_FILE}} run --rm minio-init; then
-            echo "MinIO bucket is ready."
-            exit 0
-          fi
-
-          if [ "$attempt" -eq "$max_attempts" ]; then
-            echo "Failed to ensure MinIO bucket after ${max_attempts} attempts."
-            exit 1
-          fi
-
-          echo "Bucket bootstrap attempt ${attempt}/${max_attempts} failed; retrying in 2s..."
-          attempt=$((attempt + 1))
-          sleep 2
-        done
+      - docker compose -f {{.COMPOSE_FILE}} run --rm minio-init
 
   down:
-    desc: Stop all local services
+    desc: Stop all services
     cmds:
       - docker compose -f {{.COMPOSE_FILE}} down
 
   restart:
-    desc: Restart all local services
+    desc: Restart all services
     cmds:
       - task: down
       - task: up

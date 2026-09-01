@@ -82,15 +82,14 @@ flowchart LR
 # 1) Install dependencies
 bun install
 
-# 2) Create env files
-cp .env.cms.example apps/cms/.env
-cp .env.web.example apps/web/.env
+# 2) Configure the unified environment
+cp .env.example .env
 
-# 3) Start local infrastructure
-task up:build
-# or: docker compose -f deployment/docker-compose.local.yml up -d --build
+# 3) Start local backing services
+task up
+# or: docker compose up -d mongodb minio minio-init
 
-# 4) Start app dev server and workspace package watchers
+# 4) Start app dev servers and workspace package watchers
 bun run dev:web
 # or: bun run dev:cms / bun run dev:all
 ```

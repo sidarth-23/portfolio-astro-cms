@@ -1,7 +1,7 @@
 FROM oven/bun:1.3.6 AS base
 WORKDIR /app
 
-# Prune to minimal workspace
+# Prune the dependency graph to this app and its workspace dependencies.
 FROM base AS pruner
 COPY . .
 RUN bunx turbo prune @sidshub/web --docker
@@ -9,7 +9,6 @@ RUN bunx turbo prune @sidshub/web --docker
 # Install only dependencies (no scripts)
 FROM base AS deps
 COPY --from=pruner /app/out/json/ .
-COPY --from=pruner /app/out/json/bun.lock ./bun.lock
 RUN bun install --frozen-lockfile --ignore-scripts
 
 # App build stage (Bun)
@@ -27,7 +26,7 @@ ENV ASTRO_CMS_READ_TOKEN=${ASTRO_CMS_READ_TOKEN}
 # Changing this value busts the Docker layer cache for this stage only (base/pruner/deps stay cached).
 # Updated automatically by the CMS deploy hook on content changes via the Dokploy API.
 ARG CACHE_BUST
-RUN echo "cache-bust: ${CACHE_BUST}" && bunx turbo run build --filter=@sidshub/web
+RUN echo "cache-bust: ${CACHE_BUST}" && bunx turbo run build --filter=@sidshub/web...
 
 # Runtime stage (Bun alpine, non-root)
 FROM oven/bun:1.3.6-alpine AS runtime
@@ -37,7 +36,6 @@ RUN chown bun:bun /app
 # Production-only install — excludes devDeps (faker, eslint, dev-config, daisyui…)
 COPY --from=pruner --chown=bun:bun /app/out/json/ .
 COPY --from=pruner --chown=bun:bun /app/out/json/bun.lock ./bun.lock
-USER bun
 RUN bun install --frozen-lockfile --production --ignore-scripts
 # Workspace package dist outputs needed by server-rendered routes at runtime
 COPY --from=builder --chown=bun:bun /app/packages/cms-core/dist ./packages/cms-core/dist

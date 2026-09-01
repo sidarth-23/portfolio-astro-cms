@@ -1,7 +1,7 @@
 FROM oven/bun:1.3.6 AS base
 WORKDIR /app
 
-# Prune to minimal workspace
+# Prune the dependency graph to this app and its workspace dependencies.
 FROM base AS pruner
 COPY . .
 RUN bunx turbo prune @sidshub/cms --docker
@@ -21,7 +21,7 @@ COPY --from=pruner /app/out/full/ .
 COPY --from=pruner /app/out/json/bun.lock ./bun.lock
 ENV NODE_ENV=production
 ENV SKIP_ENV_VALIDATION=1
-RUN ./node_modules/.bin/turbo run build --filter=@sidshub/cms
+RUN ./node_modules/.bin/turbo run build --filter=@sidshub/cms...
 # Remove build cache — not needed at runtime and accounts for ~633 MB
 RUN rm -rf /app/apps/cms/.next/cache
 
