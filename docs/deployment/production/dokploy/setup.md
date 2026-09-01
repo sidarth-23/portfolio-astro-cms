@@ -1,82 +1,149 @@
-# Dokploy Setup
+# Production Setup: Dokploy CMS + Cloudflare Pages Web
 
-Deploy three independent Dokploy resources. Do not deploy root `docker-compose.yml`; it remains local MongoDB and MinIO infrastructure for development.
+The production topology is intentionally split:
+
+- **CMS**: Dokploy application, backed by a private MongoDB database and Cloudflare R2.
+- **Web**: Cloudflare Pages static build.
+- **Media**: R2 custom domain for public reads; S3 API credentials stay CMS-only.
+
+Do not deploy the root `docker-compose.yml` to production. It is local development infrastructure for MongoDB and MinIO.
 
 ## Prerequisites
 
-- Dokploy installed on a VPS and a DNS A record for the shared HTTPS hostname.
-- Repository access for Dokploy source builds.
-- A private AWS S3 or compatible bucket, plus CMS-scoped credentials.
-- A controlled host with MinIO Client (`mc`) for the media migration.
+- A Cloudflare-managed zone for the site.
+- A Dokploy VPS with HTTPS and repository access.
+- A MongoDB database reachable from the Dokploy CMS application over the private Dokploy network.
+- A Cloudflare R2 bucket and an R2 custom domain, for example `media.example.com`.
+- Resend API key and a verified sender domain.
 
-## 1. Create `sidshub-mongodb`
+## 1. Create R2 securely
 
-Create a Dokploy **MongoDB** database named `sidshub-mongodb` with persistent storage. Do not configure a domain or an Advanced port. Copy Dokploy's generated **Internal Connection URL** verbatim into the CMS `DATABASE_URI`; it is for the CMS-to-database private-network connection only. Do not use internal credentials externally.
+1. Create a production bucket, for example `sidshub-media`.
+2. Add an R2 custom domain such as `media.example.com`.
+3. Use the custom domain for media reads. Do not use an `r2.dev` URL in production; it is intended for development and does not provide the same cache/security controls.
+4. Create an R2 API token with **Object Read & Write**, scoped to this bucket only. The CMS needs read, write, list, and delete behavior through the S3-compatible API. Do not grant account-wide administration.
+5. Store the resulting Access Key ID and Secret Access Key only as Dokploy CMS secrets.
+6. Keep the S3 API endpoint private to the configuration: `https://<ACCOUNT_ID>.r2.cloudflarestorage.com`. Set `S3_ENDPOINT` to that value and `S3_REGION=auto`.
+7. Set `S3_PUBLIC_URL=https://media.example.com/` (including the trailing slash).
+8. Verify that the R2 custom domain serves an uploaded object, that the bucket root does not list objects, and that the S3 credentials cannot access another bucket.
 
-## 2. Provision private object storage
+The R2 bucket's object reads are public because the website must read media directly. This does **not** expose the S3 credentials. Do not put private documents or secrets in this bucket. If media must be private, the current `generateFileURL` implementation is insufficient; use signed URLs or a CMS/Worker proxy instead.
 
-Create `S3_BUCKET` in `S3_REGION`, block all anonymous public access, and create credentials scoped only to object read/write/delete and list operations for that bucket or its selected prefix. Keep the access key and secret in Dokploy CMS service secrets. Never put them in Git, Dockerfile `ARG`, or build arguments.
+## 2. Create the CMS database
 
-Set `S3_ENDPOINT` only for a provider that needs a custom endpoint. Leave it unset for AWS S3. Do not configure MinIO, a Dokploy network alias, or a host-published MinIO port in production.
+Create a Dokploy MongoDB database named `sidshub-mongodb` with persistent storage and backups enabled. Do not publish a database domain or host port.
 
-## 3. Create `sidshub-cms`
+Copy Dokploy's generated **Internal Connection URL** verbatim into the CMS `DATABASE_URI`. Use the private connection only from the CMS application; never put it in Cloudflare Pages variables or client code.
 
-Create a Dokploy **Application** with:
+Before the first production release, decide the backup retention and perform a restore test. Payload uses MongoDB in this repository; PostgreSQL is not compatible with the configured adapter.
 
-| Setting          | Value                 |
-| ---------------- | --------------------- |
-| Source           | This repository       |
-| Build type       | Dockerfile            |
-| Dockerfile path  | `apps/cms/Dockerfile` |
-| Build context    | `.`                   |
-| Application port | `3000`                |
+## 3. Deploy CMS on Dokploy
 
-Set the CMS runtime configuration as scoped secrets, including `PAYLOAD_SECRET`, `PAYLOAD_PUBLIC_SERVER_URL`, `ASTRO_SITE_URL`, `DATABASE_URI` from step 1, email configuration, `S3_BUCKET`, `S3_REGION`, `S3_ACCESS_KEY_ID`, and `S3_SECRET_ACCESS_KEY`. Set `S3_ENDPOINT` only when required by the selected compatible provider.
+Create a Dokploy Application with:
 
-Add the shared hostname's `/admin` and `/api` Traefik domain routes to port `3000`. Do not configure an Advanced port.
+| Setting          | Value                                          |
+| ---------------- | ---------------------------------------------- |
+| Source           | This repository                                |
+| Build type       | Dockerfile                                     |
+| Dockerfile path  | `apps/cms/Dockerfile`                          |
+| Build context    | repository root (`.`)                          |
+| Application port | `3000`                                         |
+| Start command    | Dockerfile default (`node apps/cms/server.js`) |
 
-## 4. Create `sidshub-web`
+Set these **runtime secrets/variables** on the CMS application:
 
-Create a second Dokploy **Application** with:
+```text
+NODE_ENV=production
+PAYLOAD_SECRET=<long random secret, stable across deploys>
+PAYLOAD_PUBLIC_SERVER_URL=https://cms.example.com
+ASTRO_SITE_URL=https://www.example.com
+DATABASE_URI=<Dokploy internal MongoDB URL>
+S3_BUCKET=sidshub-media
+S3_REGION=auto
+S3_ENDPOINT=https://<ACCOUNT_ID>.r2.cloudflarestorage.com
+S3_PUBLIC_URL=https://media.example.com/
+S3_ACCESS_KEY_ID=<bucket-scoped R2 token access key>
+S3_SECRET_ACCESS_KEY=<bucket-scoped R2 token secret>
+RESEND_API_KEY=<secret>
+EMAIL_FROM_ADDRESS=<verified sender>
+EMAIL_FROM_NAME=<sender name>
+```
 
-| Setting          | Value                 |
-| ---------------- | --------------------- |
-| Source           | This repository       |
-| Build type       | Dockerfile            |
-| Dockerfile path  | `apps/web/Dockerfile` |
-| Build context    | `.`                   |
-| Application port | `4321`                |
+Use a separate CMS hostname, such as `cms.example.com`, and route it to port 3000. This is preferable to path-routing `/admin` and `/api` through the Pages site: it avoids reverse-proxy conflicts and gives the web build one stable public API origin. Do not expose MongoDB or the R2 S3 endpoint through Dokploy.
 
-Set `ASTRO_SITE_URL` to the canonical HTTPS origin and `ASTRO_CMS_API_URL` to that same origin plus `/api` as Docker build arguments. They are public build configuration, not runtime secrets. Add the shared hostname's `/` Traefik domain route to port `4321`, after the CMS `/admin` and `/api` routes. Do not configure an Advanced port.
+After deploy, check:
 
-Only CMS and managed MongoDB require Dokploy internal networking. S3 is external HTTPS access.
+```text
+https://cms.example.com/api/health  -> {"status":"ok"}
+https://cms.example.com/admin        -> Payload admin
+https://cms.example.com/api/posts?limit=1 -> published API response
+```
 
-## 5. Migrate in this order
+Create the first admin user, log in, upload one image, and confirm that its URL starts with `https://media.example.com/`.
 
-1. Back up the existing MongoDB data.
-2. Create the private S3 bucket and CMS-scoped credentials.
-3. On a controlled host, configure `local` for the existing MinIO endpoint and `remote` for the S3 endpoint and credentials, then migrate media:
+## 4. Deploy web on Cloudflare Pages
 
-   ```bash
-   mc mirror --overwrite local/<S3_BUCKET> remote/<S3_BUCKET>
-   ```
+Create a Pages project from the repository. Configure the monorepo build from the repository root:
 
-4. Verify equal source and destination object counts and sample object checksums. Confirm anonymous public S3 access is denied and the CMS credential cannot access another bucket.
-5. Deploy `sidshub-mongodb` and restore the MongoDB backup.
-6. Deploy `sidshub-cms` with the production S3 settings. Verify existing media downloads and a new Payload admin upload.
-7. Deploy `sidshub-web`.
-8. Move DNS/routes, then request `/`, `/api/health`, and `/admin`. They must reach web, CMS health, and Payload admin respectively.
-9. Retire the old unified production Compose project only after all preceding checks pass. Do not retire local Compose.
+| Setting                | Value                                                    |
+| ---------------------- | -------------------------------------------------------- |
+| Root directory         | `/`                                                      |
+| Build command          | `bun install --frozen-lockfile && bun run build:web`     |
+| Build output directory | `apps/web/dist`                                          |
+| Node/Bun version       | Bun `1.3.6` (or the repository's configured Bun version) |
 
-## Dokploy notes
+Set these Pages **build-time variables**:
 
-Application domains hot-reload through Traefik's file provider. Dockerfile build arguments must not contain secrets; use Dokploy build-time secrets if a build needs sensitive values.
+```text
+ASTRO_SITE_URL=https://www.example.com
+ASTRO_CMS_API_URL=https://cms.example.com/api
+```
 
-- [Dockerfile application builds](https://docs.dokploy.com/docs/core/applications/build-type)
-- [Traefik domains](https://docs.dokploy.com/docs/core/domains)
-- [Database internal connections](https://docs.dokploy.com/docs/core/databases/connection)
-- [Payload S3 adapter](https://payloadcms.com/docs/upload/storage-adapters)
-- [Shared-network DNS requirement](https://github.com/Dokploy/dokploy/issues/1335)
-- [Build-time runtime-network limitation](https://github.com/Dokploy/dokploy/issues/2413)
-- [Compose remote-build-server limitation](https://github.com/Dokploy/dokploy/issues/4148)
-- [Compose `--build` cache limitation](https://github.com/Dokploy/dokploy/issues/5020)
+`ASTRO_CMS_API_URL` is public build configuration, not a secret. The static build fetches CMS globals and published content, so the CMS must be healthy and publicly reachable from Cloudflare's build environment before starting a Pages deployment.
+
+Attach the production domain to Pages. Do not copy `DATABASE_URI`, `PAYLOAD_SECRET`, R2 credentials, or Resend credentials into Pages.
+
+## 5. Release sequence
+
+1. Create/verify R2 bucket, custom domain, and scoped token.
+2. Create MongoDB and verify its private connection URL.
+3. Configure CMS secrets in Dokploy and deploy CMS.
+4. Wait for `/api/health`, admin login, API reads, email delivery, and an R2 upload/download to pass.
+5. Configure Pages build variables and deploy the web project.
+6. Smoke-test `/`, `/blog`, `/projects`, `/cv`, a media URL, and a missing route.
+7. Only then switch production DNS or remove the previous deployment.
+
+For content changes, repeat steps 3–6 when the static site must include new CMS data. A CMS publish does not automatically rebuild an already-deployed static Pages artifact unless a webhook triggers a Pages deploy.
+
+## Local development sequence
+
+```bash
+cp .env.example .env
+task up
+# configure apps/cms/.env with local MongoDB/MinIO and required Payload/email values
+bun install
+bun run dev:cms
+# in another terminal:
+bun run dev:web
+```
+
+Local CMS uses MongoDB and MinIO from `docker-compose.yml`; production uses MongoDB and R2. Do not reuse local `minioadmin` credentials in Dokploy.
+
+## Migration checks
+
+Before cutover:
+
+1. Back up MongoDB and test the archive restore.
+2. Mirror existing MinIO objects to R2 with `mc mirror --overwrite` from a controlled host.
+3. Compare object counts and sample checksums.
+4. Confirm anonymous reads work only through the intended media custom domain; confirm S3 API credentials are not exposed.
+5. Deploy CMS against the restored database and verify old media plus a new upload.
+6. Deploy Pages only after the CMS build dependency is healthy.
+
+## References
+
+- [Cloudflare R2 authentication](https://developers.cloudflare.com/r2/api/tokens/)
+- [Cloudflare R2 public buckets and custom domains](https://developers.cloudflare.com/r2/buckets/public-buckets/)
+- [Astro Cloudflare deployment](https://docs.astro.build/en/guides/deploy/cloudflare/)
+- [Dokploy Dockerfile applications](https://docs.dokploy.com/docs/core/applications/build-type)
+- [Payload S3 storage adapter](https://payloadcms.com/docs/upload/storage-adapters)
