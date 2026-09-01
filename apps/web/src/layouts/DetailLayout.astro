@@ -7,6 +7,7 @@ import type { Media } from "@sidshub/cms/payload-types";
 import { getHeroImageSources } from "@/lib/cms/responsive-image";
 import { cmsClient } from "@/lib/cms";
 import type { SeriesAdjacentPost } from "@/lib/types";
+import { RichTextInteractions } from "@/lib/rich-text/qwik/RichTextInteractions";
 
 type Props = {
   title: string;
@@ -159,70 +160,5 @@ const hasHeroTopSlot = Astro.slots.has("heroTop");
     </label>
   </div>
 
-  <script>
-    import {
-      initCodeBlocks,
-      initImageGallery,
-      initImageLightbox,
-      initTableOfContents,
-    } from "@/lib/rich-text/html/client";
-
-    const DETAIL_TOC_DRAWER_ID = "detail-toc-drawer";
-    let cleanupCodeBlocks = () => {};
-    let cleanupImageGallery = () => {};
-    let cleanupImageLightbox = () => {};
-    let cleanupTableOfContents = () => {};
-
-    const initializeCodeBlocks = () => {
-      cleanupCodeBlocks();
-      cleanupCodeBlocks = initCodeBlocks();
-    };
-
-    const initializeImageGallery = () => {
-      cleanupImageGallery();
-      cleanupImageGallery = initImageGallery();
-    };
-
-    const initializeLightbox = () => {
-      cleanupImageLightbox();
-      cleanupImageLightbox = initImageLightbox();
-    };
-
-    const initializeTableOfContents = () => {
-      cleanupTableOfContents();
-      cleanupTableOfContents = initTableOfContents({
-        onLinkClick: () => {
-          const drawer = document.getElementById(DETAIL_TOC_DRAWER_ID);
-          if (drawer instanceof HTMLInputElement) {
-            drawer.checked = false;
-          }
-        },
-      });
-    };
-
-    initializeCodeBlocks();
-    initializeImageGallery();
-    initializeLightbox();
-    initializeTableOfContents();
-
-    if (!document.documentElement.dataset.codeBlockPageLoadBound) {
-      document.addEventListener("astro:page-load", initializeCodeBlocks);
-      document.documentElement.dataset.codeBlockPageLoadBound = "true";
-    }
-
-    if (!document.documentElement.dataset.imageGalleryPageLoadBound) {
-      document.addEventListener("astro:page-load", initializeImageGallery);
-      document.documentElement.dataset.imageGalleryPageLoadBound = "true";
-    }
-
-    if (!document.documentElement.dataset.imageLightboxPageLoadBound) {
-      document.addEventListener("astro:page-load", initializeLightbox);
-      document.documentElement.dataset.imageLightboxPageLoadBound = "true";
-    }
-
-    if (!document.documentElement.dataset.detailTocPageLoadBound) {
-      document.addEventListener("astro:page-load", initializeTableOfContents);
-      document.documentElement.dataset.detailTocPageLoadBound = "true";
-    }
-  </script>
+  <RichTextInteractions />
 </BaseLayout>

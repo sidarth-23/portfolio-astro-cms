@@ -1,4 +1,3 @@
-/** @jsxImportSource preact */
 import EmblaCarousel, { type EmblaCarouselType } from "embla-carousel";
 import checkSvg from "@phosphor-icons/core/assets/regular/check.svg?raw";
 import copySvg from "@phosphor-icons/core/assets/regular/copy.svg?raw";
@@ -606,5 +605,33 @@ export const initTableOfContents = (options: InitTableOfContentsOptions = {}): (
     linkHandlers.forEach((handler, link) => {
       link.removeEventListener("click", handler);
     });
+  };
+};
+
+export const initRichTextInteractions = (tocDrawerId = "detail-toc-drawer"): (() => void) => {
+  let cleanups: Array<() => void> = [];
+
+  const initialize = () => {
+    cleanups.forEach((dispose) => dispose());
+    cleanups = [
+      initCodeBlocks(),
+      initImageGallery(),
+      initImageLightbox(),
+      initTableOfContents({
+        onLinkClick: () => {
+          const drawer = document.getElementById(tocDrawerId);
+          if (drawer instanceof HTMLInputElement) drawer.checked = false;
+        },
+      }),
+    ];
+  };
+
+  const onPageLoad = () => initialize();
+  initialize();
+  document.addEventListener("astro:page-load", onPageLoad);
+
+  return () => {
+    document.removeEventListener("astro:page-load", onPageLoad);
+    cleanups.forEach((dispose) => dispose());
   };
 };

@@ -1,5 +1,4 @@
 import type { SerializedEditorState } from "lexical";
-import type { ComponentType } from "preact";
 import type { UploadDoc } from "@/lib/rich-text/util/image";
 
 // Core value types
@@ -71,12 +70,4 @@ export type FootnoteListItem = {
 export type FootnotesProps = {
   title: string;
   items: FootnoteListItem[];
-};
-
-export type BlockComponents = {
-  Callout: ComponentType<CalloutProps>;
-  Code: ComponentType<CodeProps>;
-  Footnotes: ComponentType<FootnotesProps>;
-  ImageGallery: ComponentType<ImageGalleryProps>;
-  Upload: ComponentType<UploadProps>;
 };

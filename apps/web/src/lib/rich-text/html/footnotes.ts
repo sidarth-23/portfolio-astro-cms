@@ -1,4 +1,4 @@
-import type { RichTextValue } from "../types";
+import type { RichTextValue } from "./types";
 
 type SerializedFootnoteReferenceNode = {
   type: "footnote-reference";
