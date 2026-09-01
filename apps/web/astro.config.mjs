@@ -14,7 +14,7 @@ export default defineConfig({
   vite: {
     plugins: [tailwindcss()],
     ssr: {
-      noExternal: ["@sidshub/icon-catalog", "@sidshub/cms", "payload", "sharp"],
+      noExternal: ["@sidshub/icon-catalog", "@sidshub/cms", "payload"],
     },
     resolve: {
       alias: {

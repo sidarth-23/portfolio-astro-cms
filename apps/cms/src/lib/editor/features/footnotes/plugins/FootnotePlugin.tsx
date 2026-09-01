@@ -1,8 +1,20 @@
 "use client";
 
 import { useCallback, useEffect } from "react";
-import { COMMAND_PRIORITY_EDITOR } from "@payloadcms/richtext-lexical/lexical";
-import { $addUpdateTag, SKIP_DOM_SELECTION_TAG } from "lexical";
+import { COMMAND_PRIORITY_EDITOR, PASTE_COMMAND } from "@payloadcms/richtext-lexical/lexical";
+import {
+  $addUpdateTag,
+  $createParagraphNode,
+  $getSelection,
+  $isRangeSelection,
+  SKIP_DOM_SELECTION_TAG,
+} from "lexical";
+import {
+  $convertFromMarkdownString,
+  TRANSFORMERS,
+} from "@payloadcms/richtext-lexical/lexical/markdown";
+import { FOOTNOTE_REFERENCE_TRANSFORMER } from "../transformers/footnoteReference";
+import { FOOTNOTE_DEFINITION_TRANSFORMER } from "../transformers/footnoteDefinition";
 import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext";
 import { useDrawerSlug, useModal } from "@payloadcms/ui";
 
@@ -30,6 +42,38 @@ export function FootnotePlugin() {
     refreshFromEditor();
     openModal(drawerSlug);
   }, [drawerSlug, openModal, refreshFromEditor]);
+
+  useEffect(() => {
+    return editor.registerCommand(
+      PASTE_COMMAND,
+      (event) => {
+        if (!(event instanceof ClipboardEvent)) return false;
+        const text = event.clipboardData?.getData("text/plain") ?? "";
+        if (!/\[\^[^\]]+\]/.test(text) && !/^\[\^[^\]]+\]:/m.test(text)) return false;
+
+        event.preventDefault();
+        editor.update(
+          () => {
+            const selection = $getSelection();
+            if (!$isRangeSelection(selection)) return;
+
+            const target = $createParagraphNode();
+            $convertFromMarkdownString(
+              text,
+              [...TRANSFORMERS, FOOTNOTE_REFERENCE_TRANSFORMER, FOOTNOTE_DEFINITION_TRANSFORMER],
+              target,
+            );
+            selection.insertNodes(target.getChildren());
+            normalizeFootnotes();
+            $addUpdateTag(FOOTNOTE_NORMALIZE_TAG);
+          },
+          { tag: SKIP_DOM_SELECTION_TAG },
+        );
+        return true;
+      },
+      COMMAND_PRIORITY_EDITOR,
+    );
+  }, [editor]);
 
   useEffect(() => {
     return editor.registerCommand(

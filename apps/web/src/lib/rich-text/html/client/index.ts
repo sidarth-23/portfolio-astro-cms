@@ -79,173 +79,6 @@ const markCopied = (button: HTMLElement) => {
 export const initCodeBlocks = (root: ParentNode = document): (() => void) => {
   const cleanups: Array<() => void> = [];
 
-  root.querySelectorAll("[data-code-tabs]").forEach((container) => {
-    if (!(container instanceof HTMLElement)) return;
-    if (container.dataset.tabsInitialized) return;
-    container.dataset.tabsInitialized = "true";
-
-    const tabs = Array.from(container.querySelectorAll("[data-tab-index]"));
-    const panels = Array.from(container.querySelectorAll("[data-tab-panel]")).filter(
-      (panel): panel is HTMLElement => panel instanceof HTMLElement,
-    );
-    const icons = Array.from(container.querySelectorAll("[data-tab-icon]")).filter(
-      (icon): icon is HTMLElement => icon instanceof HTMLElement,
-    );
-
-    const tabsContainer = container.querySelector("[data-tabs-container]");
-    const dropdown = container.querySelector("[data-tabs-dropdown]");
-    const dropdownList = container.querySelector("[data-tabs-dropdown-list]");
-
-    if (dropdownList instanceof HTMLElement) {
-      dropdownList.innerHTML = "";
-      tabs.forEach((tab) => {
-        const index = tab.getAttribute("data-tab-index");
-        if (!index) return;
-
-        const li = document.createElement("li");
-        const link = document.createElement("a");
-
-        link.textContent = tab.textContent;
-        link.dataset.dropdownIndex = index;
-
-        if (tab.getAttribute("aria-selected") === "true") {
-          link.classList.add("active");
-        }
-
-        li.appendChild(link);
-        dropdownList.appendChild(li);
-      });
-    }
-
-    const activeClasses = (
-      container.dataset.activeClasses ?? "font-medium text-base-content border-base-content"
-    )
-      .split(" ")
-      .filter(Boolean);
-    const inactiveClasses = (
-      container.dataset.inactiveClasses ?? "font-normal text-base-content/60 border-transparent"
-    )
-      .split(" ")
-      .filter(Boolean);
-
-    const activateTab = (index: number) => {
-      tabs.forEach((tab) => {
-        const isActive = tab.getAttribute("data-tab-index") === String(index);
-        tab.setAttribute("aria-selected", isActive ? "true" : "false");
-        activeClasses.forEach((cls) => tab.classList.toggle(cls, isActive));
-        inactiveClasses.forEach((cls) => tab.classList.toggle(cls, !isActive));
-      });
-
-      panels.forEach((panel) => {
-        panel.hidden = panel.getAttribute("data-tab-panel") !== String(index);
-      });
-
-      icons.forEach((icon) => {
-        icon.hidden = icon.getAttribute("data-tab-icon") !== String(index);
-      });
-
-      if (!(dropdownList instanceof HTMLElement)) return;
-      Array.from(dropdownList.querySelectorAll("a")).forEach((link) => {
-        const isActive = link.getAttribute("data-dropdown-index") === String(index);
-        link.classList.toggle("active", isActive);
-      });
-    };
-
-    const tabClickHandlers = new Map<Element, EventListener>();
-    tabs.forEach((tab) => {
-      const handler = () => {
-        const index = tab.getAttribute("data-tab-index");
-        if (index) activateTab(Number(index));
-      };
-      tab.addEventListener("click", handler);
-      tabClickHandlers.set(tab, handler);
-    });
-
-    const dropdownClickHandler = (event: Event) => {
-      const target = event.target;
-      if (!(target instanceof Element)) return;
-
-      const link = target.closest("[data-dropdown-index]");
-      if (!link) return;
-
-      const index = link.getAttribute("data-dropdown-index");
-      if (!index) return;
-
-      activateTab(Number(index));
-      if (document.activeElement instanceof HTMLElement) {
-        document.activeElement.blur();
-      }
-    };
-
-    if (dropdownList instanceof HTMLElement) {
-      dropdownList.addEventListener("click", dropdownClickHandler);
-    }
-
-    const tabWidths: number[] = [];
-    const updateOverflow = () => {
-      if (!(tabsContainer instanceof HTMLElement)) return;
-      if (!(dropdown instanceof HTMLElement)) return;
-
-      if (tabWidths.length === 0) {
-        tabs.forEach((tab) => {
-          if (!(tab instanceof HTMLElement)) return;
-          tab.style.display = "block";
-          tabWidths.push(tab.offsetWidth);
-        });
-      }
-
-      const availableWidth = tabsContainer.clientWidth;
-      let currentWidth = 0;
-      let hasOverflow = false;
-
-      tabs.forEach((tab, index) => {
-        const width = tabWidths[index];
-        const dropdownItem = dropdownList?.querySelector(
-          `[data-dropdown-index="${index}"]`,
-        )?.parentElement;
-        if (!(tab instanceof HTMLElement) || !(dropdownItem instanceof HTMLElement)) return;
-
-        if (hasOverflow || currentWidth + width > availableWidth) {
-          hasOverflow = true;
-          tab.style.display = "none";
-          dropdownItem.style.display = "block";
-          return;
-        }
-
-        currentWidth += width;
-        tab.style.display = "block";
-        dropdownItem.style.display = "none";
-      });
-
-      dropdown.classList.toggle("hidden", !hasOverflow);
-    };
-
-    let resizeObserver: ResizeObserver | null = null;
-    if (tabsContainer instanceof HTMLElement) {
-      resizeObserver = new ResizeObserver(() => {
-        requestAnimationFrame(updateOverflow);
-      });
-      resizeObserver.observe(tabsContainer);
-      requestAnimationFrame(updateOverflow);
-    }
-
-    cleanups.push(() => {
-      tabClickHandlers.forEach((handler, tab) => {
-        tab.removeEventListener("click", handler);
-      });
-
-      if (dropdownList instanceof HTMLElement) {
-        dropdownList.removeEventListener("click", dropdownClickHandler);
-      }
-
-      if (resizeObserver) {
-        resizeObserver.disconnect();
-      }
-
-      delete container.dataset.tabsInitialized;
-    });
-  });
-
   root.querySelectorAll("[data-code-copy]").forEach((button) => {
     if (!(button instanceof HTMLElement)) return;
     if (button.dataset.copyBound) return;
@@ -254,22 +87,15 @@ export const initCodeBlocks = (root: ParentNode = document): (() => void) => {
     const onClick = () => {
       const figure = button.closest(".code-block-figure");
       if (!(figure instanceof Element)) return;
+      const codePanel = figure.querySelector("[data-code-panel]");
+      if (!codePanel) return;
 
-      const activePanel =
-        figure.querySelector("[data-tab-panel]:not([hidden])") ||
-        figure.querySelector("[data-code-panel]");
-      if (!activePanel) return;
-
-      const code = activePanel.textContent ?? "";
-      writeClipboard(code).then((copied) => {
-        if (copied) {
-          markCopied(button);
-        }
+      writeClipboard(codePanel.textContent ?? "").then((copied) => {
+        if (copied) markCopied(button);
       });
     };
 
     button.addEventListener("click", onClick);
-
     cleanups.push(() => {
       button.removeEventListener("click", onClick);
       delete button.dataset.copyBound;

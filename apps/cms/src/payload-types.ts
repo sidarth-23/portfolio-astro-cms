@@ -204,6 +204,9 @@ export interface User {
     | null;
   updatedAt: string;
   createdAt: string;
+  enableAPIKey?: boolean | null;
+  apiKey?: string | null;
+  apiKeyIndex?: string | null;
   email: string;
   resetPasswordToken?: string | null;
   resetPasswordExpiration?: string | null;
@@ -758,6 +761,9 @@ export interface UsersSelect<T extends boolean = true> {
       };
   updatedAt?: T;
   createdAt?: T;
+  enableAPIKey?: T;
+  apiKey?: T;
+  apiKeyIndex?: T;
   email?: T;
   resetPasswordToken?: T;
   resetPasswordExpiration?: T;
@@ -1579,46 +1585,21 @@ export interface TaskSchedulePublish {
  * via the `definition` "LexicalCodeBlock".
  */
 export interface LexicalCodeBlock {
-  mode: 'single' | 'multiple';
-  language?:
-    | (
-        | 'plaintext'
-        | 'bash'
-        | 'json'
-        | 'yaml'
-        | 'html'
-        | 'css'
-        | 'javascript'
-        | 'typescript'
-        | 'jsx'
-        | 'tsx'
-        | 'python'
-        | 'go'
-        | 'rust'
-      )
-    | null;
-  code?: string | null;
-  entries?:
-    | {
-        name: string;
-        language:
-          | 'plaintext'
-          | 'bash'
-          | 'json'
-          | 'yaml'
-          | 'html'
-          | 'css'
-          | 'javascript'
-          | 'typescript'
-          | 'jsx'
-          | 'tsx'
-          | 'python'
-          | 'go'
-          | 'rust';
-        code: string;
-        id?: string | null;
-      }[]
-    | null;
+  language:
+    | 'plaintext'
+    | 'bash'
+    | 'json'
+    | 'yaml'
+    | 'html'
+    | 'css'
+    | 'javascript'
+    | 'typescript'
+    | 'jsx'
+    | 'tsx'
+    | 'python'
+    | 'go'
+    | 'rust';
+  code: string;
   caption?: string | null;
   id?: string | null;
   blockName?: string | null;

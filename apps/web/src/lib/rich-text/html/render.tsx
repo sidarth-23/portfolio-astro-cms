@@ -301,39 +301,14 @@ export async function renderRichTextToHTML(
         },
         Code: async ({ node }: { node: SerializedBlockNode<Record<string, unknown>> }) => {
           const fields = node.fields ?? {};
-          const mode = (fields.mode as string) || "single";
-          const caption = (fields.caption as string | null | undefined) ?? null;
-
-          if (mode === "multiple") {
-            type Entry = { name: string; language: string; code: string };
-            const rawEntries = (fields.entries as Entry[] | null | undefined) ?? [];
-            const entries = await Promise.all(
-              rawEntries.map(async (entry) => {
-                const lang = entry.language || "plaintext";
-                const highlightedHtml = await highlightCode(entry.code || "", lang).catch(
-                  () => `<pre><code>${entry.code}</code></pre>`,
-                );
-                return { name: entry.name || "", language: lang, highlightedHtml };
-              }),
-            );
-            return renderToStaticMarkup(
-              <Code mode="multiple" entries={entries} caption={caption} />,
-            );
-          }
-
-          // Single mode
           const language = (fields.language as string) || "plaintext";
           const code = (fields.code as string) || "";
+          const caption = (fields.caption as string | null | undefined) ?? null;
           const highlightedHtml = await highlightCode(code, language).catch(
             () => `<pre><code>${code}</code></pre>`,
           );
           return renderToStaticMarkup(
-            <Code
-              mode="single"
-              language={language}
-              highlightedHtml={highlightedHtml}
-              caption={caption}
-            />,
+            <Code language={language} highlightedHtml={highlightedHtml} caption={caption} />,
           );
         },
       },
@@ -439,36 +414,14 @@ export async function renderBlock(
     }
 
     case "code": {
-      const mode = (block.mode as string) || "single";
-      const caption = (block.caption as string | null | undefined) ?? null;
-
-      if (mode === "multiple") {
-        type Entry = { name: string; language: string; code: string };
-        const rawEntries = (block.entries as Entry[] | null | undefined) ?? [];
-        const entries = await Promise.all(
-          rawEntries.map(async (entry) => {
-            const lang = entry.language || "plaintext";
-            const highlightedHtml = await highlightCode(entry.code || "", lang).catch(
-              () => `<pre><code>${entry.code}</code></pre>`,
-            );
-            return { name: entry.name || "", language: lang, highlightedHtml };
-          }),
-        );
-        return renderToStaticMarkup(<Code mode="multiple" entries={entries} caption={caption} />);
-      }
-
       const language = (block.language as string) || "plaintext";
       const code = (block.code as string) || "";
+      const caption = (block.caption as string | null | undefined) ?? null;
       const highlightedHtml = await highlightCode(code, language).catch(
         () => `<pre><code>${code}</code></pre>`,
       );
       return renderToStaticMarkup(
-        <Code
-          mode="single"
-          language={language}
-          highlightedHtml={highlightedHtml}
-          caption={caption}
-        />,
+        <Code language={language} highlightedHtml={highlightedHtml} caption={caption} />,
       );
     }
 

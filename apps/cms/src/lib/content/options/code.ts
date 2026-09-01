@@ -1,12 +1,5 @@
 import { defineOptions } from "./utils";
 
-export const CODE_BLOCK_MODE_OPTIONS = defineOptions([
-  { label: "Single", value: "single" },
-  { label: "Multiple (Tabs)", value: "multiple" },
-]);
-
-export type CodeBlockMode = (typeof CODE_BLOCK_MODE_OPTIONS)[number]["value"];
-
 export const CODE_BLOCK_LANGUAGE_OPTIONS = defineOptions([
   { label: "Plain Text", value: "plaintext" },
   { label: "Bash", value: "bash" },

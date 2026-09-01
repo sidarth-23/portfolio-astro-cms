@@ -41,12 +41,11 @@ const toTrimmedString = (value: unknown): string | undefined => {
   const trimmed = value.trim();
   return trimmed.length > 0 ? trimmed : undefined;
 };
-const isPost = (value: RelationID | Post | null | undefined): value is Post =>
-  typeof value === "object" && value !== null && value._status !== "draft";
-const isProject = (value: RelationID | Project | null | undefined): value is Project =>
-  typeof value === "object" && value !== null && value._status !== "draft";
-const isSeries = (value: RelationID | Series | null | undefined): value is Series =>
-  typeof value === "object" && value !== null;
+const isPost = (value: unknown): value is Post =>
+  typeof value === "object" && value !== null && "_status" in value && value._status !== "draft";
+const isProject = (value: unknown): value is Project =>
+  typeof value === "object" && value !== null && "_status" in value && value._status !== "draft";
+const isSeries = (value: unknown): value is Series => typeof value === "object" && value !== null;
 
 type LinkReference =
   | { relationTo: string; value: RelationID | Post | Project | Series | null | undefined }

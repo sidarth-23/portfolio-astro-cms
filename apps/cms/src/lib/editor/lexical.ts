@@ -74,7 +74,6 @@ export type LexicalEditorOptions = {
   enableTables?: boolean;
   enableEmoji?: boolean;
   enableFootnotes?: boolean;
-  enableMarkdownPaste?: boolean;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   extraFeatures?: FeatureProviderServer<any, any, any>[];
   link?: LinkSettings;
@@ -111,7 +110,6 @@ export const DEFAULT_VARIANT_OPTIONS: Record<LexicalEditorVariant, VariantDefaul
     enabledHeadingSizes: [],
     enableEmoji: true,
     enableFootnotes: false,
-    enableMarkdownPaste: false,
   },
   basic: {
     enableFixedToolbar: true,
@@ -132,7 +130,6 @@ export const DEFAULT_VARIANT_OPTIONS: Record<LexicalEditorVariant, VariantDefaul
     enabledHeadingSizes: [],
     enableEmoji: true,
     enableFootnotes: false,
-    enableMarkdownPaste: false,
   },
   document: {
     enableFixedToolbar: true,
@@ -154,7 +151,6 @@ export const DEFAULT_VARIANT_OPTIONS: Record<LexicalEditorVariant, VariantDefaul
     enabledHeadingSizes: ["h2", "h3", "h4"],
     enableEmoji: true,
     enableFootnotes: true,
-    enableMarkdownPaste: true,
   },
 };
 
@@ -306,39 +302,21 @@ const createCodeBlock = (): Block => ({
   jsx: {
     ...PremadeCodeBlock().jsx!,
     import: ({ children, openMatch }) => ({
-      mode: "single",
       language: resolveCodeLanguage(openMatch?.[1]),
       code: children,
     }),
-    export: ({ fields }) => {
-      if (fields.mode !== "single") return false;
-      return "```" + (fields.language ?? "") + "\n" + (fields.code ?? "") + "\n```";
-    },
+    export: ({ fields }) => "```" + (fields.language ?? "") + "\n" + (fields.code ?? "") + "\n```",
   },
   fields: [
-    {
-      name: "mode",
-      type: "select",
-      required: true,
-      defaultValue: "single",
-      options: [
-        { label: "Single", value: "single" },
-        { label: "Multiple (Tabs)", value: "multiple" },
-      ],
-    },
     {
       name: "language",
       type: "select",
       required: true,
-      defaultValue: "typescript",
+      defaultValue: "plaintext",
       options: Object.entries(CODE_BLOCK_LANGUAGES).map(([key, value]) => ({
         label: value,
         value: key,
       })),
-      admin: {
-        condition: (_: unknown, siblingData: Record<string, unknown>) =>
-          siblingData?.mode !== "multiple",
-      },
     },
     {
       name: "code",
@@ -346,8 +324,6 @@ const createCodeBlock = (): Block => ({
       required: true,
       label: false,
       admin: {
-        condition: (_: unknown, siblingData: Record<string, unknown>) =>
-          siblingData?.mode !== "multiple",
         components: {
           Field: {
             clientProps: { languages: CODE_BLOCK_LANGUAGES },
@@ -355,52 +331,6 @@ const createCodeBlock = (): Block => ({
           },
         },
       },
-    },
-    {
-      name: "entries",
-      type: "array",
-      minRows: 2,
-      admin: {
-        condition: (_: unknown, siblingData: Record<string, unknown>) =>
-          siblingData?.mode === "multiple",
-        components: {
-          RowLabel: {
-            path: "./components/admin/rowLabels/CodeEntryRowLabel#CodeEntryRowLabel",
-          },
-        },
-      },
-      fields: [
-        {
-          name: "name",
-          type: "text",
-          required: true,
-          label: "Tab Name",
-        },
-        {
-          name: "language",
-          type: "select",
-          required: true,
-          defaultValue: "typescript",
-          options: Object.entries(CODE_BLOCK_LANGUAGES).map(([key, value]) => ({
-            label: value,
-            value: key,
-          })),
-        },
-        {
-          name: "code",
-          type: "code",
-          required: true,
-          label: false,
-          admin: {
-            components: {
-              Field: {
-                clientProps: { languages: CODE_BLOCK_LANGUAGES },
-                path: "./components/admin/CodeFieldComponent#CodeFieldComponent",
-              },
-            },
-          },
-        },
-      ],
     },
     {
       name: "caption",

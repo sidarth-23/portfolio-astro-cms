@@ -1,8 +1,4 @@
 import { seoPlugin } from "@payloadcms/plugin-seo";
-import {
-  convertMarkdownEndpoint,
-  importMediaFromUrlEndpoint,
-} from "@cms/lib/editor/features/markdown-paste/endpoints";
 import { collectionOverride, globalOverride, ogImagePlugin } from "@cms/plugins/og-image";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -133,7 +129,7 @@ export default buildConfig({
   routes: {
     admin: "/admin",
   },
-  endpoints: [importMediaFromUrlEndpoint, convertMarkdownEndpoint, ...orphanedMediaEndpoints],
+  endpoints: [...orphanedMediaEndpoints],
   collections,
   globals,
   plugins: [

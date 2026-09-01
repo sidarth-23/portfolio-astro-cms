@@ -299,68 +299,48 @@ export const normalizeFootnotes = (): void => {
   const orderedReferencedIds = snapshot.entries.map((entry) => entry.id);
   const referencedIdSet = new Set(orderedReferencedIds);
   const definitionsById = new Map<string, FootnoteDefinitionLike>();
+  const orphanedIds: string[] = [];
 
-  // Remove all existing separators — we'll re-insert a single one if needed.
+  // Keep imported definitions even when their reference is not present yet.
   for (const child of root.getChildren()) {
     if ($isFootnoteSeparatorNode(child)) {
       child.remove();
-    }
-  }
-
-  for (const child of root.getChildren()) {
-    const definitionNode = toDefinitionNode(child);
-    if (!definitionNode) {
       continue;
     }
+
+    const definitionNode = toDefinitionNode(child);
+    if (!definitionNode) continue;
 
     const id = definitionNode.getFootnoteId();
-
-    if (!referencedIdSet.has(id)) {
-      definitionNode.remove();
-      continue;
-    }
-
     if (definitionsById.has(id)) {
       definitionNode.remove();
       continue;
     }
 
     definitionsById.set(id, definitionNode);
+    if (!referencedIdSet.has(id)) orphanedIds.push(id);
   }
 
   for (const id of orderedReferencedIds) {
-    if (definitionsById.has(id)) {
-      continue;
-    }
-
+    if (definitionsById.has(id)) continue;
     const definitionNode = $createFootnoteDefinitionNode(id) as unknown as FootnoteDefinitionLike;
     ensureDefinitionTextNode(definitionNode, "");
     definitionsById.set(id, definitionNode);
-    root.append(definitionNode);
   }
 
-  // Re-append definitions in reference order (moves them to the end of root).
-  for (const id of orderedReferencedIds) {
+  const orderedDefinitionIds = [...orderedReferencedIds, ...orphanedIds];
+
+  // Re-append definitions in reference order, followed by preserved orphans.
+  for (const id of orderedDefinitionIds) {
     const definitionNode = definitionsById.get(id);
-    if (!definitionNode) {
-      continue;
-    }
-
-    if (definitionNode.getChildrenSize() === 0) {
-      ensureDefinitionTextNode(definitionNode, "");
-    }
-
+    if (!definitionNode) continue;
+    if (definitionNode.getChildrenSize() === 0) ensureDefinitionTextNode(definitionNode, "");
     root.append(definitionNode);
   }
 
-  // Insert a single separator before the first definition if any exist.
-  if (orderedReferencedIds.length > 0) {
-    const firstId = orderedReferencedIds[0]!;
-    const firstDef = definitionsById.get(firstId);
-    if (firstDef) {
-      const separator = $createFootnoteSeparatorNode();
-      firstDef.insertBefore(separator);
-    }
+  if (orderedDefinitionIds.length > 0) {
+    const firstDef = definitionsById.get(orderedDefinitionIds[0]!);
+    if (firstDef) firstDef.insertBefore($createFootnoteSeparatorNode());
   }
 };
 

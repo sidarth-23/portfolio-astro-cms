@@ -18,10 +18,6 @@ import {
 } from "../nodes/FootnoteDefinitionNode.server";
 import { decodeHtmlEntities } from "../utils";
 
-// Inline markdown transformers used when importing footnote definition content.
-// LINK is intentionally excluded: using @lexical/markdown's LinkNode directly
-// can produce node-class conflicts with the PayloadCMS Lexical registry.
-// Bold, italic, code and strikethrough round-trip correctly.
 const FOOTNOTE_INLINE_TRANSFORMERS = [
   BOLD_STAR,
   BOLD_UNDERSCORE,
@@ -33,50 +29,59 @@ const FOOTNOTE_INLINE_TRANSFORMERS = [
   INLINE_CODE,
 ];
 
+const ensureDefinitionContent = (
+  defNode: ReturnType<typeof $createFootnoteDefinitionServerNode>,
+) => {
+  if (defNode.getChildrenSize() > 0) return;
+  const paragraph = $createParagraphNode();
+  paragraph.append($createTextNode(""));
+  defNode.append(paragraph);
+};
+
 export const FOOTNOTE_DEFINITION_TRANSFORMER: MultilineElementTransformer = {
   type: "multiline-element",
   dependencies: [FootnoteDefinitionServerNode],
-  regExpStart: /^<footnote-def\s+id="([^"]+)">/,
-  regExpEnd: {
-    regExp: /^<\/footnote-def>/,
-  },
-  replace: (rootNode, children, startMatch, _endMatch, linesInBetween, _isImport) => {
-    const footnoteId = decodeHtmlEntities(startMatch[1]!);
-    const defNode = $createFootnoteDefinitionServerNode(footnoteId);
-
-    if (children && children.length > 0) {
-      // Shortcut transform path (typing in editor): children nodes provided directly.
-      for (const child of children) {
-        defNode.append(child);
-      }
-    } else if (linesInBetween && linesInBetween.length > 0) {
-      // Import path: content comes as raw markdown text lines.
-      // $convertFromMarkdownString uses defNode as its root so paragraphs are
-      // appended directly to the definition, not to the main editor root.
-      const markdownContent = linesInBetween.join("\n");
-      $convertFromMarkdownString(markdownContent, FOOTNOTE_INLINE_TRANSFORMERS, defNode);
-    }
-
-    // canBeEmpty() returns false — ensure at least one paragraph.
-    if (defNode.getChildrenSize() === 0) {
-      const paragraph = $createParagraphNode();
-      paragraph.append($createTextNode(""));
-      defNode.append(paragraph);
-    }
-
+  regExpStart: /^\[\^([^\]]+)\]:\s*(.*)/,
+  replace: (rootNode, children, startMatch) => {
+    const defNode = $createFootnoteDefinitionServerNode(decodeHtmlEntities(startMatch[1]!));
+    for (const child of children ?? []) defNode.append(child);
+    ensureDefinitionContent(defNode);
     rootNode.append(defNode);
+  },
+  handleImportAfterStartMatch: ({ lines, rootNode, startLineIndex, startMatch }) => {
+    const footnoteId = decodeHtmlEntities(startMatch[1]!);
+    const contentLines = [startMatch[2] ?? ""];
+    let lastLineIndex = startLineIndex;
+
+    for (let index = startLineIndex + 1; index < lines.length; index += 1) {
+      const line = lines[index]!;
+      const continuationMatch = line.match(/^(?:    |\t)(.*)/);
+      if (continuationMatch) {
+        contentLines.push(continuationMatch[1] ?? "");
+        lastLineIndex = index;
+        continue;
+      }
+      if (line === "") {
+        contentLines.push("");
+        lastLineIndex = index;
+        continue;
+      }
+      break;
+    }
+
+    const defNode = $createFootnoteDefinitionServerNode(footnoteId);
+    $convertFromMarkdownString(contentLines.join("\n"), FOOTNOTE_INLINE_TRANSFORMERS, defNode);
+    ensureDefinitionContent(defNode);
+    rootNode.append(defNode);
+    return [true, lastLineIndex];
   },
   export: (node, exportChildren) => {
     if (!$isFootnoteDefinitionServerNode(node)) return null;
-    const id = node.getFootnoteId();
-    const content = exportChildren(node);
-    // Indent continuation lines with 4 spaces (standard markdown footnote format)
-    const lines = content.split("\n");
-    const firstLine = lines[0] ?? "";
-    const rest = lines
-      .slice(1)
-      .map((l) => (l.trim() === "" ? "" : `    ${l}`))
-      .join("\n");
-    return rest ? `[^${id}]: ${firstLine}\n${rest}` : `[^${id}]: ${firstLine}`;
+    const lines = exportChildren(node).split("\n");
+    const firstLine = lines.shift() ?? "";
+    const rest = lines.map((line) => (line.trim() === "" ? "" : `    ${line}`)).join("\n");
+    return rest
+      ? `[^${node.getFootnoteId()}]: ${firstLine}\n${rest}`
+      : `[^${node.getFootnoteId()}]: ${firstLine}`;
   },
 };

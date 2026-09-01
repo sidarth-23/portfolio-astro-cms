@@ -6,7 +6,6 @@ import { SuperscriptFeatureClient as SuperscriptFeatureClient_e70f5e05f09f93e00b
 import { SubscriptFeatureClient as SubscriptFeatureClient_e70f5e05f09f93e00b997edb1ef0c864 } from "@payloadcms/richtext-lexical/client";
 import { BlocksFeatureClient as BlocksFeatureClient_e70f5e05f09f93e00b997edb1ef0c864 } from "@payloadcms/richtext-lexical/client";
 import { CodeFieldComponent as CodeFieldComponent_d743a3c524d5067985214c80a1f94469 } from "../../../components/admin/CodeFieldComponent";
-import { CodeEntryRowLabel as CodeEntryRowLabel_c6ccc9dd7e607819ebe514af07ca8dfc } from "../../../components/admin/rowLabels/CodeEntryRowLabel";
 import { BlockquoteFeatureClient as BlockquoteFeatureClient_e70f5e05f09f93e00b997edb1ef0c864 } from "@payloadcms/richtext-lexical/client";
 import { LinkFeatureClient as LinkFeatureClient_e70f5e05f09f93e00b997edb1ef0c864 } from "@payloadcms/richtext-lexical/client";
 import { OrderedListFeatureClient as OrderedListFeatureClient_e70f5e05f09f93e00b997edb1ef0c864 } from "@payloadcms/richtext-lexical/client";
@@ -31,7 +30,6 @@ import { MetaImageComponent as MetaImageComponent_a8a977ebc872c5d5ea7ee689724c08
 import { PreviewComponent as PreviewComponent_a8a977ebc872c5d5ea7ee689724c0860 } from "@payloadcms/plugin-seo/client";
 import { SocialCardPreview as SocialCardPreview_e2e4bacc1c923e7bb99cd74c99dbf5bb } from "../../../plugins/og-image/ui";
 import { SeoSaveButton as SeoSaveButton_e2e4bacc1c923e7bb99cd74c99dbf5bb } from "../../../plugins/og-image/ui";
-import { MarkdownPasteFeatureClient as MarkdownPasteFeatureClient_62a39afcdd96d91f614c9cef1c743e35 } from "../../../lib/editor/features/markdown-paste/client";
 import { FootnotesFeatureClient as FootnotesFeatureClient_f9f67dd7b7e85686b399c7024f033b48 } from "../../../lib/editor/features/footnotes/client";
 import { TableFeatureClient as TableFeatureClient_e70f5e05f09f93e00b997edb1ef0c864 } from "@payloadcms/richtext-lexical/client";
 import { HorizontalRuleFeatureClient as HorizontalRuleFeatureClient_e70f5e05f09f93e00b997edb1ef0c864 } from "@payloadcms/richtext-lexical/client";
@@ -72,8 +70,6 @@ export const importMap = {
     BlocksFeatureClient_e70f5e05f09f93e00b997edb1ef0c864,
   "./components/admin/CodeFieldComponent#CodeFieldComponent":
     CodeFieldComponent_d743a3c524d5067985214c80a1f94469,
-  "./components/admin/rowLabels/CodeEntryRowLabel#CodeEntryRowLabel":
-    CodeEntryRowLabel_c6ccc9dd7e607819ebe514af07ca8dfc,
   "@payloadcms/richtext-lexical/client#BlockquoteFeatureClient":
     BlockquoteFeatureClient_e70f5e05f09f93e00b997edb1ef0c864,
   "@payloadcms/richtext-lexical/client#LinkFeatureClient":
@@ -117,8 +113,6 @@ export const importMap = {
     PreviewComponent_a8a977ebc872c5d5ea7ee689724c0860,
   "./plugins/og-image/ui#SocialCardPreview": SocialCardPreview_e2e4bacc1c923e7bb99cd74c99dbf5bb,
   "./plugins/og-image/ui#SeoSaveButton": SeoSaveButton_e2e4bacc1c923e7bb99cd74c99dbf5bb,
-  "./lib/editor/features/markdown-paste/client#MarkdownPasteFeatureClient":
-    MarkdownPasteFeatureClient_62a39afcdd96d91f614c9cef1c743e35,
   "./lib/editor/features/footnotes/client#FootnotesFeatureClient":
     FootnotesFeatureClient_f9f67dd7b7e85686b399c7024f033b48,
   "@payloadcms/richtext-lexical/client#TableFeatureClient":

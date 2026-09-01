@@ -26,20 +26,11 @@ export type CalloutProps = {
   wrapperClass?: string;
 };
 
-export type CodeSingleProps = {
-  mode: "single";
+export type CodeProps = {
   language: string;
   highlightedHtml: string;
   caption?: string | null;
 };
-
-export type CodeMultipleProps = {
-  mode: "multiple";
-  entries: Array<{ name: string; language: string; highlightedHtml: string }>;
-  caption?: string | null;
-};
-
-export type CodeProps = CodeSingleProps | CodeMultipleProps;
 
 export type GalleryImage = {
   doc: UploadDoc;

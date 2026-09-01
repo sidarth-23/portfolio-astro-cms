@@ -277,7 +277,7 @@ export function createCmsQueries(query: CmsQueryOperations, cache: CmsCache = cm
           .map((series) => {
             const postCount = relationIds(
               series.posts as Array<RelationID | { id?: unknown }> | null | undefined,
-            ).filter((id) => publishedIds.has(id)).length;
+            ).filter((id) => publishedIds.has(String(id))).length;
             return {
               id: series.id,
               name: series.name,
