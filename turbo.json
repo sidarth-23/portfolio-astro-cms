@@ -1,9 +1,14 @@
 {
   "$schema": "https://turbo.build/schema.json",
   "concurrency": "20",
-  "globalPassThroughEnv": ["SKIP_ENV_VALIDATION", "CF_PAGES", "DEPLOY_TARGET"],
+  "globalPassThroughEnv": ["SKIP_ENV_VALIDATION"],
   "tasks": {
     "build": {
+      "dependsOn": ["^build"],
+      "inputs": ["$TURBO_DEFAULT$", "!README.md", "!Dockerfile", "!**/*.md", "!**/*.mdx"],
+      "outputs": ["dist/**"]
+    },
+    "build:cloudflare": {
       "dependsOn": ["^build"],
       "inputs": ["$TURBO_DEFAULT$", "!README.md", "!Dockerfile", "!**/*.md", "!**/*.mdx"],
       "outputs": ["dist/**"]
@@ -59,8 +64,18 @@
         "ASTRO_BUILD_CACHE_GLOBALS",
         "ASTRO_SITE_URL",
         "PAYLOAD_PUBLIC_SERVER_URL",
-        "PAYLOAD_API_KEY",
-        "DEPLOY_TARGET"
+        "PAYLOAD_API_KEY"
+      ],
+      "outputs": ["dist/**"]
+    },
+    "@sidshub/web#build:cloudflare": {
+      "dependsOn": ["@sidshub/icon-catalog#build"],
+      "inputs": ["$TURBO_DEFAULT$", "!README.md", "!Dockerfile", "!**/*.md", "!**/*.mdx"],
+      "env": [
+        "ASTRO_BUILD_CACHE_GLOBALS",
+        "ASTRO_SITE_URL",
+        "PAYLOAD_PUBLIC_SERVER_URL",
+        "PAYLOAD_API_KEY"
       ],
       "outputs": ["dist/**"]
     },

@@ -6,6 +6,8 @@
     "dev": "astro dev",
     "start": "astro dev",
     "build": "astro build",
+    "build:cloudflare": "astro build --config astro.config.cloudflare.mjs",
+    "preview:cloudflare": "astro preview --config astro.config.cloudflare.mjs",
     "check": "astro check",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
