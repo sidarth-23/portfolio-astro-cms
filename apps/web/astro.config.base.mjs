@@ -1,7 +1,6 @@
 import { defineConfig, envField } from "astro/config";
 import { fileURLToPath } from "node:url";
 import { loadEnv } from "vite";
-import qwikdev from "@qwik.dev/astro";
 import sitemap from "@astrojs/sitemap";
 import tailwindcss from "@tailwindcss/vite";
 
@@ -17,17 +16,18 @@ export function createBaseWebConfig(adapter, extraConfig = {}) {
     compressHTML: true,
     env: {
       schema: {
-        PAYLOAD_PUBLIC_SERVER_URL: envField.string({ context: "server", access: "public" }),
+        PAYLOAD_PUBLIC_SERVER_URL: envField.string({
+          context: "server",
+          access: "public",
+          default: "https://cms.sidshub.in",
+        }),
         PAYLOAD_API_KEY: envField.string({ context: "server", access: "secret" }),
       },
     },
     adapter,
-    integrations: [sitemap(), qwikdev({ include: "**/qwik/*" })],
+    integrations: [sitemap()],
     vite: {
       plugins: [tailwindcss()],
-      define: {
-        __EXPERIMENTAL__: "{ suspense: false, errorBoundary: false }",
-      },
       ssr: {
         noExternal: ["@sidshub/icon-catalog"],
       },

@@ -7,7 +7,6 @@ import type { Media } from "@sidshub/cms/payload-types";
 import { getHeroImageSources } from "@/lib/cms/responsive-image";
 import { cmsClient } from "@/lib/cms";
 import type { SeriesAdjacentPost } from "@/lib/types";
-import { RichTextInteractions } from "@/lib/rich-text/qwik/RichTextInteractions";
 
 type Props = {
   title: string;
@@ -159,6 +158,10 @@ const hasHeroTopSlot = Astro.slots.has("heroTop");
       <PhList size={20} />
     </label>
   </div>
-
-  <RichTextInteractions />
 </BaseLayout>
+
+<script>
+  import { initRichTextInteractions } from "@/lib/rich-text/html/client";
+
+  initRichTextInteractions();
+</script>
