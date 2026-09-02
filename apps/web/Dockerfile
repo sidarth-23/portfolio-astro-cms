@@ -14,12 +14,13 @@ COPY --from=pruner /app/out/json/ .
 COPY --from=pruner /app/out/json/bun.lock ./bun.lock
 RUN bun install --frozen-lockfile --ignore-scripts
 
-# App build stage (Bun)
-FROM base AS builder
+FROM node:22-slim AS builder
 WORKDIR /app
+COPY --from=base /usr/local/bin/bun /usr/local/bin/bun
 COPY --from=deps /app/node_modules ./node_modules
 COPY --from=pruner /app/out/full/ .
 COPY --from=pruner /app/out/json/bun.lock ./bun.lock
+RUN bun install --frozen-lockfile --ignore-scripts
 ARG ASTRO_SITE_URL
 ARG PAYLOAD_SECRET
 ARG PAYLOAD_PUBLIC_SERVER_URL
@@ -47,7 +48,7 @@ ENV S3_ENDPOINT=${S3_ENDPOINT}
 ENV S3_PUBLIC_URL=${S3_PUBLIC_URL}
 ENV S3_ACCESS_KEY_ID=${S3_ACCESS_KEY_ID}
 ENV S3_SECRET_ACCESS_KEY=${S3_SECRET_ACCESS_KEY}
-RUN --mount=type=cache,id=sidshub-turbo-web,target=/app/.turbo bunx turbo run build --filter=@sidshub/web...
+RUN --mount=type=cache,id=sidshub-turbo-web,target=/app/.turbo ./node_modules/.bin/turbo run build --filter=@sidshub/web
 
 # Runtime stage (Bun alpine, non-root)
 FROM oven/bun:1.3.6-alpine AS runtime

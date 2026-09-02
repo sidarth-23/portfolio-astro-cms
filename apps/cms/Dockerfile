@@ -21,6 +21,7 @@ COPY --from=base /usr/local/bin/bun /usr/local/bin/bun
 COPY --from=deps /app/node_modules ./node_modules
 COPY --from=pruner /app/out/full/ .
 COPY --from=pruner /app/out/json/bun.lock ./bun.lock
+RUN bun install --frozen-lockfile --ignore-scripts
 ENV NODE_ENV=production
 ENV SKIP_ENV_VALIDATION=1
 RUN --mount=type=cache,id=sidshub-turbo-cms,target=/app/.turbo ./node_modules/.bin/turbo run build --filter=@sidshub/cms...

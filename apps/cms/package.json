@@ -7,7 +7,7 @@
     "./payload-types": "./src/payload-types.ts"
   },
   "scripts": {
-    "prepare:admin-artifacts": "cross-env NODE_OPTIONS=--no-deprecation SKIP_ENV_VALIDATION=1 payload generate:importmap",
+    "prepare:admin-artifacts": "cross-env NODE_OPTIONS=--no-deprecation SKIP_ENV_VALIDATION=1 tsx ../../node_modules/payload/bin.js --disable-transpile generate:importmap",
     "prebuild": "npm run prepare:admin-artifacts",
     "clean:next": "rm -rf .next",
     "dev": "npm run clean:next && cross-env NODE_OPTIONS=--no-deprecation next dev -p 3000",
