@@ -28,14 +28,21 @@ if (config.workers_dev !== true) {
   fail("generated config must enable workers_dev");
 }
 
-if (JSON.stringify(config.routes) !== JSON.stringify([
-  { pattern: "archive-portfolio.sidshub.in", custom_domain: true },
-])) {
+if (
+  JSON.stringify(config.routes) !==
+  JSON.stringify([{ pattern: "archive-portfolio.sidshub.in", custom_domain: true }])
+) {
   fail("generated config routes must contain exactly the archive-portfolio custom domain");
 }
 
 if (config.observability?.enabled !== true) {
   fail("generated config must enable observability");
+}
+if (config.observability?.logs?.invocation_logs !== true) {
+  fail("generated config must enable persistent invocation logs");
+}
+if (config.observability?.logs?.persist !== true) {
+  fail("generated config must persist invocation logs");
 }
 
 if (typeof config.main !== "string") {
@@ -59,19 +66,24 @@ const assetsDirectory = resolve(serverDirectory, config.assets.directory);
 if (!existsSync(assetsDirectory)) {
   fail(`assets directory does not exist: ${config.assets.directory}`);
 }
-if (!existsSync(resolve(assetsDirectory, "index.html"))) {
+const rootDocument = resolve(assetsDirectory, "index.html");
+if (!existsSync(rootDocument)) {
   fail(`assets directory has no prerendered root document: ${config.assets.directory}`);
 }
+if (rootDocument !== resolve("apps/web/dist/client/index.html")) {
+  fail(`assets.directory must resolve to apps/web/dist/client, got ${assetsDirectory}`);
+}
 
-const kvBindings = new Set((config.kv_namespaces ?? []).map(({ binding }) => binding));
-if (!kvBindings.has("SESSION")) {
-  fail("generated config must expose SESSION in kv_namespaces");
+if (config.assets.binding !== "ASSETS") {
+  fail("generated config must expose ASSETS in assets.binding");
 }
 if (config.images?.binding !== "IMAGES") {
   fail("generated config must expose IMAGES in images.binding");
 }
-if (config.assets?.binding !== "ASSETS") {
-  fail("generated config must expose ASSETS in assets.binding");
+
+const kvBindings = new Set((config.kv_namespaces ?? []).map(({ binding }) => binding));
+if (kvBindings.has("SESSION")) {
+  fail("generated config must not expose SESSION in kv_namespaces");
 }
 
 const serializedConfig = JSON.stringify(config);
@@ -82,5 +94,6 @@ for (const obsoletePath of [".wrangler/deploy/config.json", "dist/client/ssr/wra
 }
 
 const assetCount = readdirSync(assetsDirectory).length;
-console.log(`Cloudflare output verified: ${config.name}, main=${config.main}, assets=${config.assets.directory}, files=${assetCount}`);
-
+console.log(
+  `Cloudflare output verified: ${config.name}, main=${config.main}, assets=${config.assets.directory}, files=${assetCount}`,
+);

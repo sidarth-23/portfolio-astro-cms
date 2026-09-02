@@ -30,6 +30,7 @@ export default defineConfig({
   },
   site: siteUrl,
   output: "static",
+  session: false,
   compressHTML: true,
   adapter: isCloudflare
     ? cloudflare({

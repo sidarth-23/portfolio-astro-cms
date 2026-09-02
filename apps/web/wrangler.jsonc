@@ -12,10 +12,6 @@
   ],
   "preview_urls": false,
   "keep_vars": true,
-  "assets": {
-    "directory": "./dist",
-    "binding": "ASSETS",
-  },
   "observability": {
     "enabled": true,
     "logs": {
