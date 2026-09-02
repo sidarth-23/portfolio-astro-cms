@@ -3,10 +3,9 @@ import { fileURLToPath } from "node:url";
 import { loadEnv } from "vite";
 import node from "@astrojs/node";
 import cloudflare from "@astrojs/cloudflare";
-import qwikdev from "@qwikdev/astro";
-import sitemap from "@astrojs/sitemap";
+import qwikdev from "@qwik.dev/astro";
 import tailwindcss from "@tailwindcss/vite";
-
+import sitemap from "@astrojs/sitemap";
 const mode = process.env.NODE_ENV === "production" ? "production" : "development";
 const loadedEnv = loadEnv(mode, fileURLToPath(new URL(".", import.meta.url)), "");
 
@@ -22,10 +21,14 @@ export default defineConfig({
   },
   site: siteUrl,
   output: "static",
+  compressHTML: true,
   adapter: isCloudflare ? cloudflare({ session: false }) : node({ mode: "standalone" }),
   integrations: [sitemap(), qwikdev({ include: "**/qwik/*" })],
   vite: {
     plugins: [tailwindcss()],
+    define: {
+      __EXPERIMENTAL__: "{ suspense: false, errorBoundary: false }",
+    },
     ssr: {
       noExternal: ["@sidshub/icon-catalog"],
     },

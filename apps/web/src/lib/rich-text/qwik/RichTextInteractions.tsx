@@ -1,5 +1,5 @@
-/** @jsxImportSource @builder.io/qwik */
-import { component$, useVisibleTask$ } from "@builder.io/qwik";
+/** @jsxImportSource @qwik.dev/core */
+import { component$, useVisibleTask$ } from "@qwik.dev/core";
 import { initRichTextInteractions } from "@/lib/rich-text/html/client";
 
 export const RichTextInteractions = component$(() => {
