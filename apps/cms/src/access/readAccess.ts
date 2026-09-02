@@ -5,6 +5,9 @@ export const isAdminUser = (user: { role?: "admin" | "web-build" } | null | unde
 
 export const adminAccess: Access = ({ req }) => Boolean(req.user && isAdminUser(req.user));
 
+export const userReadAccess: Access = ({ id, req }) =>
+  Boolean(req.user && (isAdminUser(req.user) || req.user.id === id));
+
 export const publishedReadAccess: Access = ({ req }) =>
   req.user && isAdminUser(req.user) ? true : { _status: { equals: "published" } };
 

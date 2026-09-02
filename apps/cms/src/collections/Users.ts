@@ -1,4 +1,4 @@
-import { adminAccess } from "@cms/access/readAccess";
+import { adminAccess, userReadAccess } from "@cms/access/readAccess";
 import type { CollectionConfig, Condition, PayloadRequest } from "payload";
 import { createBasicRichTextEditor } from "@cms/lib/editor";
 import {
@@ -45,7 +45,7 @@ export const Users: CollectionConfig = {
   slug: "users",
   access: {
     create: adminAccess,
-    read: adminAccess,
+    read: userReadAccess,
     update: adminAccess,
     delete: adminAccess,
   },
