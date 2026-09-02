@@ -8,6 +8,9 @@
       "inputs": ["$TURBO_DEFAULT$", "!README.md", "!Dockerfile", "!**/*.md", "!**/*.mdx"],
       "outputs": ["dist/**"]
     },
+    "@sidshub/icon-catalog#build": {
+      "outputs": ["dist/**", "src/generated/phosphorSvgMap.ts"]
+    },
     "dev": {
       "cache": false,
       "persistent": true
