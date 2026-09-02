@@ -1,7 +1,6 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "sidshub-web",
-  "main": "./dist/server/entry.mjs",
   "compatibility_date": "2026-09-02",
   "compatibility_flags": ["nodejs_compat"],
   "assets": {
