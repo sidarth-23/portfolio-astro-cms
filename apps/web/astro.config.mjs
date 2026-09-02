@@ -22,7 +22,13 @@ export default defineConfig({
   site: siteUrl,
   output: "static",
   compressHTML: true,
-  adapter: isCloudflare ? cloudflare({ session: false }) : node({ mode: "standalone" }),
+  adapter: isCloudflare
+    ? cloudflare({
+        session: false,
+        configPath: "./wrangler.jsonc",
+        prerenderEnvironment: "node",
+      })
+    : node({ mode: "standalone" }),
   integrations: [sitemap(), qwikdev({ include: "**/qwik/*" })],
   vite: {
     plugins: [tailwindcss()],

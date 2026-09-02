@@ -15,6 +15,7 @@
     "dev": "turbo run dev",
     "build": "turbo run build",
     "build:web": "turbo run build --filter=@sidshub/web",
+    "deploy:web": "turbo run build --filter=@sidshub/web && bunx wrangler deploy --config apps/web/wrangler.jsonc",
     "build:cms": "turbo run build --filter=@sidshub/cms",
     "check": "turbo run check",
     "payload:types": "turbo run generate:types --filter=@sidshub/cms",
@@ -47,6 +48,7 @@
     "prettier-plugin-astro": "^0.14.1",
     "simple-git-hooks": "^2.13.1",
     "tsdown": "^0.16.6",
-    "turbo": "^2.5.8"
+    "turbo": "^2.5.8",
+    "wrangler": "^4.125.0"
   }
 }
