@@ -8,10 +8,19 @@ import tailwindcss from "@tailwindcss/vite";
 import sitemap from "@astrojs/sitemap";
 const mode = process.env.NODE_ENV === "production" ? "production" : "development";
 const loadedEnv = loadEnv(mode, fileURLToPath(new URL(".", import.meta.url)), "");
-
-const siteUrl = loadedEnv.ASTRO_SITE_URL || process.env.ASTRO_SITE_URL || "http://localhost:4321";
 const isCloudflare = process.env.CF_PAGES === "1" || process.env.DEPLOY_TARGET === "cloudflare";
+const environment = { ...loadedEnv, ...process.env };
 
+if (isCloudflare) {
+  if (!environment.PAYLOAD_API_KEY) {
+    throw new Error("PAYLOAD_API_KEY must be set for a Cloudflare build");
+  }
+  process.env.ASTRO_SITE_URL ??= environment.ASTRO_SITE_URL || "https://www.sidshub.in";
+  process.env.PAYLOAD_PUBLIC_SERVER_URL ??=
+    environment.PAYLOAD_PUBLIC_SERVER_URL || "https://cms.sidshub.in";
+}
+
+const siteUrl = environment.ASTRO_SITE_URL || "http://localhost:4321";
 export default defineConfig({
   env: {
     schema: {

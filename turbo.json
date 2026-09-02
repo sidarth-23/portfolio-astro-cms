@@ -59,7 +59,8 @@
         "ASTRO_BUILD_CACHE_GLOBALS",
         "ASTRO_SITE_URL",
         "PAYLOAD_PUBLIC_SERVER_URL",
-        "PAYLOAD_API_KEY"
+        "PAYLOAD_API_KEY",
+        "DEPLOY_TARGET"
       ],
       "outputs": ["dist/**"]
     },
