@@ -5,8 +5,6 @@ import BlogPagination from "@/components/BlogPagination.astro";
 import BaseLayout from "@/layouts/BaseLayout.astro";
 import { cmsClient } from "@/lib/cms";
 
-export const prerender = true;
-
 const pageSize = 10;
 
 const [paginatedPosts, allCategories, blogPage] = await Promise.all([

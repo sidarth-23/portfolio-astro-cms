@@ -103,6 +103,8 @@ export default buildConfig({
   debug: true,
   editor: createBasicRichTextEditor(),
   serverURL: env.PAYLOAD_PUBLIC_SERVER_URL,
+  cors: [siteUrl, "https://*.pages.dev"],
+  csrf: [siteUrl, "https://*.pages.dev"],
   email: resendAdapter({
     apiKey: env.RESEND_API_KEY,
     defaultFromAddress: env.EMAIL_FROM_ADDRESS,

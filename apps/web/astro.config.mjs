@@ -2,6 +2,7 @@ import { defineConfig, envField } from "astro/config";
 import { fileURLToPath } from "node:url";
 import { loadEnv } from "vite";
 import node from "@astrojs/node";
+import cloudflare from "@astrojs/cloudflare";
 import qwikdev from "@qwikdev/astro";
 import sitemap from "@astrojs/sitemap";
 import tailwindcss from "@tailwindcss/vite";
@@ -10,6 +11,7 @@ const mode = process.env.NODE_ENV === "production" ? "production" : "development
 const loadedEnv = loadEnv(mode, fileURLToPath(new URL(".", import.meta.url)), "");
 
 const siteUrl = loadedEnv.ASTRO_SITE_URL || process.env.ASTRO_SITE_URL || "http://localhost:4321";
+const isCloudflare = process.env.CF_PAGES === "1" || process.env.DEPLOY_TARGET === "cloudflare";
 
 export default defineConfig({
   env: {
@@ -19,8 +21,8 @@ export default defineConfig({
     },
   },
   site: siteUrl,
-  output: "server",
-  adapter: node({ mode: "standalone" }),
+  output: "static",
+  adapter: isCloudflare ? cloudflare({ session: false }) : node({ mode: "standalone" }),
   integrations: [sitemap(), qwikdev({ include: "**/qwik/*" })],
   vite: {
     plugins: [tailwindcss()],

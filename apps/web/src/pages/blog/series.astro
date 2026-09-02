@@ -3,8 +3,6 @@ import { PhMagnifyingGlass } from "phosphor-icons-astro";
 import BaseLayout from "@/layouts/BaseLayout.astro";
 import { cmsClient } from "@/lib/cms";
 
-export const prerender = true;
-
 const [allSeries, blogPage] = await Promise.all([
   cmsClient.getAllSeriesWithPosts(),
   cmsClient.getBlogPage(),

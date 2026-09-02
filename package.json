@@ -14,6 +14,8 @@
   "scripts": {
     "dev": "turbo run dev",
     "build": "turbo run build",
+    "build:web": "turbo run build --filter=@sidshub/web",
+    "build:cms": "turbo run build --filter=@sidshub/cms",
     "check": "turbo run check",
     "payload:types": "turbo run generate:types --filter=@sidshub/cms",
     "lint": "turbo run lint",
