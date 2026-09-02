@@ -55,7 +55,12 @@
     "@sidshub/web#build": {
       "dependsOn": ["@sidshub/icon-catalog#build"],
       "inputs": ["$TURBO_DEFAULT$", "!README.md", "!Dockerfile", "!**/*.md", "!**/*.mdx"],
-      "env": ["ASTRO_BUILD_CACHE_GLOBALS", "ASTRO_SITE_URL"],
+      "env": [
+        "ASTRO_BUILD_CACHE_GLOBALS",
+        "ASTRO_SITE_URL",
+        "PAYLOAD_PUBLIC_SERVER_URL",
+        "PAYLOAD_API_KEY"
+      ],
       "outputs": ["dist/**"]
     },
     "@sidshub/cms#build": {

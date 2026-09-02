@@ -2,7 +2,7 @@ import type { GlobalConfig } from "payload";
 
 import { resumeLinkFields } from "@cms/fields/resumeLink";
 import { linkFields } from "@cms/fields/link";
-import { publicReadAccess } from "@cms/access/readAccess";
+import { adminAccess, publicReadAccess } from "@cms/access/readAccess";
 import { createPayloadDataSchemaHook, siteSettingsSchema } from "@cms/lib/validation";
 
 export const SiteSettings: GlobalConfig = {
@@ -10,6 +10,9 @@ export const SiteSettings: GlobalConfig = {
   label: "Site Settings",
   access: {
     read: publicReadAccess,
+    create: adminAccess,
+    update: adminAccess,
+    delete: adminAccess,
   },
   admin: {
     group: "Site",

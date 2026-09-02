@@ -1,7 +1,7 @@
 import type { Field, GlobalConfig } from "payload";
 import { createBasicRichTextEditor } from "@cms/lib/editor";
 
-import { publicReadAccess } from "@cms/access/readAccess";
+import { adminAccess, publicReadAccess } from "@cms/access/readAccess";
 import { iconPickerField } from "@cms/lib/icons/field";
 import {
   CV_ITEMS_VARIANT_OPTIONS,
@@ -122,6 +122,9 @@ export const CvPage: GlobalConfig = {
   label: "CV Page",
   access: {
     read: publicReadAccess,
+    create: adminAccess,
+    update: adminAccess,
+    delete: adminAccess,
   },
   admin: {
     group: "Pages",

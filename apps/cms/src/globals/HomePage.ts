@@ -1,7 +1,7 @@
 import type { GlobalConfig } from "payload";
 import { createBasicRichTextEditor } from "@cms/lib/editor";
 
-import { publicReadAccess } from "@cms/access/readAccess";
+import { adminAccess, publicReadAccess } from "@cms/access/readAccess";
 import { featuredSectionFields } from "@cms/fields/featured";
 import { linkField } from "@cms/fields/link";
 import { HOME_CTA_VARIANT_OPTIONS } from "@cms/lib/content";
@@ -12,6 +12,9 @@ export const HomePage: GlobalConfig = {
   label: "Home Page",
   access: {
     read: publicReadAccess,
+    create: adminAccess,
+    update: adminAccess,
+    delete: adminAccess,
   },
   admin: {
     group: "Pages",

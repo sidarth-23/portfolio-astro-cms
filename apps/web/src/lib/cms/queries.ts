@@ -1,4 +1,5 @@
-import type { CollectionSlug, Payload, Where } from "payload";
+import type { PayloadSDK } from "@payloadcms/sdk";
+import type { Where } from "payload";
 import type {
   BlogPage,
   Category,
@@ -11,11 +12,12 @@ import type {
   SeriesPage,
   SiteSetting,
 } from "@sidshub/cms/payload-types";
+import type { Config } from "@sidshub/cms/payload-types";
 import { cmsCache, cmsSearchCacheTtl, type CmsCache } from "./cache";
 import { isRelationID, type RelationID } from "./relations";
 import type { PaginatedPosts, PostFilterOptions, PublishedPostsQueryOptions } from "./types";
 
-export type CmsQueryOperations = Pick<Payload, "find" | "findGlobal" | "count">;
+export type CmsQueryOperations = Pick<PayloadSDK<Config>, "find" | "findGlobal" | "count">;
 
 type TaxonomyDoc = { id: RelationID; slug?: string | null };
 type SeriesLookupDoc = TaxonomyDoc & Pick<Series, "posts">;
@@ -41,7 +43,7 @@ export function createCmsQueries(query: CmsQueryOperations, cache: CmsCache = cm
     depth = 0,
   ): Promise<TDoc | null> => {
     const response = await query.find({
-      collection: collection as CollectionSlug,
+      collection,
       where: { slug: { equals: slug } },
       depth,
       limit: 1,

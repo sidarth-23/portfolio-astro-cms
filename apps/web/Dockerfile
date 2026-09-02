@@ -1,4 +1,4 @@
-# syntax=docker/dockerfile:1.7
+# syntax=docker/dockerfile:1.10
 
 FROM oven/bun:1.3.6 AS base
 WORKDIR /app
@@ -22,33 +22,12 @@ COPY --from=pruner /app/out/full/ .
 COPY --from=pruner /app/out/json/bun.lock ./bun.lock
 RUN bun install --frozen-lockfile --ignore-scripts
 ARG ASTRO_SITE_URL
-ARG PAYLOAD_SECRET
 ARG PAYLOAD_PUBLIC_SERVER_URL
-ARG DATABASE_URI
-ARG RESEND_API_KEY
-ARG EMAIL_FROM_ADDRESS
-ARG EMAIL_FROM_NAME
-ARG S3_BUCKET
-ARG S3_REGION
-ARG S3_ENDPOINT
-ARG S3_PUBLIC_URL
-ARG S3_ACCESS_KEY_ID
-ARG S3_SECRET_ACCESS_KEY
 ENV ASTRO_SITE_URL=${ASTRO_SITE_URL}
-ENV PAYLOAD_SECRET=${PAYLOAD_SECRET}
 ENV PAYLOAD_PUBLIC_SERVER_URL=${PAYLOAD_PUBLIC_SERVER_URL}
-ENV DATABASE_URI=${DATABASE_URI}
-ENV RESEND_API_KEY=${RESEND_API_KEY}
-ENV SKIP_ENV_VALIDATION=1
-ENV EMAIL_FROM_ADDRESS=${EMAIL_FROM_ADDRESS}
-ENV EMAIL_FROM_NAME=${EMAIL_FROM_NAME}
-ENV S3_BUCKET=${S3_BUCKET}
-ENV S3_REGION=${S3_REGION}
-ENV S3_ENDPOINT=${S3_ENDPOINT}
-ENV S3_PUBLIC_URL=${S3_PUBLIC_URL}
-ENV S3_ACCESS_KEY_ID=${S3_ACCESS_KEY_ID}
-ENV S3_SECRET_ACCESS_KEY=${S3_SECRET_ACCESS_KEY}
-RUN --mount=type=cache,id=sidshub-turbo-web,target=/app/.turbo ./node_modules/.bin/turbo run build --filter=@sidshub/web
+RUN --mount=type=secret,id=PAYLOAD_API_KEY,env=PAYLOAD_API_KEY \
+  --mount=type=cache,id=sidshub-turbo-web,target=/app/.turbo \
+  ./node_modules/.bin/turbo run build --filter=@sidshub/web
 
 # Runtime stage (Bun alpine, non-root)
 FROM oven/bun:1.3.6-alpine AS runtime

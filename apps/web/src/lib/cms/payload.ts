@@ -1,16 +1,16 @@
-import config from "@sidshub/cms/payload-config";
-import { getPayload, type Payload } from "payload";
+import { PayloadSDK } from "@payloadcms/sdk";
+import type { Config } from "@sidshub/cms/payload-types";
+import { PAYLOAD_API_KEY, PAYLOAD_PUBLIC_SERVER_URL } from "astro:env/server";
 
-let cachedPayload: Promise<Payload> | null = null;
+const baseURL = `${PAYLOAD_PUBLIC_SERVER_URL.replace(/\/+$/, "")}/api`;
 
-/** Load the CMS configuration for server-side queries. */
-export function getCmsPayload(): Promise<Payload> {
-  if (!cachedPayload) {
-    cachedPayload = getPayload({ config }).catch((error: unknown) => {
-      cachedPayload = null;
-      throw error;
-    });
-  }
+export const cmsClient = new PayloadSDK<Config>({
+  baseURL,
+  baseInit: {
+    headers: {
+      Authorization: `users API-Key ${PAYLOAD_API_KEY}`,
+    },
+  },
+});
 
-  return cachedPayload;
-}
+export const cmsMediaBaseUrl = PAYLOAD_PUBLIC_SERVER_URL.replace(/\/+$/, "");

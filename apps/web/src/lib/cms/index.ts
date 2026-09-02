@@ -1,4 +1,4 @@
-import { getCmsPayload } from "./payload";
+import { cmsClient as cmsPayloadClient, cmsMediaBaseUrl as cmsMediaBaseURL } from "./payload";
 import { createMediaUrlResolver, createMediaSizeUrlResolver } from "./media";
 import { cmsCache } from "./cache";
 import { createCmsQueries } from "./queries";
@@ -21,16 +21,11 @@ import {
   tagsFromProject,
 } from "./helpers";
 
-const payload = await getCmsPayload();
-const mediaBaseUrl =
-  payload.config.serverURL ??
-  process.env.S3_PUBLIC_URL ??
-  process.env.PAYLOAD_PUBLIC_SERVER_URL ??
-  "";
+const mediaBaseUrl = cmsMediaBaseURL;
 const siteUrl = typeof import.meta.env.SITE === "string" ? import.meta.env.SITE : undefined;
 const mediaToUrl = createMediaUrlResolver(mediaBaseUrl);
 const mediaSizeUrl = createMediaSizeUrlResolver(mediaBaseUrl);
-const queries = createCmsQueries(payload, cmsCache);
+const queries = createCmsQueries(cmsPayloadClient, cmsCache);
 
 export const cmsClient = {
   ...queries,
@@ -56,7 +51,7 @@ export const cmsClient = {
   subtitleFromCvItem,
   resolvedBadgeGroupsFromCvSection,
 };
-export const cmsMediaBaseUrl = mediaBaseUrl;
+export { cmsMediaBaseURL as cmsMediaBaseUrl };
 
 export type {
   TagInfo,

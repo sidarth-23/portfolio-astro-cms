@@ -1,5 +1,5 @@
 import type { CollectionConfig } from "payload";
-import { publicReadAccess } from "@cms/access/readAccess";
+import { adminAccess, publicReadAccess } from "@cms/access/readAccess";
 import { slugField } from "@cms/fields/slug";
 import { createPayloadDataSchemaHook, categoriesSchema } from "@cms/lib/validation";
 
@@ -7,6 +7,9 @@ export const Categories: CollectionConfig = {
   slug: "categories",
   access: {
     read: publicReadAccess,
+    create: adminAccess,
+    update: adminAccess,
+    delete: adminAccess,
   },
   admin: {
     useAsTitle: "name",

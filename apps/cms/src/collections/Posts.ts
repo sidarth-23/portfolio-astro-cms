@@ -1,6 +1,6 @@
 import type { CollectionConfig } from "payload";
 import { createBasicRichTextEditor, createDocumentRichTextEditor } from "@cms/lib/editor";
-import { publishedReadAccess } from "@cms/access/readAccess";
+import { adminAccess, publishedReadAccess } from "@cms/access/readAccess";
 import { populateAuthors } from "@cms/hooks/populateAuthors";
 import { populateSeries } from "@cms/hooks/populateSeries";
 import { slugField } from "@cms/fields/slug";
@@ -10,6 +10,9 @@ export const Posts: CollectionConfig = {
   slug: "posts",
   access: {
     read: publishedReadAccess,
+    create: adminAccess,
+    update: adminAccess,
+    delete: adminAccess,
   },
   admin: {
     useAsTitle: "title",

@@ -1,6 +1,6 @@
 import type { CollectionConfig } from "payload";
 import { createDocumentRichTextEditor } from "@cms/lib/editor";
-import { publishedReadAccess } from "@cms/access/readAccess";
+import { adminAccess, publishedReadAccess } from "@cms/access/readAccess";
 import { iconPickerField } from "@cms/lib/icons/field";
 import { linkFields } from "@cms/fields/link";
 import { slugField } from "@cms/fields/slug";
@@ -10,6 +10,9 @@ export const Projects: CollectionConfig = {
   slug: "projects",
   access: {
     read: publishedReadAccess,
+    create: adminAccess,
+    update: adminAccess,
+    delete: adminAccess,
   },
   admin: {
     useAsTitle: "title",

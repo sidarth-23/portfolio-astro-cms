@@ -1,5 +1,6 @@
 import type { AllowList, CollectionConfig } from "payload";
 import { createMinimalRichTextEditor } from "@cms/lib/editor";
+import { adminAccess } from "@cms/access/readAccess";
 
 export const mediaPasteUrlAllowList: AllowList = [
   { hostname: "sidshub.in", protocol: "https" },
@@ -100,6 +101,9 @@ export const Media: CollectionConfig = {
   },
   access: {
     read: () => true,
+    create: adminAccess,
+    update: adminAccess,
+    delete: adminAccess,
   },
   admin: {
     useAsTitle: "alt",

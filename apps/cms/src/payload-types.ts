@@ -162,6 +162,7 @@ export interface UserAuthOperations {
  */
 export interface User {
   id: string;
+  role: 'admin' | 'web-build';
   name: string;
   bio?: {
     root: {
@@ -745,6 +746,7 @@ export interface PayloadMigration {
  * via the `definition` "users_select".
  */
 export interface UsersSelect<T extends boolean = true> {
+  role?: T;
   name?: T;
   bio?: T;
   avatar?: T;

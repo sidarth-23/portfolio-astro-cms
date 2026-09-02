@@ -1,3 +1,4 @@
+import { adminAccess } from "@cms/access/readAccess";
 import type { CollectionConfig, Condition, PayloadRequest } from "payload";
 import { createBasicRichTextEditor } from "@cms/lib/editor";
 import {
@@ -43,7 +44,10 @@ const getAdminURL = (req: PayloadRequest | undefined, token: string): string => 
 export const Users: CollectionConfig = {
   slug: "users",
   access: {
-    create: ({ req }) => Boolean(req.user),
+    create: adminAccess,
+    read: adminAccess,
+    update: adminAccess,
+    delete: adminAccess,
   },
   hooks: {
     beforeValidate: [
@@ -82,6 +86,16 @@ export const Users: CollectionConfig = {
     group: "Admin",
   },
   fields: [
+    {
+      name: "role",
+      type: "select",
+      required: true,
+      defaultValue: "web-build",
+      options: [
+        { label: "Administrator", value: "admin" },
+        { label: "Web build", value: "web-build" },
+      ],
+    },
     {
       name: "name",
       type: "text",
