@@ -9,6 +9,7 @@
       "outputs": ["dist/**"]
     },
     "@sidshub/icon-catalog#build": {
+      "dependsOn": ["@sidshub/dev-config#build"],
       "outputs": ["dist/**", "src/generated/phosphorSvgMap.ts"]
     },
     "dev": {
