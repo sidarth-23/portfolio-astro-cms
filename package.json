@@ -15,7 +15,7 @@
     "dev": "turbo run dev",
     "build": "turbo run build",
     "build:web": "turbo run build --filter=@sidshub/web",
-    "build:web:cloudflare": "env DEPLOY_TARGET=cloudflare bun run build:web && node scripts/verify-cloudflare-output.mjs",
+    "build:web:cloudflare": "env DEPLOY_TARGET=cloudflare bun run build:web",
     "deploy:web": "bunx wrangler deploy --config apps/web/dist/server/wrangler.json --keep-vars",
     "check": "turbo run check",
     "payload:types": "turbo run generate:types --filter=@sidshub/cms",

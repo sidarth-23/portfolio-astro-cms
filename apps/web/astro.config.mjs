@@ -30,6 +30,7 @@ export default defineConfig({
   },
   site: siteUrl,
   output: "static",
+  build: { client: isCloudflare ? "./" : undefined },
   session: false,
   compressHTML: true,
   adapter: isCloudflare
