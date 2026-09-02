@@ -4,6 +4,12 @@
   "compatibility_date": "2026-09-02",
   "compatibility_flags": ["nodejs_compat"],
   "workers_dev": true,
+  "routes": [
+    {
+      "pattern": "archive-portfolio.sidshub.in",
+      "custom_domain": true,
+    },
+  ],
   "preview_urls": false,
   "keep_vars": true,
   "assets": {
@@ -11,8 +17,8 @@
     "binding": "ASSETS",
   },
   "observability": {
+    "enabled": true,
     "logs": {
-      "enabled": true,
       "invocation_logs": true,
       "persist": true,
     },

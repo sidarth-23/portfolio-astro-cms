@@ -1,5 +1,5 @@
 import { existsSync, readFileSync, readdirSync } from "node:fs";
-import { resolve } from "node:path";
+import { isAbsolute, resolve } from "node:path";
 
 const serverDirectory = resolve("apps/web/dist/server");
 const configPath = resolve(serverDirectory, "wrangler.json");
@@ -24,8 +24,25 @@ if (config.name !== "portfolio-astro-cms") {
   fail(`generated Worker name must be portfolio-astro-cms, got ${String(config.name)}`);
 }
 
+if (config.workers_dev !== true) {
+  fail("generated config must enable workers_dev");
+}
+
+if (JSON.stringify(config.routes) !== JSON.stringify([
+  { pattern: "archive-portfolio.sidshub.in", custom_domain: true },
+])) {
+  fail("generated config routes must contain exactly the archive-portfolio custom domain");
+}
+
+if (config.observability?.enabled !== true) {
+  fail("generated config must enable observability");
+}
+
 if (typeof config.main !== "string") {
   fail("generated config must define a main entrypoint");
+}
+if (isAbsolute(config.main)) {
+  fail("generated main entrypoint must be relative to dist/server");
 }
 const mainPath = resolve(serverDirectory, config.main);
 if (!existsSync(mainPath)) {
@@ -34,6 +51,9 @@ if (!existsSync(mainPath)) {
 
 if (typeof config.assets?.directory !== "string") {
   fail("generated config must define assets.directory");
+}
+if (isAbsolute(config.assets.directory)) {
+  fail("generated assets.directory must be relative to dist/server");
 }
 const assetsDirectory = resolve(serverDirectory, config.assets.directory);
 if (!existsSync(assetsDirectory)) {
@@ -63,3 +83,4 @@ for (const obsoletePath of [".wrangler/deploy/config.json", "dist/client/ssr/wra
 
 const assetCount = readdirSync(assetsDirectory).length;
 console.log(`Cloudflare output verified: ${config.name}, main=${config.main}, assets=${config.assets.directory}, files=${assetCount}`);
+
