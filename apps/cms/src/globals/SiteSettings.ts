@@ -10,9 +10,7 @@ export const SiteSettings: GlobalConfig = {
   label: "Site Settings",
   access: {
     read: publicReadAccess,
-    create: adminAccess,
     update: adminAccess,
-    delete: adminAccess,
   },
   admin: {
     group: "Site",

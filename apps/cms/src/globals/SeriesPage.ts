@@ -7,9 +7,7 @@ export const SeriesPage: GlobalConfig = {
   label: "Series Page",
   access: {
     read: publicReadAccess,
-    create: adminAccess,
     update: adminAccess,
-    delete: adminAccess,
   },
   admin: {
     group: "Pages",

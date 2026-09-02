@@ -7,9 +7,7 @@ export const BlogPage: GlobalConfig = {
   label: "Blog Page",
   access: {
     read: publicReadAccess,
-    create: adminAccess,
     update: adminAccess,
-    delete: adminAccess,
   },
   admin: {
     group: "Pages",

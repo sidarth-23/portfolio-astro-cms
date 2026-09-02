@@ -122,9 +122,7 @@ export const CvPage: GlobalConfig = {
   label: "CV Page",
   access: {
     read: publicReadAccess,
-    create: adminAccess,
     update: adminAccess,
-    delete: adminAccess,
   },
   admin: {
     group: "Pages",

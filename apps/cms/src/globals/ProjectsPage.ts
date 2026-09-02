@@ -59,9 +59,7 @@ export const ProjectsPage: GlobalConfig = {
   label: "Projects Page",
   access: {
     read: publicReadAccess,
-    create: adminAccess,
     update: adminAccess,
-    delete: adminAccess,
   },
   admin: {
     group: "Pages",
